@@ -1,7 +1,11 @@
 
-export class CreateContractsDto {
 
-number: string;
+
+
+
+
+export class CreateContractsDto {
+  number: string;
 type: string;
 partner: string;
 status: string;

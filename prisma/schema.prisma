@@ -3,9 +3,9 @@
 // npx prisma migrate dev --name init
 
 generator nestjsDto {
-provider = "prisma-generator-nestjs-dto"
-output = "../src"
-outputToNestJsResourceStructure = "true"
+  provider                        = "prisma-generator-nestjs-dto"
+  output                          = "../src"
+  outputToNestJsResourceStructure = "true"
 }
 
 generator client {
@@ -18,9 +18,9 @@ datasource db {
 }
 
 model Contracte {
-  id    Int     @default(autoincrement()) @id
-  nr    String  @unique
-  client  String?
+  id     Int     @id @default(autoincrement())
+  nr     String  @unique
+  client String?
 }
 
 model ExtendedProfile {
@@ -65,23 +65,23 @@ enum Role {
 }
 
 model Contracts {
-  id      Int    @id @default(autoincrement())
-  number  String @unique
-  type    String
-  partner String
-  status  String
-  start   DateTime
-  end     DateTime
-  sign    DateTime
+  id         Int                @id @default(autoincrement())
+  number     String
+  type       String
+  partner    String
+  status     String
+  start      DateTime
+  end        DateTime
+  sign       DateTime
   completion DateTime
-  remarks String
-  contract ContractsDetails[]
+  remarks    String
+  contract   ContractsDetails[]
 }
 
 model ContractsDetails {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
-  itemid Int
-  contract     Contracts       @relation(fields: [contractId], references: [id])
+  id         Int       @id @default(autoincrement())
+  name       String
+  itemid     Int
+  contract   Contracts @relation(fields: [contractId], references: [id])
   contractId Int
 }

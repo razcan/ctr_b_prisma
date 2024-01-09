@@ -6,7 +6,6 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:5500', //the ip address of the frontend server
-
     ],
     methods: ["GET", "POST"],
     credentials: true,

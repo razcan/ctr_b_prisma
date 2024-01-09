@@ -1,6 +1,5 @@
 
   export class ConnectContractsDetailsDto {
-    id?: number;
-name?: string;
+    id: number;
   }
   
