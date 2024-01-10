@@ -2,7 +2,7 @@
 
 
 
-export class Category {
+export class Cashflow {
   id: number ;
 name: string ;
 }

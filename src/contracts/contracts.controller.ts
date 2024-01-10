@@ -5,6 +5,7 @@ import { CreateContractDto } from './dto/create-contract.dto';
 import { CreateContractsDto } from '../contracts/dto/create-contracts.dto'
 import { CreateContractsDetailsDto } from '../contractsDetails/dto/create-contractsDetails.dto'
 import { UpdateContractDto } from './dto/update-contract.dto';
+import { CreateCategoryDto } from '../category/dto/create-category.dto'
 import { Injectable } from '@nestjs/common';
 import { Contracts, ContractsDetails, Prisma } from '@prisma/client';
 
@@ -26,37 +27,21 @@ export class ContractsController {
   }
 
 
-  // @Post('total')
-  // async create(@Body()
-  // contractsDto: CreateContractDto, contractsDetailsDto: CreateContractsDetailsDto
-  // ) {
-  //   const contract: CreateContractsDto = await this.prisma.contracts.create
-  //     ({
-  //       data:
-  //       {
+  @Post('category')
+  async createCategory(@Body() data: Prisma.CategoryCreateInput): Promise<any> {
 
-  //         "number": "23AAA5",
-  //         "type": "Service5",
-  //         "partner": "Gigi Enterprise5",
-  //         "status": "Activ1",
-  //         "start": "1970-01-01T00:00:00.000Z",
-  //         "end": "1970-01-01T00:00:00.000Z",
-  //         "sign": "1970-01-01T00:00:00.000Z",
-  //         "completion": "1970-01-01T00:00:00.000Z",
-  //         "remarks": " e smecher ctr5"
-  //       },
-  //     })
-  //   const contractDetails: CreateContractsDetailsDto = await this.prisma.contractsDetails.create
-  //     ({
-  //       data:
-  //       {
-  //         "name": "detaliu",
-  //         "itemid": 5,
-  //         "contractId": 5
-  //       },
-  //     })
+    const rezult = this.prisma.category.create({
+      data,
+    });
+    return rezult;
+  }
 
-  // }
+  @Get('category')
+  async getAllCategory(@Body() data: Prisma.CategoryCreateInput): Promise<any> {
+    const rezult = await this.prisma.category.findMany()
+    return rezult;
+  }
+
 
   @Get()
   async findAll() {
@@ -90,16 +75,16 @@ export class ContractsController {
     return contracts;
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: number) {
+  // @Get(':id')
+  // async findOne(@Param('id') id: number) {
 
-    const user = await this.prisma.contracte.findUnique({
-      where: {
-        id: 2,
-      },
-    })
-    console.log(user);
-  }
+  //   const user = await this.prisma.contracte.findUnique({
+  //     where: {
+  //       id: 2,
+  //     },
+  //   })
+  //   console.log(user);
+  // }
 
   @Patch(':id')
   async update(@Param('id') id: number, @Body() updateContractDto: UpdateContractDto) {

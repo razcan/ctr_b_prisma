@@ -2,7 +2,7 @@
 
 
 
-export class Category {
+export class Department {
   id: number ;
 name: string ;
 }
