@@ -7,7 +7,7 @@ async function bootstrap() {
     origin: [
       'http://localhost:5500', //the ip address of the frontend server
     ],
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "DELETE", "PATCH"],
     credentials: true,
   });
 

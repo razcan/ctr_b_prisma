@@ -42,6 +42,16 @@ export class ContractsController {
     return rezult;
   }
 
+  @Delete('category/:id')
+  async remove(@Param('id') id: any) {
+    const category = await this.prisma.category.delete({
+      where: {
+        id: parseInt(id),
+      },
+    })
+    return category;
+  }
+
 
   @Get()
   async findAll() {
