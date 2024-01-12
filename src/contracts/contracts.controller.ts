@@ -53,6 +53,32 @@ export class ContractsController {
   }
 
 
+  @Post('department')
+  async createDepartment(@Body() data: Prisma.DepartmentCreateInput): Promise<any> {
+
+    const rezult = this.prisma.department.create({
+      data,
+    });
+    return rezult;
+  }
+
+  @Get('department')
+  async getAllDepartments(@Body() data: Prisma.DepartmentCreateInput): Promise<any> {
+    const rezult = await this.prisma.department.findMany()
+    return rezult;
+  }
+
+  @Delete('department/:id')
+  async removeDepartment(@Param('id') id: any) {
+    const department = await this.prisma.department.delete({
+      where: {
+        id: parseInt(id),
+      },
+    })
+    return department;
+  }
+
+
   @Get()
   async findAll() {
     // return this.contractsService.findAll();
