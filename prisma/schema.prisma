@@ -40,24 +40,44 @@ model Cashflow {
   name String @unique
 }
 
+model Item {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
+
+model CostCenter {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
+
+model Entity {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
+
 enum Role {
   USER
   ADMIN
 }
 
 model Contracts {
-  id         Int                @id @default(autoincrement())
-  number     String
-  type       String
-  partner    String
-  status     String
-  start      DateTime
-  end        DateTime
-  sign       DateTime
-  completion DateTime
-  remarks    String
-  category   String             @default("import")
-  contract   ContractsDetails[]
+  id          Int                @id @default(autoincrement())
+  number      String
+  type        String
+  partner     String
+  status      String
+  start       DateTime
+  end         DateTime
+  sign        DateTime
+  completion  DateTime
+  remarks     String
+  category    String             @default("import")
+  departament String             @default("default")
+  cashflow    String             @default("default")
+  item        String             @default("default")
+  costcenter  String             @default("default")
+  entity      String             @default("default")
+  contract    ContractsDetails[]
 }
 
 model ContractsDetails {

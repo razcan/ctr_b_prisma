@@ -14,5 +14,10 @@ sign: Date ;
 completion: Date ;
 remarks: string ;
 category: string ;
+departament: string ;
+cashflow: string ;
+item: string ;
+costcenter: string ;
+entity: string ;
 contract?: ContractsDetails[] ;
 }
