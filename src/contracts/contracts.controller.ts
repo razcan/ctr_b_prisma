@@ -1,4 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Contracts, ContractsDetails, Prisma } from '@prisma/client';
+
 import { PrismaService } from 'src/prisma.service';
 import { ContractsService } from './contracts.service';
 import { CreateContractsDto } from '../contracts/dto/create-contracts.dto'
@@ -6,7 +8,6 @@ import { CreateContractsDetailsDto } from '../contractsDetails/dto/create-contra
 import { UpdateContractDto } from './dto/update-contract.dto';
 import { CreateCategoryDto } from '../category/dto/create-category.dto'
 import { Injectable } from '@nestjs/common';
-import { Contracts, ContractsDetails, Prisma } from '@prisma/client';
 
 @Controller('contracts')
 export class ContractsController {
@@ -194,24 +195,24 @@ export class ContractsController {
     return contracts;
   }
 
-  @Get('a3b')
-  async findOnePlus() {
-    // return this.contractsService.findAll();
-    const contracts = await this.prisma.contracts.findMany(
-      {
-        where: {
-          partner: {
-            contains: 'a3b'
-          }
-        },
+  // @Get('a3b')
+  // async findOnePlus() {
+  //   // return this.contractsService.findAll();
+  //   const contracts = await this.prisma.contracts.findMany(
+  //     {
+  //       where: {
+  //         partner: {
+  //           contains: 'a3b'
+  //         }
+  //       },
 
-        include: {
-          contract: true, // Include the related posts
-        },
-      })
-    console.log(contracts);
-    return contracts;
-  }
+  //       include: {
+  //         contract: true, // Include the related posts
+  //       },
+  //     })
+  //   console.log(contracts);
+  //   return contracts;
+  // }
 
   // @Get(':id')
   // async findOne(@Param('id') id: number) {

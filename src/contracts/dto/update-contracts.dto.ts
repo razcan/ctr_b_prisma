@@ -7,7 +7,6 @@
 export class UpdateContractsDto {
   number?: string;
 type?: string;
-partner?: string;
 status?: string;
 start?: Date;
 end?: Date;
