@@ -57,6 +57,16 @@ export class NomenclaturesController {
     return result;
   }
 
+  @Get('persons/:partnerid')
+  async getPersonsByPartnerId(@Param('partnerid') partnerid: any) {
+    const persons = await this.prisma.persons.findMany({
+      where: {
+        partnerId: parseInt(partnerid),
+      },
+    })
+    return persons;
+  }
+
   @Post('address')
   async createAddress(@Body() data: Prisma.AddressCreateInput): Promise<any> {
     const result = this.prisma.address.create({
@@ -73,6 +83,24 @@ export class NomenclaturesController {
       },
     })
     return address;
+  }
+
+  @Post('bank')
+  async createBank(@Body() data: Prisma.BanksCreateInput): Promise<any> {
+    const result = this.prisma.banks.create({
+      data,
+    });
+    return result;
+  }
+
+  @Get('bank/:partnerid')
+  async getBanksByPartnerId(@Param('partnerid') partnerid: any) {
+    const banks = await this.prisma.banks.findMany({
+      where: {
+        partnerId: parseInt(partnerid),
+      },
+    })
+    return banks;
   }
 
   // @Get()
