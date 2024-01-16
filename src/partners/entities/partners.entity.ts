@@ -1,6 +1,7 @@
 
 import {Contracts} from '../../contracts/entities/contracts.entity'
 import {Persons} from '../../persons/entities/persons.entity'
+import {Address} from '../../address/entities/address.entity'
 
 
 export class Partners {
@@ -17,4 +18,5 @@ remarks: string ;
 contractsId: number  | null;
 Contracts?: Contracts[] ;
 Persons?: Persons[] ;
+Address?: Address[] ;
 }

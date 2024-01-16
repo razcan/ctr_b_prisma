@@ -57,6 +57,23 @@ export class NomenclaturesController {
     return result;
   }
 
+  @Post('address')
+  async createAddress(@Body() data: Prisma.AddressCreateInput): Promise<any> {
+    const result = this.prisma.address.create({
+      data,
+    });
+    return result;
+  }
+
+  @Get('address/:partnerid')
+  async getAddressByPartnerId(@Param('partnerid') partnerid: any) {
+    const address = await this.prisma.address.findMany({
+      where: {
+        partnerId: parseInt(partnerid),
+      },
+    })
+    return address;
+  }
 
   // @Get()
   // findAll() {
