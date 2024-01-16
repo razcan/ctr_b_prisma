@@ -67,6 +67,16 @@ export class NomenclaturesController {
     return persons;
   }
 
+  @Delete('persons/:personid')
+  async deletePersonId(@Param('personid') personid: any) {
+    const persons = await this.prisma.persons.delete({
+      where: {
+        id: parseInt(personid),
+      },
+    })
+    return persons;
+  }
+
   @Post('address')
   async createAddress(@Body() data: Prisma.AddressCreateInput): Promise<any> {
     const result = this.prisma.address.create({
