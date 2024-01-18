@@ -7,10 +7,10 @@ export class Persons {
 updateadAt: Date ;
 createdAt: Date ;
 name: string ;
-phone: string ;
-email: string ;
-legalrepresent: string ;
-role: string ;
+phone: string  | null;
+email: string  | null;
+legalrepresent: boolean  | null;
+role: string  | null;
 partner?: Partners ;
 partnerId: number ;
 }

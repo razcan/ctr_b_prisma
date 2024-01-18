@@ -67,6 +67,19 @@ export class NomenclaturesController {
     return persons;
   }
 
+  @Patch('persons/:personid')
+  async getUpdatePersonsByPersonId(@Body() data: Prisma.PersonsCreateInput, @Param('personid') personid: any): Promise<any> {
+    const persons = await this.prisma.persons.update({
+      where: {
+        id: parseInt(personid),
+      },
+      data: data,
+    })
+    return persons;
+  }
+
+
+
   @Delete('persons/:personid')
   async deletePersonId(@Param('personid') personid: any) {
     const persons = await this.prisma.persons.delete({

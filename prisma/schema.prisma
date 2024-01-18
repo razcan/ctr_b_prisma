@@ -112,10 +112,10 @@ model Persons {
   updateadAt     DateTime @updatedAt
   createdAt      DateTime @default(now())
   name           String
-  phone          String
-  email          String
-  legalrepresent String
-  role           String
+  phone          String?
+  email          String?
+  legalrepresent Boolean?
+  role           String?
   partner        Partners @relation(fields: [partnerId], references: [id])
   partnerId      Int
 }

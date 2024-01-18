@@ -8,6 +8,6 @@ export class UpdatePersonsDto {
   name?: string;
 phone?: string;
 email?: string;
-legalrepresent?: string;
+legalrepresent?: boolean;
 role?: string;
 }
