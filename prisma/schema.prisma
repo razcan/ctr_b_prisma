@@ -132,9 +132,9 @@ model Address {
   Street          String?
   Number          String?
   postalCode      String?
-  Status          String?
-  Default         String?
-  aggregate       String?
+  Status          Boolean?
+  Default         Boolean?
+  aggregate       Boolean?
   completeAddress String?
   partner         Partners @relation(fields: [partnerId], references: [id])
   partnerId       Int

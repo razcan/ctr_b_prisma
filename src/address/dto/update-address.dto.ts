@@ -13,8 +13,8 @@ City?: string;
 Street?: string;
 Number?: string;
 postalCode?: string;
-Status?: string;
-Default?: string;
-aggregate?: string;
+Status?: boolean;
+Default?: boolean;
+aggregate?: boolean;
 completeAddress?: string;
 }
