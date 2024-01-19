@@ -9,5 +9,5 @@ export class UpdateBanksDto {
 currency?: string;
 branch?: string;
 iban?: string;
-status?: string;
+status?: boolean;
 }

@@ -48,6 +48,17 @@ export class NomenclaturesController {
     return partner;
   }
 
+  @Delete('partners/:id')
+  async deletePartner(@Param('id') id: any) {
+    const partner = await this.prisma.partners.delete({
+      where: {
+        id: parseInt(id),
+      },
+    })
+    return partner;
+  }
+
+
 
   @Post('persons')
   async createPerson(@Body() data: Prisma.PersonsCreateInput): Promise<any> {
@@ -147,20 +158,26 @@ export class NomenclaturesController {
     return banks;
   }
 
-  // @Get()
-  // findAll() {
-  //   return this.nomenclaturesService.findAll();
-  // }
+  @Patch('bank/:bankid')
+  async getUpdateBank(@Body() data: Prisma.BanksCreateInput, @Param('bankid') bankid: any): Promise<any> {
+    const bank = await this.prisma.banks.update({
+      where: {
+        id: parseInt(bankid),
+      },
+      data: data,
+    })
+    return bank;
+  }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.nomenclaturesService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateNomenclatureDto: UpdateNomenclatureDto) {
-  //   return this.nomenclaturesService.update(+id, updateNomenclatureDto);
-  // }
+  @Delete('bank/:bankid')
+  async deleteBank(@Param('bankid') bankid: any) {
+    const bank = await this.prisma.banks.delete({
+      where: {
+        id: parseInt(bankid),
+      },
+    })
+    return bank;
+  }
 
   // @Delete(':id')
   // remove(@Param('id') id: string) {

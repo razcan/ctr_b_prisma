@@ -10,7 +10,7 @@ bank: string  | null;
 currency: string  | null;
 branch: string  | null;
 iban: string  | null;
-status: string  | null;
+status: boolean  | null;
 partner?: Partners ;
 partnerId: number ;
 }

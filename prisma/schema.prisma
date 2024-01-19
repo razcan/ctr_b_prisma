@@ -116,7 +116,7 @@ model Persons {
   email          String?
   legalrepresent Boolean?
   role           String?
-  partner        Partners @relation(fields: [partnerId], references: [id])
+  partner        Partners @relation(fields: [partnerId], references: [id], onDelete: Cascade)
   partnerId      Int
 }
 
@@ -136,7 +136,7 @@ model Address {
   Default         Boolean?
   aggregate       Boolean?
   completeAddress String?
-  partner         Partners @relation(fields: [partnerId], references: [id])
+  partner         Partners @relation(fields: [partnerId], references: [id], onDelete: Cascade)
   partnerId       Int
 }
 
@@ -148,7 +148,7 @@ model Banks {
   currency   String?
   branch     String?
   iban       String?
-  status     String?
-  partner    Partners @relation(fields: [partnerId], references: [id])
+  status     Boolean?
+  partner    Partners @relation(fields: [partnerId], references: [id], onDelete: Cascade)
   partnerId  Int
 }
