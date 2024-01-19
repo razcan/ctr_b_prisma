@@ -108,6 +108,27 @@ export class NomenclaturesController {
     return address;
   }
 
+  @Delete('address/:addressid')
+  async deleteAddressId(@Param('addressid') addressid: any) {
+    const address = await this.prisma.address.delete({
+      where: {
+        id: parseInt(addressid),
+      },
+    })
+    return address;
+  }
+
+  @Patch('address/:addressid')
+  async getUpdateAddressByAddressId(@Body() data: Prisma.AddressCreateInput, @Param('addressid') addressid: any): Promise<any> {
+    const adress = await this.prisma.address.update({
+      where: {
+        id: parseInt(addressid),
+      },
+      data: data,
+    })
+    return adress;
+  }
+
   @Post('bank')
   async createBank(@Body() data: Prisma.BanksCreateInput): Promise<any> {
     const result = this.prisma.banks.create({
