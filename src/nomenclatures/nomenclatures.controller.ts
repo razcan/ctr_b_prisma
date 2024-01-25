@@ -58,6 +58,17 @@ export class NomenclaturesController {
     return partner;
   }
 
+  @Patch('partners/:id')
+  async UpdatePartner(@Body() data: Prisma.PartnersCreateInput, @Param('id') id: any): Promise<any> {
+    const partner = await this.prisma.partners.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: data,
+    })
+    return partner;
+  }
+
 
 
   @Post('persons')
