@@ -13,4 +13,5 @@ end: Date;
 sign: Date;
 completion: Date;
 remarks: string;
+parentId?: number;
 }

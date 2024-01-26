@@ -1,5 +1,7 @@
 
   export class ConnectPersonsDto {
-    id: number;
+    id?: number;
+name?: string;
+email?: string;
   }
   

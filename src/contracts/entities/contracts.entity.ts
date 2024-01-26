@@ -1,6 +1,8 @@
 
-import {ContractsDetails} from '../../contractsDetails/entities/contractsDetails.entity'
 import {Partners} from '../../partners/entities/partners.entity'
+import {Persons} from '../../persons/entities/persons.entity'
+import {Address} from '../../address/entities/address.entity'
+import {Banks} from '../../banks/entities/banks.entity'
 
 
 export class Contracts {
@@ -18,8 +20,22 @@ departament: string ;
 cashflow: string ;
 item: string ;
 costcenter: string ;
-entity: string ;
-contract?: ContractsDetails[] ;
+automaticRenewal: boolean ;
 partner?: Partners  | null;
 partnersId: number  | null;
+entity?: Partners  | null;
+entityId: number  | null;
+parentId: number  | null;
+PartnerPerson?: Persons  | null;
+partnerpersonsId: number  | null;
+EntityPerson?: Persons  | null;
+entitypersonsId: number  | null;
+EntityAddress?: Address  | null;
+entityaddressId: number  | null;
+PartnerAddress?: Address  | null;
+partneraddressId: number  | null;
+EntityBank?: Banks  | null;
+entitybankId: number  | null;
+PartnerBank?: Banks  | null;
+partnerbankId: number  | null;
 }

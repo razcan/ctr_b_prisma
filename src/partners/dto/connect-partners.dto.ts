@@ -1,5 +1,8 @@
 
   export class ConnectPartnersDto {
-    id: number;
+    id?: number;
+name?: string;
+fiscal_code?: string;
+commercial_reg?: string;
   }
   

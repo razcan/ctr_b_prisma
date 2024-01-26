@@ -1,5 +1,6 @@
 
 import {Partners} from '../../partners/entities/partners.entity'
+import {Contracts} from '../../contracts/entities/contracts.entity'
 
 
 export class Address {
@@ -20,4 +21,6 @@ aggregate: boolean  | null;
 completeAddress: string  | null;
 partner?: Partners ;
 partnerId: number ;
+Contracts?: Contracts[] ;
+Entity?: Contracts[] ;
 }

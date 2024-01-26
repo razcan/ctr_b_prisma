@@ -25,11 +25,69 @@ export class NomenclaturesController {
   @Get('partners')
   async getAllPartners() {
     const partner = await this.prisma.partners.findMany(
-      //   {
-      //   include: {
-      //     Persons: true,
-      //   }
-      // }
+      {
+        where: {
+          type: {
+            in: ['Furnizor', 'Client']
+          }
+        },
+      }
+    )
+    return partner;
+  }
+
+  @Get('entity')
+  async getAllEntities() {
+    const partner = await this.prisma.partners.findMany(
+      {
+        where: {
+          type: {
+            in: ['Entitate']
+          }
+        },
+      }
+    )
+    return partner;
+  }
+
+
+  //returns only partners of type entity
+  @Get('partnersdetails/:id')
+  async getAllPartnersDetails(@Param('id') id: any) {
+
+    const partner = await this.prisma.partners.findMany(
+      {
+        include: {
+          Persons: true,
+          Address: true,
+          Banks: true
+        },
+        where: {
+          id: parseInt(id),
+          type: {
+            in: ['Furnizor', 'Client']
+          }
+        },
+      }
+    )
+    return partner;
+  }
+
+  //returns only partners of type entity
+  @Get('entitydetails/:id')
+  async getAllEntityDetails(@Param('id') id: any) {
+    const partner = await this.prisma.partners.findMany(
+      {
+        include: {
+          Persons: true,
+          Address: true,
+          Banks: true
+        },
+        where: {
+          id: parseInt(id),
+          type: "Entitate"
+        },
+      }
     )
     return partner;
   }

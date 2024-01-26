@@ -1,8 +1,8 @@
 
-import {Contracts} from '../../contracts/entities/contracts.entity'
 import {Persons} from '../../persons/entities/persons.entity'
 import {Address} from '../../address/entities/address.entity'
 import {Banks} from '../../banks/entities/banks.entity'
+import {Contracts} from '../../contracts/entities/contracts.entity'
 
 
 export class Partners {
@@ -17,8 +17,9 @@ type: string ;
 email: string ;
 remarks: string ;
 contractsId: number  | null;
-Contracts?: Contracts[] ;
 Persons?: Persons[] ;
 Address?: Address[] ;
 Banks?: Banks[] ;
+Contracts?: Contracts[] ;
+Entity?: Contracts[] ;
 }
