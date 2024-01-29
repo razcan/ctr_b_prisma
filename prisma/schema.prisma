@@ -1,6 +1,10 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 // npx prisma migrate dev --name init
+//  npx prisma studio   
+// https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding
+// de analizat cum este facut la parteneri - trebuie trimis partnersId adica categoryId ...
+//node prisma/seed.js si de adaugat in package.json   "type": "module",
 
 generator nestjsDto {
   provider                        = "prisma-generator-nestjs-dto"
@@ -26,33 +30,50 @@ model User {
 }
 
 model Category {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id         Int         @id @default(autoincrement())
+  name       String      @unique
+  contractId Contracts[]
 }
 
 model Department {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id         Int         @id @default(autoincrement())
+  name       String      @unique
+  contractId Contracts[]
 }
 
 model Cashflow {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id         Int         @id @default(autoincrement())
+  name       String      @unique
+  contractId Contracts[]
 }
 
 model Item {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id         Int         @id @default(autoincrement())
+  name       String      @unique
+  contractId Contracts[]
 }
 
 model CostCenter {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id         Int         @id @default(autoincrement())
+  name       String      @unique
+  contractId Contracts[]
 }
 
 model Entity {
   id   Int    @id @default(autoincrement())
   name String @unique
+}
+
+model ContractType {
+  id         Int         @id @default(autoincrement())
+  name       String      @unique
+  contractId Contracts[]
+}
+
+model ContractStatus {
+  id         Int         @id @default(autoincrement())
+  name       String      @unique
+  contractId Contracts[]
 }
 
 enum Role {
@@ -61,38 +82,45 @@ enum Role {
 }
 
 model Contracts {
-  id               Int       @id @default(autoincrement())
+  id               Int             @id @default(autoincrement())
   number           String
-  type             String
-  status           String
+  type             ContractType?   @relation(fields: [typeId], references: [id])
+  typeId           Int?            @default(1)
+  status           ContractStatus? @relation(fields: [statusId], references: [id])
+  statusId         Int?
   start            DateTime
   end              DateTime
   sign             DateTime
   completion       DateTime
   remarks          String
-  category         String    @default("import")
-  departament      String    @default("default")
-  cashflow         String    @default("default")
-  item             String    @default("default")
-  costcenter       String    @default("default")
-  automaticRenewal Boolean   @default(false)
+  Category         Category?       @relation(fields: [categoryId], references: [id])
+  categoryId       Int?            @default(1)
+  departament      Department?     @relation(fields: [departmentId], references: [id])
+  departmentId     Int?            @default(1)
+  cashflow         Cashflow?       @relation(fields: [cashflowId], references: [id])
+  cashflowId       Int             @default(1)
+  item             Item            @relation(fields: [itemId], references: [id])
+  itemId           Int             @default(1)
+  costcenter       CostCenter      @relation(fields: [costcenterId], references: [id])
+  costcenterId     Int             @default(1)
+  automaticRenewal Boolean         @default(false)
   // contract         ContractsDetails[]
-  partner          Partners? @relation("partner", fields: [partnersId], references: [id])
+  partner          Partners?       @relation("partner", fields: [partnersId], references: [id])
   partnersId       Int?
-  entity           Partners? @relation("entity", fields: [entityId], references: [id])
+  entity           Partners?       @relation("entity", fields: [entityId], references: [id])
   entityId         Int?
-  parentId         Int?      @default(0)
-  PartnerPerson    Persons?  @relation("partner", fields: [partnerpersonsId], references: [id])
+  parentId         Int?            @default(0)
+  PartnerPerson    Persons?        @relation("partner", fields: [partnerpersonsId], references: [id])
   partnerpersonsId Int?
-  EntityPerson     Persons?  @relation("entity", fields: [entitypersonsId], references: [id])
+  EntityPerson     Persons?        @relation("entity", fields: [entitypersonsId], references: [id])
   entitypersonsId  Int?
-  EntityAddress    Address?  @relation("entity", fields: [entityaddressId], references: [id])
+  EntityAddress    Address?        @relation("entity", fields: [entityaddressId], references: [id])
   entityaddressId  Int?
-  PartnerAddress   Address?  @relation("partner", fields: [partneraddressId], references: [id])
+  PartnerAddress   Address?        @relation("partner", fields: [partneraddressId], references: [id])
   partneraddressId Int?
-  EntityBank       Banks?    @relation("entity", fields: [entitybankId], references: [id])
+  EntityBank       Banks?          @relation("entity", fields: [entitybankId], references: [id])
   entitybankId     Int?
-  PartnerBank      Banks?    @relation("partner", fields: [partnerbankId], references: [id])
+  PartnerBank      Banks?          @relation("partner", fields: [partnerbankId], references: [id])
   partnerbankId    Int?
 }
 

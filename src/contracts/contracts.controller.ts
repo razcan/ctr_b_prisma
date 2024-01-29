@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus } from '@nestjs/common';
 import { Contracts, ContractsDetails, Prisma } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma.service';
@@ -147,12 +147,24 @@ export class ContractsController {
 
   @Delete('costcenter/:id')
   async removeCostCenter(@Param('id') id: any) {
-    const costCenter = await this.prisma.costCenter.delete({
-      where: {
-        id: parseInt(id),
-      },
-    })
-    return costCenter;
+    try {
+      const costCenter = await this.prisma.costCenter.delete({
+        where: {
+          id: parseInt(id),
+        },
+      })
+      return costCenter
+    }
+    catch (error) {
+      if (error.code === 'P2003') {
+        throw new HttpException({
+          status: HttpStatus.CONFLICT,
+          error: 'Foreign key constraint failed on the field.',
+        }, HttpStatus.CONFLICT, {
+          cause: error
+        });
+      }
+    }
   }
 
 
@@ -186,12 +198,34 @@ export class ContractsController {
   async findAll() {
     // return this.contractsService.findAll();
     const contracts = await this.prisma.contracts.findMany(
+      // {
+      //   include: {
+      //     contract: true, // Include the related posts
+      //   },
+      // }
+    )
+
+    return contracts;
+  }
+
+  @Get('details/:id')
+  async findContractById(@Param('id') id: any) {
+    const contracts = await this.prisma.contracts.findMany(
       {
         include: {
-          contract: true, // Include the related posts
+          costcenter: true,
+          partner: true,
+          item: true,
+          departament: true,
+          Category: true,
+          cashflow: true
         },
-      })
-    console.log(contracts);
+        where: {
+          id: parseInt(id),
+        },
+      }
+    )
+
     return contracts;
   }
 
@@ -231,8 +265,7 @@ export class ContractsController {
     const contract = await this.prisma.contracts.update({
       where: { id: +id },
       data: {
-        number: updateContractDto.number,
-        type: updateContractDto.type
+        number: updateContractDto.number
       },
     })
 

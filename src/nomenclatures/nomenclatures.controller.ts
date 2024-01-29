@@ -22,6 +22,19 @@ export class NomenclaturesController {
     return result;
   }
 
+  @Get('contracttype')
+  async getAllContractTypes() {
+    const contracttype = await this.prisma.contractType.findMany()
+    return contracttype;
+  }
+
+  @Get('contractstatus')
+  async getAllContractStatuses() {
+    const contractstatus = await this.prisma.contractStatus.findMany()
+    return contractstatus;
+  }
+
+
   @Get('partners')
   async getAllPartners() {
     const partner = await this.prisma.partners.findMany(
