@@ -156,10 +156,11 @@ export class ContractsController {
       return costCenter
     }
     catch (error) {
+      let field = error.meta.field_name
       if (error.code === 'P2003') {
         throw new HttpException({
           status: HttpStatus.CONFLICT,
-          error: 'Foreign key constraint failed on the field.',
+          error: `Foreign key constraint failed on the field.(${field})`,
         }, HttpStatus.CONFLICT, {
           cause: error
         });
@@ -196,13 +197,20 @@ export class ContractsController {
 
   @Get()
   async findAll() {
-    // return this.contractsService.findAll();
     const contracts = await this.prisma.contracts.findMany(
-      // {
-      //   include: {
-      //     contract: true, // Include the related posts
-      //   },
-      // }
+      {
+        include: {
+          costcenter: true,
+          partner: true,
+          entity: true,
+          item: true,
+          departament: true,
+          Category: true,
+          cashflow: true,
+          type: true,
+          status: true
+        },
+      }
     )
 
     return contracts;
@@ -214,11 +222,27 @@ export class ContractsController {
       {
         include: {
           costcenter: true,
-          partner: true,
+          entity: true,
+          partner: {
+            include:
+            {
+              Address: true
+            }
+          },
+          PartnerPerson: true,
+          EntityPerson: true,
+
+          EntityBank: true,
+          PartnerBank: true,
+
+          EntityAddress: true,
+          PartnerAddress: true,
           item: true,
           departament: true,
           Category: true,
-          cashflow: true
+          cashflow: true,
+          type: true,
+          status: true
         },
         where: {
           id: parseInt(id),

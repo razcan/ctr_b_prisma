@@ -5,6 +5,7 @@
 // https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding
 // de analizat cum este facut la parteneri - trebuie trimis partnersId adica categoryId ...
 //node prisma/seed.js si de adaugat in package.json   "type": "module",
+//erori https://www.prisma.io/docs/orm/reference/error-reference#error-codes
 
 generator nestjsDto {
   provider                        = "prisma-generator-nestjs-dto"
