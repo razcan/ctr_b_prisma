@@ -199,6 +199,22 @@ export class NomenclaturesController {
     return result;
   }
 
+  @Get('allbanks')
+  async getallBanks() {
+    const banks = await this.prisma.bank.findMany({
+    })
+    return banks;
+  }
+
+  @Get('allcurrencies')
+  async getallCurrencies() {
+    const currencies = await this.prisma.currency.findMany({
+    })
+    return currencies;
+  }
+
+
+
   @Get('address/:partnerid')
   async getAddressByPartnerId(@Param('partnerid') partnerid: any) {
     const address = await this.prisma.address.findMany({

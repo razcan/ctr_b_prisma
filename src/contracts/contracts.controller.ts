@@ -223,12 +223,14 @@ export class ContractsController {
         include: {
           costcenter: true,
           entity: true,
-          partner: {
-            include:
-            {
-              Address: true
-            }
-          },
+          partner: true
+          // {
+          //   include:
+          //   {
+          //     Address: true
+          //   }
+          // }
+          ,
           PartnerPerson: true,
           EntityPerson: true,
 
