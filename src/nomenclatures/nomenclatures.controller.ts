@@ -63,6 +63,14 @@ export class NomenclaturesController {
     return partner;
   }
 
+  @Get('allparties')
+  async getAllParties() {
+    const partner = await this.prisma.partners.findMany(
+      {}
+    )
+    return partner;
+  }
+
 
   //returns only partners of type entity
   @Get('partnersdetails/:id')
