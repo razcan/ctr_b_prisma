@@ -170,30 +170,32 @@ export class ContractsController {
 
 
 
-  @Post('entity')
+  @Post('type')
   async createEntity(@Body() data: Prisma.EntityCreateInput): Promise<any> {
 
-    const result = this.prisma.entity.create({
+    const result = this.prisma.contractType.create({
       data,
     });
     return result;
   }
 
-  @Get('entity')
+  @Get('type')
   async getEntity(@Body() data: Prisma.EntityCreateInput): Promise<any> {
-    const result = await this.prisma.entity.findMany()
+    const result = await this.prisma.contractType.findMany()
     return result;
   }
 
-  @Delete('entity/:id')
+  @Delete('type/:id')
   async removeEntity(@Param('id') id: any) {
-    const entity = await this.prisma.entity.delete({
+    const entity = await this.prisma.contractType.delete({
       where: {
         id: parseInt(id),
       },
     })
     return entity;
   }
+
+
 
   @Get()
   async findAll() {
