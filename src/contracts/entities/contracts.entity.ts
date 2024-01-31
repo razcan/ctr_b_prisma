@@ -10,6 +10,7 @@ import {Partners} from '../../partners/entities/partners.entity'
 import {Persons} from '../../persons/entities/persons.entity'
 import {Address} from '../../address/entities/address.entity'
 import {Banks} from '../../banks/entities/banks.entity'
+import {ContractAttachments} from '../../contractAttachments/entities/contractAttachments.entity'
 
 
 export class Contracts {
@@ -52,4 +53,6 @@ EntityBank?: Banks  | null;
 entitybankId: number  | null;
 PartnerBank?: Banks  | null;
 partnerbankId: number  | null;
+ContractAttachments?: ContractAttachments  | null;
+contractAttachmentsId: number  | null;
 }

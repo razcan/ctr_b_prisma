@@ -1,4 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus } from '@nestjs/common';
+
+import {
+  Controller, Get, Post, Body, Patch, Param, Header, HttpStatus,
+  Delete, UploadedFile, UploadedFiles, HttpException, HttpCode, Request, UseGuards, UsePipes, ValidationPipe
+} from '@nestjs/common';
 import { Contracts, ContractsDetails, Prisma } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma.service';
@@ -8,6 +12,12 @@ import { CreateContractsDetailsDto } from '../contractsDetails/dto/create-contra
 import { UpdateContractDto } from './dto/update-contract.dto';
 import { CreateCategoryDto } from '../category/dto/create-category.dto'
 import { Injectable } from '@nestjs/common';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import {
+  ParseFilePipeBuilder,
+  UseInterceptors,
+} from '@nestjs/common';
+import type { Response } from 'express';
 
 @Controller('contracts')
 export class ContractsController {
@@ -15,6 +25,31 @@ export class ContractsController {
     private readonly contractsService: ContractsService,
     private prisma: PrismaService
   ) { }
+
+
+  @Post('upload')
+  @UseInterceptors(FilesInterceptor('files'))
+  uploadFiles(
+    @Body() body: any,
+    @UploadedFile() files: Express.Multer.File,
+  ) {
+    console.log("files", files)
+  }
+
+
+
+  @UseInterceptors(FilesInterceptor('files'))
+  @Post('files')
+  uploadFile(
+    @Body() body: any,
+    @UploadedFile() files: Express.Multer.File,
+  ) {
+    return {
+      body,
+      // file: files.buffer.toString(),
+    };
+  }
+
 
   @Post()
   async createContract(@Body() data: Prisma.ContractsCreateInput): Promise<any> {
