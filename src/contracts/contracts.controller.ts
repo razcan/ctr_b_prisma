@@ -18,6 +18,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import type { Response } from 'express';
+import { Express } from 'express'
 
 @Controller('contracts')
 export class ContractsController {
@@ -29,25 +30,32 @@ export class ContractsController {
 
   @Post('upload')
   @UseInterceptors(FilesInterceptor('files'))
-  uploadFiles(
+  uploadFiles2(
     @Body() body: any,
     @UploadedFile() files: Express.Multer.File,
   ) {
     console.log("files", files)
   }
 
-
-
   @UseInterceptors(FilesInterceptor('files'))
-  @Post('files')
+  @Post('file')
   uploadFile(
     @Body() body: any,
     @UploadedFile() files: Express.Multer.File,
   ) {
     return {
-      body,
+      body, files
       // file: files.buffer.toString(),
     };
+  }
+
+  @Post('uploadm')
+  @UsePipes(new ValidationPipe({ transform: true })) // enable automatic validation and transformation
+  @UseInterceptors(FilesInterceptor('files'))
+  uploadFiles(
+    @UploadedFiles() files,
+  ) {
+    console.log("files", files)
   }
 
 
