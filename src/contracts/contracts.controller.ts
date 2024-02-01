@@ -1,7 +1,7 @@
 
 import {
   Controller, Get, Post, Body, Patch, Param, Header, HttpStatus,
-  Delete, UploadedFile, UploadedFiles, HttpException, HttpCode, Request, UseGuards, UsePipes, ValidationPipe
+  Delete, UploadedFile, UploadedFiles, HttpException, HttpCode, Request, UseGuards, UsePipes, ValidationPipe, Res
 } from '@nestjs/common';
 import { Contracts, ContractsDetails, Prisma } from '@prisma/client';
 
@@ -19,6 +19,9 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { Express } from 'express'
+import { createReadStream } from 'fs';
+import * as fs from 'fs';
+
 
 @Controller('contracts')
 export class ContractsController {
@@ -28,35 +31,55 @@ export class ContractsController {
   ) { }
 
 
-  @Post('upload')
+
+  @Post('file')
   @UseInterceptors(FilesInterceptor('files'))
-  uploadFiles2(
-    @Body() body: any,
-    @UploadedFile() files: Express.Multer.File,
+  uploadFiles(
+    @UploadedFiles() files: Express.Multer.File,
   ) {
-    console.log("files", files)
+    let data: any = files
+    const result = this.prisma.contractAttachments.createMany({
+      data,
+    });
+    return result;
+
   }
 
-  @UseInterceptors(FilesInterceptor('files'))
-  @Post('file')
-  uploadFile(
-    @Body() body: any,
-    @UploadedFile() files: Express.Multer.File,
-  ) {
-    return {
-      body, files
-      // file: files.buffer.toString(),
+  @Get('file')
+  async getAllFilesByContractId(): Promise<any> {
+    const result = await this.prisma.contractAttachments.findMany()
+    return result;
+  }
+
+  @Get('download/:filename')
+  downloadFile(@Param('filename') filename: string, @Res() res: Response) {
+    const folderPath = '/Users/razvanmustata/Projects/contracts/backend/Uploads/'
+    const fileStream = createReadStream(`${folderPath}/${filename}`);
+    fileStream.pipe(res);
+  }
+
+  @Delete('delete/:filename')
+  async deleteFile(@Param('filename') filename: string): Promise<any> {
+    try {
+      const folderPath = '/Users/razvanmustata/Projects/contracts/backend/Uploads/'
+      fs.unlinkSync(`${folderPath}/${filename}`);
+
+      const filedeleted = await this.prisma.contractAttachments.deleteMany(
+        {
+          where: {
+            filename: filename,
+          }
+        })
+
+      console.log(`File ${filename} deleted successfully.`);
+    } catch (err) {
+      console.error(`Error deleting file ${filename}: ${err.message}`);
     };
   }
 
-  @Post('uploadm')
-  @UsePipes(new ValidationPipe({ transform: true })) // enable automatic validation and transformation
-  @UseInterceptors(FilesInterceptor('files'))
-  uploadFiles(
-    @UploadedFiles() files,
-  ) {
-    console.log("files", files)
-  }
+
+  //trb facut si pt delete file
+
 
 
   @Post()

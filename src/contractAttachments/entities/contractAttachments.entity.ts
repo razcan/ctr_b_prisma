@@ -6,13 +6,13 @@ export class ContractAttachments {
   id: number ;
 updateadAt: Date ;
 createdAt: Date ;
-name: string ;
+fieldname: string ;
+originalname: string ;
+encoding: string ;
+mimetype: string ;
+destination: string ;
+filename: string ;
+path: string ;
 size: number ;
-lastModifiedDate: Date  | null;
-dbname: string  | null;
-path: string  | null;
-destination: string  | null;
-mimetype: string  | null;
-originalname: string  | null;
 contractId?: Contracts[] ;
 }
