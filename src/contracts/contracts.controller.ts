@@ -21,6 +21,7 @@ import type { Response } from 'express';
 import { Express } from 'express'
 import { createReadStream } from 'fs';
 import * as fs from 'fs';
+import * as path from 'path';
 
 
 @Controller('contracts')
@@ -51,11 +52,34 @@ export class ContractsController {
     return result;
   }
 
+  // @Get('download/:filename')
+  // downloadFile(@Param('filename') filename: string, @Res() res: Response) {
+  //   const folderPath = '/Users/razvanmustata/Projects/contracts/backend/Uploads/'
+  //   const fileStream = createReadStream(`${folderPath}/${filename}`);
+  //   res.setHeader('Content-Type', 'application/octet-stream');
+  //   res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+  //   fileStream.pipe(res);
+  // }
+
   @Get('download/:filename')
-  downloadFile(@Param('filename') filename: string, @Res() res: Response) {
-    const folderPath = '/Users/razvanmustata/Projects/contracts/backend/Uploads/'
-    const fileStream = createReadStream(`${folderPath}/${filename}`);
-    fileStream.pipe(res);
+  downloadFileTwo(@Param('filename') filename: string, @Res() res: Response): void {
+    const filePath = `/Users/razvanmustata/Projects/contracts/backend/Uploads/${filename}`
+
+    // Check if the file exists
+    if (fs.existsSync(filePath)) {
+      // Set appropriate headers for file download
+      res.setHeader('Content-Type', 'application/octet-stream');
+
+      // Suggest to the browser to prompt the user for download with a specific filename
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+      // Pipe the file stream to the response
+      const fileStream = fs.createReadStream(filePath);
+      fileStream.pipe(res);
+    } else {
+      // Return a 404 response if the file does not exist
+      res.status(404).send('File not found');
+    }
   }
 
   @Delete('delete/:filename')
