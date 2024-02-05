@@ -11,6 +11,7 @@ import {Persons} from '../../persons/entities/persons.entity'
 import {Address} from '../../address/entities/address.entity'
 import {Banks} from '../../banks/entities/banks.entity'
 import {ContractAttachments} from '../../contractAttachments/entities/contractAttachments.entity'
+import {PaymentType} from '../../paymentType/entities/paymentType.entity'
 
 
 export class Contracts {
@@ -55,4 +56,6 @@ PartnerBank?: Banks  | null;
 partnerbankId: number  | null;
 ContractAttachments?: ContractAttachments  | null;
 contractAttachmentsId: number  | null;
+PaymentType?: PaymentType  | null;
+paymentTypeId: number  | null;
 }

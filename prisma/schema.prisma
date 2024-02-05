@@ -60,9 +60,20 @@ model CostCenter {
   contractId Contracts[]
 }
 
+model MeasuringUnit {
+  id   Int    @id @default(autoincrement())
+  name String
+}
+
 model Entity {
   id   Int    @id @default(autoincrement())
   name String @unique
+}
+
+model PaymentType {
+  id         Int         @id @default(autoincrement())
+  name       String      @unique
+  contractId Contracts[]
 }
 
 model ContractType {
@@ -99,6 +110,11 @@ model Currency {
 }
 
 model Bank {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
+
+model BillingFrequency {
   id   Int    @id @default(autoincrement())
   name String @unique
 }
@@ -151,6 +167,8 @@ model Contracts {
   partnerbankId         Int?
   ContractAttachments   ContractAttachments? @relation(fields: [contractAttachmentsId], references: [id])
   contractAttachmentsId Int?
+  PaymentType           PaymentType?         @relation(fields: [paymentTypeId], references: [id])
+  paymentTypeId         Int?
 }
 
 model ContractsDetails {

@@ -172,39 +172,41 @@ async function main() {
     //     { code: "THB", name: "Bahtul thailandez" }
     // ]
 
-    const Banks = [
-        { name: "Alpha Bank" },
-        { name: "BRCI" },
-        { name: "Banca FEROVIARA" },
-        { name: "Intesa Sanpaolo" },
-        { name: "BCR" },
-        { name: "BCR Banca pentru Locuinţe" },
-        { name: "Eximbank" },
-        { name: "Banca Românească" },
-        { name: "Banca Transilvania" },
-        { name: "Leumi" },
-        { name: "BRD" },
-        { name: "CEC Bank" },
-        { name: "Crédit Agricole" },
-        { name: "Credit Europe" },
-        { name: "Garanti Bank" },
-        { name: "Idea Bank" },
-        { name: "Libra Bank" },
-        { name: "Vista Bank" },
-        { name: "OTP Bank" },
-        { name: "Patria Bank" },
-        { name: "First Bank" },
-        { name: "Porsche Bank" },
-        { name: "ProCredit Bank" },
-        { name: "Raiffeisen" },
-        { name: "Aedificium Banca pentru Locuinte" },
-        { name: "UniCredit" },
-        { name: "Alior Bank" },
-        { name: "BLOM Bank France" },
-        { name: "BNP Paribas" },
-        { name: "Citibank" },
-        { name: "ING" },
-        { name: "TBI " }]
+
+    // const Banks = [
+    //     { name: "Alpha Bank" },
+    //     { name: "BRCI" },
+    //     { name: "Banca FEROVIARA" },
+    //     { name: "Intesa Sanpaolo" },
+    //     { name: "BCR" },
+    //     { name: "BCR Banca pentru Locuinţe" },
+    //     { name: "Eximbank" },
+    //     { name: "Banca Românească" },
+    //     { name: "Banca Transilvania" },
+    //     { name: "Leumi" },
+    //     { name: "BRD" },
+    //     { name: "CEC Bank" },
+    //     { name: "Crédit Agricole" },
+    //     { name: "Credit Europe" },
+    //     { name: "Garanti Bank" },
+    //     { name: "Idea Bank" },
+    //     { name: "Libra Bank" },
+    //     { name: "Vista Bank" },
+    //     { name: "OTP Bank" },
+    //     { name: "Patria Bank" },
+    //     { name: "First Bank" },
+    //     { name: "Porsche Bank" },
+    //     { name: "ProCredit Bank" },
+    //     { name: "Raiffeisen" },
+    //     { name: "Aedificium Banca pentru Locuinte" },
+    //     { name: "UniCredit" },
+    //     { name: "Alior Bank" },
+    //     { name: "BLOM Bank France" },
+    //     { name: "BNP Paribas" },
+    //     { name: "Citibank" },
+    //     { name: "ING" },
+    //     { name: "TBI " }]
+
 
 
     // for (const type of contractType) {
@@ -237,11 +239,92 @@ async function main() {
     //     });
     // }
 
-    for (const bank of Banks) {
-        await prisma.bank.create({
-            data: bank,
+    // for (const bank of Banks) {
+    //     await prisma.bank.create({
+    //         data: bank,
+    //     });
+    // }
+
+    // const PaymentType = [
+    //     { name: "Numerar" },
+    //     { name: "Ordin de Plată" },
+    //     { name: "Cec" },
+    //     { name: "Bilet la ordin" },
+    //     { name: "Transfer Bancar" },
+    //     { name: "Virament Bancar" },
+    //     { name: "Portofel Digital(PayPal, Venmo...)" },
+    //     { name: "Bitcoin și Criptomonede" },
+    //     { name: "Card de Debit" },
+    //     { name: "Card de Credit" }]
+
+    // const Frequency = [
+    //     { name: "Zilnic" },
+    //     { name: "Săptămânal" },
+    //     { name: "Lunar" },
+    //     { name: "Trimestrial" },
+    //     { name: "Semestrial" },
+    //     { name: "Anual" },
+    //     { name: "Personalizat" }
+    // ]
+
+    const MeasuringUnit = [
+        { name: "Lună (lună)" },
+        { name: "Oră (h)" },
+        { name: "Zi (zi)" },
+        { name: "An (an)" },
+        { name: "Metru (m)" },
+        { name: "Metru pătrat (m²)" },
+        { name: "Centimetru (cm)" },
+        { name: "Centimetru pătrat (cm²)" },
+        { name: "Kilometru (km)" },
+        { name: "Milimetru (mm)" },
+        { name: "Milă (mi)" },
+        { name: "Gram (g)" },
+        { name: "Kilogram (kg)" },
+        { name: "Tona metrică (t)" },
+        { name: "Miligram (mg)" },
+        { name: "Centigram (cg)" },
+        { name: "Uncie (oz)" },
+        { name: "Mililitru (ml)" },
+        { name: "Centilitru (cl)" },
+        { name: "Secundă (s)" },
+        { name: "Minut (min)" },
+        { name: "Săptămână (săptămână)" },
+        { name: "Centimetru cub (cm³ sau cc)" },
+        { name: "Metru cub (m³)" },
+        { name: "Mililitru (ml)" },
+        { name: "Hectolitră (hl)" },
+        { name: "Calorie (cal)" },
+        { name: "Kilocalorie (kcal)" },
+        { name: "Watt-ora (Wh)" },
+        { name: "Kilowatt-ora (kWh)" },
+        { name: "Hectare (ha)" }]
+
+    for (const measuringunit of MeasuringUnit) {
+        await prisma.measuringUnit.create({
+            data: measuringunit,
         });
     }
+
+
+    // for (const frequency of Frequency) {
+    //     await prisma.billingFrequency.create({
+    //         data: frequency,
+    //     });
+    // }
+
+
+    // for (const frequency of Frequency) {
+    //     await prisma.billingFrequency.create({
+    //         data: frequency,
+    //     });
+    // }
+
+    // for (const type of PaymentType) {
+    //     await prisma.PaymentType.create({
+    //         data: type,
+    //     });
+    // }
 
     console.log('Seed completed');
 }

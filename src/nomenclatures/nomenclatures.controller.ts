@@ -13,6 +13,27 @@ export class NomenclaturesController {
     private prisma: PrismaService) { }
 
 
+  @Get('billingfrequency')
+  async getbillingfrequency() {
+    const billingfrequency = await this.prisma.billingFrequency.findMany()
+    return billingfrequency;
+  }
+
+  @Get('paymenttype')
+  async getpaymenttype() {
+    const paymenttype = await this.prisma.paymentType.findMany()
+    return paymenttype;
+  }
+
+  @Get('measuringunit')
+  async getmeasuringunit() {
+    const measuringunit = await this.prisma.measuringUnit.findMany()
+    return measuringunit;
+  }
+
+
+
+
   @Post('partners')
   async createPartner(@Body() data: Prisma.PartnersCreateInput): Promise<any> {
     const result = this.prisma.partners.create({
