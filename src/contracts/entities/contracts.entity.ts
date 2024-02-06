@@ -12,6 +12,7 @@ import {Address} from '../../address/entities/address.entity'
 import {Banks} from '../../banks/entities/banks.entity'
 import {ContractAttachments} from '../../contractAttachments/entities/contractAttachments.entity'
 import {PaymentType} from '../../paymentType/entities/paymentType.entity'
+import {ContractItems} from '../../contractItems/entities/contractItems.entity'
 
 
 export class Contracts {
@@ -58,4 +59,5 @@ ContractAttachments?: ContractAttachments  | null;
 contractAttachmentsId: number  | null;
 PaymentType?: PaymentType  | null;
 paymentTypeId: number  | null;
+ContractItems?: ContractItems[] ;
 }

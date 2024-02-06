@@ -169,6 +169,7 @@ model Contracts {
   contractAttachmentsId Int?
   PaymentType           PaymentType?         @relation(fields: [paymentTypeId], references: [id])
   paymentTypeId         Int?
+  ContractItems         ContractItems[]
 }
 
 model ContractsDetails {
@@ -177,6 +178,60 @@ model ContractsDetails {
   itemid Int
   // contract   Contracts @relation(fields: [contractId], references: [id])
   // contractId Int
+}
+
+model ContractItems {
+  id                      Int                       @id @default(autoincrement())
+  updateadAt              DateTime                  @updatedAt
+  createdAt               DateTime                  @default(now())
+  contract                Contracts                 @relation(fields: [contractId], references: [id])
+  contractId              Int
+  itemid                  Int
+  active                  Boolean                   @default(true)
+  ContractFinancialDetail ContractFinancialDetail[]
+}
+
+model ContractFinancialDetail {
+  id                              Int                               @id @default(autoincrement())
+  updateadAt                      DateTime                          @updatedAt
+  createdAt                       DateTime                          @default(now())
+  itemid                          Int
+  totalContractValue              Float
+  currencyid                      Int
+  currencyValue                   Float
+  currencyPercent                 Float
+  billingDay                      Int
+  billingQtty                     Float
+  billingFrequencyid              Int
+  measuringUnitid                 Int
+  paymentTypeid                   Int
+  billingPenaltyPercent           Float
+  billingDueDays                  Int
+  remarks                         String                            @db.VarChar(150)
+  guaranteeLetter                 Boolean
+  guaranteeLetterCurrencyid       Int
+  guaranteeLetterDate             DateTime
+  guaranteeLetterValue            Float
+  contractitems                   ContractItems                     @relation(fields: [contractItemId], references: [id])
+  contractItemId                  Int
+  ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
+}
+
+model ContractFinancialDetailSchedule {
+  id                        Int                     @id @default(autoincrement())
+  updateadAt                DateTime                @updatedAt
+  createdAt                 DateTime                @default(now())
+  itemid                    Int
+  date                      DateTime
+  measuringUnitid           Int
+  billingQtty               Float
+  totalContractValue        Float
+  billingValue              Float
+  guaranteeLetterCurrencyid Int
+  isInvoiced                Boolean
+  isPayed                   Boolean
+  contractfinancial         ContractFinancialDetail @relation(fields: [contractFinancialItemId], references: [id])
+  contractFinancialItemId   Int
 }
 
 model Partners {
