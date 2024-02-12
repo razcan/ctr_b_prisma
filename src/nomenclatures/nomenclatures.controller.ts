@@ -169,6 +169,25 @@ export class NomenclaturesController {
     return partner;
   }
 
+  //audit partner
+  @Get('auditPartner')
+  async getPartnerAudit(@Param('partnerid') partnerid: any) {
+
+    const partner = '%rr%'
+    const result = await this.prisma.$queryRaw(
+      Prisma.sql`SELECT * FROM partners_audit WHERE name like ${partner}`
+    )
+    return result;
+  }
+
+  //execute a procedure CALL my_procedure(123, 'Hello');
+  @Get('executeAuditPartner')
+  async getExecutePartnerAudit() {
+    const result = await this.prisma.$queryRaw(
+      Prisma.sql`SELECT delete()`
+    )
+    return result;
+  }
 
 
   @Post('persons')

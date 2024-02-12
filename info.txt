@@ -1,1 +1,250 @@
 npx prisma studio
+
+https://www.postgresql.org/docs/current/plpgsql-trigger.html
+
+create audit table for partners table
+
+create TABLE partners_audit(
+operation         char(1)   NOT NULL,
+stamp             timestamp NOT NULL,
+id text,
+"name" text,
+fiscal_code text ,
+commercial_reg text,
+state text ,
+email text 
+);
+
+
+create TABLE partners_audit(
+operation         char(1)   NOT NULL,
+stamp             timestamp NOT NULL,
+id text,
+"name" text,
+fiscal_code text ,
+commercial_reg text,
+state text ,
+email text 
+);
+
+
+
+CREATE OR REPLACE FUNCTION process_partners_audit() RETURNS TRIGGER AS $partners_audit$
+    BEGIN
+    
+        IF (TG_OP = 'DELETE') THEN
+            INSERT INTO partners_audit SELECT 'D', now(), OLD.id , OLD.name , OLD.fiscal_code, OLD.commercial_reg, OLD.state, OLD.email  ;
+        ELSIF (TG_OP = 'UPDATE') THEN
+            INSERT INTO partners_audit SELECT 'U', now(), NEW.id , NEW.name , NEW.fiscal_code, NEW.commercial_reg, NEW.state, NEW.email ;
+        ELSIF (TG_OP = 'INSERT') THEN
+            INSERT INTO partners_audit SELECT 'I', now(), NEW.id , NEW.name , NEW.fiscal_code, NEW.commercial_reg, NEW.state, NEW.email ;
+        END IF;
+        RETURN NULL; -- result is ignored since this is an AFTER trigger
+    END;
+$partners_audit$ LANGUAGE plpgsql;
+
+
+    create trigger ccc after
+    insert
+    on
+    public."Partners" for each row execute function process_partners_audit();
+
+    create trigger
+    update
+    after
+    update
+    on
+    public."Partners" for each row execute function process_partners_audit();
+
+
+
+CREATE OR REPLACE FUNCTION my_procedure(param1 INT, param2 VARCHAR)
+RETURNS VOID AS $$
+BEGIN
+    -- Your logic goes here
+    -- You can use the parameters as needed
+    -- For example, you can print the parameters:
+    RAISE NOTICE 'Parameter 1: %', param1;
+    RAISE NOTICE 'Parameter 2: %', param2;
+END;
+$$ LANGUAGE plpgsql;
+
+CALL my_procedure(123, 'Hello');
+
+
+
+CREATE TABLE public."Contracts_Audit" (
+	id_audit serial4 NOT NULL,
+	operation         char(1)   NOT NULL,
+	stamp             timestamp NOT NULL,
+	id int4 NOT NULL,
+	"number" text NOT NULL,
+	"start" timestamp(3) NOT NULL,
+	"end" timestamp(3) NOT NULL,
+	sign timestamp(3) NOT NULL,
+	completion timestamp(3) NOT NULL,
+	remarks text NOT NULL,
+	"partnersId" int4 NULL,
+	"entityId" int4 NULL,
+	"entityaddressId" int4 NULL,
+	"entitybankId" int4 NULL,
+	"entitypersonsId" int4 NULL,
+	"parentId" int4 DEFAULT 0 NULL,
+	"partneraddressId" int4 NULL,
+	"partnerbankId" int4 NULL,
+	"partnerpersonsId" int4 NULL,
+	"automaticRenewal" bool DEFAULT false NOT NULL,
+	"departmentId" int4 DEFAULT 1 NULL,
+	"cashflowId" int4 DEFAULT 1 NOT NULL,
+	"categoryId" int4 DEFAULT 1 NULL,
+	"costcenterId" int4 DEFAULT 1 NOT NULL,
+	"itemId" int4 DEFAULT 1 NOT NULL,
+	"statusId" int4 NOT NULL,
+	"typeId" int4 NOT NULL,
+	"contractAttachmentsId" int4 NULL,
+	"paymentTypeId" int4 NULL,
+	"contractContentId" int4 NULL
+);
+
+CREATE OR REPLACE FUNCTION process_contracts_audit() 
+RETURNS TRIGGER AS 
+$contracts_audit$
+BEGIN
+    IF (TG_OP = 'DELETE') THEN
+        INSERT INTO Contracts_Audit (
+            operation_type, 
+            operation_timestamp, 
+            id, 
+            number, 
+            start_date, 
+            end_date, 
+            sign_date, 
+            completion_date,
+            remarks, 
+            partners_id, 
+            entity_id, 
+            entity_address_id, 
+            entity_bank_id, 
+            entity_persons_id, 
+            parent_id,
+            partner_address_id, 
+            partner_bank_id, 
+            partner_persons_id, 
+            automatic_renewal, 
+            department_id, 
+            cashflow_id, 
+            category_id, 
+            cost_center_id, 
+            item_id, 
+            status_id, 
+            type_id, 
+            contract_attachments_id, 
+            payment_type_id, 
+            contract_content_id
+        ) VALUES (
+            'D', 
+            now(), 
+            OLD.id, 
+            OLD.number, 
+            OLD.start, 
+            OLD.end, 
+            OLD.sign, 
+            OLD.completion,
+            OLD.remarks, 
+            OLD.partnersId, 
+            OLD.entityId, 
+            OLD.entityaddressId, 
+            OLD.entitybankId, 
+            OLD.entitypersonsId, 
+            OLD.parentId,
+            OLD.partneraddressId, 
+            OLD.partnerbankId, 
+            OLD.partnerpersonsId, 
+            OLD.automaticRenewal, 
+            OLD.departmentId, 
+            OLD.cashflowId, 
+            OLD.categoryId, 
+            OLD.costcenterId, 
+            OLD.itemId, 
+            OLD.statusId, 
+            OLD.typeId, 
+            OLD.contractAttachmentsId, 
+            OLD.paymentTypeId, 
+            OLD.contractContentId
+        );
+    ELSIF (TG_OP = 'UPDATE') THEN
+        INSERT INTO Contracts_Audit (
+            operation_type, 
+            operation_timestamp, 
+            id, 
+            number, 
+            start_date, 
+            end_date, 
+            sign_date, 
+            completion_date,
+            remarks, 
+            partners_id, 
+            entity_id, 
+            entity_address_id, 
+            entity_bank_id, 
+            entity_persons_id, 
+            parent_id,
+            partner_address_id, 
+            partner_bank_id, 
+            partner_persons_id, 
+            automatic_renewal, 
+            department_id, 
+            cashflow_id, 
+            category_id, 
+            cost_center_id, 
+            item_id, 
+            status_id, 
+            type_id, 
+            contract_attachments_id, 
+            payment_type_id, 
+            contract_content_id
+        ) VALUES (
+            'U', 
+            now(), 
+            NEW.id, 
+            NEW.number, 
+            NEW.start, 
+            NEW.end, 
+            NEW.sign, 
+            NEW.completion,
+            NEW.remarks, 
+            NEW.partnersId, 
+            NEW.entityId, 
+            NEW.entityaddressId, 
+            NEW.entitybankId, 
+            NEW.entitypersonsId, 
+            NEW.parentId,
+            NEW.partneraddressId, 
+            NEW.partnerbankId, 
+            NEW.partnerpersonsId, 
+            NEW.automaticRenewal, 
+            NEW.departmentId, 
+            NEW.cashflowId, 
+            NEW.categoryId, 
+            NEW.costcenterId, 
+            NEW.itemId, 
+            NEW.statusId, 
+            NEW.typeId, 
+            NEW.contractAttachmentsId, 
+            NEW.paymentTypeId, 
+            NEW.contractContentId
+        );
+    END IF;
+    RETURN NULL;
+END;
+$contracts_audit$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER audit
+    AFTER INSERT
+    ON public."Contracts"
+    FOR EACH ROW
+    EXECUTE PROCEDURE public.process_contracts_audit();
+
+
+

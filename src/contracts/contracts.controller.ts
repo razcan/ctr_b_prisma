@@ -104,22 +104,86 @@ export class ContractsController {
 
   //trb facut si pt delete file
 
-
-
-  @Post()
-  async createContract(@Body() data: Prisma.ContractsCreateInput): Promise<any> {
-
-    const result = this.prisma.contracts.create({
+  @Post('content')
+  async createContent(@Body() data: Prisma.ContractContentCreateInput): Promise<any> {
+    const content = this.prisma.contractContent.create({
       data,
     });
 
-    return result;
+    return content;
+  }
+
+  @Patch('content/:id')
+  async updateContent(@Body() data: Prisma.ContractContentCreateInput, @Param('id') id: any): Promise<any> {
+
+    const content = await this.prisma.contractContent.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: data,
+    })
+    return content;
+  }
+
+  @Get('content/:id')
+  async getContent(@Body() data: Prisma.ContractContentFindFirstArgs, @Param('id') id: any): Promise<any> {
+    const content = await this.prisma.contractContent.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    })
+    return content;
+  }
+
+
+
+
+  @Post()
+  async createContract(@Body() data: any): Promise<any> {
+
+    console.log(data);
+
+    const result = await this.prisma.contracts.create({
+      data,
+    });
+
+
+    const audit = this.prisma.contractsAudit.create({
+      data: {
+        operationType: "I",
+        id: result.id,
+        number: data.number,
+        typeId: data.typeId,
+        statusId: data.statusId,
+        start: data.start,
+        end: data.end,
+        sign: data.sign,
+        completion: data.completion,
+        remarks: data.remarks,
+        categoryId: data.categoryId,
+        departmentId: data.departmentId,
+        cashflowId: data.cashflowId,
+        itemId: data.itemId,
+        costcenterId: data.costcenterId,
+        automaticRenewal: data.automaticRenewal,
+        partnersId: data.partnersId,
+        entityId: data.entityId,
+        partnerpersonsId: data.partnerpersonsId,
+        entitypersonsId: data.entitypersonsId,
+        entityaddressId: data.entityaddressId,
+        partneraddressId: data.partneraddressId,
+        entitybankId: data.entitybankId,
+        partnerbankId: data.partnerbankId
+      }
+    });
+
+    return audit;
   }
 
 
   @Post('category')
   async createCategory(@Body() data: Prisma.CategoryCreateInput): Promise<any> {
-
+    console.log(data)
     const result = this.prisma.category.create({
       data,
     });

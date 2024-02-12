@@ -1,0 +1,33 @@
+-- CreateTable
+CREATE TABLE "ContractsAudit" (
+    "auditid" SERIAL NOT NULL,
+    "id" INTEGER NOT NULL,
+    "number" TEXT NOT NULL,
+    "typeId" INTEGER NOT NULL,
+    "costcenterId" INTEGER NOT NULL,
+    "statusId" INTEGER NOT NULL,
+    "start" TIMESTAMP(3) NOT NULL,
+    "end" TIMESTAMP(3) NOT NULL,
+    "sign" TIMESTAMP(3) NOT NULL,
+    "completion" TIMESTAMP(3) NOT NULL,
+    "remarks" TEXT NOT NULL,
+    "categoryId" INTEGER,
+    "departmentId" INTEGER,
+    "cashflowId" INTEGER NOT NULL,
+    "itemId" INTEGER NOT NULL,
+    "automaticRenewal" BOOLEAN NOT NULL,
+    "partnersId" INTEGER,
+    "entityId" INTEGER,
+    "parentId" INTEGER,
+    "partnerpersonsId" INTEGER,
+    "entitypersonsId" INTEGER,
+    "entityaddressId" INTEGER,
+    "partneraddressId" INTEGER,
+    "entitybankId" INTEGER,
+    "partnerbankId" INTEGER,
+    "contractAttachmentsId" INTEGER,
+    "paymentTypeId" INTEGER,
+    "contractContentId" INTEGER,
+
+    CONSTRAINT "ContractsAudit_pkey" PRIMARY KEY ("auditid")
+);

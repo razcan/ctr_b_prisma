@@ -7,12 +7,12 @@ export class ContractFinancialDetailSchedule {
 updateadAt: Date ;
 createdAt: Date ;
 itemid: number ;
+currencyid: number ;
 date: Date ;
 measuringUnitid: number ;
 billingQtty: number ;
 totalContractValue: number ;
 billingValue: number ;
-guaranteeLetterCurrencyid: number ;
 isInvoiced: boolean ;
 isPayed: boolean ;
 contractfinancial?: ContractFinancialDetail ;
