@@ -441,17 +441,44 @@ export class ContractsController {
   //   console.log(user);
   // }
 
-  @Patch(':id')
-  async update(@Param('id') id: number, @Body() updateContractDto: UpdateContractDto) {
+  @Patch('/:id')
+  async update(@Param('id') id: number, @Body() data: any) {
 
     const contract = await this.prisma.contracts.update({
       where: { id: +id },
-      data: {
-        number: updateContractDto.number
-      },
+      data: data,
     })
 
-    return contract;
+    const audit = this.prisma.contractsAudit.create({
+      data: {
+        operationType: "U",
+        id: contract.id,
+        number: data.number,
+        typeId: data.typeId,
+        statusId: data.statusId,
+        start: data.start,
+        end: data.end,
+        sign: data.sign,
+        completion: data.completion,
+        remarks: data.remarks,
+        categoryId: data.categoryId,
+        departmentId: data.departmentId,
+        cashflowId: data.cashflowId,
+        itemId: data.itemId,
+        costcenterId: data.costcenterId,
+        automaticRenewal: data.automaticRenewal,
+        partnersId: data.partnersId,
+        entityId: data.entityId,
+        partnerpersonsId: data.partnerpersonsId,
+        entitypersonsId: data.entitypersonsId,
+        entityaddressId: data.entityaddressId,
+        partneraddressId: data.partneraddressId,
+        entitybankId: data.entitybankId,
+        partnerbankId: data.partnerbankId
+      }
+    });
+
+    return audit;
   }
 
   // @Delete(':id')

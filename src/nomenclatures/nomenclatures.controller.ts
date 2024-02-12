@@ -181,10 +181,14 @@ export class NomenclaturesController {
   }
 
   //execute a procedure CALL my_procedure(123, 'Hello');
-  @Get('executeAuditPartner')
-  async getExecutePartnerAudit() {
+  @Get('executeAuditPartner/:id')
+  async getExecutePartnerAudit(@Param('id') id: any) {
+
+    let contractid: number = parseInt(id, 10);
     const result = await this.prisma.$queryRaw(
-      Prisma.sql`SELECT delete()`
+      // Prisma.sql`SELECT delete()`
+      Prisma.sql`select * from public.GetAuditContract(${contractid}::int4)`
+      //Prisma.sql`select * from public."ContractsAudit"`
     )
     return result;
   }

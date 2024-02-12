@@ -2,6 +2,72 @@ npx prisma studio
 
 https://www.postgresql.org/docs/current/plpgsql-trigger.html
 
+abordarea noua - tabel audit prisma , logica in controller, si functie de returnare rezultate in bd
+
+@Get('executeAuditPartner/:id')
+
+create or replace function GetAuditContract(contractid integer) 
+RETURNS TABLE (
+    contract_id INT,
+    Tip_Modificare text,
+    Data_Modificare timestamp(3),
+    Contract_Number text,
+    Nume_Partener text,
+    Nume_Entitate text,
+    Stare text,
+    Start_Date timestamp(3),
+    End_Date timestamp(3),
+    Sign_Date timestamp(3),
+    Completion_Date timestamp(3),
+    Nume_Categorie text,
+    Departament text,
+    Cashflow text,
+    Tip_Contract text,
+    Centru_Cost text
+    ) AS $$
+begin 
+	RETURN QUERY
+	select 
+	c.id as contract_id, 
+	c."operationType" Tip_Modificare,
+	c."createdAt" as Data_Modificare,
+	c.number as Contract_Number, 
+	a.name as Nume_Partener, 
+	b.name as Nume_Entitate, 
+	cs.name as Stare,
+	c.start as Start_Date ,
+	c.end as End_Date ,
+	c.sign as Sign_Date ,
+	c.completion as Completion_Date ,
+	ca.name as Nume_Categorie ,
+	dep.name as Departament ,
+    cf.name as Cashflow ,
+    ct.name as Tip_Contract ,
+    cc.name as Centru_Cost 
+	from public."ContractsAudit" c
+	join public."Partners" a on c."partnersId" = a.id 
+	join public."Partners" b on c."entityId" = b.id 
+	join public."Category" ca  on c."categoryId"  = ca.id 
+	join public."ContractStatus" cs on cs."id" = c."statusId"
+	join public."Department" dep  on dep."id" = c."departmentId"
+	join public."Cashflow" cf on cf."id" = c."cashflowId"
+	join public."ContractType" ct on ct."id" = c."typeId"
+	join public."CostCenter"  cc on cc."id" = c."costcenterId"
+	
+where c.id  = contractid;
+end;
+$$ LANGUAGE plpgsql;
+
+
+select * from GetAuditContract(4)
+
+
+
+
+
+
+
+
 create audit table for partners table
 
 create TABLE partners_audit(
@@ -73,38 +139,41 @@ CALL my_procedure(123, 'Hello');
 
 
 
+
+
 CREATE TABLE public."Contracts_Audit" (
-	id_audit serial4 NOT NULL,
-	operation         char(1)   NOT NULL,
-	stamp             timestamp NOT NULL,
+    audit_id serial4 PRIMARY KEY,
+    operation_type CHAR(1),
+    operation_timestamp TIMESTAMP,
 	id int4 NOT NULL,
 	"number" text NOT NULL,
-	"start" timestamp(3) NOT NULL,
-	"end" timestamp(3) NOT NULL,
-	sign timestamp(3) NOT NULL,
-	completion timestamp(3) NOT NULL,
+	"start_date" timestamp(3) NOT NULL,
+	"end_date" timestamp(3) NOT NULL,
+	"sign_date" timestamp(3) NOT NULL,
+	"completion_date" timestamp(3) NOT NULL,
 	remarks text NOT NULL,
-	"partnersId" int4 NULL,
-	"entityId" int4 NULL,
-	"entityaddressId" int4 NULL,
-	"entitybankId" int4 NULL,
-	"entitypersonsId" int4 NULL,
-	"parentId" int4 DEFAULT 0 NULL,
-	"partneraddressId" int4 NULL,
-	"partnerbankId" int4 NULL,
-	"partnerpersonsId" int4 NULL,
-	"automaticRenewal" bool DEFAULT false NOT NULL,
-	"departmentId" int4 DEFAULT 1 NULL,
-	"cashflowId" int4 DEFAULT 1 NOT NULL,
-	"categoryId" int4 DEFAULT 1 NULL,
-	"costcenterId" int4 DEFAULT 1 NOT NULL,
-	"itemId" int4 DEFAULT 1 NOT NULL,
-	"statusId" int4 NOT NULL,
-	"typeId" int4 NOT NULL,
-	"contractAttachmentsId" int4 NULL,
-	"paymentTypeId" int4 NULL,
-	"contractContentId" int4 NULL
+	partners_id int4 NULL,
+    entity_id int4 NULL,
+    entity_address_id int4 NULL,
+    entity_bank_id int4 NULL,
+    entity_persons_id int4 NULL,
+    parent_id int4 NULL,
+    partner_address_id int4 NULL,
+    partner_bank_id int4 NULL,
+    partner_persons_id int4 NULL,
+    automatic_renewal bool DEFAULT false NOT NULL,
+    department_id int4 NULL,
+    cashflow_id int4 NULL,
+    category_id int4 NULL,
+    cost_center_id int4 NULL,
+    item_id int4 NULL,
+    status_id int4 NULL,
+    type_id int4 NULL,
+    contract_attachments_id int4 NULL,
+    payment_type_id int4 NULL,
+    contract_content_id int4 NULL
 );
+
 
 CREATE OR REPLACE FUNCTION process_contracts_audit() 
 RETURNS TRIGGER AS 
@@ -248,3 +317,91 @@ CREATE TRIGGER audit
 
 
 
+
+
+ partners_id, 
+            entity_id, 
+            entity_address_id, 
+            entity_bank_id, 
+            entity_persons_id, 
+            parent_id,
+            partner_address_id, 
+            partner_bank_id, 
+            partner_persons_id, 
+            automatic_renewal, 
+            department_id, 
+            cashflow_id, 
+            category_id, 
+            cost_center_id, 
+            item_id, 
+            status_id, 
+            type_id, 
+            contract_attachments_id, 
+            payment_type_id, 
+            contract_content_id
+
+
+            OLD.partnersId, 
+            OLD.entityId, 
+            OLD.entityaddressId, 
+            OLD.entitybankId, 
+            OLD.entitypersonsId, 
+            OLD.parentId,
+            OLD.partneraddressId, 
+            OLD.partnerbankId, 
+            OLD.partnerpersonsId, 
+            OLD.automaticRenewal, 
+            OLD.departmentId, 
+            OLD.cashflowId, 
+            OLD.categoryId, 
+            OLD.costcenterId, 
+            OLD.itemId, 
+            OLD.statusId, 
+            OLD.typeId, 
+            OLD.contractAttachmentsId, 
+            OLD.paymentTypeId, 
+            OLD.contractContentId
+
+
+            NEW.partnersId, 
+            NEW.entityId, 
+            NEW.entityaddressId, 
+            NEW.entitybankId, 
+            NEW.entitypersonsId, 
+            NEW.parentId,
+            NEW.partneraddressId, 
+            NEW.partnerbankId, 
+            NEW.partnerpersonsId, 
+            NEW.automaticRenewal, 
+            NEW.departmentId, 
+            NEW.cashflowId, 
+            NEW.categoryId, 
+            NEW.costcenterId, 
+            NEW.itemId, 
+            NEW.statusId, 
+            NEW.typeId, 
+            NEW.contractAttachmentsId, 
+            NEW.paymentTypeId, 
+            NEW.contractContentId
+
+
+            partners_id int4 NULL,
+    entity_id int4 NULL,
+    entity_address_id int4 NULL,
+    entity_bank_id int4 NULL,
+    entity_persons_id int4 NULL,
+    parent_id int4 NULL,
+    partner_address_id int4 NULL,
+    partner_bank_id int4 NULL,
+    partner_persons_id int4 NULL,
+    automatic_renewal bool DEFAULT false NOT NULL,
+    department_id int4 NULL,
+    cashflow_id int4 NULL,
+    category_id int4 NULL,
+    cost_center_id int4 NULL,
+    item_id int4 NULL,
+    status_id int4 NULL,
+    type_id int4 NULL,
+    contract_attachments_id int4 NULL,
+    payment_type_id int4 NULL,
+    contract_content_id int4 NULL
