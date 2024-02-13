@@ -194,6 +194,24 @@ export class NomenclaturesController {
   }
 
 
+  @Get('alerts')
+  async getAlerts() {
+    const alerts = await this.prisma.alerts.findMany()
+    return alerts;
+  }
+
+  @Patch('alerts/:id')
+  async UpdateAlert(@Body() data: Prisma.AlertsCreateInput, @Param('id') id: any): Promise<any> {
+    const alert = await this.prisma.alerts.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: data,
+    })
+    return alert;
+  }
+
+
   @Post('persons')
   async createPerson(@Body() data: Prisma.PersonsCreateInput): Promise<any> {
     const result = this.prisma.persons.create({

@@ -1,5 +1,34 @@
 npx prisma studio
 
+todo
+1.acte aditionale
+2.alerte
+3.actiuni
+4.crud ctr
+5.autentificare
+6.grafice dashboard
+7.scos tab istoric la adaugare ctr
+8.template-uri de contract plus placeholdere
+9.meniu setari alerte(expira inainte cu n zile, s-a inchis inainte de termen, s-a schimbat resp ctr, nu a ajuns factura, modificat stare ctr)
+10.meniu useri/drepturi
+11.campuri variabile - utilizator (text/data nr. ordine, tip, tag)
+12.preluare data anaf parteneri
+13.corectii erori ui
+14.parametrizare link-ip, adresa de email sender,
+15.modul rapoarte
+16.rez erori compilare
+17.curatat componente ce nu sunt necesare
+18.revizuit denumiri variabile si comenturi
+19.sters obiect de ctr de la nivel de header ctr
+20. continut ctr generare ctr din template
+21. ecran definire template-uri cu placeholdere
+22. export word https://www.npmjs.com/package/docx
+23 scoatere din care uikit
+
+
+
+
+
 https://www.postgresql.org/docs/current/plpgsql-trigger.html
 
 abordarea noua - tabel audit prisma , logica in controller, si functie de returnare rezultate in bd

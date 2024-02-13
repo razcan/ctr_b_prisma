@@ -372,6 +372,12 @@ export class ContractsController {
     return contracts;
   }
 
+  @Get()
+  async findAllContracts() {
+    const contracts = await this.prisma.contracts.findMany()
+    return contracts;
+  }
+
   @Get('details/:id')
   async findContractById(@Param('id') id: any) {
     const contracts = await this.prisma.contracts.findMany(
@@ -480,9 +486,4 @@ export class ContractsController {
 
     return audit;
   }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.contractsService.remove(+id);
-  // }
 }
