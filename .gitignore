@@ -28,7 +28,7 @@ lerna-debug.log*
 *.sublime-workspace
 
 
-# Email config
+# Email config -- checked
 **/alerts/mailer.config.ts
 **/alerts/mailer.service.ts
 

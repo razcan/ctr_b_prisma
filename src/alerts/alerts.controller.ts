@@ -28,19 +28,63 @@ export class AlertsController {
     // }
     private readonly logger = new Logger();
 
+    differenceInDays(date1: Date, date2: Date): number {
+        const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+        const diffInTime = date2.getTime() - date1.getTime();
+        return Math.round(diffInTime / oneDay);
+    }
+
+    // Real-time example
+
+
     @Cron(CronExpression.EVERY_30_SECONDS)
     handleCron() {
         this.logger.debug('Called every 30 sec');
 
         const allcontracts = this.contracts.findAllContracts()
 
+        interface ContractsForAlert {
+            id: Number,
+            number: String,
+            start: Date,
+            end: Date,
+            sign: Date,
+            completion: Date,
+            partner: String,
+            entity: String
+        }
+
+        const contractsforNotification: ContractsForAlert[] = [];
+
         allcontracts.then(result => {
-            console.log(result);
+            const countCtr = result.length
+            const today = new Date();
+            for (let i = 0; i < countCtr; i++) {
+                //compare dates.
+                console.log(result[i].id, result[i].number, result[i].start, result[i].end, result[i].sign, result[i].completion, result[i].partner.name, result[i].entity.name)
+
+                console.log("nr zile dif: ", this.differenceInDays(result[i].end, today));
+
+                if (this.differenceInDays(result[i].end, today) >= 30) {
+                    const obj: ContractsForAlert = {
+                        id: result[i].id,
+                        number: result[i].number,
+                        start: result[i].start,
+                        end: result[i].end,
+                        sign: result[i].sign,
+                        completion: result[i].completion,
+                        partner: result[i].partner.name,
+                        entity: result[i].entity.name
+                    }
+                    contractsforNotification.push(obj)
+                }
+            }
+            console.log(contractsforNotification);
         }).catch(error => {
             console.error(error);
         });
 
-        //treb luate toate ctr si data curenta, si pt fiecare ctr care are data fin mai mica de 30, se trimite email
+        //treb luate toate ctr si data curenta, si pt fiecare ctr care are data fin mai mica de 30, se trimite email - treb luate din ctr si valorile pentru placeholdere
     }
 
     @Post('alerts')

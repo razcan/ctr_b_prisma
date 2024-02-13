@@ -374,7 +374,14 @@ export class ContractsController {
 
   @Get()
   async findAllContracts() {
-    const contracts = await this.prisma.contracts.findMany()
+    const contracts = await this.prisma.contracts.findMany(
+      {
+        include: {
+          partner: true,
+          entity: true,
+        },
+      }
+    )
     return contracts;
   }
 
