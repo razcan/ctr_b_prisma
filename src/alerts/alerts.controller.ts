@@ -5,6 +5,8 @@ import { MailerService } from './mailer.service'
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ContractsController } from '../contracts/contracts.controller'
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { async } from 'rxjs';
 
 @Controller('alerts')
 export class AlertsController {
@@ -14,19 +16,34 @@ export class AlertsController {
     ) { }
 
 
-    @Get('alerts')
+    @Get('')
     async getAlerts() {
         const alerts = await this.prisma.alerts.findMany()
         // this.sendMail();
         return alerts;
     }
 
-    // @Cron('05 * * * * *')
-    // handleCron() {
-    //     this.sendMail()
-    //     console.log('Executing scheduled task at', new Date().toLocaleString());
-    // }
-    private readonly logger = new Logger();
+    @Get('byId/:id')
+    async getAlertById(@Param('id') id: any) {
+        const alerts = await this.prisma.alerts.findUnique({
+            where: {
+                id: parseInt(id),
+            },
+        }
+        )
+        return alerts;
+    }
+
+    @Patch('/:id')
+    async UpdateAlert(@Body() data: Prisma.AlertsCreateInput, @Param('id') id: any): Promise<any> {
+        const alert = await this.prisma.alerts.update({
+            where: {
+                id: parseInt(id),
+            },
+            data: data,
+        })
+        return alert;
+    }
 
     differenceInDays(date1: Date, date2: Date): number {
         const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
@@ -34,13 +51,9 @@ export class AlertsController {
         return Math.round(diffInTime / oneDay);
     }
 
-    // Real-time example
-
-
-    @Cron(CronExpression.EVERY_30_SECONDS)
+    //EVERY_DAY_AT_10AM
+    @Cron(CronExpression.EVERY_DAY_AT_10AM)
     handleCron() {
-        this.logger.debug('Called every 30 sec');
-
         const allcontracts = this.contracts.findAllContracts()
 
         interface ContractsForAlert {
@@ -51,71 +64,113 @@ export class AlertsController {
             sign: Date,
             completion: Date,
             partner: String,
-            entity: String
+            entity: String,
+            partner_email: String,
+            persons_email: String,
+            remarks: String
         }
 
         const contractsforNotification: ContractsForAlert[] = [];
 
-        allcontracts.then(result => {
-            const countCtr = result.length
-            const today = new Date();
-            for (let i = 0; i < countCtr; i++) {
-                //compare dates.
-                console.log(result[i].id, result[i].number, result[i].start, result[i].end, result[i].sign, result[i].completion, result[i].partner.name, result[i].entity.name)
-
-                console.log("nr zile dif: ", this.differenceInDays(result[i].end, today));
-
-                if (this.differenceInDays(result[i].end, today) >= 30) {
-                    const obj: ContractsForAlert = {
-                        id: result[i].id,
-                        number: result[i].number,
-                        start: result[i].start,
-                        end: result[i].end,
-                        sign: result[i].sign,
-                        completion: result[i].completion,
-                        partner: result[i].partner.name,
-                        entity: result[i].entity.name
-                    }
-                    contractsforNotification.push(obj)
-                }
-            }
-            console.log(contractsforNotification);
-        }).catch(error => {
-            console.error(error);
-        });
-
-        //treb luate toate ctr si data curenta, si pt fiecare ctr care are data fin mai mica de 30, se trimite email - treb luate din ctr si valorile pentru placeholdere
-    }
-
-    @Post('alerts')
-    async sendMail(): Promise<void> {
         const mailerService = new MailerService();
 
-        const dateTime = new Date();
-        const dateAsString = dateTime.toLocaleDateString();
+        const emailSettings = this.getAlertById(1)
 
-        const to = 'razvan.mustata@gmail.com';
-        const bcc = ''
-        const subject = 'A new order has been added';
-        const text = "";
-        const html = `<h2>Va informam faptul ca a fost inchis contractul cu numarul <span style="color: rgb(0, 102, 204);">@@NumarContract</span> din data de 
-        <span style="color: rgb(0, 102, 204);">@@DataContract</span> la partenerul <span style="color: rgb(0, 102, 204);">@@Partener</span>. 
-        Acest contract a fost in vigoare in compania 
-        <span style="color: rgb(0, 102, 204);">@@Entitate</span> si reprezinta <span style="color: rgb(0, 102, 204);">@@ScurtaDescriere</span>.</h2>`
-        const attachments = [
-            //   {   // binary buffer as an attachment
-            //     filename: 'text.txt',
-            //     content:  'hello world!'
-            // },
-            // {   // file on disk as an attachment
-            //   filename: 'git.txt',
-            //   path: '/Users/razvanmustata/Projects/coins/coins-backend/git.txt' // stream this file
-            // },
-        ]
 
-        mailerService.sendMail(to, bcc, subject, text, html, attachments)
-            .then(() => console.log('Email sent successfully.'))
-            .catch(error => console.error('Error sending email:', error));
+        var nrofdays = 0;
+        var isActive = false;
+        emailSettings.then(result => {
+            nrofdays = result.nrofdays;
+            isActive = result.isActive
+            // console.log("nrofdays", nrofdays, "isActive", isActive)
+        })
+
+        if (isActive = true) {
+            allcontracts.then(result => {
+                const countCtr = result.length
+                const today = new Date();
+                for (let i = 0; i < countCtr; i++) {
+                    // console.log(result[i].id, result[i].number, result[i].start, result[i].end, result[i].sign, result[i].completion, result[i].partner.name, result[i].entity.name)
+                    const countPers = result[i].partner.Persons.length;
+                    if (this.differenceInDays(result[i].end, today) >= nrofdays)
+                        for (let j = 0; j < countPers; j++) {
+                            {
+                                const obj: ContractsForAlert = {
+                                    id: result[i].id,
+                                    number: result[i].number,
+                                    start: result[i].start,
+                                    end: result[i].end,
+                                    sign: result[i].sign,
+                                    completion: result[i].completion,
+                                    partner: result[i].partner.name,
+                                    entity: result[i].entity.name,
+                                    partner_email: result[i].partner.email,
+                                    persons_email: result[i].partner.Persons[j].email,
+                                    remarks: result[i].remarks
+                                }
+                                contractsforNotification.push(obj)
+                            }
+                        }
+                }
+                // console.log(contractsforNotification);
+
+
+                emailSettings.then(result => {
+
+                    for (let j = 0; j < contractsforNotification.length; j++) {
+
+                        const originalString: string = result.text;
+
+                        const originalDate = new Date(contractsforNotification[j].start.toString());
+
+                        const day = originalDate.getDate().toString().padStart(2, '0'); // Get the day and pad with leading zero if needed
+                        const month = (originalDate.getMonth() + 1).toString().padStart(2, '0'); // Get the month (January is 0, so we add 1) and pad with leading zero if needed
+                        const year = originalDate.getFullYear(); // Get the full year
+
+                        const formattedDateStart = `${day}.${month}.${year}`;
+
+
+                        const originalDateEnd = new Date(contractsforNotification[j].end.toString());
+
+                        const day1 = originalDateEnd.getDate().toString().padStart(2, '0'); // Get the day and pad with leading zero if needed
+                        const month1 = (originalDateEnd.getMonth() + 1).toString().padStart(2, '0'); // Get the month (January is 0, so we add 1) and pad with leading zero if needed
+                        const year1 = originalDateEnd.getFullYear(); // Get the full year
+
+                        const formattedDateEnd = `${day1}.${month1}.${year1}`;
+
+
+                        const replacements: { [key: string]: string } = {
+                            "@@NumarContract": contractsforNotification[j].number.toString(),
+                            "@@DataContract": formattedDateStart,
+                            "@@DataFinal": formattedDateEnd,
+                            "@@Partener": contractsforNotification[j].partner.toString(),
+                            "@@Entitate": contractsforNotification[j].entity.toString(),
+                            "@@ScurtaDescriere": contractsforNotification[j].remarks.toString()
+                        };
+
+                        let replacedString: string = originalString;
+                        for (const key in replacements) {
+                            if (Object.prototype.hasOwnProperty.call(replacements, key)) {
+                                replacedString = replacedString.replace(key, replacements[key]);
+                            }
+                        }
+
+                        const to = contractsforNotification[j].partner_email;
+                        const bcc = contractsforNotification[j].persons_email;
+                        const subject = result.subject + ' ' + contractsforNotification[j].number.toString();
+                        const text = replacedString;
+                        const html = replacedString;
+                        const attachments = [];
+
+                        mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
+                            .then(() => console.log('Email sent successfully.'))
+                            .catch(error => console.error('Error sending email:', error));
+                    }
+                })
+
+            }).catch(error => {
+                console.error(error);
+            });
+        }
     }
-
 }

@@ -22,6 +22,7 @@ import { Express } from 'express'
 import { createReadStream } from 'fs';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Persons } from 'src/persons/entities/persons.entity';
 
 
 @Controller('contracts')
@@ -372,12 +373,16 @@ export class ContractsController {
     return contracts;
   }
 
-  @Get()
+  @Get('alerts')
   async findAllContracts() {
     const contracts = await this.prisma.contracts.findMany(
       {
         include: {
-          partner: true,
+          partner: {
+            include: {
+              Persons: true
+            }
+          },
           entity: true,
         },
       }
