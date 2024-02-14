@@ -334,6 +334,33 @@ export class ContractsController {
     return result;
   }
 
+  @Post('task')
+  async createTask(@Body() data: Prisma.ContractTasksCreateInput): Promise<any> {
+
+    const result = this.prisma.contractTasks.create({
+      data,
+    });
+    return result;
+  }
+
+  @Get('task')
+  async getAllTasks(@Body() data: Prisma.ContractTasksCreateInput): Promise<any> {
+
+    const result = this.prisma.contractTasks.findMany({});
+    return result;
+  }
+
+  @Get('task/:id')
+  async getTaskById(@Param('id') id: any): Promise<any> {
+
+    const result = this.prisma.contractTasks.findFirst({
+      where: {
+        id: parseInt(id)
+      }
+    });
+    return result;
+  }
+
   @Get('type')
   async getEntity(@Body() data: Prisma.EntityCreateInput): Promise<any> {
     const result = await this.prisma.contractType.findMany()
