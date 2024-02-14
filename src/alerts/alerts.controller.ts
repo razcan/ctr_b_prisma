@@ -34,6 +34,17 @@ export class AlertsController {
         return alerts;
     }
 
+    @Get('contractId/:id')
+    async getAlertsByContractId(@Param('id') id: any) {
+        const alerts = await this.prisma.contractAlertSchedule.findMany({
+            where: {
+                contractId: parseInt(id),
+            },
+        }
+        )
+        return alerts;
+    }
+
     @Patch('/:id')
     async UpdateAlert(@Body() data: Prisma.AlertsCreateInput, @Param('id') id: any): Promise<any> {
         const alert = await this.prisma.alerts.update({
@@ -51,7 +62,7 @@ export class AlertsController {
         return Math.round(diffInTime / oneDay);
     }
 
-    @Cron(CronExpression.EVERY_10_SECONDS)
+    @Cron(CronExpression.EVERY_10_MINUTES)
     PopulateAlertContractsCron() {
 
         const allcontracts = this.contracts.findAllContracts()

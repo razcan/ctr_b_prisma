@@ -2,7 +2,7 @@ npx prisma studio
 
 todo
 1.acte aditionale
-2.alerte
+2.alerte x
 3.actiuni
 4.crud ctr
 5.autentificare
