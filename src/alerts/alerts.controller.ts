@@ -51,6 +51,55 @@ export class AlertsController {
         return Math.round(diffInTime / oneDay);
     }
 
+    @Cron(CronExpression.EVERY_10_SECONDS)
+    PopulateAlertContractsCron() {
+
+        const allcontracts = this.contracts.findAllContracts()
+
+        const emailSettings = this.getAlertById(1)
+
+        allcontracts.then(ctr => {
+            emailSettings.then(async settings => {
+                for (let i = 0; i < ctr.length; i++) {
+                    let alertDay = new Date(ctr[i].end.getTime() - (settings.nrofdays * 24 * 60 * 60 * 1000));
+                    //console.log(ctr[i].id, settings.id, settings.name, alertDay, settings.isActive, true, settings.subject, settings.nrofdays)
+                    const alertExist = await this.prisma.contractAlertSchedule.findFirst(
+                        {
+                            where: {
+                                contractId: ctr[i].id,
+                                alertId: settings.id,
+                                datetoBeSent: alertDay
+
+                            },
+                        })
+
+                    if (alertExist !== null) {
+                        // console.log("Exist")
+                    }
+                    else {
+                        console.log("To be inserted")
+                        await this.prisma.contractAlertSchedule.create({
+                            data:
+                            {
+                                contractId: ctr[i].id,
+                                alertId: settings.id,
+                                alertname: settings.name,
+                                datetoBeSent: alertDay,
+                                isActive: settings.isActive,
+                                status: true,
+                                subject: settings.subject,
+                                nrofdays: settings.nrofdays
+
+                            }
+                        });
+                    }
+                }
+            }
+            )
+        })
+
+    }
+
     //EVERY_DAY_AT_10AM
     @Cron(CronExpression.EVERY_DAY_AT_10AM)
     handleCron() {

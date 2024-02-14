@@ -137,14 +137,15 @@ export class NomenclaturesController {
 
   @Get('partners/:id')
   async getPartnerById(@Param('id') id: any) {
-    const partner = await this.prisma.partners.findUnique({
-      include: {
-        Persons: true,
-      },
-      where: {
-        id: parseInt(id),
-      },
-    })
+    const partner = await this.prisma.partners.findUnique(
+      {
+        include: {
+          Persons: true,
+        },
+        where: {
+          id: parseInt(id),
+        },
+      })
     return partner;
   }
 
