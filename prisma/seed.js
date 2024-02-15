@@ -294,6 +294,21 @@ async function main() {
     //     { name: "Kilowatt-ora (kWh)" },
     //     { name: "Hectare (ha)" }]
 
+
+
+    const ContractTasksStatus = [
+        { id: 1, name: "In curs" },
+        { id: 2, name: "Finalizat" },
+        { id: 3, name: "Anulat" },
+    ]
+
+    for (const status of ContractTasksStatus) {
+        await prisma.contractTasksStatus.create({
+            data: status,
+        });
+    }
+
+
     // for (const measuringunit of MeasuringUnit) {
     //     await prisma.measuringUnit.create({
     //         data: measuringunit,
@@ -330,32 +345,32 @@ async function main() {
     //     `
     // )
 
-    await prisma.alerts.create({
-        data: [
-            {
-                name: "Contract Inchis inainte de termen",
-                isActive: true,
-                subject: "Contract Inchis inainte de termen",
-                text: "Va informam faptul ca a fost inchis contractul cu numarul @@NumarContract din data de @@DataContract la partenerul @@Partener. Acest contract a fost in vigoare in compania @@Entitate si reprezinta @@ScurtaDescriere.",
-                internal_emails: "office@companie.ro",
-                nrofdays: 0,
-                param: "Inchis la data",
-                isActivePartner: false,
-                isActivePerson: false
-            },
-            {
-                name: "Expirare Contract",
-                isActive: true,
-                subject: "Expirare Contract",
-                text: "Va informam faptul ca urmeaza sa expire contractul cu numarul @@NumarContract din data de @@DataContract la partenerul @@Partener. Acest contract este in vigoare in compania @@Entitate si reprezinta @@ScurtaDescriere.",
-                internal_emails: "office@companie.ro",
-                nrofdays: 30,
-                param: "Inchis la data",
-                isActivePartner: false,
-                isActivePerson: false
-            },
-        ]
-    });
+    // await prisma.alerts.create({
+    //     data: [
+    //         {
+    //             name: "Contract Inchis inainte de termen",
+    //             isActive: true,
+    //             subject: "Contract Inchis inainte de termen",
+    //             text: "Va informam faptul ca a fost inchis contractul cu numarul @@NumarContract din data de @@DataContract la partenerul @@Partener. Acest contract a fost in vigoare in compania @@Entitate si reprezinta @@ScurtaDescriere.",
+    //             internal_emails: "office@companie.ro",
+    //             nrofdays: 0,
+    //             param: "Inchis la data",
+    //             isActivePartner: false,
+    //             isActivePerson: false
+    //         },
+    //         {
+    //             name: "Expirare Contract",
+    //             isActive: true,
+    //             subject: "Expirare Contract",
+    //             text: "Va informam faptul ca urmeaza sa expire contractul cu numarul @@NumarContract din data de @@DataContract la partenerul @@Partener. Acest contract este in vigoare in compania @@Entitate si reprezinta @@ScurtaDescriere.",
+    //             internal_emails: "office@companie.ro",
+    //             nrofdays: 30,
+    //             param: "Inchis la data",
+    //             isActivePartner: false,
+    //             isActivePerson: false
+    //         },
+    //     ]
+    // });
 
 
     console.log('Seed completed');

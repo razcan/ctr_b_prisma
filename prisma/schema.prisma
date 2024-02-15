@@ -323,6 +323,11 @@ model ContractTasks {
   notes      String
 }
 
+model ContractTasksStatus {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
+
 model Partners {
   id             Int         @id @default(autoincrement())
   updateadAt     DateTime    @updatedAt

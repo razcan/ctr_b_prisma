@@ -92,6 +92,14 @@ export class NomenclaturesController {
     return partner;
   }
 
+  @Get('taskStatus')
+  async getAllTaskStatus() {
+    const status = await this.prisma.contractTasksStatus.findMany(
+      {}
+    )
+    return status;
+  }
+
 
   //returns only partners of type entity
   @Get('partnersdetails/:id')
@@ -229,6 +237,11 @@ export class NomenclaturesController {
       },
     })
     return persons;
+  }
+
+  @Get('personsById/:personid')
+  async getPersonById(@Param('personid') personid: any) {
+    return this.nomenclaturesService.getPersonById(personid);
   }
 
   @Patch('persons/:personid')

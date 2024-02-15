@@ -6,10 +6,11 @@ import { PrismaService } from './prisma.service'
 import { NomenclaturesModule } from './nomenclatures/nomenclatures.module';
 import { AlertsModule } from './alerts/alerts.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { NomenclaturesService } from './nomenclatures/nomenclatures.service';
 
 @Module({
   imports: [ContractsModule, NomenclaturesModule, AlertsModule, ScheduleModule.forRoot()],
   controllers: [AppController],
-  providers: [AppService, PrismaService],
+  providers: [AppService, PrismaService, NomenclaturesService],
 })
 export class AppModule { }

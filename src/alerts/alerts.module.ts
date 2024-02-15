@@ -5,11 +5,12 @@ import { AlertService } from './alerts.service';
 import { PrismaService } from '../prisma.service';
 import { ContractsController } from '../contracts/contracts.controller'
 import { ContractsService } from 'src/contracts/contracts.service';
+import { MailerService } from './mailer.service'
 
 
 @Module({
     controllers: [AlertsController, ContractsController],
-    providers: [PrismaService, ContractsService, AlertService, ContractsController],
+    providers: [PrismaService, ContractsService, AlertService, ContractsController, MailerService],
 
 })
 export class AlertsModule { }

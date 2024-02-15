@@ -6,5 +6,6 @@ import { PrismaService } from '../prisma.service'
 @Module({
   controllers: [NomenclaturesController],
   providers: [NomenclaturesService, PrismaService],
+  exports: [NomenclaturesService]
 })
 export class NomenclaturesModule { }

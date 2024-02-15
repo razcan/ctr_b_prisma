@@ -7,9 +7,6 @@ import { Contracts, ContractsDetails, Prisma } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma.service';
 import { ContractsService } from './contracts.service';
-import { CreateContractsDto } from '../contracts/dto/create-contracts.dto'
-import { CreateContractsDetailsDto } from '../contractsDetails/dto/create-contractsDetails.dto'
-import { UpdateContractDto } from './dto/update-contract.dto';
 import { CreateCategoryDto } from '../category/dto/create-category.dto'
 import { Injectable } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
@@ -23,13 +20,17 @@ import { createReadStream } from 'fs';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Persons } from 'src/persons/entities/persons.entity';
-
+import { MailerService } from 'src/alerts/mailer.service';
+import { NomenclaturesService } from 'src/nomenclatures/nomenclatures.service';
 
 @Controller('contracts')
 export class ContractsController {
   constructor(
     private readonly contractsService: ContractsService,
-    private prisma: PrismaService
+    private prisma: PrismaService,
+    private mailerService: MailerService,
+    // private nomenclatures: NomenclaturesService
+
   ) { }
 
 
@@ -51,6 +52,15 @@ export class ContractsController {
   async getAllFilesByContractId(): Promise<any> {
     const result = await this.prisma.contractAttachments.findMany()
     return result;
+  }
+
+  async getPersonById(personid: any) {
+    const persons = await this.prisma.persons.findFirst({
+      where: {
+        id: parseInt(personid),
+      },
+    })
+    return persons;
   }
 
   // @Get('download/:filename')
@@ -323,8 +333,6 @@ export class ContractsController {
     }
   }
 
-
-
   @Post('type')
   async createEntity(@Body() data: Prisma.EntityCreateInput): Promise<any> {
 
@@ -337,9 +345,47 @@ export class ContractsController {
   @Post('task')
   async createTask(@Body() data: Prisma.ContractTasksCreateInput): Promise<any> {
 
-    const result = this.prisma.contractTasks.create({
+    const result = await this.prisma.contractTasks.create({
       data,
     });
+
+    const assigned = this.getPersonById(result.assigned)
+    const assigned_email = (await assigned).email
+
+    const requestor = this.getPersonById(result.requestor)
+    const requestor_email = (await requestor).email
+
+    const dateString = result.due;
+    const dateDue = new Date(dateString);
+
+    const formattedDate = dateDue.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+
+    // --to be implemented contract id instead of this hardcoding
+    const ctr = this.findContractById(4)
+    const ctr_number = (await ctr).number
+    const ctr_partener = (await ctr).partner.name
+    const ctr_entity = (await ctr).entity.name
+
+    const to = assigned_email;
+    const bcc = '';
+    const subject = 'Ti-a fost asignat un nou task';
+
+    const text = `Ti-a fost asignat un nou task pe compania ${ctr_entity} de catre utilizatorul ${requestor_email} cu numele "${result.taskName}" pentru contractul cu nr. ${ctr_number} 
+    si partenerul ${ctr_partener} care trebuie rezolvat pana la data de ${formattedDate}.`;
+
+    const html = `Ti-a fost asignat un nou task pe compania ${ctr_entity} de catre utilizatorul ${requestor_email} cu numele "${result.taskName}" pentru contractul cu nr. ${ctr_number} 
+    si partenerul ${ctr_partener} care trebuie rezolvat pana la data de ${formattedDate}.`;
+    const attachments = [];
+
+    this.mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
+      .then(() => console.log('Email sent successfully.'))
+      .catch(error => console.error('Error sending email:', error));
+
+    console.log(result)
     return result;
   }
 
@@ -419,7 +465,7 @@ export class ContractsController {
 
   @Get('details/:id')
   async findContractById(@Param('id') id: any) {
-    const contracts = await this.prisma.contracts.findMany(
+    const contracts = await this.prisma.contracts.findUnique(
       {
         include: {
           costcenter: true,
