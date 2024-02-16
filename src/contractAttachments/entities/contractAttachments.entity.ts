@@ -14,5 +14,6 @@ destination: string ;
 filename: string ;
 path: string ;
 size: number ;
-contractId?: Contracts[] ;
+contract?: Contracts  | null;
+contractId: number  | null;
 }

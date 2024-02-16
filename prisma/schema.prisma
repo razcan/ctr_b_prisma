@@ -89,9 +89,9 @@ model ContractStatus {
 }
 
 model ContractAttachments {
-  id           Int         @id @default(autoincrement())
-  updateadAt   DateTime    @updatedAt
-  createdAt    DateTime    @default(now())
+  id           Int        @id @default(autoincrement())
+  updateadAt   DateTime   @updatedAt
+  createdAt    DateTime   @default(now())
   fieldname    String
   originalname String
   encoding     String
@@ -100,7 +100,8 @@ model ContractAttachments {
   filename     String
   path         String
   size         Int
-  contractId   Contracts[]
+  contract     Contracts? @relation(fields: [contractId], references: [id])
+  contractId   Int?
 }
 
 model Currency {
@@ -120,11 +121,12 @@ model BillingFrequency {
 }
 
 model ContractContent {
-  id         Int         @id @default(autoincrement())
-  updateadAt DateTime    @updatedAt
-  createdAt  DateTime    @default(now())
-  content    String      @db.Text
-  contractId Contracts[]
+  id         Int        @id @default(autoincrement())
+  updateadAt DateTime   @updatedAt
+  createdAt  DateTime   @default(now())
+  content    String     @db.Text
+  contract   Contracts? @relation(fields: [contractId], references: [id])
+  contractId Int?
 }
 
 enum Role {
@@ -155,32 +157,30 @@ model Contracts {
   item         Item           @relation(fields: [itemId], references: [id])
   itemId       Int            @default(1)
 
-  automaticRenewal      Boolean              @default(false)
+  automaticRenewal    Boolean               @default(false)
   // contract         ContractsDetails[]
-  partner               Partners?            @relation("partner", fields: [partnersId], references: [id])
-  partnersId            Int?
-  entity                Partners?            @relation("entity", fields: [entityId], references: [id])
-  entityId              Int?
-  parentId              Int?                 @default(0)
-  PartnerPerson         Persons?             @relation("partner", fields: [partnerpersonsId], references: [id])
-  partnerpersonsId      Int?
-  EntityPerson          Persons?             @relation("entity", fields: [entitypersonsId], references: [id])
-  entitypersonsId       Int?
-  EntityAddress         Address?             @relation("entity", fields: [entityaddressId], references: [id])
-  entityaddressId       Int?
-  PartnerAddress        Address?             @relation("partner", fields: [partneraddressId], references: [id])
-  partneraddressId      Int?
-  EntityBank            Banks?               @relation("entity", fields: [entitybankId], references: [id])
-  entitybankId          Int?
-  PartnerBank           Banks?               @relation("partner", fields: [partnerbankId], references: [id])
-  partnerbankId         Int?
-  ContractAttachments   ContractAttachments? @relation(fields: [contractAttachmentsId], references: [id])
-  contractAttachmentsId Int?
-  PaymentType           PaymentType?         @relation(fields: [paymentTypeId], references: [id])
-  paymentTypeId         Int?
-  ContractItems         ContractItems[]
-  ContractContent       ContractContent?     @relation(fields: [contractContentId], references: [id])
-  contractContentId     Int?
+  partner             Partners?             @relation("partner", fields: [partnersId], references: [id])
+  partnersId          Int?
+  entity              Partners?             @relation("entity", fields: [entityId], references: [id])
+  entityId            Int?
+  parentId            Int?                  @default(0)
+  PartnerPerson       Persons?              @relation("partner", fields: [partnerpersonsId], references: [id])
+  partnerpersonsId    Int?
+  EntityPerson        Persons?              @relation("entity", fields: [entitypersonsId], references: [id])
+  entitypersonsId     Int?
+  EntityAddress       Address?              @relation("entity", fields: [entityaddressId], references: [id])
+  entityaddressId     Int?
+  PartnerAddress      Address?              @relation("partner", fields: [partneraddressId], references: [id])
+  partneraddressId    Int?
+  EntityBank          Banks?                @relation("entity", fields: [entitybankId], references: [id])
+  entitybankId        Int?
+  PartnerBank         Banks?                @relation("partner", fields: [partnerbankId], references: [id])
+  partnerbankId       Int?
+  PaymentType         PaymentType?          @relation(fields: [paymentTypeId], references: [id])
+  paymentTypeId       Int?
+  ContractItems       ContractItems[]
+  ContractAttachments ContractAttachments[]
+  ContractContent     ContractContent[]
 }
 
 model ContractsAudit {

@@ -10,9 +10,9 @@ import {Partners} from '../../partners/entities/partners.entity'
 import {Persons} from '../../persons/entities/persons.entity'
 import {Address} from '../../address/entities/address.entity'
 import {Banks} from '../../banks/entities/banks.entity'
-import {ContractAttachments} from '../../contractAttachments/entities/contractAttachments.entity'
 import {PaymentType} from '../../paymentType/entities/paymentType.entity'
 import {ContractItems} from '../../contractItems/entities/contractItems.entity'
+import {ContractAttachments} from '../../contractAttachments/entities/contractAttachments.entity'
 import {ContractContent} from '../../contractContent/entities/contractContent.entity'
 
 
@@ -56,11 +56,9 @@ EntityBank?: Banks  | null;
 entitybankId: number  | null;
 PartnerBank?: Banks  | null;
 partnerbankId: number  | null;
-ContractAttachments?: ContractAttachments  | null;
-contractAttachmentsId: number  | null;
 PaymentType?: PaymentType  | null;
 paymentTypeId: number  | null;
 ContractItems?: ContractItems[] ;
-ContractContent?: ContractContent  | null;
-contractContentId: number  | null;
+ContractAttachments?: ContractAttachments[] ;
+ContractContent?: ContractContent[] ;
 }

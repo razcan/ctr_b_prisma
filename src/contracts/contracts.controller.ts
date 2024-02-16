@@ -35,22 +35,47 @@ export class ContractsController {
 
 
 
-  @Post('file')
+  @Post('file/:id')
   @UseInterceptors(FilesInterceptor('files'))
-  uploadFiles(
+  async uploadFiles(
+    @Param('id') id: any,
     @UploadedFiles() files: Express.Multer.File,
   ) {
     let data: any = files
-    const result = this.prisma.contractAttachments.createMany({
+    const result = await this.prisma.contractAttachments.createMany({
       data,
     });
-    return result;
 
+    console.log(data, id, result, data.length)
+
+    for (let i = 0; i < data.length; i++) {
+      await this.prisma.contractAttachments.updateMany({
+        where: { filename: data[i].filename },
+        data: { contractId: parseInt(id) },
+      })
+    }
+    return result;
   }
 
-  @Get('file')
-  async getAllFilesByContractId(): Promise<any> {
+  @Get('files')
+  async getAllFiles(): Promise<any> {
     const result = await this.prisma.contractAttachments.findMany()
+    return result;
+  }
+
+  // @Get('content/:id')
+  // async getContent(@Body() data: Prisma.ContractContentFindFirstArgs, @Param('id') id: any): Promise<any> {
+
+  @Get('file/:id')
+  async getAllFilesByContractId(@Param('id') id: any): Promise<any> {
+    const contractId: number = parseInt(id);
+    const result = await this.prisma.contractAttachments.findMany(
+      {
+        where: {
+          contractId: contractId,
+        }
+      }
+    )
     return result;
   }
 
@@ -138,9 +163,9 @@ export class ContractsController {
 
   @Get('content/:id')
   async getContent(@Body() data: Prisma.ContractContentFindFirstArgs, @Param('id') id: any): Promise<any> {
-    const content = await this.prisma.contractContent.findUnique({
+    const content = await this.prisma.contractContent.findMany({
       where: {
-        id: parseInt(id),
+        contractId: parseInt(id),
       },
     })
     return content;
@@ -385,25 +410,65 @@ export class ContractsController {
       .then(() => console.log('Email sent successfully.'))
       .catch(error => console.error('Error sending email:', error));
 
-    console.log(result)
+    // console.log(result)
     return result;
   }
 
   @Get('task')
   async getAllTasks(@Body() data: Prisma.ContractTasksCreateInput): Promise<any> {
 
-    const result = this.prisma.contractTasks.findMany({});
+    const result = await this.prisma.contractTasks.findMany({});
     return result;
   }
 
 
   @Patch('task/:id')
-  async updateTasks(@Param('id') id: number, @Body() data: Prisma.ContractTasksCreateInput): Promise<any> {
+  async updateTasks(@Param('id') id: number, @Body() data: any): Promise<any> {
 
-    const result = this.prisma.contractTasks.update({
+    const result = await this.prisma.contractTasks.update({
       where: { id: +id },
       data: data,
     });
+
+    const assigned = this.getPersonById((await result).assigned)
+    const assigned_email = (await assigned).email
+
+    const requestor = this.getPersonById((await result).requestor)
+    const requestor_email = (await requestor).email
+
+    const dateString = (await result).due;
+    const dateDue = new Date(dateString);
+
+    const formattedDate = dateDue.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+
+    // --to be implemented contract id instead of this hardcoding
+    const ctr = this.findContractById(4)
+    const ctr_number = (await ctr).number
+    const ctr_partener = (await ctr).partner.name
+    const ctr_entity = (await ctr).entity.name
+
+    const to = assigned_email;
+    const bcc = '';
+    const subject = 'A fost editat un task asignat tie';
+
+    // const text = `test`
+    // const html = `test`
+    const text = `A fost editat un task pe compania ${ctr_entity} de catre utilizatorul ${requestor_email} cu numele "${result.taskName}" pentru contractul cu nr. ${ctr_number} 
+    si partenerul ${ctr_partener} care trebuie rezolvat pana la data de ${formattedDate}.`;
+
+    const html = `A fost editat un task pe compania ${ctr_entity} de catre utilizatorul ${requestor_email} cu numele "${result.taskName}" pentru contractul cu nr. ${ctr_number} 
+    si partenerul ${ctr_partener} care trebuie rezolvat pana la data de ${formattedDate}.`;
+    const attachments = [];
+
+    this.mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
+      .then(() => console.log('Email sent successfully.'))
+      .catch(error => console.error('Error sending email:', error));
+
+
     return result;
   }
 

@@ -7,5 +7,6 @@ export class ContractContent {
 updateadAt: Date ;
 createdAt: Date ;
 content: string ;
-contractId?: Contracts[] ;
+contract?: Contracts  | null;
+contractId: number  | null;
 }
