@@ -421,6 +421,15 @@ export class ContractsController {
     return result;
   }
 
+  @Get('task/:id')
+  async getTasksByContractId(@Param('id') id: any, @Body() data: Prisma.ContractTasksCreateInput): Promise<any> {
+
+    const result = await this.prisma.contractTasks.findMany({
+      where: { contractId: parseInt(id) },
+    });
+    return result;
+  }
+
 
   @Patch('task/:id')
   async updateTasks(@Param('id') id: number, @Body() data: any): Promise<any> {
