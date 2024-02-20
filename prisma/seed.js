@@ -239,17 +239,7 @@ async function main() {
     //     });
     // }
 
-    // const PaymentType = [
-    //     { name: "Numerar" },
-    //     { name: "Ordin de Plată" },
-    //     { name: "Cec" },
-    //     { name: "Bilet la ordin" },
-    //     { name: "Transfer Bancar" },
-    //     { name: "Virament Bancar" },
-    //     { name: "Portofel Digital(PayPal, Venmo...)" },
-    //     { name: "Bitcoin și Criptomonede" },
-    //     { name: "Card de Debit" },
-    //     { name: "Card de Credit" }]
+
 
     // const Frequency = [
     //     { name: "Zilnic" },
@@ -296,17 +286,17 @@ async function main() {
 
 
 
-    const ContractTasksStatus = [
-        { id: 1, name: "In curs" },
-        { id: 2, name: "Finalizat" },
-        { id: 3, name: "Anulat" },
-    ]
+    // const ContractTasksStatus = [
+    //     { id: 1, name: "In curs" },
+    //     { id: 2, name: "Finalizat" },
+    //     { id: 3, name: "Anulat" },
+    // ]
 
-    for (const status of ContractTasksStatus) {
-        await prisma.contractTasksStatus.create({
-            data: status,
-        });
-    }
+    // for (const status of ContractTasksStatus) {
+    //     await prisma.contractTasksStatus.create({
+    //         data: status,
+    //     });
+    // }
 
 
     // for (const measuringunit of MeasuringUnit) {
@@ -323,11 +313,17 @@ async function main() {
     // }
 
 
-    // for (const frequency of Frequency) {
-    //     await prisma.billingFrequency.create({
-    //         data: frequency,
-    //     });
-    // }
+    // const PaymentType = [
+    //     { name: "Numerar" },
+    //     { name: "Ordin de Plată" },
+    //     { name: "Cec" },
+    //     { name: "Bilet la ordin" },
+    //     { name: "Transfer Bancar" },
+    //     { name: "Virament Bancar" },
+    //     { name: "Portofel Digital(PayPal, Venmo...)" },
+    //     { name: "Bitcoin și Criptomonede" },
+    //     { name: "Card de Debit" },
+    //     { name: "Card de Credit" }]
 
     // for (const type of PaymentType) {
     //     await prisma.PaymentType.create({

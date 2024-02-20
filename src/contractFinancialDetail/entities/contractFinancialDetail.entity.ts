@@ -24,7 +24,8 @@ guaranteeLetter: boolean ;
 guaranteeLetterCurrencyid: number ;
 guaranteeLetterDate: Date ;
 guaranteeLetterValue: number ;
-contractitems?: ContractItems ;
-contractItemId: number ;
+active: boolean ;
+items?: ContractItems  | null;
+contractItemId: number  | null;
 ContractFinancialDetailSchedule?: ContractFinancialDetailSchedule[] ;
 }

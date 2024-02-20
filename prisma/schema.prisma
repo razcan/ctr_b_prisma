@@ -135,34 +135,32 @@ enum Role {
 }
 
 model Contracts {
-  id           Int            @id @default(autoincrement())
-  number       String
-  type         ContractType   @relation(fields: [typeId], references: [id])
-  typeId       Int
-  costcenter   CostCenter     @relation(fields: [costcenterId], references: [id])
-  costcenterId Int            @default(1)
-  status       ContractStatus @relation(fields: [statusId], references: [id])
-  statusId     Int
-  start        DateTime
-  end          DateTime
-  sign         DateTime
-  completion   DateTime
-  remarks      String
-  Category     Category?      @relation(fields: [categoryId], references: [id])
-  categoryId   Int?           @default(1)
-  departament  Department?    @relation(fields: [departmentId], references: [id])
-  departmentId Int?           @default(1)
-  cashflow     Cashflow?      @relation(fields: [cashflowId], references: [id])
-  cashflowId   Int            @default(1)
-  item         Item           @relation(fields: [itemId], references: [id])
-  itemId       Int            @default(1)
-
-  automaticRenewal    Boolean               @default(false)
-  // contract         ContractsDetails[]
-  partner             Partners?             @relation("partner", fields: [partnersId], references: [id])
-  partnersId          Int?
-  entity              Partners?             @relation("entity", fields: [entityId], references: [id])
-  entityId            Int?
+  id                  Int                   @id @default(autoincrement())
+  number              String
+  type                ContractType          @relation(fields: [typeId], references: [id])
+  typeId              Int
+  costcenter          CostCenter            @relation(fields: [costcenterId], references: [id])
+  costcenterId        Int                   @default(1)
+  status              ContractStatus        @relation(fields: [statusId], references: [id])
+  statusId            Int
+  start               DateTime
+  end                 DateTime
+  sign                DateTime?
+  completion          DateTime?
+  remarks             String?
+  Category            Category?             @relation(fields: [categoryId], references: [id])
+  categoryId          Int?
+  departament         Department?           @relation(fields: [departmentId], references: [id])
+  departmentId        Int?
+  cashflow            Cashflow?             @relation(fields: [cashflowId], references: [id])
+  cashflowId          Int?
+  item                Item?                 @relation(fields: [itemId], references: [id])
+  itemId              Int?
+  automaticRenewal    Boolean?              @default(false)
+  partner             Partners              @relation("partner", fields: [partnersId], references: [id])
+  partnersId          Int
+  entity              Partners              @relation("entity", fields: [entityId], references: [id])
+  entityId            Int
   parentId            Int?                  @default(0)
   PartnerPerson       Persons?              @relation("partner", fields: [partnerpersonsId], references: [id])
   partnerpersonsId    Int?
@@ -176,33 +174,33 @@ model Contracts {
   entitybankId        Int?
   PartnerBank         Banks?                @relation("partner", fields: [partnerbankId], references: [id])
   partnerbankId       Int?
-  PaymentType         PaymentType?          @relation(fields: [paymentTypeId], references: [id])
-  paymentTypeId       Int?
   ContractItems       ContractItems[]
   ContractAttachments ContractAttachments[]
   ContractContent     ContractContent[]
+  PaymentType         PaymentType?          @relation(fields: [paymentTypeId], references: [id])
+  paymentTypeId       Int?
 }
 
 model ContractsAudit {
-  auditid               Int      @id @default(autoincrement())
+  auditid               Int       @id @default(autoincrement())
   operationType         String
   id                    Int
-  updateadAt            DateTime @updatedAt
-  createdAt             DateTime @default(now())
+  updateadAt            DateTime  @updatedAt
+  createdAt             DateTime  @default(now())
   number                String
-  typeId                Int
-  costcenterId          Int
+  typeId                Int?
+  costcenterId          Int?
   statusId              Int
-  start                 DateTime
-  end                   DateTime
-  sign                  DateTime
-  completion            DateTime
-  remarks               String
+  start                 DateTime?
+  end                   DateTime?
+  sign                  DateTime?
+  completion            DateTime?
+  remarks               String?
   categoryId            Int?
   departmentId          Int?
-  cashflowId            Int
-  itemId                Int
-  automaticRenewal      Boolean
+  cashflowId            Int?
+  itemId                Int?
+  automaticRenewal      Boolean?
   partnersId            Int?
   entityId              Int?
   parentId              Int?
@@ -232,6 +230,9 @@ model ContractItems {
   contract                Contracts                 @relation(fields: [contractId], references: [id])
   contractId              Int
   itemid                  Int
+  billingFrequencyid      Int
+  currencyid              Int
+  currencyValue           Float
   active                  Boolean                   @default(true)
   ContractFinancialDetail ContractFinancialDetail[]
 }
@@ -257,15 +258,16 @@ model ContractFinancialDetail {
   guaranteeLetterCurrencyid       Int
   guaranteeLetterDate             DateTime
   guaranteeLetterValue            Float
-  contractitems                   ContractItems                     @relation(fields: [contractItemId], references: [id])
-  contractItemId                  Int
+  active                          Boolean                           @default(true)
+  items                           ContractItems?                    @relation(fields: [contractItemId], references: [id])
+  contractItemId                  Int?
   ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
 }
 
 model ContractFinancialDetailSchedule {
-  id                      Int                     @id @default(autoincrement())
-  updateadAt              DateTime                @updatedAt
-  createdAt               DateTime                @default(now())
+  id                      Int                      @id @default(autoincrement())
+  updateadAt              DateTime                 @updatedAt
+  createdAt               DateTime                 @default(now())
   itemid                  Int
   currencyid              Int
   date                    DateTime
@@ -275,8 +277,9 @@ model ContractFinancialDetailSchedule {
   billingValue            Float
   isInvoiced              Boolean
   isPayed                 Boolean
-  contractfinancial       ContractFinancialDetail @relation(fields: [contractFinancialItemId], references: [id])
-  contractFinancialItemId Int
+  active                  Boolean                  @default(true)
+  financial               ContractFinancialDetail? @relation(fields: [contractfinancialItemId], references: [id])
+  contractfinancialItemId Int?
 }
 
 model Alerts {

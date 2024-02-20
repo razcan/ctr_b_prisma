@@ -177,7 +177,7 @@ export class ContractsController {
   @Post()
   async createContract(@Body() data: any): Promise<any> {
 
-    console.log(data);
+    // console.log(data);
 
     const result = await this.prisma.contracts.create({
       data,
@@ -216,6 +216,43 @@ export class ContractsController {
     return audit;
   }
 
+
+  @Post('contractItems')
+  async createContractItems(@Body() data: Prisma.ContractItemsCreateManyInput): Promise<any> {
+    // console.log(data)
+    const result = this.prisma.contractItems.createMany({
+      data,
+    });
+    return result;
+  }
+
+
+  @Get('contractItems/:id')
+  async getcontractItems(@Param('id') id: any, @Body() data: Prisma.ContractItemsCreateManyArgs): Promise<any> {
+
+    const result = await this.prisma.contractItems.findMany({
+      where: { contractId: parseInt(id) },
+    });
+    return result;
+  }
+
+  @Post('financialDetail')
+  async createFinancialDetail(@Body() data: Prisma.ContractFinancialDetailCreateInput): Promise<any> {
+    // console.log(data)
+    const result = this.prisma.contractFinancialDetail.create({
+      data,
+    });
+    return result;
+  }
+
+  @Post('financialDetailSchedule')
+  async createFinancialSchedule(@Body() data: Prisma.ContractFinancialDetailScheduleCreateManyInput): Promise<any> {
+    //console.log(data)
+    const result = this.prisma.contractFinancialDetailSchedule.createMany({
+      data,
+    });
+    return result;
+  }
 
   @Post('category')
   async createCategory(@Body() data: Prisma.CategoryCreateInput): Promise<any> {

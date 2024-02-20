@@ -15,6 +15,7 @@ totalContractValue: number ;
 billingValue: number ;
 isInvoiced: boolean ;
 isPayed: boolean ;
-contractfinancial?: ContractFinancialDetail ;
-contractFinancialItemId: number ;
+active: boolean ;
+financial?: ContractFinancialDetail  | null;
+contractfinancialItemId: number  | null;
 }

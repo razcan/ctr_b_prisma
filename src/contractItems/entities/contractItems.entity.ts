@@ -10,6 +10,9 @@ createdAt: Date ;
 contract?: Contracts ;
 contractId: number ;
 itemid: number ;
+billingFrequencyid: number ;
+currencyid: number ;
+currencyValue: number ;
 active: boolean ;
 ContractFinancialDetail?: ContractFinancialDetail[] ;
 }

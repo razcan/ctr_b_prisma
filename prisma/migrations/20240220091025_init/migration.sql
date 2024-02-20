@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Contracts" ALTER COLUMN "sign" DROP NOT NULL,
+ALTER COLUMN "completion" DROP NOT NULL,
+ALTER COLUMN "remarks" DROP NOT NULL,
+ALTER COLUMN "automaticRenewal" DROP NOT NULL;
