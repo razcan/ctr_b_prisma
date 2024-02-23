@@ -35,6 +35,65 @@ abordarea noua - tabel audit prisma , logica in controller, si functie de return
 
 @Get('executeAuditPartner/:id')
 
+
+create or replace function GetAuditContract(contractid integer) 
+RETURNS TABLE (
+    contract_id INT,
+    Tip_Modificare text,
+    Data_Modificare timestamp(3),
+    Contract_Number text,
+    Nume_Partener text,
+    Nume_Entitate text,
+    Stare text,
+    Start_Date timestamp(3),
+    End_Date timestamp(3),
+    Sign_Date timestamp(3),
+    Completion_Date timestamp(3),
+    Nume_Categorie text,
+    Departament text,
+    Cashflow text,
+    Tip_Contract text,
+    Centru_Cost text
+    
+) AS $$
+begin 
+	RETURN QUERY
+	select 
+	c.id as contract_id, 
+	c."operationType" Tip_Modificare,
+	c."createdAt" as Data_Modificare,
+	c.number as Contract_Number, 
+	a.name as Nume_Partener, 
+	b.name as Nume_Entitate, 
+	cs.name as Stare,
+	c.start as Start_Date ,
+	c.end as End_Date ,
+	c.sign as Sign_Date ,
+	c.completion as Completion_Date ,
+	ca.name as Nume_Categorie ,
+	dep.name as Departament ,
+    cf.name as Cashflow ,
+    ct.name as Tip_Contract ,
+    cc.name as Centru_Cost 
+	from public."ContractsAudit" c
+	join public."Partners" a on c."partnersId" = a.id 
+	join public."Partners" b on c."entityId" = b.id 
+	join public."Category" ca  on c."categoryId"  = ca.id 
+	join public."ContractStatus" cs on cs."id" = c."statusId"
+	join public."Department" dep  on dep."id" = c."departmentId"
+	join public."Cashflow" cf on cf."id" = c."cashflowId"
+	join public."ContractType" ct on ct."id" = c."typeId"
+	join public."CostCenter"  cc on cc."id" = c."costcenterId"
+	
+where c.id  = contractid;
+end;
+$$ LANGUAGE plpgsql;
+
+
+select * from GetAuditContract10(4)
+
+
+
 create or replace function GetAuditContract(contractid integer) 
 RETURNS TABLE (
     contract_id INT,

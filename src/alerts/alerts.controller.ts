@@ -67,7 +67,7 @@ export class AlertsController {
 
         const allcontracts = this.contracts.findAllContracts()
 
-        const emailSettings = this.getAlertById(1)
+        const emailSettings = this.getAlertById(2)
 
         allcontracts.then(ctr => {
             emailSettings.then(async settings => {

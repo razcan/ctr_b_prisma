@@ -46,7 +46,7 @@ export class ContractsController {
       data,
     });
 
-    console.log(data, id, result, data.length)
+    // console.log(data, id, result, data.length)
 
     for (let i = 0; i < data.length; i++) {
       await this.prisma.contractAttachments.updateMany({
@@ -62,9 +62,6 @@ export class ContractsController {
     const result = await this.prisma.contractAttachments.findMany()
     return result;
   }
-
-  // @Get('content/:id')
-  // async getContent(@Body() data: Prisma.ContractContentFindFirstArgs, @Param('id') id: any): Promise<any> {
 
   @Get('file/:id')
   async getAllFilesByContractId(@Param('id') id: any): Promise<any> {
@@ -149,17 +146,40 @@ export class ContractsController {
     return content;
   }
 
-  @Patch('content/:id')
-  async updateContent(@Body() data: Prisma.ContractContentCreateInput, @Param('id') id: any): Promise<any> {
+  // @Patch('content/:id')
+  // async updateContent(@Body() data: any, @Param('id') id: any): Promise<any> {
 
-    const content = await this.prisma.contractContent.update({
+  //   const content = await this.prisma.contractContent.upsert({
+  //     where: {
+  //       contractId: parseInt(id),
+  //     },
+  //     data: data,
+  //   })
+  //   return content;
+  // }
+
+  @Patch('content/:id')
+  async updateContent(@Body() data: any, @Param('id') id: any): Promise<any> {
+    const existingContent = await this.prisma.contractContent.findUnique({
       where: {
-        id: parseInt(id),
-      },
-      data: data,
-    })
-    return content;
+        contractId: parseInt(id)
+      }
+    });
+
+    if (existingContent) {
+      const updatedContent = await this.prisma.contractContent.update({
+        where: { contractId: parseInt(id) },
+        data: data,
+      });
+      return updatedContent;
+    } else {
+      const newContent = await this.prisma.contractContent.create({
+        data: data
+      });
+      return newContent;
+    }
   }
+
 
   @Get('content/:id')
   async getContent(@Body() data: Prisma.ContractContentFindFirstArgs, @Param('id') id: any): Promise<any> {
@@ -226,16 +246,6 @@ export class ContractsController {
     return result;
   }
 
-
-  @Get('contractItems/:id')
-  async getcontractItems(@Param('id') id: any, @Body() data: Prisma.ContractItemsCreateManyArgs): Promise<any> {
-
-    const result = await this.prisma.contractItems.findMany({
-      where: { contractId: parseInt(id) },
-    });
-    return result;
-  }
-
   @Post('financialDetail')
   async createFinancialDetail(@Body() data: Prisma.ContractFinancialDetailCreateInput): Promise<any> {
     // console.log(data)
@@ -253,6 +263,28 @@ export class ContractsController {
     });
     return result;
   }
+
+
+  @Get('contractItems/:id')
+  async getcontractItems(@Param('id') id: any, @Body() data: Prisma.ContractItemsCreateManyArgs): Promise<any> {
+
+    const result = await this.prisma.contractItems.findMany({
+      where:
+      {
+        contractId: parseInt(id)
+      },
+      include: {
+        item: true,
+        frequency: true,
+        contract: true,
+        currency: true
+      }
+    });
+    return result;
+  }
+
+
+
 
   @Post('category')
   async createCategory(@Body() data: Prisma.CategoryCreateInput): Promise<any> {
@@ -411,10 +443,10 @@ export class ContractsController {
       data,
     });
 
-    const assigned = this.getPersonById(result.assigned)
+    const assigned = this.getPersonById(result.assignedId)
     const assigned_email = (await assigned).email
 
-    const requestor = this.getPersonById(result.requestor)
+    const requestor = this.getPersonById(result.requestorId)
     const requestor_email = (await requestor).email
 
     const dateString = result.due;
@@ -427,7 +459,7 @@ export class ContractsController {
     });
 
     // --to be implemented contract id instead of this hardcoding
-    const ctr = this.findContractById(4)
+    const ctr = this.findContractById(result.contractId)
     const ctr_number = (await ctr).number
     const ctr_partener = (await ctr).partner.name
     const ctr_entity = (await ctr).entity.name
@@ -447,14 +479,22 @@ export class ContractsController {
       .then(() => console.log('Email sent successfully.'))
       .catch(error => console.error('Error sending email:', error));
 
-    // console.log(result)
+    console.log(result)
     return result;
   }
 
   @Get('task')
   async getAllTasks(@Body() data: Prisma.ContractTasksCreateInput): Promise<any> {
 
-    const result = await this.prisma.contractTasks.findMany({});
+    const result = await this.prisma.contractTasks.findMany(
+      {
+        include:
+        {
+          requestor: true,
+          assigned: true,
+          status: true
+        }
+      });
     return result;
   }
 
@@ -462,6 +502,12 @@ export class ContractsController {
   async getTasksByContractId(@Param('id') id: any, @Body() data: Prisma.ContractTasksCreateInput): Promise<any> {
 
     const result = await this.prisma.contractTasks.findMany({
+      include:
+      {
+        requestor: true,
+        assigned: true,
+        status: true
+      },
       where: { contractId: parseInt(id) },
     });
     return result;
@@ -476,10 +522,10 @@ export class ContractsController {
       data: data,
     });
 
-    const assigned = this.getPersonById((await result).assigned)
+    const assigned = this.getPersonById((await result).assignedId)
     const assigned_email = (await assigned).email
 
-    const requestor = this.getPersonById((await result).requestor)
+    const requestor = this.getPersonById((await result).requestorId)
     const requestor_email = (await requestor).email
 
     const dateString = (await result).due;
@@ -567,6 +613,19 @@ export class ContractsController {
 
     return contracts;
   }
+
+  @Get('basic/:id')
+  async findSimplifiedCtr(@Param('id') id: any) {
+    const contract = await this.prisma.contracts.findUnique(
+      {
+        where: {
+          id: parseInt(id),
+        },
+      }
+    )
+    return contract.entityId;
+  }
+
 
   @Get('alerts')
   async findAllContracts() {

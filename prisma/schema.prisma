@@ -4,7 +4,7 @@
 //  npx prisma studio   
 // https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding
 // de analizat cum este facut la parteneri - trebuie trimis partnersId adica categoryId ...
-//node prisma/seed.js si de adaugat in package.json   "type": "module",
+// si de adaugat in package.json   "type": "module",
 //erori https://www.prisma.io/docs/orm/reference/error-reference#error-codes
 
 generator nestjsDto {
@@ -49,9 +49,10 @@ model Cashflow {
 }
 
 model Item {
-  id         Int         @id @default(autoincrement())
-  name       String      @unique
-  contractId Contracts[]
+  id            Int             @id @default(autoincrement())
+  name          String          @unique
+  contractId    Contracts[]
+  ContractItems ContractItems[]
 }
 
 model CostCenter {
@@ -105,9 +106,10 @@ model ContractAttachments {
 }
 
 model Currency {
-  id   Int    @id @default(autoincrement())
-  code String @unique
-  name String @unique
+  id            Int             @id @default(autoincrement())
+  code          String          @unique
+  name          String          @unique
+  ContractItems ContractItems[]
 }
 
 model Bank {
@@ -116,8 +118,9 @@ model Bank {
 }
 
 model BillingFrequency {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id            Int             @id @default(autoincrement())
+  name          String          @unique
+  ContractItems ContractItems[]
 }
 
 model ContractContent {
@@ -126,7 +129,7 @@ model ContractContent {
   createdAt  DateTime   @default(now())
   content    String     @db.Text
   contract   Contracts? @relation(fields: [contractId], references: [id])
-  contractId Int?
+  contractId Int?       @unique
 }
 
 enum Role {
@@ -227,10 +230,13 @@ model ContractItems {
   id                      Int                       @id @default(autoincrement())
   updateadAt              DateTime                  @updatedAt
   createdAt               DateTime                  @default(now())
-  contract                Contracts                 @relation(fields: [contractId], references: [id])
+  contract                Contracts?                @relation(fields: [contractId], references: [id])
   contractId              Int
+  item                    Item?                     @relation(fields: [itemid], references: [id])
   itemid                  Int
+  frequency               BillingFrequency?         @relation(fields: [billingFrequencyid], references: [id])
   billingFrequencyid      Int
+  currency                Currency?                 @relation(fields: [currencyid], references: [id])
   currencyid              Int
   currencyValue           Float
   active                  Boolean                   @default(true)
@@ -241,24 +247,24 @@ model ContractFinancialDetail {
   id                              Int                               @id @default(autoincrement())
   updateadAt                      DateTime                          @updatedAt
   createdAt                       DateTime                          @default(now())
-  itemid                          Int
+  itemid                          Int?
   totalContractValue              Float
   currencyid                      Int
   currencyValue                   Float
-  currencyPercent                 Float
+  currencyPercent                 Float?
   billingDay                      Int
   billingQtty                     Float
-  billingFrequencyid              Int
-  measuringUnitid                 Int
-  paymentTypeid                   Int
+  billingFrequencyid              Int?
+  measuringUnitid                 Int?
+  paymentTypeid                   Int?
   billingPenaltyPercent           Float
   billingDueDays                  Int
-  remarks                         String                            @db.VarChar(150)
-  guaranteeLetter                 Boolean
-  guaranteeLetterCurrencyid       Int
-  guaranteeLetterDate             DateTime
-  guaranteeLetterValue            Float
-  active                          Boolean                           @default(true)
+  remarks                         String?                           @db.VarChar(150)
+  guaranteeLetter                 Boolean?
+  guaranteeLetterCurrencyid       Int?
+  guaranteeLetterDate             DateTime?
+  guaranteeLetterValue            Float?
+  active                          Boolean?                          @default(true)
   items                           ContractItems?                    @relation(fields: [contractItemId], references: [id])
   contractItemId                  Int?
   ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
@@ -312,23 +318,27 @@ model ContractAlertSchedule {
 }
 
 model ContractTasks {
-  id         Int      @id @default(autoincrement())
-  updateadAt DateTime @updatedAt
-  createdAt  DateTime @default(now())
-  taskName   String
-  contractId Int?
-  progress   Int
-  status     Int
-  statusDate DateTime @default(now())
-  requestor  Int
-  assigned   Int
-  due        DateTime
-  notes      String
+  id          Int                  @id @default(autoincrement())
+  updateadAt  DateTime             @updatedAt
+  createdAt   DateTime             @default(now())
+  taskName    String
+  contractId  Int?
+  progress    Int
+  status      ContractTasksStatus? @relation(fields: [statusId], references: [id])
+  statusId    Int
+  statusDate  DateTime             @default(now())
+  requestor   Persons?             @relation("requestor", fields: [requestorId], references: [id])
+  requestorId Int
+  assigned    Persons?             @relation("assigned", fields: [assignedId], references: [id])
+  assignedId  Int
+  due         DateTime
+  notes       String
 }
 
 model ContractTasksStatus {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id            Int             @id @default(autoincrement())
+  name          String          @unique
+  ContractTasks ContractTasks[]
 }
 
 model Partners {
@@ -351,18 +361,20 @@ model Partners {
 }
 
 model Persons {
-  id             Int         @id @default(autoincrement())
-  updateadAt     DateTime    @updatedAt
-  createdAt      DateTime    @default(now())
-  name           String      @unique
+  id             Int             @id @default(autoincrement())
+  updateadAt     DateTime        @updatedAt
+  createdAt      DateTime        @default(now())
+  name           String          @unique
   phone          String?
-  email          String?     @unique
+  email          String?         @unique
   legalrepresent Boolean?
   role           String?
-  partner        Partners    @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  partner        Partners        @relation(fields: [partnerId], references: [id], onDelete: Cascade)
   partnerId      Int
-  Contracts      Contracts[] @relation("partner")
-  Entity         Contracts[] @relation("entity")
+  Contracts      Contracts[]     @relation("partner")
+  Entity         Contracts[]     @relation("entity")
+  AssignedTasks  ContractTasks[] @relation("assigned")
+  RequestorTasks ContractTasks[] @relation("requestor")
 }
 
 model Address {
