@@ -311,6 +311,31 @@ export class ContractsController {
 
 
 
+  @Get('contractItemsDetails/:id')
+  async getcontractItemsDetails(@Param('id') id: any): Promise<any> {
+
+    const result = await this.prisma.contractItems.findMany({
+      where:
+      {
+        id: parseInt(id)
+      },
+      include: {
+        contract: true,
+        item: true,
+        frequency: true,
+        currency: true,
+        ContractFinancialDetail: {
+          include: {
+            ContractFinancialDetailSchedule: true
+          }
+        }
+      }
+    });
+    return result;
+  }
+
+
+
 
   @Post('category')
   async createCategory(@Body() data: Prisma.CategoryCreateInput): Promise<any> {
