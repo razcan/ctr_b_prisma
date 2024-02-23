@@ -238,16 +238,42 @@ export class ContractsController {
 
 
   @Post('contractItems')
-  async createContractItems(@Body() data: Prisma.ContractItemsCreateManyInput): Promise<any> {
-    // console.log(data)
-    const result = this.prisma.contractItems.createMany({
-      data,
+  async createContractItems(@Body()
+  dataAll: any
+  ): Promise<any> {
+
+    let dataItem: Prisma.ContractItemsCreateManyInput = dataAll[0];
+    const result = this.prisma.contractItems.create({
+      data: dataItem,
     });
-    return result;
+
+    const finDetail: any = dataAll[1]
+    finDetail.contractItemId = (await result).id
+    const finCtrFinDetail: Prisma.ContractFinancialDetailUncheckedCreateInput = finDetail
+
+    const result2 = this.prisma.contractFinancialDetail.create({
+      data: finCtrFinDetail,
+    });
+
+    let schBill = dataAll[2]
+    let x = (await result2).id
+
+    for (let i = 0; i < schBill.length; i++) {
+      schBill[i].contractfinancialItemId = x
+    }
+
+    const finCtrFinSchDetail: Prisma.ContractFinancialDetailScheduleCreateManyInput = schBill
+    // console.log(schBill)
+    const result3 = this.prisma.contractFinancialDetailSchedule.createMany({
+      data: finCtrFinSchDetail,
+    });
+
+    return result3;
   }
 
   @Post('financialDetail')
-  async createFinancialDetail(@Body() data: Prisma.ContractFinancialDetailCreateInput): Promise<any> {
+  async createFinancialDetail(@Body()
+  data: Prisma.ContractFinancialDetailCreateInput): Promise<any> {
     // console.log(data)
     const result = this.prisma.contractFinancialDetail.create({
       data,
