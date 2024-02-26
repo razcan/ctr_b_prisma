@@ -3,7 +3,7 @@ import {
   Controller, Get, Post, Body, Patch, Param, Header, HttpStatus,
   Delete, UploadedFile, UploadedFiles, HttpException, HttpCode, Request, UseGuards, UsePipes, ValidationPipe, Res
 } from '@nestjs/common';
-import { Contracts, ContractsDetails, Prisma } from '@prisma/client';
+import { ContractFinancialDetail, ContractFinancialDetailSchedule, Contracts, ContractsDetails, Prisma } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma.service';
 import { ContractsService } from './contracts.service';
@@ -291,6 +291,203 @@ export class ContractsController {
   }
 
 
+  @Patch('/:id')
+  async update(@Param('id') id: number, @Body() data: any) {
+
+    const contract = await this.prisma.contracts.update({
+      where: { id: +id },
+      data: data,
+    })
+
+    const audit = this.prisma.contractsAudit.create({
+      data: {
+        operationType: "U",
+        id: contract.id,
+        number: data.number,
+        typeId: data.typeId,
+        statusId: data.statusId,
+        start: data.start,
+        end: data.end,
+        sign: data.sign,
+        completion: data.completion,
+        remarks: data.remarks,
+        categoryId: data.categoryId,
+        departmentId: data.departmentId,
+        cashflowId: data.cashflowId,
+        itemId: data.itemId,
+        costcenterId: data.costcenterId,
+        automaticRenewal: data.automaticRenewal,
+        partnersId: data.partnersId,
+        entityId: data.entityId,
+        partnerpersonsId: data.partnerpersonsId,
+        entitypersonsId: data.entitypersonsId,
+        entityaddressId: data.entityaddressId,
+        partneraddressId: data.partneraddressId,
+        entitybankId: data.entitybankId,
+        partnerbankId: data.partnerbankId
+      }
+    });
+
+    return audit;
+  }
+
+
+  @Delete('financialDetailSchedule/:id')
+  async deleteFinancialSchedule(
+    @Param('id') id: string,
+    @Body() data: any): Promise<any> {
+
+    const ctrfinDetailId =
+      await this.prisma.contractFinancialDetail.findFirst(
+        {
+          where: {
+            contractItemId: parseInt(id)
+          },
+        })
+
+    const result = await this.prisma.contractFinancialDetailSchedule.findMany({
+      where:
+      {
+        contractfinancialItemId: ctrfinDetailId.id
+      }
+    })
+
+    const resultw = await this.prisma.contractFinancialDetailSchedule.deleteMany({
+      where:
+      {
+        contractfinancialItemId: ctrfinDetailId.id
+      }
+    });
+
+    return resultw;
+  }
+
+  @Patch('updatecontractItems/:id/:ctrId/:contractfinancialItemId')
+  async updatecontractItems(
+    @Param('id') id: string,
+    @Param('ctrId') ctrId: string,
+    @Param('contractfinancialItemId') contractfinancialItemId: string,
+    @Body() data: any): Promise<any> {
+    console.log(id, ctrId, contractfinancialItemId)
+
+
+    const result = await this.prisma.contractItems.update({
+      where: { id: parseInt(id) },
+      data: data[0]
+    })
+
+    let dataItem: Prisma.ContractFinancialDetailUpdateInput = data[1];
+    const result22 = this.prisma.contractFinancialDetail.update
+      (
+        {
+          where: { id: 49 }
+          ,
+          data: dataItem,
+        });
+
+    // return result22
+
+    const finDetail: any = data[1]
+    const finCtrFinDetail: Prisma.ContractFinancialDetailUncheckedUpdateInput = finDetail
+
+    const result2 = this.prisma.contractFinancialDetail.update({
+      where: { id: 50 },
+      data: {
+        itemid: finCtrFinDetail.itemid,
+        currencyValue: finCtrFinDetail.currencyValue,
+        currencyPercent: finCtrFinDetail.currencyPercent,
+        paymentTypeid: finCtrFinDetail.paymentTypeid,
+        billingDay: finCtrFinDetail.billingDay,
+        billingQtty: finCtrFinDetail.billingQtty,
+        billingFrequencyid: finCtrFinDetail.billingFrequencyid,
+        remarks: finCtrFinDetail.remarks,
+        billingDueDays: finCtrFinDetail.billingDueDays,
+        billingPenaltyPercent: finCtrFinDetail.billingDueDays,
+        guaranteeLetter: finCtrFinDetail.guaranteeLetter,
+        guaranteeLetterDate: finCtrFinDetail.guaranteeLetterDate,
+        guaranteeLetterValue: finCtrFinDetail.guaranteeLetterValue,
+        active: finCtrFinDetail.active,
+        currencyid: finCtrFinDetail.currencyid,
+        guaranteeLetterCurrencyid: finCtrFinDetail.guaranteeLetterCurrencyid
+      }
+    }
+      //   itemid                          Int ?
+      //     totalContractValue              Float
+      // currency                        Currency ? @relation("item", fields: [currencyid], references: [id])
+      // currencyid                      Int ?
+      //     currencyValue                   Float ?
+      //     currencyPercent                 Float ?
+      //     billingDay                      Int
+      // billingQtty                     Float
+      // billingFrequencyid              Int ?
+      //     measuringUnit                   MeasuringUnit ? @relation(fields: [measuringUnitid], references: [id])
+      // measuringUnitid                 Int ?
+      //     paymentType                     PaymentType ? @relation(fields: [paymentTypeid], references: [id])
+      // paymentTypeid                   Int ?
+      //     billingPenaltyPercent           Float
+      // billingDueDays                  Int
+      // remarks                         String ? @db.VarChar(150)
+      // guaranteeLetter                 Boolean ?
+      //     guaranteecurrency               Currency ? @relation("guarantee", fields: [guaranteeLetterCurrencyid], references: [id])
+      // guaranteeLetterCurrencyid       Int ?
+      //     guaranteeLetterDate             DateTime ?
+      //     guaranteeLetterValue            Float ?
+      //     active                          Boolean ? @default(true)
+      // items                           ContractItems?                    @relation(fields: [contractItemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+      // contractItemId                  Int?
+      // ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
+    );
+
+    console.log(result2)
+    return result2
+
+    // const result2 = await this.prisma.contractFinancialDetail.findFirst({
+    //   where: { contractItemId: 118 }
+    // })
+
+    // const result3 = await this.prisma.contractFinancialDetail.findUnique({
+    //   where: { id: 49 }
+    // })
+
+
+    // const result4 = await this.prisma.contractFinancialDetailSchedule.findMany({
+    //   where: { id: parseInt(contractfinancialItemId) }
+    // })
+
+    // const result5 = await this.prisma.contractFinancialDetailSchedule.findMany({
+    //   where: { contractfinancialItemId: parseInt(contractfinancialItemId) }
+    // })
+
+    // const sch: Prisma.ContractFinancialDetailScheduleUpdateManyMutationInput = data[2];
+    // const result6 = await this.prisma.contractFinancialDetailSchedule.updateMany({
+    //   where: { contractfinancialItemId: parseInt(contractfinancialItemId) },
+    //   data: sch
+    // })
+
+    // // console.log(result2)
+    // console.log(result5)
+
+    // const result2 = await this.prisma.contractFinancialDetail.update({
+    //   where: { id: parseInt(contractfinancialItemId) },
+    //   data: data[1]
+    // })
+
+    // return result22
+
+    // const result2 = await this.prisma.contractFinancialDetail.findUnique({
+    //   where: { id: parseInt(contractfinancialItemId) }
+    // })
+
+    // const result2 = await this.prisma.contractFinancialDetail.update({
+    //   where: { id: parseInt(contractfinancialItemId) },
+    //   data: data[1]
+    // })
+
+    // return result2
+
+  }
+
+
   @Get('contractItems/:id')
   async getcontractItems(@Param('id') id: any, @Body() data: Prisma.ContractItemsCreateManyArgs): Promise<any> {
 
@@ -310,6 +507,42 @@ export class ContractsController {
   }
 
 
+  @Get('contractItemsEditDetails/:id')
+  async editcontractItemsDetails(@Param('id') id: any): Promise<any> {
+
+    const result = await this.prisma.contractItems.findMany({
+      where:
+      {
+        id: parseInt(id)
+      },
+      include: {
+        contract: true,
+        item: true,
+        frequency: true,
+        currency: true,
+        ContractFinancialDetail: {
+          include: {
+            ContractFinancialDetailSchedule:
+            {
+              include: {
+                item: true,
+                currency: true,
+                measuringUnit: true,
+
+              }
+            }
+            ,
+            measuringUnit: true,
+            paymentType: true,
+            currency: true,
+            items: true,
+            guaranteecurrency: true
+          }
+        }
+      }
+    });
+    return result;
+  }
 
   @Get('contractItemsDetails/:id')
   async getcontractItemsDetails(@Param('id') id: any): Promise<any> {
@@ -317,7 +550,7 @@ export class ContractsController {
     const result = await this.prisma.contractItems.findMany({
       where:
       {
-        id: parseInt(id)
+        contractId: parseInt(id)
       },
       include: {
         contract: true,
@@ -689,6 +922,18 @@ export class ContractsController {
     return contract.entityId;
   }
 
+  @Get('onlycontract/:id')
+  async returnCotract(@Param('id') id: any) {
+    const contract = await this.prisma.contracts.findUnique(
+      {
+        where: {
+          id: parseInt(id),
+        },
+      }
+    )
+    return contract;
+  }
+
 
   @Get('alerts')
   async findAllContracts() {
@@ -776,43 +1021,5 @@ export class ContractsController {
   //   console.log(user);
   // }
 
-  @Patch('/:id')
-  async update(@Param('id') id: number, @Body() data: any) {
 
-    const contract = await this.prisma.contracts.update({
-      where: { id: +id },
-      data: data,
-    })
-
-    const audit = this.prisma.contractsAudit.create({
-      data: {
-        operationType: "U",
-        id: contract.id,
-        number: data.number,
-        typeId: data.typeId,
-        statusId: data.statusId,
-        start: data.start,
-        end: data.end,
-        sign: data.sign,
-        completion: data.completion,
-        remarks: data.remarks,
-        categoryId: data.categoryId,
-        departmentId: data.departmentId,
-        cashflowId: data.cashflowId,
-        itemId: data.itemId,
-        costcenterId: data.costcenterId,
-        automaticRenewal: data.automaticRenewal,
-        partnersId: data.partnersId,
-        entityId: data.entityId,
-        partnerpersonsId: data.partnerpersonsId,
-        entitypersonsId: data.entitypersonsId,
-        entityaddressId: data.entityaddressId,
-        partneraddressId: data.partneraddressId,
-        entitybankId: data.entitybankId,
-        partnerbankId: data.partnerbankId
-      }
-    });
-
-    return audit;
-  }
 }

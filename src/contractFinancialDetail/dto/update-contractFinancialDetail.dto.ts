@@ -16,7 +16,6 @@ billingPenaltyPercent?: number;
 billingDueDays?: number;
 remarks?: string;
 guaranteeLetter?: boolean;
-guaranteeLetterCurrencyid?: number;
 guaranteeLetterDate?: Date;
 guaranteeLetterValue?: number;
 active?: boolean;

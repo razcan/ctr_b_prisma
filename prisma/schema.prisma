@@ -114,8 +114,9 @@ model Currency {
   code                            String                            @unique
   name                            String                            @unique
   ContractItems                   ContractItems[]
-  ContractFinancialDetail         ContractFinancialDetail[]
   ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
+  item                            ContractFinancialDetail[]         @relation("item")
+  guarantee                       ContractFinancialDetail[]         @relation("guarantee")
 }
 
 model Bank {
@@ -255,7 +256,7 @@ model ContractFinancialDetail {
   createdAt                       DateTime                          @default(now())
   itemid                          Int?
   totalContractValue              Float
-  currency                        Currency?                         @relation(fields: [currencyid], references: [id])
+  currency                        Currency?                         @relation("item", fields: [currencyid], references: [id])
   currencyid                      Int?
   currencyValue                   Float?
   currencyPercent                 Float?
@@ -270,11 +271,12 @@ model ContractFinancialDetail {
   billingDueDays                  Int
   remarks                         String?                           @db.VarChar(150)
   guaranteeLetter                 Boolean?
+  guaranteecurrency               Currency?                         @relation("guarantee", fields: [guaranteeLetterCurrencyid], references: [id])
   guaranteeLetterCurrencyid       Int?
   guaranteeLetterDate             DateTime?
   guaranteeLetterValue            Float?
   active                          Boolean?                          @default(true)
-  items                           ContractItems?                    @relation(fields: [contractItemId], references: [id])
+  items                           ContractItems?                    @relation(fields: [contractItemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   contractItemId                  Int?
   ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
 }

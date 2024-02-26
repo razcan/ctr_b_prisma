@@ -27,6 +27,7 @@ billingPenaltyPercent: number ;
 billingDueDays: number ;
 remarks: string  | null;
 guaranteeLetter: boolean  | null;
+guaranteecurrency?: Currency  | null;
 guaranteeLetterCurrencyid: number  | null;
 guaranteeLetterDate: Date  | null;
 guaranteeLetterValue: number  | null;
