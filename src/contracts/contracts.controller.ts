@@ -326,7 +326,19 @@ export class ContractsController {
         currency: true,
         ContractFinancialDetail: {
           include: {
-            ContractFinancialDetailSchedule: true
+            ContractFinancialDetailSchedule:
+            {
+              include: {
+                item: true,
+                currency: true,
+                measuringUnit: true,
+              }
+            }
+            ,
+            measuringUnit: true,
+            paymentType: true,
+            currency: true,
+            items: true
           }
         }
       }

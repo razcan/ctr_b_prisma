@@ -5,10 +5,7 @@
 
 
 export class CreateContractFinancialDetailScheduleDto {
-  itemid: number;
-currencyid: number;
-date: Date;
-measuringUnitid: number;
+  date: Date;
 billingQtty: number;
 totalContractValue: number;
 billingValue: number;

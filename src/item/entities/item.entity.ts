@@ -1,6 +1,7 @@
 
 import {Contracts} from '../../contracts/entities/contracts.entity'
 import {ContractItems} from '../../contractItems/entities/contractItems.entity'
+import {ContractFinancialDetailSchedule} from '../../contractFinancialDetailSchedule/entities/contractFinancialDetailSchedule.entity'
 
 
 export class Item {
@@ -8,4 +9,5 @@ export class Item {
 name: string ;
 contractId?: Contracts[] ;
 ContractItems?: ContractItems[] ;
+ContractFinancialDetailSchedule?: ContractFinancialDetailSchedule[] ;
 }

@@ -49,10 +49,11 @@ model Cashflow {
 }
 
 model Item {
-  id            Int             @id @default(autoincrement())
-  name          String          @unique
-  contractId    Contracts[]
-  ContractItems ContractItems[]
+  id                              Int                               @id @default(autoincrement())
+  name                            String                            @unique
+  contractId                      Contracts[]
+  ContractItems                   ContractItems[]
+  ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
 }
 
 model CostCenter {
@@ -68,8 +69,10 @@ model ContractType {
 }
 
 model MeasuringUnit {
-  id   Int    @id @default(autoincrement())
-  name String
+  id                              Int                               @id @default(autoincrement())
+  name                            String
+  ContractFinancialDetail         ContractFinancialDetail[]
+  ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
 }
 
 model Entity {
@@ -78,9 +81,10 @@ model Entity {
 }
 
 model PaymentType {
-  id         Int         @id @default(autoincrement())
-  name       String      @unique
-  contractId Contracts[]
+  id                      Int                       @id @default(autoincrement())
+  name                    String                    @unique
+  contractId              Contracts[]
+  ContractFinancialDetail ContractFinancialDetail[]
 }
 
 model ContractStatus {
@@ -106,10 +110,12 @@ model ContractAttachments {
 }
 
 model Currency {
-  id            Int             @id @default(autoincrement())
-  code          String          @unique
-  name          String          @unique
-  ContractItems ContractItems[]
+  id                              Int                               @id @default(autoincrement())
+  code                            String                            @unique
+  name                            String                            @unique
+  ContractItems                   ContractItems[]
+  ContractFinancialDetail         ContractFinancialDetail[]
+  ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
 }
 
 model Bank {
@@ -249,13 +255,16 @@ model ContractFinancialDetail {
   createdAt                       DateTime                          @default(now())
   itemid                          Int?
   totalContractValue              Float
-  currencyid                      Int
-  currencyValue                   Float
+  currency                        Currency?                         @relation(fields: [currencyid], references: [id])
+  currencyid                      Int?
+  currencyValue                   Float?
   currencyPercent                 Float?
   billingDay                      Int
   billingQtty                     Float
   billingFrequencyid              Int?
+  measuringUnit                   MeasuringUnit?                    @relation(fields: [measuringUnitid], references: [id])
   measuringUnitid                 Int?
+  paymentType                     PaymentType?                      @relation(fields: [paymentTypeid], references: [id])
   paymentTypeid                   Int?
   billingPenaltyPercent           Float
   billingDueDays                  Int
@@ -274,10 +283,13 @@ model ContractFinancialDetailSchedule {
   id                      Int                      @id @default(autoincrement())
   updateadAt              DateTime                 @updatedAt
   createdAt               DateTime                 @default(now())
-  itemid                  Int
-  currencyid              Int
+  item                    Item?                    @relation(fields: [itemid], references: [id])
+  itemid                  Int?
+  currency                Currency?                @relation(fields: [currencyid], references: [id])
+  currencyid              Int?
   date                    DateTime
-  measuringUnitid         Int
+  measuringUnit           MeasuringUnit?           @relation(fields: [measuringUnitid], references: [id])
+  measuringUnitid         Int?
   billingQtty             Float
   totalContractValue      Float
   billingValue            Float
