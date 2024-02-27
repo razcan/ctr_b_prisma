@@ -162,6 +162,9 @@ export class ContractsController {
 
   @Patch('content/:id')
   async updateContent(@Body() data: any, @Param('id') id: any): Promise<any> {
+
+    data.contractId = parseInt(id);
+
     const existingContent = await this.prisma.contractContent.findUnique({
       where: {
         contractId: parseInt(id)
@@ -194,6 +197,24 @@ export class ContractsController {
   }
 
 
+  @Get('additionals/:id')
+  async getAditionals(
+    @Param('id') id: any): Promise<any> {
+    const content = await this.prisma.contracts.findMany({
+      where: {
+        parentId: parseInt(id),
+      },
+      include: {
+        entity: true,
+        partner: true,
+        EntityAddress: true,
+        PartnerAddress: true,
+        type: true,
+        status: true
+      },
+    })
+    return content;
+  }
 
 
   @Post()
@@ -873,7 +894,6 @@ export class ContractsController {
         },
       }
     )
-
     return contracts;
   }
 
