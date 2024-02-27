@@ -22,6 +22,8 @@ import * as path from 'path';
 import { Persons } from 'src/persons/entities/persons.entity';
 import { MailerService } from 'src/alerts/mailer.service';
 import { NomenclaturesService } from 'src/nomenclatures/nomenclatures.service';
+import { sha256 } from 'crypto-hash';
+import { createHash } from 'crypto';
 
 @Controller('contracts')
 export class ContractsController {
@@ -345,12 +347,12 @@ export class ContractsController {
           },
         })
 
-    const result = await this.prisma.contractFinancialDetailSchedule.findMany({
-      where:
-      {
-        contractfinancialItemId: ctrfinDetailId.id
-      }
-    })
+    // const result = await this.prisma.contractFinancialDetailSchedule.findMany({
+    //   where:
+    //   {
+    //     contractfinancialItemId: ctrfinDetailId.id
+    //   }
+    // })
 
     const resultw = await this.prisma.contractFinancialDetailSchedule.deleteMany({
       where:
@@ -361,6 +363,14 @@ export class ContractsController {
 
     return resultw;
   }
+
+
+  generateArrayHash(arr: any[]): string {
+    const hash = createHash('sha256');
+    hash.update(JSON.stringify(arr));
+    return hash.digest('hex');
+  }
+
 
   @Patch('updatecontractItems/:id/:ctrId/:contractfinancialItemId')
   async updatecontractItems(
@@ -376,22 +386,11 @@ export class ContractsController {
       data: data[0]
     })
 
-    let dataItem: Prisma.ContractFinancialDetailUpdateInput = data[1];
-    const result22 = this.prisma.contractFinancialDetail.update
-      (
-        {
-          where: { id: 49 }
-          ,
-          data: dataItem,
-        });
-
-    // return result22
-
     const finDetail: any = data[1]
     const finCtrFinDetail: Prisma.ContractFinancialDetailUncheckedUpdateInput = finDetail
 
     const result2 = this.prisma.contractFinancialDetail.update({
-      where: { id: 50 },
+      where: { id: parseInt(contractfinancialItemId) },
       data: {
         itemid: finCtrFinDetail.itemid,
         currencyValue: finCtrFinDetail.currencyValue,
@@ -408,84 +407,52 @@ export class ContractsController {
         guaranteeLetterValue: finCtrFinDetail.guaranteeLetterValue,
         active: finCtrFinDetail.active,
         currencyid: finCtrFinDetail.currencyid,
-        guaranteeLetterCurrencyid: finCtrFinDetail.guaranteeLetterCurrencyid
+        guaranteeLetterCurrencyid: finCtrFinDetail.guaranteeLetterCurrencyid,
+        totalContractValue: finCtrFinDetail.totalContractValue
       }
     }
-      //   itemid                          Int ?
-      //     totalContractValue              Float
-      // currency                        Currency ? @relation("item", fields: [currencyid], references: [id])
-      // currencyid                      Int ?
-      //     currencyValue                   Float ?
-      //     currencyPercent                 Float ?
-      //     billingDay                      Int
-      // billingQtty                     Float
-      // billingFrequencyid              Int ?
-      //     measuringUnit                   MeasuringUnit ? @relation(fields: [measuringUnitid], references: [id])
-      // measuringUnitid                 Int ?
-      //     paymentType                     PaymentType ? @relation(fields: [paymentTypeid], references: [id])
-      // paymentTypeid                   Int ?
-      //     billingPenaltyPercent           Float
-      // billingDueDays                  Int
-      // remarks                         String ? @db.VarChar(150)
-      // guaranteeLetter                 Boolean ?
-      //     guaranteecurrency               Currency ? @relation("guarantee", fields: [guaranteeLetterCurrencyid], references: [id])
-      // guaranteeLetterCurrencyid       Int ?
-      //     guaranteeLetterDate             DateTime ?
-      //     guaranteeLetterValue            Float ?
-      //     active                          Boolean ? @default(true)
-      // items                           ContractItems?                    @relation(fields: [contractItemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-      // contractItemId                  Int?
-      // ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
     );
+    console.log(await result2)
 
-    console.log(result2)
-    return result2
+    let schBill = data[2]
+    let x = parseInt(id)
 
-    // const result2 = await this.prisma.contractFinancialDetail.findFirst({
-    //   where: { contractItemId: 118 }
-    // })
+    const resultId = await this.prisma.contractFinancialDetail.findFirst({
+      where: { contractItemId: parseInt(id) }
+    })
 
-    // const result3 = await this.prisma.contractFinancialDetail.findUnique({
-    //   where: { id: 49 }
-    // })
+    const result4 = await this.prisma.contractFinancialDetailSchedule.findMany({
+      where: { contractfinancialItemId: resultId.id }
+    })
 
+    const objString: any = JSON.stringify(result4);
 
-    // const result4 = await this.prisma.contractFinancialDetailSchedule.findMany({
-    //   where: { id: parseInt(contractfinancialItemId) }
-    // })
+    const hash1 = this.generateArrayHash(objString);
 
-    // const result5 = await this.prisma.contractFinancialDetailSchedule.findMany({
-    //   where: { contractfinancialItemId: parseInt(contractfinancialItemId) }
-    // })
+    const objStringschBill: any = JSON.stringify(schBill)
 
-    // const sch: Prisma.ContractFinancialDetailScheduleUpdateManyMutationInput = data[2];
-    // const result6 = await this.prisma.contractFinancialDetailSchedule.updateMany({
-    //   where: { contractfinancialItemId: parseInt(contractfinancialItemId) },
-    //   data: sch
-    // })
+    const hash2 = this.generateArrayHash(objStringschBill);
 
-    // // console.log(result2)
-    // console.log(result5)
+    console.log("hash1: ", hash1)
+    console.log("hash2: ", hash2)
 
-    // const result2 = await this.prisma.contractFinancialDetail.update({
-    //   where: { id: parseInt(contractfinancialItemId) },
-    //   data: data[1]
-    // })
+    if (hash1 !== hash2) {
+      for (let i = 0; i < schBill.length; i++) {
+        schBill[i].contractfinancialItemId = resultId.id
+      }
 
-    // return result22
+      const result5 = await this.prisma.contractFinancialDetailSchedule.deleteMany({
+        where: { contractfinancialItemId: resultId.id }
+      })
 
-    // const result2 = await this.prisma.contractFinancialDetail.findUnique({
-    //   where: { id: parseInt(contractfinancialItemId) }
-    // })
+      const result3 = this.prisma.contractFinancialDetailSchedule.createMany({
+        data: schBill,
+      });
 
-    // const result2 = await this.prisma.contractFinancialDetail.update({
-    //   where: { id: parseInt(contractfinancialItemId) },
-    //   data: data[1]
-    // })
-
-    // return result2
-
+      return result3;
+    }
   }
+
 
 
   @Get('contractItems/:id')
