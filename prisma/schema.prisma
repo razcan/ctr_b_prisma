@@ -63,9 +63,10 @@ model CostCenter {
 }
 
 model ContractType {
-  id         Int         @id @default(autoincrement())
-  name       String
-  contractId Contracts[]
+  id                Int                 @id @default(autoincrement())
+  name              String
+  contractId        Contracts[]
+  ContractTemplates ContractTemplates[]
 }
 
 model MeasuringUnit {
@@ -353,6 +354,18 @@ model ContractTasks {
   assignedId  Int
   due         DateTime
   notes       String
+}
+
+model ContractTemplates {
+  id             Int           @id @default(autoincrement())
+  updateadAt     DateTime      @updatedAt
+  createdAt      DateTime      @default(now())
+  name           String
+  active         Boolean
+  contractType   ContractType? @relation(fields: [contractTypeId], references: [id])
+  contractTypeId Int?
+  notes          String
+  content        String        @db.Text
 }
 
 model Partners {

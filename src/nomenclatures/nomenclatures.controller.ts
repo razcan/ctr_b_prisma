@@ -221,6 +221,66 @@ export class NomenclaturesController {
   // }
 
 
+  @Post('contracttemplates')
+  async createContractTemplate(@Body() data: Prisma.ContractTemplatesCreateInput): Promise<any> {
+    const result = this.prisma.contractTemplates.create({
+      data,
+    });
+    return result;
+  }
+
+  @Patch('contracttemplates/:id')
+  async updateContractTemplate(
+    @Param('id') id: any,
+    @Body() data: Prisma.ContractTemplatesUpdateInput): Promise<any> {
+    const result = this.prisma.contractTemplates.update(
+      {
+        where: {
+          id: parseInt(id)
+        },
+        data,
+      }
+    );
+    return result;
+  }
+
+  @Delete('contracttemplates/:id')
+  async deleteContractTemplate(
+    @Param('id') id: any,
+    @Body() data: Prisma.ContractTemplatesWhereInput): Promise<any> {
+    const result = this.prisma.contractTemplates.delete(
+      {
+        where: {
+          id: parseInt(id)
+        },
+      }
+    );
+    return result;
+  }
+
+  @Get('contracttemplates')
+  async getContractTemplate(@Body() data: Prisma.ContractTemplatesFindManyArgs): Promise<any> {
+    const result = this.prisma.contractTemplates.findMany({
+      include: {
+        contractType: true
+      }
+    });
+    return result;
+  }
+
+  @Get('contracttemplates/:id')
+  async getContractTemplateById(@Param('id') id: any) {
+    const result = this.prisma.contractTemplates.findUnique({
+      where: {
+        id: id
+      },
+      include: {
+        contractType: true
+      }
+    });
+    return result;
+  }
+
   @Post('persons')
   async createPerson(@Body() data: Prisma.PersonsCreateInput): Promise<any> {
     const result = this.prisma.persons.create({

@@ -1,13 +1,8 @@
 npx prisma studio
 
 todo
-1.acte aditionale
-2.alerte x
-3.actiuni
-4.crud ctr
+
 5.autentificare
-6.grafice dashboard
-7.scos tab istoric la adaugare ctr
 8.template-uri de contract plus placeholdere
 9.meniu setari alerte(expira inainte cu n zile, s-a inchis inainte de termen, s-a schimbat resp ctr, nu a ajuns factura, modificat stare ctr)
 10.meniu useri/drepturi
