@@ -331,6 +331,12 @@ model ContractAlertSchedule {
   nrofdays     Int
 }
 
+model ContractTasksStatus {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique
+  ContractTasks ContractTasks[]
+}
+
 model ContractTasks {
   id          Int                  @id @default(autoincrement())
   updateadAt  DateTime             @updatedAt
@@ -347,12 +353,6 @@ model ContractTasks {
   assignedId  Int
   due         DateTime
   notes       String
-}
-
-model ContractTasksStatus {
-  id            Int             @id @default(autoincrement())
-  name          String          @unique
-  ContractTasks ContractTasks[]
 }
 
 model Partners {

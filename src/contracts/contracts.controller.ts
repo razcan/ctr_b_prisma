@@ -881,6 +881,9 @@ export class ContractsController {
   async findAll() {
     const contracts = await this.prisma.contracts.findMany(
       {
+        where: {
+          parentId: 0
+        },
         include: {
           costcenter: true,
           partner: true,
