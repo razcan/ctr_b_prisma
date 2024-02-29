@@ -1,11 +1,17 @@
 
-import {Role} from '@prisma/client'
+import {RoleUser} from '../../roleUser/entities/roleUser.entity'
+import {UserGroups} from '../../userGroups/entities/userGroups.entity'
 
 
 export class User {
   id: number ;
-name: string  | null;
+updatedAt: Date ;
+createdAt: Date ;
+name: string ;
 email: string ;
 password: string ;
-role: Role ;
+roles?: RoleUser[] ;
+status: boolean ;
+picture: string  | null;
+User_Groups?: UserGroups[] ;
 }

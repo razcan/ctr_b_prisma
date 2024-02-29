@@ -3,7 +3,7 @@
 // npx prisma migrate dev --name init
 //  npx prisma studio   
 // https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding
-// de analizat cum este facut la parteneri - trebuie trimis partnersId adica categoryId ...
+//node seed.js
 // si de adaugat in package.json   "type": "module",
 //erori https://www.prisma.io/docs/orm/reference/error-reference#error-codes
 
@@ -20,14 +20,6 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-model User {
-  id       Int     @id @default(autoincrement())
-  name     String?
-  email    String  @unique
-  password String
-  role     Role    @default(USER)
 }
 
 model Category {
@@ -138,11 +130,6 @@ model ContractContent {
   content    String     @db.Text
   contract   Contracts? @relation(fields: [contractId], references: [id])
   contractId Int?       @unique
-}
-
-enum Role {
-  USER
-  ADMIN
 }
 
 model Contracts {
@@ -369,12 +356,12 @@ model ContractTemplates {
 }
 
 model Partners {
-  id             Int         @id @default(autoincrement())
-  updateadAt     DateTime    @updatedAt
-  createdAt      DateTime    @default(now())
-  name           String      @unique
-  fiscal_code    String      @unique
-  commercial_reg String      @unique
+  id             Int           @id @default(autoincrement())
+  updateadAt     DateTime      @updatedAt
+  createdAt      DateTime      @default(now())
+  name           String        @unique
+  fiscal_code    String        @unique
+  commercial_reg String        @unique
   state          String
   type           String
   email          String
@@ -383,8 +370,10 @@ model Partners {
   Persons        Persons[]
   Address        Address[]
   Banks          Banks[]
-  Contracts      Contracts[] @relation("partner")
-  Entity         Contracts[] @relation("entity")
+  Contracts      Contracts[]   @relation("partner")
+  Entity         Contracts[]   @relation("entity")
+  Groups         Groups[]
+  User_Groups    User_Groups[]
 }
 
 model Persons {
@@ -439,4 +428,66 @@ model Banks {
   partnerId  Int
   Contracts  Contracts[] @relation("partner")
   Enity      Contracts[] @relation("entity")
+}
+
+// enum Roles {
+//   Administrator
+//   Reader
+//   Requestor
+//   Editor
+// }
+
+model User {
+  id          Int           @id @default(autoincrement())
+  updatedAt   DateTime      @updatedAt
+  createdAt   DateTime      @default(now())
+  name        String
+  email       String        @unique
+  password    String
+  roles       Role_User[]
+  status      Boolean
+  picture     String?
+  User_Groups User_Groups[]
+}
+
+model Role {
+  id       Int         @id @default(autoincrement())
+  roleName String
+  users    Role_User[]
+  Groups   Groups[]
+}
+
+model Role_User {
+  id     Int  @id @default(autoincrement())
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+  role   Role @relation(fields: [roleId], references: [id])
+  roleId Int
+}
+
+model Groups {
+  id          Int           @id @default(autoincrement())
+  updateadAt  DateTime      @updatedAt
+  createdAt   DateTime      @default(now())
+  name        String?
+  description String?
+  entity      Partners?     @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  entityId    Int?
+  role        Role?         @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  roleId      Int?
+  User_Groups User_Groups[]
+}
+
+model User_Groups {
+  id         Int       @default(autoincrement())
+  updateadAt DateTime  @updatedAt
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int
+  group      Groups    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId    Int
+  entity     Partners? @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  entityId   Int
+
+  @@id([userId, groupId, entityId]) //pk
 }

@@ -1,6 +1,9 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
+import bcrypt from 'bcrypt';
+
+
 
 import { NomenclaturesService } from './nomenclatures.service';
 import { CreateNomenclatureDto } from './dto/create-nomenclature.dto';
@@ -11,6 +14,32 @@ export class NomenclaturesController {
   constructor(
     private readonly nomenclaturesService: NomenclaturesService,
     private prisma: PrismaService) { }
+
+
+  async hashPassword(password: string): Promise<string> {
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    return hashedPassword;
+  }
+
+
+  @Post('users')
+  async createUser(@Body() data: any): Promise<any> {
+
+    console.log(data)
+
+    const result = this.prisma.user.create({
+      data,
+    });
+    return result;
+  }
+
+  @Get('roles')
+  async getUserRoles() {
+    const roles = await this.prisma.role.findMany()
+    return roles;
+  }
+
 
 
   @Get('billingfrequency')
