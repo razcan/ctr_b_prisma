@@ -1,13 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import bcrypt from 'bcrypt';
 
-
-
+import {
+  Controller, Get, Post, Body, Patch, Param, Header, HttpStatus,
+  Delete, UploadedFile, UploadedFiles, HttpException, HttpCode, Request, UseGuards, UsePipes, ValidationPipe, Res, UseInterceptors
+} from '@nestjs/common';
 import { NomenclaturesService } from './nomenclatures.service';
-import { CreateNomenclatureDto } from './dto/create-nomenclature.dto';
-import { UpdateNomenclatureDto } from './dto/update-nomenclature.dto';
+import { ContractFinancialDetail, ContractFinancialDetailSchedule, Contracts, ContractsDetails, Prisma } from '@prisma/client';
+
+import { Injectable } from '@nestjs/common';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import {
+  ParseFilePipeBuilder,
+} from '@nestjs/common';
+import type { Response } from 'express';
+import { Express } from 'express'
+import { createReadStream } from 'fs';
 
 @Controller('nomenclatures')
 export class NomenclaturesController {
@@ -24,15 +32,77 @@ export class NomenclaturesController {
 
 
   @Post('users')
-  async createUser(@Body() data: any): Promise<any> {
+  @UseInterceptors(FilesInterceptor('avatar'))
+  async createUser(
+    @Body() data: any,
+    @UploadedFiles() avatar: Express.Multer.File,
+  ): Promise<any> {
 
-    console.log(data)
+    data.status = (data.status === "true") ? true : false;
+    data.picture = avatar[0].filename
+
+    // const rol =
+    //   //data.json;
+    //   // { "create": [{ "role": { "connect": { "id": 1 } } }, { "role": { "connect": { "id": 2 } } }, { "role": { "connect": { "id": 3 } } }, { "role": { "connect": { "id": 4 } } }] };
+    //   { "create": [{ "role": { "connect": { "id": 1 } } }, { "role": { "connect": { "id": 2 } } }, { "role": { "connect": { "id": 3 } } }, { "role": { "connect": { "id": 4 } } }] }
+
+    // Parse the JSON string into a JavaScript object
+    // const jsonData = JSON.parse(data.json);
+    const jsonData = JSON.parse(data.roles);
 
     const result = this.prisma.user.create({
-      data,
+      data: {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        status: data.status,
+        picture: data.picture,
+        roles: jsonData
+      }
+
     });
+    console.log(await result)
     return result;
+
   }
+
+  @Get('download/:filename')
+  downloadFile(@Param('filename') filename: string, @Res() res: Response) {
+    const folderPath = '/Users/razvanmustata/Projects/contracts/backend/Uploads'
+    const fileStream = createReadStream(`${folderPath}/${filename}`);
+    fileStream.pipe(res);
+  }
+
+  @Get('users')
+  async getUsers() {
+    const users = await this.prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        status: true
+      },
+    });
+    return users;
+  }
+
+  //   async function getTotalSalesByCategory() {
+  //   const totalSalesByCategory = await prisma.order.aggregate({
+  //     groupBy: {
+  //       category: {
+  //         // Assuming 'category' is the field you want to group by
+  //         category: true,
+  //       },
+  //     },
+  //     sum: {
+  //       // Assuming 'totalAmount' is the field you want to sum
+  //       totalAmount: true,
+  //     },
+  //   });
+
+  //   return totalSalesByCategory;
+  // }
+
 
   @Get('roles')
   async getUserRoles() {
