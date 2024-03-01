@@ -356,12 +356,12 @@ model ContractTemplates {
 }
 
 model Partners {
-  id             Int           @id @default(autoincrement())
-  updateadAt     DateTime      @updatedAt
-  createdAt      DateTime      @default(now())
-  name           String        @unique
-  fiscal_code    String        @unique
-  commercial_reg String        @unique
+  id             Int         @id @default(autoincrement())
+  updateadAt     DateTime    @updatedAt
+  createdAt      DateTime    @default(now())
+  name           String      @unique
+  fiscal_code    String      @unique
+  commercial_reg String      @unique
   state          String
   type           String
   email          String
@@ -370,10 +370,9 @@ model Partners {
   Persons        Persons[]
   Address        Address[]
   Banks          Banks[]
-  Contracts      Contracts[]   @relation("partner")
-  Entity         Contracts[]   @relation("entity")
+  Contracts      Contracts[] @relation("partner")
+  Entity         Contracts[] @relation("entity")
   Groups         Groups[]
-  User_Groups    User_Groups[]
 }
 
 model Persons {
@@ -454,7 +453,6 @@ model Role {
   id       Int         @id @default(autoincrement())
   roleName String
   users    Role_User[]
-  Groups   Groups[]
 }
 
 model Role_User {
@@ -473,21 +471,17 @@ model Groups {
   description String?
   entity      Partners?     @relation(fields: [entityId], references: [id], onDelete: Cascade)
   entityId    Int?
-  role        Role?         @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  roleId      Int?
   User_Groups User_Groups[]
 }
 
 model User_Groups {
-  id         Int       @default(autoincrement())
-  updateadAt DateTime  @updatedAt
-  createdAt  DateTime  @default(now())
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         Int      @default(autoincrement())
+  updateadAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     Int
-  group      Groups    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  group      Groups   @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId    Int
-  entity     Partners? @relation(fields: [entityId], references: [id], onDelete: Cascade)
-  entityId   Int
 
-  @@id([userId, groupId, entityId]) //pk
+  @@id([userId, groupId]) //pk
 }

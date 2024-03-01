@@ -61,7 +61,7 @@ export class NomenclaturesController {
       }
 
     });
-    console.log(await result)
+    // console.log(await result)
     return result;
 
   }
@@ -80,7 +80,27 @@ export class NomenclaturesController {
         id: true,
         name: true,
         email: true,
-        status: true
+        status: true,
+        picture: true,
+        roles: true
+      },
+    });
+    return users;
+  }
+
+  @Get('user/:id')
+  async getUser(@Param('id') id: any) {
+    const users = await this.prisma.user.findUnique({
+      where: {
+        id: parseInt(id)
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        status: true,
+        picture: true,
+        roles: true
       },
     });
     return users;
