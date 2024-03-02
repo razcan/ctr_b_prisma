@@ -1,6 +1,5 @@
 
 import {User} from '../../user/entities/user.entity'
-import {Groups} from '../../groups/entities/groups.entity'
 
 
 export class UserGroups {
@@ -9,6 +8,4 @@ updateadAt: Date ;
 createdAt: Date ;
 user?: User ;
 userId: number ;
-group?: Groups ;
-groupId: number ;
 }

@@ -41,14 +41,14 @@ export class NomenclaturesController {
     data.status = (data.status === "true") ? true : false;
     data.picture = avatar[0].filename
 
-    // const rol =
-    //   //data.json;
-    //   // { "create": [{ "role": { "connect": { "id": 1 } } }, { "role": { "connect": { "id": 2 } } }, { "role": { "connect": { "id": 3 } } }, { "role": { "connect": { "id": 4 } } }] };
-    //   { "create": [{ "role": { "connect": { "id": 1 } } }, { "role": { "connect": { "id": 2 } } }, { "role": { "connect": { "id": 3 } } }, { "role": { "connect": { "id": 4 } } }] }
+    console.log(data)
 
     // Parse the JSON string into a JavaScript object
     // const jsonData = JSON.parse(data.json);
+
+
     const jsonData = JSON.parse(data.roles);
+    const jsonUser_Groups = JSON.parse(data.User_Groups);
 
     const result = this.prisma.user.create({
       data: {
@@ -57,11 +57,11 @@ export class NomenclaturesController {
         password: data.password,
         status: data.status,
         picture: data.picture,
-        roles: jsonData
+        roles: jsonData,
+        User_Groups: jsonUser_Groups
       }
 
     });
-    // console.log(await result)
     return result;
 
   }
@@ -117,6 +117,15 @@ export class NomenclaturesController {
         email: true,
         status: true,
         picture: true,
+        User_Groups:
+        {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            entity: true
+          }
+        },
         roles: {
           // include : role
           select: {
@@ -170,6 +179,36 @@ export class NomenclaturesController {
   async getUserRoles() {
     const roles = await this.prisma.role.findMany()
     return roles;
+  }
+
+  @Post('groups')
+  async createGroup(@Body() data: Prisma.GroupsCreateInput): Promise<any> {
+    const result = this.prisma.groups.create({
+      data,
+    });
+    return result;
+  }
+
+
+  @Get('groups')
+  async getAllGroups(@Body() data: Prisma.GroupsCreateInput): Promise<any> {
+    const result = this.prisma.groups.findMany({
+    });
+    return result;
+  }
+
+
+  @Get('groups/:id')
+  async getGroupById(@Param('id') id: any): Promise<any> {
+    const result = this.prisma.groups.findUnique({
+      where: {
+        id: parseInt(id)
+      },
+      include: {
+        entity: true
+      }
+    });
+    return result;
   }
 
 

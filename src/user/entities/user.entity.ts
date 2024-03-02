@@ -1,6 +1,6 @@
 
 import {RoleUser} from '../../roleUser/entities/roleUser.entity'
-import {UserGroups} from '../../userGroups/entities/userGroups.entity'
+import {Groups} from '../../groups/entities/groups.entity'
 
 
 export class User {
@@ -13,5 +13,5 @@ password: string ;
 roles?: RoleUser[] ;
 status: boolean ;
 picture: string  | null;
-User_Groups?: UserGroups[] ;
+User_Groups?: Groups[] ;
 }

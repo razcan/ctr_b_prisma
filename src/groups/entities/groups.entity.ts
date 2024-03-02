@@ -1,6 +1,6 @@
 
 import {Partners} from '../../partners/entities/partners.entity'
-import {UserGroups} from '../../userGroups/entities/userGroups.entity'
+import {User} from '../../user/entities/user.entity'
 
 
 export class Groups {
@@ -9,7 +9,6 @@ updateadAt: Date ;
 createdAt: Date ;
 name: string  | null;
 description: string  | null;
-entity?: Partners  | null;
-entityId: number  | null;
-User_Groups?: UserGroups[] ;
+entity?: Partners[] ;
+User?: User[] ;
 }
