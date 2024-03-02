@@ -88,8 +88,25 @@ export class NomenclaturesController {
     return users;
   }
 
+  // @Get('user/:id')
+  // async getUser(@Param('id') id: any) {
+  //   const users = await this.prisma.user.findMany({
+  //     where: {
+  //       id: parseInt(id)
+  //     },
+  //     select: {
+  //       id: true,
+  //       name: true,
+  //       email: true,
+  //       status: true,
+  //       picture: true,
+  //     },
+  //   });
+  //   return users;
+  // }
+
   @Get('user/:id')
-  async getUser(@Param('id') id: any) {
+  async getUser3(@Param('id') id: any) {
     const users = await this.prisma.user.findUnique({
       where: {
         id: parseInt(id)
@@ -100,10 +117,35 @@ export class NomenclaturesController {
         email: true,
         status: true,
         picture: true,
-        roles: true
+        roles: {
+          // include : role
+          select: {
+            // id: true,
+            // userId: true
+            role: true
+          },
+        },
       },
     });
-    return users;
+    return users
+  }
+
+  @Delete('user/:id')
+  async deleteUser(@Param('id') id: any) {
+
+    const roles = await this.prisma.role_User.deleteMany({
+      where: {
+        userId: parseInt(id),
+      },
+    })
+
+
+    const user = await this.prisma.user.delete({
+      where: {
+        id: parseInt(id),
+      },
+    })
+    return user;
   }
 
   //   async function getTotalSalesByCategory() {
