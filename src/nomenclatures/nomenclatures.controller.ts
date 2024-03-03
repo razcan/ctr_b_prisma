@@ -25,9 +25,16 @@ export class NomenclaturesController {
 
 
   async hashPassword(password: string): Promise<string> {
-    const saltRounds = 10;
+    const saltRounds = 99;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     return hashedPassword;
+  }
+
+  async verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+    // Verify the password
+    const isMatch = await bcrypt.compare(password, hashedPassword);
+
+    return isMatch;
   }
 
 
@@ -41,8 +48,15 @@ export class NomenclaturesController {
     data.status = (data.status === "true") ? true : false;
     data.picture = avatar[0].filename
 
-    console.log(data)
+    // console.log(data)
 
+
+    // const hashedPassword = await bcrypt.hash(data.password, 10);
+    // console.log("Hashed Password:", hashedPassword);
+    // console.log("original Password:", data.password);
+    // console.log("Check Password:", await this.verifyPassword(data.password, hashedPassword));
+
+    // console.log(hashedPassword);
     // Parse the JSON string into a JavaScript object
     // const jsonData = JSON.parse(data.json);
 
@@ -54,7 +68,7 @@ export class NomenclaturesController {
       data: {
         name: data.name,
         email: data.email,
-        password: data.password,
+        password: await this.hashPassword(data.password),
         status: data.status,
         picture: data.picture,
         roles: jsonData,
@@ -88,22 +102,6 @@ export class NomenclaturesController {
     return users;
   }
 
-  // @Get('user/:id')
-  // async getUser(@Param('id') id: any) {
-  //   const users = await this.prisma.user.findMany({
-  //     where: {
-  //       id: parseInt(id)
-  //     },
-  //     select: {
-  //       id: true,
-  //       name: true,
-  //       email: true,
-  //       status: true,
-  //       picture: true,
-  //     },
-  //   });
-  //   return users;
-  // }
 
   @Get('user/:id')
   async getUser3(@Param('id') id: any) {
@@ -120,10 +118,12 @@ export class NomenclaturesController {
         User_Groups:
         {
           select: {
+            createdAt: true,
+            description: true,
             id: true,
             name: true,
-            description: true,
-            entity: true
+            updateadAt: true
+            // entity: true
           }
         },
         roles: {
