@@ -55,14 +55,10 @@ export class NomenclaturesController {
     data.picture = avatar[0].filename
 
     // console.log(data)
-
-
     // const hashedPassword = await bcrypt.hash(data.password, 10);
     // console.log("Hashed Password:", hashedPassword);
     // console.log("original Password:", data.password);
     // console.log("Check Password:", await this.verifyPassword(data.password, hashedPassword));
-
-
     // Parse the JSON string into a JavaScript object
     // const jsonData = JSON.parse(data.json);
 

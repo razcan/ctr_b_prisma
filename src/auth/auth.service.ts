@@ -11,6 +11,7 @@ export class AuthService {
 
   async signIn(username, password) {
     const userrzc = await this.usersService.findUser(username, password);
+
     if (userrzc.length == 0) {
       throw new UnauthorizedException();
     }
@@ -26,7 +27,8 @@ export class AuthService {
     return {
       access_token: await this.jwtService.signAsync(payload),
       expire_date_token: futureDate,
-      username: username
+      username: username,
+      userid: userrzc[0].id
     };
   }
 }
