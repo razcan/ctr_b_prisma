@@ -1,7 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
-// import { format } from 'date-fns-tz';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +14,7 @@ export class AuthService {
     if (userrzc.length == 0) {
       throw new UnauthorizedException();
     }
-    const payload = { sub: userrzc, username: userrzc };
+    const payload = { username: username, password: password };
 
     const currentDate = new Date();
 
@@ -23,11 +22,6 @@ export class AuthService {
     const futureDate = new Date(currentDate.getTime());
     futureDate.setMinutes(currentDate.getMinutes() + 10);
 
-    interface MyJsonData {
-      access_token: string;
-      expire_date_token: Date;
-      username: string;
-    }
 
     return {
       access_token: await this.jwtService.signAsync(payload),
@@ -35,16 +29,6 @@ export class AuthService {
       username: username
     };
   }
-
-  // async signIn(username, pass) {
-  //   const user = await this.usersService.findOne(username);
-  //   if (user?.password !== pass) {
-  //     throw new UnauthorizedException();
-  //   }
-
-  //   const payload = { sub: user.userId, username: user.username };
-  //   return {
-  //     access_token: await this.jwtService.signAsync(payload),
-  //   };
-  // }
 }
+
+//unde se verifica daca tokenul a expirat? se salveaza in bd data de expirare?

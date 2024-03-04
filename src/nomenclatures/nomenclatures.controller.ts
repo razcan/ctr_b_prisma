@@ -29,27 +29,6 @@ export class NomenclaturesController {
     private readonly authService: AuthService
   ) { }
 
-  @Post('login')
-  async login(@Body()
-  credentials: { username: string, password: string }): Promise<any> {
-    // Validate user credentials - Implement your validation logic here
-
-    // For demonstration purposes, let's assume the credentials are valid
-    // const user = { id: 1, username: credentials.username, roles: ['user'] };
-
-    const user = { username: credentials.username, password: credentials.password };
-
-    // Generate a token with the user payload
-    const token = await this.authService.signIn(user.username, user.password);
-
-    console.log(token)
-
-    // signIn
-
-    // Return the token to the client
-    return { user };
-  }
-
 
   async hashPassword(password: string): Promise<string> {
     const saltRounds = 99;
@@ -64,7 +43,7 @@ export class NomenclaturesController {
     return isMatch;
   }
 
-
+  @UseGuards(AuthGuard)
   @Post('users')
   @UseInterceptors(FilesInterceptor('avatar'))
   async createUser(

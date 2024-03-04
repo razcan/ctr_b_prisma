@@ -24,6 +24,7 @@ import { MailerService } from 'src/alerts/mailer.service';
 import { NomenclaturesService } from 'src/nomenclatures/nomenclatures.service';
 import { sha256 } from 'crypto-hash';
 import { createHash } from 'crypto';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('contracts')
 export class ContractsController {
@@ -876,7 +877,7 @@ export class ContractsController {
   }
 
 
-
+  @UseGuards(AuthGuard)
   @Get()
   async findAll() {
     const contracts = await this.prisma.contracts.findMany(
