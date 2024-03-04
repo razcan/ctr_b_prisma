@@ -1,5 +1,7 @@
 npx prisma studio
 
+npx nest g module auth
+
 todo
 
 5.autentificare

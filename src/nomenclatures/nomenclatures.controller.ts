@@ -3,7 +3,8 @@ import bcrypt from 'bcrypt';
 
 import {
   Controller, Get, Post, Body, Patch, Param, Header, HttpStatus,
-  Delete, UploadedFile, UploadedFiles, HttpException, HttpCode, Request, UseGuards, UsePipes, ValidationPipe, Res, UseInterceptors
+  Delete, UploadedFile, UploadedFiles, HttpException, HttpCode, Request,
+  UseGuards, UsePipes, ValidationPipe, Res, UseInterceptors
 } from '@nestjs/common';
 import { NomenclaturesService } from './nomenclatures.service';
 import { ContractFinancialDetail, ContractFinancialDetailSchedule, Contracts, ContractsDetails, Prisma } from '@prisma/client';
@@ -16,12 +17,38 @@ import {
 import type { Response } from 'express';
 import { Express } from 'express'
 import { createReadStream } from 'fs';
+import { AuthService } from '../auth/auth.service';
+import { AuthGuard } from '../auth/auth.guard';
+
 
 @Controller('nomenclatures')
 export class NomenclaturesController {
   constructor(
     private readonly nomenclaturesService: NomenclaturesService,
-    private prisma: PrismaService) { }
+    private prisma: PrismaService,
+    private readonly authService: AuthService
+  ) { }
+
+  @Post('login')
+  async login(@Body()
+  credentials: { username: string, password: string }): Promise<any> {
+    // Validate user credentials - Implement your validation logic here
+
+    // For demonstration purposes, let's assume the credentials are valid
+    // const user = { id: 1, username: credentials.username, roles: ['user'] };
+
+    const user = { username: credentials.username, password: credentials.password };
+
+    // Generate a token with the user payload
+    const token = await this.authService.signIn(user.username, user.password);
+
+    console.log(token)
+
+    // signIn
+
+    // Return the token to the client
+    return { user };
+  }
 
 
   async hashPassword(password: string): Promise<string> {
@@ -56,7 +83,7 @@ export class NomenclaturesController {
     // console.log("original Password:", data.password);
     // console.log("Check Password:", await this.verifyPassword(data.password, hashedPassword));
 
-    // console.log(hashedPassword);
+
     // Parse the JSON string into a JavaScript object
     // const jsonData = JSON.parse(data.json);
 

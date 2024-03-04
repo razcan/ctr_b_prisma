@@ -3,6 +3,7 @@ import { CreateNomenclatureDto } from './dto/create-nomenclature.dto';
 import { UpdateNomenclatureDto } from './dto/update-nomenclature.dto';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
+import { UsersService } from '../user/user.service'
 
 
 @Injectable()

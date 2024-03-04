@@ -11,11 +11,18 @@ import { NomenclaturesModule } from 'src/nomenclatures/nomenclatures.module';
 import { NomenclaturesController } from 'src/nomenclatures/nomenclatures.controller';
 import { AlertsController } from 'src/alerts/alerts.controller';
 import { AlertService } from 'src/alerts/alerts.service';
+import { JwtService } from '@nestjs/jwt';
+import { AuthService } from '../auth/auth.service';
+import { UsersService } from 'src/user/user.service';
+
+
+
 
 
 @Module({
   controllers: [ContractsController, NomenclaturesController],
-  providers: [ContractsService, PrismaService, MailerService, AlertService, NomenclaturesService],
+  providers: [ContractsService, PrismaService, MailerService, AlertService,
+    NomenclaturesService, JwtService, AuthService, UsersService],
   imports: [MulterModule.register(multerConfig), AlertsModule, NomenclaturesModule]
 })
 export class ContractsModule { }

@@ -111,6 +111,8 @@ export class AlertsController {
 
     }
 
+    //to be done : taskuri ce au au depasit termenul - o fereastra cu taskurile atasate - eventual un grafic de unde cu click - un badge langa user icon
+
     //EVERY_DAY_AT_10AM
     @Cron(CronExpression.EVERY_DAY_AT_10AM)
     handleCron() {
@@ -203,9 +205,9 @@ export class AlertsController {
                             "@@NumarContract": contractsforNotification[j].number.toString(),
                             "@@DataContract": formattedDateStart,
                             "@@DataFinal": formattedDateEnd,
-                            "@@Partener": contractsforNotification[j].partner.toString(),
-                            "@@Entitate": contractsforNotification[j].entity.toString(),
-                            "@@ScurtaDescriere": contractsforNotification[j].remarks.toString()
+                            "@@Partener": contractsforNotification[j].partner?.toString(),
+                            "@@Entitate": contractsforNotification[j].entity?.toString(),
+                            "@@ScurtaDescriere": contractsforNotification[j].remarks?.toString()
                         };
 
                         let replacedString: string = originalString;
