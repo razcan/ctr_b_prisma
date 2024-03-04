@@ -24,21 +24,21 @@ export class AuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     // Decode the token to get the payload
-    const decodedToken: any = jwt.decode(token);
-    console.log(decodedToken)
+    // const decodedToken: any = jwt.decode(token);
+    // console.log(decodedToken)
     // Check if the token is valid and the payload is decoded
-    if (decodedToken) {
-      // Check if the token has an expiration time (exp)
-      if (decodedToken.exp) {
-        // Convert expiration timestamp (in seconds) to milliseconds and create a Date object
-        const expirationDate = new Date(decodedToken.exp * 1000);
-        console.log('Expiration Date:', expirationDate);
-      } else {
-        console.log('Token does not have an expiration date.');
-      }
-    } else {
-      console.log('Invalid token.');
-    }
+    // if (decodedToken) {
+    //   // Check if the token has an expiration time (exp)
+    //   if (decodedToken.exp) {
+    //     // Convert expiration timestamp (in seconds) to milliseconds and create a Date object
+    //     const expirationDate = new Date(decodedToken.exp * 1000);
+    //     console.log('Expiration Date:', expirationDate);
+    //   } else {
+    //     console.log('Token does not have an expiration date.');
+    //   }
+    // } else {
+    //   console.log('Invalid token.');
+    // }
 
 
     if (!token) {
