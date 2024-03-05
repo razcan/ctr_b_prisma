@@ -25,49 +25,50 @@ export class AuthController {
     return this.authService.signIn(data.username, data.password);
   }
 
-  @UseGuards(AuthGuard)
-  @Get('profile')
-  getProfile(@Request() req) {
-    return req.user;
-  }
+  //   @UseGuards(AuthGuard)
+  //   @Get('profile')
+  //   getProfile(@Request() req) {
+  //     return req.user;
+  //   }
 
-  @UseGuards(AuthGuard)
-  @Get('jwt')
-  getTest(@Request() req) {
-    // console.log(req.user.exp)
-    const currentDate: Date = new Date
-
-
-    // Assuming `date` is your date object
-    const date = new Date(); // or any other valid date object
-
-    // Multiply by 1000 to convert seconds to milliseconds
-    const expirationDate: Date = new Date(req.user.exp * 1000);
-
-    // Convert to local timezone
-    const localDate = moment(date).tz(moment.tz.guess());
-
-    // Format the local date
-    const formattedDate = localDate.format('YYYY-MM-DD HH:mm:ss');
-
-    const date1 = new Date(formattedDate);
+  //   @UseGuards(AuthGuard)
+  //   @Get('jwt')
+  //   getTest(@Request() req) {
+  //     // console.log(req.user.exp)
+  //     const currentDate: Date = new Date
 
 
-    console.log("controller auth", localDate);
+  //     // Assuming `date` is your date object
+  //     const date = new Date(); // or any other valid date object
 
-    // const formattedHour = format(expirationDate, 'HH:mm:ss', { timeZone: localTimezone });
-    // const formattedHour = format(currentDate, 'HH:mm:ss', { timeZone: 'local' });
+  //     // Multiply by 1000 to convert seconds to milliseconds
+  //     const expirationDate: Date = new Date(req.user.exp * 1000);
 
-    if (currentDate > date1) {
-      console.log('naspa, a expirat cerificatul')
-    }
-    else {
-      console.log(`cerificatul este valid pana la ora ${date1}`)
-    }
+  //     // Convert to local timezone
+  //     const localDate = moment(date).tz(moment.tz.guess());
+
+  //     // Format the local date
+  //     const formattedDate = localDate.format('YYYY-MM-DD HH:mm:ss');
+
+  //     const date1 = new Date(formattedDate);
 
 
-    // console.log(formattedHour)
-    // return req.user;
+  //     console.log("controller auth", localDate);
 
-  }
+  //     // const formattedHour = format(expirationDate, 'HH:mm:ss', { timeZone: localTimezone });
+  //     // const formattedHour = format(currentDate, 'HH:mm:ss', { timeZone: 'local' });
+
+  //     if (currentDate > date1) {
+  //       console.log('naspa, a expirat cerificatul')
+  //     }
+  //     else {
+  //       console.log(`cerificatul este valid pana la ora ${date1}`)
+  //     }
+
+
+  //     // console.log(formattedHour)
+  //     // return req.user;
+
+  //   }
+
 }

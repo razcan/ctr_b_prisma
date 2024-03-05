@@ -10,9 +10,9 @@ export class AuthService {
   ) { }
 
   async signIn(username, password) {
-    const userrzc = await this.usersService.findUser(username, password);
+    const current_user = await this.usersService.findUser(username, password);
 
-    if (userrzc.length == 0) {
+    if (current_user.length == 0) {
       throw new UnauthorizedException();
     }
     const payload = { username: username, password: password };
@@ -28,7 +28,7 @@ export class AuthService {
       access_token: await this.jwtService.signAsync(payload),
       expire_date_token: futureDate,
       username: username,
-      userid: userrzc[0].id
+      userid: current_user[0].id
     };
   }
 }
