@@ -877,7 +877,7 @@ export class ContractsController {
   }
 
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get()
   async findAll() {
     const contracts = await this.prisma.contracts.findMany(

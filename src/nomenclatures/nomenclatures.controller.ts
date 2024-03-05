@@ -89,6 +89,7 @@ export class NomenclaturesController {
     fileStream.pipe(res);
   }
 
+  // @UseGuards(AuthGuard)
   @Get('users')
   async getUsers() {
     const users = await this.prisma.user.findMany({
