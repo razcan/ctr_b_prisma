@@ -89,7 +89,7 @@ export class NomenclaturesController {
     fileStream.pipe(res);
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   // @Roles('Administrator')
   @Roles('Administrator', 'Editor') // Set multiple roles here
   @UseGuards(RolesGuard)
