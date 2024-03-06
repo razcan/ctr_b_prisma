@@ -18,8 +18,11 @@ import type { Response } from 'express';
 import { Express } from 'express'
 import { createReadStream } from 'fs';
 import { AuthService } from '../auth/auth.service';
-import { AuthGuard } from '../auth/auth.guard';
 
+
+import { AuthGuard } from '../auth/auth.guard';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('nomenclatures')
 export class NomenclaturesController {
@@ -43,7 +46,6 @@ export class NomenclaturesController {
     return isMatch;
   }
 
-  @UseGuards(AuthGuard)
   @Post('users')
   @UseInterceptors(FilesInterceptor('avatar'))
   async createUser(
@@ -54,11 +56,8 @@ export class NomenclaturesController {
     data.status = (data.status === "true") ? true : false;
     data.picture = avatar[0].filename
 
-    // console.log(data)
-    // const hashedPassword = await bcrypt.hash(data.password, 10);
-    // console.log("Hashed Password:", hashedPassword);
-    // console.log("original Password:", data.password);
-    // console.log("Check Password:", await this.verifyPassword(data.password, hashedPassword));
+    console.log(data)
+
     // Parse the JSON string into a JavaScript object
     // const jsonData = JSON.parse(data.json);
 
@@ -70,7 +69,7 @@ export class NomenclaturesController {
       data: {
         name: data.name,
         email: data.email,
-        password: await this.hashPassword(data.password),
+        password: data.password,
         status: data.status,
         picture: data.picture,
         roles: jsonData,
@@ -82,6 +81,7 @@ export class NomenclaturesController {
 
   }
 
+
   @Get('download/:filename')
   downloadFile(@Param('filename') filename: string, @Res() res: Response) {
     const folderPath = '/Users/razvanmustata/Projects/contracts/backend/Uploads'
@@ -90,6 +90,9 @@ export class NomenclaturesController {
   }
 
   // @UseGuards(AuthGuard)
+  // @Roles('Administrator')
+  @Roles('Administrator', 'Editor') // Set multiple roles here
+  @UseGuards(RolesGuard)
   @Get('users')
   async getUsers() {
     const users = await this.prisma.user.findMany({
