@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 // import { User } from '../user/entities/user.entity'
 import { User } from './user.model';
@@ -17,7 +17,7 @@ export class RolesGuard implements CanActivate {
         console.log(roles)
 
         if (!roles) {
-            return true;
+            throw new UnauthorizedException();
         }
         const request = context.switchToHttp().getRequest();
 
@@ -40,6 +40,9 @@ export class RolesGuard implements CanActivate {
         //Pentru a verifica dacă cel puțin un singur element dintr - o matrice face parte dintr - o altă matrice 
         const atLeastOneMatch = allUserRolles.some(element => routeRoles.includes(element));
 
+        if (!atLeastOneMatch) {
+            throw new UnauthorizedException();
+        }
 
         // Check if user has any of the allowed roles
         // const allowedRoles = roles;

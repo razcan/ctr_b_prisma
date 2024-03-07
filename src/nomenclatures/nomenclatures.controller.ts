@@ -91,7 +91,8 @@ export class NomenclaturesController {
 
   @UseGuards(AuthGuard)
   // @Roles('Administrator')
-  @Roles('Administrator', 'Editor') // Set multiple roles here
+  // @Roles('Administrator', 'Editor') // Set multiple roles here
+  @Roles('Editor')
   @UseGuards(RolesGuard)
   @Get('users')
   async getUsers() {

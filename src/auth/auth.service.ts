@@ -9,13 +9,39 @@ export class AuthService {
     private jwtService: JwtService
   ) { }
 
+
+
   async signIn(username, password) {
+
+
+    const getUserRoles = async (Id: any) => {
+
+      const roles = await fetch(`http://localhost:3000/nomenclatures/user/${Id}`).then(res => res.json())
+
+      const roles_array = [];
+      for (let i = 0; i < await roles.roles.length; i++) {
+        roles_array.push(roles.roles[i].role)
+      }
+
+      const roles_array_final = [];
+      for (let i = 0; i < roles_array.length; i++) {
+        roles_array_final.push(roles_array[i].roleName)
+
+      }
+
+      return roles_array_final
+
+    }
+
     const current_user = await this.usersService.findUser(username, password);
+
+    // console.log(current_user[0].id)
+    const roles = await getUserRoles(current_user[0].id)
 
     if (current_user.length == 0) {
       throw new UnauthorizedException();
     }
-    const payload = { username: username, password: password };
+    const payload = { username: username, password: password, roles: roles };
 
     const currentDate = new Date();
 
@@ -26,11 +52,11 @@ export class AuthService {
 
     return {
       access_token: await this.jwtService.signAsync(payload),
-      expire_date_token: futureDate,
       username: username,
-      userid: current_user[0].id
+      userid: current_user[0].id,
+      roles: roles
     };
   }
 }
 
-//unde se verifica daca tokenul a expirat? se salveaza in bd data de expirare?
+
