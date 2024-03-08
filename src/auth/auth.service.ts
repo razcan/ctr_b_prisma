@@ -29,19 +29,51 @@ export class AuthService {
 
       }
 
-      return roles_array_final
+      const user_groups = []
+      for (let i = 0; i < await roles.User_Groups.length; i++) {
+        user_groups.push(roles.User_Groups[i].entity)
+      }
+
+      // console.log(user_groups)
+
+      const user_groups_final = [];
+      for (let i = 0; i < user_groups.length; i++) {
+        for (let j = 0; j < user_groups[i].length; j++) {
+          user_groups_final.push(user_groups[i][j].id)
+        }
+      }
+
+      let distinctGroupsArray = Array.from(new Set(user_groups_final));
+
+      interface ReturnValue {
+        type: any;
+        value: any;
+      }
+
+      let result: ReturnValue[] = [
+        { type: "Roles", value: roles_array_final },
+        { type: "Groups", value: distinctGroupsArray }
+      ];
+
+      return result
 
     }
 
     const current_user = await this.usersService.findUser(username, password);
 
     // console.log(current_user[0].id)
-    const roles = await getUserRoles(current_user[0].id)
+    const props = await getUserRoles(current_user[0].id)
+
+    const roles = props[0].value
+    const entity = props[1].value
 
     if (current_user.length == 0) {
       throw new UnauthorizedException();
     }
-    const payload = { username: username, password: password, roles: roles };
+    const payload = {
+      username: username, password: password
+      , roles: roles, entity: entity
+    };
 
     const currentDate = new Date();
 
@@ -54,7 +86,8 @@ export class AuthService {
       access_token: await this.jwtService.signAsync(payload),
       username: username,
       userid: current_user[0].id,
-      roles: roles
+      roles: roles,
+      entity: entity
     };
   }
 }

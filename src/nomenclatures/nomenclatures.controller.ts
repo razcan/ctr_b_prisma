@@ -2,7 +2,7 @@ import { PrismaService } from 'src/prisma.service';
 import bcrypt from 'bcrypt';
 
 import {
-  Controller, Get, Post, Body, Patch, Param, Header, HttpStatus,
+  Controller, Get, Post, Body, Patch, Param, Header, HttpStatus, Headers,
   Delete, UploadedFile, UploadedFiles, HttpException, HttpCode, Request,
   UseGuards, UsePipes, ValidationPipe, Res, UseInterceptors
 } from '@nestjs/common';
@@ -90,20 +90,35 @@ export class NomenclaturesController {
   }
 
   @UseGuards(AuthGuard)
-  // @Roles('Administrator')
   // @Roles('Administrator', 'Editor') // Set multiple roles here
   @Roles('Editor')
   @UseGuards(RolesGuard)
   @Get('users')
-  async getUsers() {
+  async getUsers(@Body() data: any, @Headers() headers): Promise<any> {
+
+    const entity: string[] = [headers.entity]
+
+    const intArray: number[] = entity.map(str => parseInt(str, 10));
     const users = await this.prisma.user.findMany({
+
       select: {
         id: true,
         name: true,
         email: true,
         status: true,
         picture: true,
-        roles: true
+        roles: true,
+        User_Groups: {
+          include: {
+            entity: {
+              where: {
+                id: {
+                  in: intArray
+                },
+              }
+            }
+          }
+        }
       },
     });
     return users;
@@ -129,8 +144,8 @@ export class NomenclaturesController {
             description: true,
             id: true,
             name: true,
-            updateadAt: true
-            // entity: true
+            updateadAt: true,
+            entity: true
           }
         },
         roles: {
