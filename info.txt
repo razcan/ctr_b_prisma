@@ -4,23 +4,32 @@ npx nest g module auth
 
 todo
 
-5.autentificare
-8.template-uri de contract plus placeholdere
-9.meniu setari alerte(expira inainte cu n zile, s-a inchis inainte de termen, s-a schimbat resp ctr, nu a ajuns factura, modificat stare ctr)
-10.meniu useri/drepturi
-11.campuri variabile - utilizator (text/data nr. ordine, tip, tag)
-12.preluare data anaf parteneri
-13.corectii erori ui
-14.parametrizare link-ip, adresa de email sender,
-15.modul rapoarte
-16.rez erori compilare
-17.curatat componente ce nu sunt necesare
-18.revizuit denumiri variabile si comenturi
-19.sters obiect de ctr de la nivel de header ctr
-20. continut ctr generare ctr din template
-21. ecran definire template-uri cu placeholdere
-22. export word https://www.npmjs.com/package/docx
-23 scoatere din care uikit
+.afisare langa user lista de taskuri - link catre lista task-uri
+.implementare guard grupuri utilizatori
+.adugat user(context) in toate tabelele
+.scos la actul aditional - tabul de acte aditionale 
+.in toate nomenclatoarele inlocuit true cu verde 
+.modificat dimensiune grafice si inlocuit logica de preluare a datelor - direct din api
+.placeholderele din alerta similar cele din template ctr
+.de diferentiat rol persoana firma si utilizator - catre cine se asigneaza taskuri/ unde se trimit emailuri ...
+.toate rutele trebuie sa contina ca param si entitatea/tatile
+.toate endpointurile trebuie sa contina si entitatile
+.autentificare & autorizare pe toate rutele
+.meniu setari alerte(expira inainte cu n zile, s-a inchis inainte de termen, s-a schimbat resp ctr, nu a ajuns factura, modificat stare ctr)
+
+.campuri variabile - utilizator (text/data nr. ordine, tip, tag)
+.preluare data anaf parteneri
+.corectii erori ui
+.parametrizare link-ip, adresa de email sender,
+.modul rapoarte
+.rez erori compilare
+.curatat componente ce nu sunt necesare
+.revizuit denumiri variabile si comenturi
+.sters obiect de ctr de la nivel de header ctr
+. continut ctr generare ctr din template
+. ecran definire template-uri cu placeholdere
+. export word https://www.npmjs.com/package/docx
+. scoatere din care uikit
 
 
 
