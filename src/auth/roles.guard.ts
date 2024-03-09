@@ -14,7 +14,7 @@ export class RolesGuard implements CanActivate {
 
         const roles = this.reflector.get<string[]>('roles', context.getHandler());
 
-        console.log(roles)
+        // console.log(roles)
 
         if (!roles) {
             throw new UnauthorizedException();

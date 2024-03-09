@@ -1,7 +1,8 @@
 
 import {
   Controller, Get, Post, Body, Patch, Param, Header, HttpStatus,
-  Delete, UploadedFile, UploadedFiles, HttpException, HttpCode, Request, UseGuards, UsePipes, ValidationPipe, Res
+  Delete, UploadedFile, UploadedFiles, HttpException, HttpCode,
+  Request, UseGuards, UsePipes, ValidationPipe, Res, Headers
 } from '@nestjs/common';
 import { ContractFinancialDetail, ContractFinancialDetailSchedule, Contracts, ContractsDetails, Prisma } from '@prisma/client';
 
@@ -24,7 +25,11 @@ import { MailerService } from 'src/alerts/mailer.service';
 import { NomenclaturesService } from 'src/nomenclatures/nomenclatures.service';
 import { sha256 } from 'crypto-hash';
 import { createHash } from 'crypto';
+
 import { AuthGuard } from 'src/auth/auth.guard';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
+
 
 @Controller('contracts')
 export class ContractsController {
@@ -434,7 +439,7 @@ export class ContractsController {
       }
     }
     );
-    console.log(await result2)
+    // console.log(await result2)
 
     let schBill = data[2]
     let x = parseInt(id)
@@ -455,8 +460,8 @@ export class ContractsController {
 
     const hash2 = this.generateArrayHash(objStringschBill);
 
-    console.log("hash1: ", hash1)
-    console.log("hash2: ", hash2)
+    // console.log("hash1: ", hash1)
+    // console.log("hash2: ", hash2)
 
     if (hash1 !== hash2) {
       for (let i = 0; i < schBill.length; i++) {
@@ -877,13 +882,24 @@ export class ContractsController {
   }
 
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
+  // @Roles('Administrator', 'Editor') // Set multiple roles here
+  @Roles('Editor')
+  @UseGuards(RolesGuard)
   @Get()
-  async findAll() {
+  async findAll(@Body() data: any, @Headers() headers): Promise<any> {
+
+    const entity: string[] = [headers.entity]
+
+    const intArray: number[] = entity.map(str => parseInt(str, 10));
+
     const contracts = await this.prisma.contracts.findMany(
       {
         where: {
-          parentId: 0
+          parentId: 0,
+          entityId: {
+            in: intArray
+          }
         },
         include: {
           costcenter: true,
