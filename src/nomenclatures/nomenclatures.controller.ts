@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import {
   Controller, Get, Post, Body, Patch, Param, Header, HttpStatus, Headers,
   Delete, UploadedFile, UploadedFiles, HttpException, HttpCode, Request,
-  UseGuards, UsePipes, ValidationPipe, Res, UseInterceptors
+  UseGuards, UsePipes, ValidationPipe, Res, UseInterceptors, InternalServerErrorException
 } from '@nestjs/common';
 import { NomenclaturesService } from './nomenclatures.service';
 import { ContractFinancialDetail, ContractFinancialDetailSchedule, Contracts, ContractsDetails, Prisma } from '@prisma/client';
@@ -33,9 +33,9 @@ export class NomenclaturesController {
   ) { }
 
 
-  async hashPassword(password: string): Promise<string> {
+  async hashPassword(password: string): Promise<any> {
     const saltRounds = 99;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const hashedPassword = bcrypt.hash(password, saltRounds);
     return hashedPassword;
   }
 
@@ -46,6 +46,22 @@ export class NomenclaturesController {
     return isMatch;
   }
 
+
+  @Post('test')
+  async test(
+    @Body() data: any,
+  ): Promise<any> {
+
+    console.log(data)
+
+    const saltRounds = 99;
+    const hashedPassword = bcrypt.hash(data.password, 2);
+
+    return hashedPassword
+
+  }
+
+
   @Post('users')
   @UseInterceptors(FilesInterceptor('avatar'))
   async createUser(
@@ -53,32 +69,40 @@ export class NomenclaturesController {
     @UploadedFiles() avatar: Express.Multer.File,
   ): Promise<any> {
 
-    data.status = (data.status === "true") ? true : false;
-    data.picture = avatar[0].filename
+    try {
 
-    console.log(data)
+      data.status = (data.status === "true") ? true : false;
+      data.picture = avatar[0] ? avatar[0].filename : 'na'
 
-    // Parse the JSON string into a JavaScript object
-    // const jsonData = JSON.parse(data.json);
+      try {
 
+        const jsonData = JSON.parse(data.roles);
+        const jsonUser_Groups = JSON.parse(data.User_Groups);
+        const hashedPassword = bcrypt.hash(data.password, 2);
+        const result = await this.prisma.user.create({
+          data: {
+            name: data.name,
+            email: data.email,
+            // password: data.password,
+            password: await hashedPassword,
+            status: data.status,
+            picture: data.picture,
+            roles: jsonData,
+            User_Groups: jsonUser_Groups
+          }
 
-    const jsonData = JSON.parse(data.roles);
-    const jsonUser_Groups = JSON.parse(data.User_Groups);
-
-    const result = this.prisma.user.create({
-      data: {
-        name: data.name,
-        email: data.email,
-        password: data.password,
-        status: data.status,
-        picture: data.picture,
-        roles: jsonData,
-        User_Groups: jsonUser_Groups
+        });
+      } catch (error) {
+        // If an error occurs during the execution of the await function, it will be caught here
+        console.error("Error occurred during password hashing:", error);
       }
 
-    });
-    return result;
-
+      const status = "ok"
+      return status;
+    } catch (error) {
+      console.error("Error occurred during password hashing:", error);
+      throw new InternalServerErrorException("Error occurred during password hashing");
+    }
   }
 
 

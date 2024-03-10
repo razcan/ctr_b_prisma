@@ -13,12 +13,11 @@ export class UsersService {
   ) { }
 
 
-  async findUser(username: string, password: string) {
+  async findUser(username: string) {
 
     const user = await this.prisma.user.findMany({
       where: {
-        name: username,
-        password: password
+        name: username
       },
       select: {
         id: true,
@@ -33,4 +32,17 @@ export class UsersService {
 
   }
 
+
+  async findUserPass(username: string) {
+    const user = await this.prisma.user.findMany({
+      where: {
+        name: username
+      },
+      select: {
+        id: true,
+        password: true
+      },
+    })
+    return user[0].password;
+  }
 }

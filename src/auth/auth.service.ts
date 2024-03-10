@@ -1,6 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
+import bcrypt from 'bcrypt';
+
 
 @Injectable()
 export class AuthService {
@@ -58,37 +60,58 @@ export class AuthService {
       return result
 
     }
+    const hashedPassword = bcrypt.hash(password, 2);
+    // console.log("hashedPassword", await hashedPassword)
 
-    const current_user = await this.usersService.findUser(username, password);
+    const pass = await this.usersService.findUserPass(username);
+    // console.log("pass", pass)
 
-    // console.log(current_user[0].id)
-    const props = await getUserRoles(current_user[0].id)
+    const isMatch = await bcrypt.compare(password, pass);
+    // console.log("isMatch", isMatch)
 
-    const roles = props[0].value
-    const entity = props[1].value
+    if (isMatch) {
 
-    if (current_user.length == 0) {
-      throw new UnauthorizedException();
+      const current_user = await this.usersService.findUser(username);
+      // console.log(current_user[0].id)
+      const props = await getUserRoles(current_user[0].id)
+
+      const roles = props[0].value
+      const entity = props[1].value
+
+      if (current_user.length == 0) {
+        throw new UnauthorizedException();
+      }
+      const payload = {
+        username: username, password: password
+        , roles: roles, entity: entity
+      };
+
+      const currentDate = new Date();
+
+      // Add 10 minutes to the current date
+      const futureDate = new Date(currentDate.getTime());
+      futureDate.setMinutes(currentDate.getMinutes() + 60);
+
+
+      return {
+        access_token: await this.jwtService.signAsync(payload),
+        username: username,
+        userid: current_user[0].id,
+        roles: roles,
+        entity: entity
+      };
     }
-    const payload = {
-      username: username, password: password
-      , roles: roles, entity: entity
-    };
-
-    const currentDate = new Date();
-
-    // Add 10 minutes to the current date
-    const futureDate = new Date(currentDate.getTime());
-    futureDate.setMinutes(currentDate.getMinutes() + 10);
 
 
-    return {
-      access_token: await this.jwtService.signAsync(payload),
-      username: username,
-      userid: current_user[0].id,
-      roles: roles,
-      entity: entity
-    };
+    //const isMatch = bcrypt.compare(password, pass);
+
+    //treb implementat sol se verifica username , dupa care se preia pass si se verifica cu cea
+    //trimisa  
+
+
+
+
+
   }
 }
 
