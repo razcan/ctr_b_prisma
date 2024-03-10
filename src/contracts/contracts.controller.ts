@@ -889,16 +889,19 @@ export class ContractsController {
   @Get()
   async findAll(@Body() data: any, @Headers() headers): Promise<any> {
 
-    const entity: string[] = [headers.entity]
+    const entity = headers.entity.split(',');
 
-    const intArray: number[] = entity.map(str => parseInt(str, 10));
+
+    const final: number[] = []
+    entity.map(entity => final.push(parseInt(entity, 10))
+    )
 
     const contracts = await this.prisma.contracts.findMany(
       {
         where: {
           parentId: 0,
           entityId: {
-            in: intArray
+            in: final
           }
         },
         include: {
