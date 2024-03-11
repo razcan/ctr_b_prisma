@@ -62,6 +62,8 @@ export class AlertsController {
         return Math.round(diffInTime / oneDay);
     }
 
+    //sa se modifice starea ctr automat cand acestea expira si sa se trimita alerta
+
     @Cron(CronExpression.EVERY_10_MINUTES)
     PopulateAlertContractsCron() {
 

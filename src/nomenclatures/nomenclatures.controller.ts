@@ -47,19 +47,60 @@ export class NomenclaturesController {
   }
 
 
-  @Post('test')
-  async test(
+  @Patch('user/:id')
+  @UseInterceptors(FilesInterceptor('avatar'))
+  async updateUser(
+    @Param('id') id: any,
     @Body() data: any,
+    @UploadedFiles() avatar: Express.Multer.File,
   ): Promise<any> {
+    try {
 
-    console.log(data)
+      console.log("date trimise", data)
+      const existing_roles = data.roles
+      const arr = existing_roles.split(',');
+      console.log("roluri noi: ", arr)
+      const user = await this.prisma.user.findUnique({
+        where: { id: parseInt(id) }
+        ,
+        include: { roles: true }, // Include the current roles of the user
+      });
 
-    const saltRounds = 99;
-    const hashedPassword = bcrypt.hash(data.password, 2);
+      console.log("date existente user", [user.roles[0].roleId])
 
-    return hashedPassword
+      // // // Update the user with the new roles
+      const updatedUser = await this.prisma.role_User.deleteMany({
+        where: {
+          roleId: parseInt('1'),
+          userId: parseInt(id)
+        },
+      });
 
+
+      // Update the user with the new roles
+      const updatedUser2 = await this.prisma.user.update({
+        where: { id: parseInt(id) },
+        data: {
+          roles: {
+            connect: [{ id: 1 }],     // Connect the new roles
+            // disconnect: rolesToDisconnect // Disconnect the roles to remove
+          }
+        },
+        include: { roles: true } // Include the updated roles in the response
+      });
+
+      console.log(updatedUser, updatedUser2)
+
+
+      if (!user) {
+        throw new Error(`User with ID ${id} not found.`);
+      }
+    } catch (error) {
+      console.error("Error updating user roles:", error);
+      throw new Error("Failed to update user roles.");
+    }
   }
+
 
 
   @Post('users')
@@ -97,7 +138,7 @@ export class NomenclaturesController {
         console.error("Error occurred during password hashing:", error);
       }
 
-      const status = "ok"
+      const status = "User was created!"
       return status;
     } catch (error) {
       console.error("Error occurred during password hashing:", error);

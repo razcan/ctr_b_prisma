@@ -20,6 +20,7 @@ export class AuthService {
 
       const roles = await fetch(`http://localhost:3000/nomenclatures/user/${Id}`).then(res => res.json())
 
+
       const roles_array = [];
       for (let i = 0; i < await roles.roles.length; i++) {
         roles_array.push(roles.roles[i].role)
@@ -73,6 +74,11 @@ export class AuthService {
 
       const current_user = await this.usersService.findUser(username);
       // console.log(current_user[0].id)
+
+      if (current_user[0].status === false) {
+        throw new UnauthorizedException();
+      }
+
       const props = await getUserRoles(current_user[0].id)
 
       const roles = props[0].value
