@@ -56,45 +56,97 @@ export class NomenclaturesController {
   ): Promise<any> {
     try {
 
-      console.log("date trimise", data)
+
       const existing_roles = data.roles
       const arr = existing_roles.split(',');
-      console.log("roluri noi: ", arr)
+
       const user = await this.prisma.user.findUnique({
         where: { id: parseInt(id) }
         ,
-        include: { roles: true }, // Include the current roles of the user
+        include:
+        {
+          roles: true,
+          User_Groups: true,
+        }, // Include the current roles of the user
       });
 
-      console.log("date existente user", [user.roles[0].roleId])
+      const exist_roles = []
+      for (let i = 0; i < user.roles.length; i++) {
+        exist_roles.push(user.roles[i].roleId)
+      }
 
-      // // // Update the user with the new roles
+      const newSetRolles: number[] = arr.map((str) => parseInt(str, 10));
+      const toBeDeleted: number[] = exist_roles.filter((element) => !newSetRolles.includes(element));
+
       const updatedUser = await this.prisma.role_User.deleteMany({
         where: {
-          roleId: parseInt('1'),
+          roleId: {
+            in: (toBeDeleted)
+          },
           userId: parseInt(id)
         },
       });
 
-
-      // Update the user with the new roles
-      const updatedUser2 = await this.prisma.user.update({
-        where: { id: parseInt(id) },
-        data: {
-          roles: {
-            connect: [{ id: 1 }],     // Connect the new roles
-            // disconnect: rolesToDisconnect // Disconnect the roles to remove
+      const toBeInserted: number[] = newSetRolles.filter((element) => !exist_roles.includes(element));
+      const roleUserPromises = toBeInserted.map(async (roleId) => {
+        const newRoleUser = await this.prisma.role_User.create({
+          data: {
+            user: { connect: { id: parseInt(id) } },
+            role: { connect: { id: roleId } }
           }
+        });
+      })
+
+      const exist_groups: number[] = []
+      for (let i = 0; i < user.User_Groups.length; i++) {
+        exist_groups.push(user.User_Groups[i].id)
+      }
+
+      const resultArray: number[] = data.User_Groups.split(',').map(Number);
+
+      const GroupstoBeConnected: number[] = resultArray.filter((element) => !exist_groups.includes(element));
+      const GroupstoBeDisconnected: number[] = exist_groups.filter((element) => !resultArray.includes(element));
+
+
+      const roleGroupsPromisesC = GroupstoBeConnected.map(async (id_group) => {
+        const connectUserGroup = await this.prisma.user.update({
+          where: { id: parseInt(id) },
+          data: {
+            User_Groups: {
+              connect: { id: id_group }
+            }
+          }
+        });
+      })
+      const roleGroupsPromisesD = GroupstoBeDisconnected.map(async (id_group) => {
+        const disconnectUserGroup = await this.prisma.user.update({
+          where: { id: parseInt(id) },
+          data: {
+            User_Groups: {
+              disconnect: { id: id_group }
+            }
+          }
+        });
+      })
+
+      data.status = (data.status === "true") ? true : false;
+      data.picture = avatar[0] ? avatar[0].filename : user.picture;
+      const hashedPassword = bcrypt.hash(data.password, 2);
+
+      const result = await this.prisma.user.update({
+        where: {
+          id: parseInt(id)
         },
-        include: { roles: true } // Include the updated roles in the response
+        data: {
+          name: data.name,
+          email: data.email,
+          password: await hashedPassword,
+          status: data.status,
+          picture: data.picture,
+        }
+
       });
 
-      console.log(updatedUser, updatedUser2)
-
-
-      if (!user) {
-        throw new Error(`User with ID ${id} not found.`);
-      }
     } catch (error) {
       console.error("Error updating user roles:", error);
       throw new Error("Failed to update user roles.");
@@ -113,7 +165,7 @@ export class NomenclaturesController {
     try {
 
       data.status = (data.status === "true") ? true : false;
-      data.picture = avatar[0] ? avatar[0].filename : 'na'
+      data.picture = avatar[0] ? avatar[0].filename : 'default.jpeg'
 
       try {
 
