@@ -34,4 +34,5 @@ partnerbankId: number  | null;
 contractAttachmentsId: number  | null;
 paymentTypeId: number  | null;
 contractContentId: number  | null;
+userId: number  | null;
 }

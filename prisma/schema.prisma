@@ -177,6 +177,8 @@ model Contracts {
   ContractContent     ContractContent[]
   PaymentType         PaymentType?          @relation(fields: [paymentTypeId], references: [id])
   paymentTypeId       Int?
+  User                User?                 @relation(fields: [userId], references: [id])
+  userId              Int?
 }
 
 model ContractsAudit {
@@ -211,6 +213,7 @@ model ContractsAudit {
   contractAttachmentsId Int?
   paymentTypeId         Int?
   contractContentId     Int?
+  userId                Int?
 }
 
 model ContractsDetails {
@@ -447,6 +450,7 @@ model User {
   status      Boolean
   picture     String?
   User_Groups Groups[]
+  Contracts   Contracts[]
 }
 
 model Role {

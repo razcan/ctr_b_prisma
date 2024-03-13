@@ -33,4 +33,5 @@ partnerbankId?: number;
 contractAttachmentsId?: number;
 paymentTypeId?: number;
 contractContentId?: number;
+userId?: number;
 }

@@ -86,12 +86,12 @@ export class AlertsController {
                         })
 
                     if (alertExist !== null) {
-                        await this.prisma.contractAlertSchedule.deleteMany({
-                            where: {
-                                contractId: ctr[i].id,
-                                alertId: settings.id
-                            },
-                        })
+                        // await this.prisma.contractAlertSchedule.deleteMany({
+                        //     where: {
+                        //         contractId: ctr[i].id,
+                        //         alertId: settings.id
+                        //     },
+                        // })
                         // console.log("Exist")
                     }
                     else {

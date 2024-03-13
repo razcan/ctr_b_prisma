@@ -258,7 +258,8 @@ export class ContractsController {
         entityaddressId: data.entityaddressId,
         partneraddressId: data.partneraddressId,
         entitybankId: data.entitybankId,
-        partnerbankId: data.partnerbankId
+        partnerbankId: data.partnerbankId,
+        userId: data.userId
       }
     });
 
@@ -353,7 +354,8 @@ export class ContractsController {
         entityaddressId: data.entityaddressId,
         partneraddressId: data.partneraddressId,
         entitybankId: data.entitybankId,
-        partnerbankId: data.partnerbankId
+        partnerbankId: data.partnerbankId,
+        userId: data.userId
       }
     });
 

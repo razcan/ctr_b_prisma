@@ -14,6 +14,7 @@ import {ContractItems} from '../../contractItems/entities/contractItems.entity'
 import {ContractAttachments} from '../../contractAttachments/entities/contractAttachments.entity'
 import {ContractContent} from '../../contractContent/entities/contractContent.entity'
 import {PaymentType} from '../../paymentType/entities/paymentType.entity'
+import {User} from '../../user/entities/user.entity'
 
 
 export class Contracts {
@@ -61,4 +62,6 @@ ContractAttachments?: ContractAttachments[] ;
 ContractContent?: ContractContent[] ;
 PaymentType?: PaymentType  | null;
 paymentTypeId: number  | null;
+User?: User  | null;
+userId: number  | null;
 }
