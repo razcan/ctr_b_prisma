@@ -790,6 +790,27 @@ export class ContractsController {
     return result;
   }
 
+  @Get('usertask/:userId')
+  async getAllTasksByUserId(
+    @Param('userId') userId: any,
+    @Body() data: Prisma.ContractTasksCreateInput): Promise<any> {
+
+    const result = await this.prisma.contractTasks.findMany(
+      {
+        include:
+        {
+          requestor: true,
+          assigned: true,
+          status: true
+        },
+        where: {
+          assignedId: parseInt(userId)
+        },
+      }
+    );
+    return result;
+  }
+
   @Get('task/:id')
   async getTasksByContractId(@Param('id') id: any, @Body() data: Prisma.ContractTasksCreateInput): Promise<any> {
 
