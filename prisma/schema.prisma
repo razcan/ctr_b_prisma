@@ -179,6 +179,7 @@ model Contracts {
   paymentTypeId       Int?
   User                User?                 @relation(fields: [userId], references: [id])
   userId              Int?
+  isPurchasing        Boolean?              @default(false)
 }
 
 model ContractsAudit {

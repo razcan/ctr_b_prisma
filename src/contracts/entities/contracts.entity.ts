@@ -64,4 +64,5 @@ PaymentType?: PaymentType  | null;
 paymentTypeId: number  | null;
 User?: User  | null;
 userId: number  | null;
+isPurchasing: boolean  | null;
 }

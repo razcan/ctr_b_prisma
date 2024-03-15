@@ -886,10 +886,56 @@ export class ContractsController {
 
   @UseGuards(AuthGuard)
   // @Roles('Administrator', 'Editor') // Set multiple roles here
-  @Roles('Editor')
+  @Roles('Administrator', 'Editor')
   @UseGuards(RolesGuard)
-  @Get()
-  async findAll(@Body() data: any, @Headers() headers): Promise<any> {
+  @Get('/:purchasing')
+  async findAll(
+    @Param('purchasing') purchasing: any,
+    @Body() data: any,
+    @Headers() headers): Promise<any> {
+
+    const entity = headers.entity.split(',');
+
+
+    const final: number[] = []
+    entity.map(entity => final.push(parseInt(entity, 10))
+    )
+
+    let isPurchasing: boolean = purchasing.toLowerCase() === "true";
+
+    const contracts = await this.prisma.contracts.findMany(
+      {
+        where: {
+          parentId: 0,
+          entityId: {
+            in: final
+          },
+          isPurchasing: isPurchasing
+        },
+        include: {
+          costcenter: true,
+          partner: true,
+          entity: true,
+          item: true,
+          departament: true,
+          Category: true,
+          cashflow: true,
+          type: true,
+          status: true
+        },
+      }
+    )
+    return contracts;
+  }
+
+  @UseGuards(AuthGuard)
+  // @Roles('Administrator', 'Editor') // Set multiple roles here
+  @Roles('Administrator', 'Editor')
+  @UseGuards(RolesGuard)
+  @Get('')
+  async findAllWithoutFilters(
+    @Body() data: any,
+    @Headers() headers): Promise<any> {
 
     const entity = headers.entity.split(',');
 
@@ -904,7 +950,7 @@ export class ContractsController {
           parentId: 0,
           entityId: {
             in: final
-          }
+          },
         },
         include: {
           costcenter: true,

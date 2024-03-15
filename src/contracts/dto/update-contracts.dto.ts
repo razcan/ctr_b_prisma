@@ -13,4 +13,5 @@ completion?: Date;
 remarks?: string;
 automaticRenewal?: boolean;
 parentId?: number;
+isPurchasing?: boolean;
 }

@@ -5,7 +5,7 @@ npx nest g module auth
 todo
 
 .afisare langa user lista de taskuri - link catre lista task-uri
-.implementare guard grupuri utilizatori
+
 .adugat user(context) in toate tabelele
 .scos la actul aditional - tabul de acte aditionale 
 .in toate nomenclatoarele inlocuit true cu verde 
