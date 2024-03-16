@@ -805,6 +805,27 @@ export class ContractsController {
     return result;
   }
 
+  // @Get('usertask/:userId')
+  // async getAllTasksByUserId(
+  //   @Param('userId') userId: any,
+  //   @Body() data: Prisma.ContractTasksCreateInput): Promise<any> {
+
+  //   const result = await this.prisma.contractTasks.findMany(
+  //     {
+  //       include:
+  //       {
+  //         requestor: true,
+  //         assigned: true,
+  //         status: true
+  //       },
+  //       where: {
+  //         assignedId: parseInt(userId)
+  //       },
+  //     }
+  //   );
+  //   return result;
+  // }
+
   @Get('usertask/:userId')
   async getAllTasksByUserId(
     @Param('userId') userId: any,
@@ -812,12 +833,24 @@ export class ContractsController {
 
     const result = await this.prisma.contractTasks.findMany(
       {
-        // include:
-        // {
-        //   requestor: true,
-        //   assigned: true,
-        //   status: true
-        // },
+        include:
+        {
+          requestor: {
+            select: {
+              name: true
+            }
+          },
+          assigned: {
+            select: {
+              name: true
+            }
+          },
+          status: {
+            select: {
+              name: true
+            }
+          }
+        },
         where: {
           assignedId: parseInt(userId)
         },
@@ -826,16 +859,30 @@ export class ContractsController {
     return result;
   }
 
+
+
   @Get('task/:id')
   async getTasksByContractId(@Param('id') id: any, @Body() data: Prisma.ContractTasksCreateInput): Promise<any> {
 
     const result = await this.prisma.contractTasks.findMany({
-      // include:
-      // {
-      //   requestor: true,
-      //   assigned: true,
-      //   status: true
-      // },
+      include:
+      {
+        requestor: {
+          select: {
+            name: true
+          }
+        },
+        assigned: {
+          select: {
+            name: true
+          }
+        },
+        status: {
+          select: {
+            name: true
+          }
+        }
+      },
       where: { contractId: parseInt(id) },
     });
     return result;
@@ -937,8 +984,8 @@ export class ContractsController {
     entity.map(entity => final.push(parseInt(entity, 10))
     )
 
-    let isPurchasing: boolean = purchasing.toLowerCase() === "true";
-
+    let res: boolean = purchasing.toLowerCase() === "true";
+    const isSales: boolean = res ? true : false;
     const contracts = await this.prisma.contracts.findMany(
       {
         where: {
@@ -946,7 +993,7 @@ export class ContractsController {
           entityId: {
             in: final
           },
-          isPurchasing: isPurchasing
+          isPurchasing: isSales
         },
         include: {
           costcenter: true,
