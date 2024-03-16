@@ -1,7 +1,6 @@
 
 import {Partners} from '../../partners/entities/partners.entity'
 import {Contracts} from '../../contracts/entities/contracts.entity'
-import {ContractTasks} from '../../contractTasks/entities/contractTasks.entity'
 
 
 export class Persons {
@@ -17,6 +16,4 @@ partner?: Partners ;
 partnerId: number ;
 Contracts?: Contracts[] ;
 Entity?: Contracts[] ;
-AssignedTasks?: ContractTasks[] ;
-RequestorTasks?: ContractTasks[] ;
 }

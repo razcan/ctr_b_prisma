@@ -339,9 +339,9 @@ model ContractTasks {
   status      ContractTasksStatus? @relation(fields: [statusId], references: [id])
   statusId    Int
   statusDate  DateTime             @default(now())
-  requestor   Persons?             @relation("requestor", fields: [requestorId], references: [id])
+  requestor   User?                @relation("requestor", fields: [requestorId], references: [id])
   requestorId Int
-  assigned    Persons?             @relation("assigned", fields: [assignedId], references: [id])
+  assigned    User?                @relation("assigned", fields: [assignedId], references: [id])
   assignedId  Int
   due         DateTime
   notes       String
@@ -380,27 +380,25 @@ model Partners {
 }
 
 model Persons {
-  id             Int             @id @default(autoincrement())
-  updateadAt     DateTime        @updatedAt
-  createdAt      DateTime        @default(now())
-  name           String          @unique
+  id             Int         @id @default(autoincrement())
+  updateadAt     DateTime    @updatedAt
+  createdAt      DateTime    @default(now())
+  name           String      @unique
   phone          String?
-  email          String?         @unique
+  email          String?     @unique
   legalrepresent Boolean?
   role           String?
-  partner        Partners        @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  partner        Partners    @relation(fields: [partnerId], references: [id], onDelete: Cascade)
   partnerId      Int
-  Contracts      Contracts[]     @relation("partner")
-  Entity         Contracts[]     @relation("entity")
-  AssignedTasks  ContractTasks[] @relation("assigned")
-  RequestorTasks ContractTasks[] @relation("requestor")
+  Contracts      Contracts[] @relation("partner")
+  Entity         Contracts[] @relation("entity")
 }
 
 model Address {
   id              Int         @id @default(autoincrement())
   updateadAt      DateTime    @updatedAt
   createdAt       DateTime    @default(now())
-  addressName     String?     @unique
+  addressName     String?
   addressType     String?
   Country         String?
   County          String?
@@ -441,17 +439,19 @@ model Banks {
 // }
 
 model User {
-  id          Int         @id @default(autoincrement())
-  updatedAt   DateTime    @updatedAt
-  createdAt   DateTime    @default(now())
-  name        String      @unique
-  email       String      @unique
-  password    String
-  roles       Role_User[]
-  status      Boolean
-  picture     String?
-  User_Groups Groups[]
-  Contracts   Contracts[]
+  id             Int             @id @default(autoincrement())
+  updatedAt      DateTime        @updatedAt
+  createdAt      DateTime        @default(now())
+  name           String          @unique
+  email          String          @unique
+  password       String
+  roles          Role_User[]
+  status         Boolean
+  picture        String?
+  User_Groups    Groups[]
+  Contracts      Contracts[]
+  AssignedTasks  ContractTasks[] @relation("assigned")
+  RequestorTasks ContractTasks[] @relation("requestor")
 }
 
 model Role {

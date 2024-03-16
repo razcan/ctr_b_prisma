@@ -93,6 +93,21 @@ export class ContractsController {
     return persons;
   }
 
+
+  async geUserEmailById(userId: any) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: parseInt(userId),
+      },
+      select: {
+        email: true
+      }
+    })
+    return user;
+  }
+
+
+
   // @Get('download/:filename')
   // downloadFile(@Param('filename') filename: string, @Res() res: Response) {
   //   const folderPath = '/Users/razvanmustata/Projects/contracts/backend/Uploads/'
@@ -735,10 +750,10 @@ export class ContractsController {
       data,
     });
 
-    const assigned = this.getPersonById(result.assignedId)
+    const assigned = this.geUserEmailById(result.assignedId)
     const assigned_email = (await assigned).email
 
-    const requestor = this.getPersonById(result.requestorId)
+    const requestor = this.geUserEmailById(result.requestorId)
     const requestor_email = (await requestor).email
 
     const dateString = result.due;
@@ -780,12 +795,12 @@ export class ContractsController {
 
     const result = await this.prisma.contractTasks.findMany(
       {
-        include:
-        {
-          requestor: true,
-          assigned: true,
-          status: true
-        }
+        // include:
+        // {
+        //   requestor: true,
+        //   assigned: true,
+        //   status: true
+        // }
       });
     return result;
   }
@@ -797,12 +812,12 @@ export class ContractsController {
 
     const result = await this.prisma.contractTasks.findMany(
       {
-        include:
-        {
-          requestor: true,
-          assigned: true,
-          status: true
-        },
+        // include:
+        // {
+        //   requestor: true,
+        //   assigned: true,
+        //   status: true
+        // },
         where: {
           assignedId: parseInt(userId)
         },
@@ -815,12 +830,12 @@ export class ContractsController {
   async getTasksByContractId(@Param('id') id: any, @Body() data: Prisma.ContractTasksCreateInput): Promise<any> {
 
     const result = await this.prisma.contractTasks.findMany({
-      include:
-      {
-        requestor: true,
-        assigned: true,
-        status: true
-      },
+      // include:
+      // {
+      //   requestor: true,
+      //   assigned: true,
+      //   status: true
+      // },
       where: { contractId: parseInt(id) },
     });
     return result;
@@ -835,10 +850,10 @@ export class ContractsController {
       data: data,
     });
 
-    const assigned = this.getPersonById((await result).assignedId)
+    const assigned = this.geUserEmailById((await result).assignedId)
     const assigned_email = (await assigned).email
 
-    const requestor = this.getPersonById((await result).requestorId)
+    const requestor = this.geUserEmailById((await result).requestorId)
     const requestor_email = (await requestor).email
 
     const dateString = (await result).due;

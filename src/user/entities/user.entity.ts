@@ -2,6 +2,7 @@
 import {RoleUser} from '../../roleUser/entities/roleUser.entity'
 import {Groups} from '../../groups/entities/groups.entity'
 import {Contracts} from '../../contracts/entities/contracts.entity'
+import {ContractTasks} from '../../contractTasks/entities/contractTasks.entity'
 
 
 export class User {
@@ -16,4 +17,6 @@ status: boolean ;
 picture: string  | null;
 User_Groups?: Groups[] ;
 Contracts?: Contracts[] ;
+AssignedTasks?: ContractTasks[] ;
+RequestorTasks?: ContractTasks[] ;
 }

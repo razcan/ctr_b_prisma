@@ -1,6 +1,6 @@
 
 import {ContractTasksStatus} from '../../contractTasksStatus/entities/contractTasksStatus.entity'
-import {Persons} from '../../persons/entities/persons.entity'
+import {User} from '../../user/entities/user.entity'
 
 
 export class ContractTasks {
@@ -13,9 +13,9 @@ progress: number ;
 status?: ContractTasksStatus  | null;
 statusId: number  | null;
 statusDate: Date ;
-requestor?: Persons  | null;
+requestor?: User  | null;
 requestorId: number  | null;
-assigned?: Persons  | null;
+assigned?: User  | null;
 assignedId: number  | null;
 due: Date ;
 notes: string ;

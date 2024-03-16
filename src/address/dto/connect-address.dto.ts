@@ -1,6 +1,5 @@
 
   export class ConnectAddressDto {
-    id?: number;
-addressName?: string;
+    id: number;
   }
   

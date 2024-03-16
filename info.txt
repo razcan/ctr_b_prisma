@@ -32,7 +32,51 @@ todo
 . scoatere din care uikit
 
 
+-- DROP FUNCTION public.getauditcontract(int4);
 
+CREATE OR REPLACE FUNCTION public.getauditcontract(contractid integer)
+ RETURNS TABLE(contract_id integer, tip_modificare text, data_modificare timestamp without time zone, 
+ contract_number text, nume_partener text, nume_entitate text, stare text, start_date timestamp without time zone, 
+ end_date timestamp without time zone, sign_date timestamp without time zone, completion_date timestamp without time zone, 
+ nume_categorie text, departament text, cashflow text, tip_contract text, centru_cost text, utilizator text)
+ LANGUAGE plpgsql
+AS $function$
+begin 
+	RETURN QUERY
+	select
+	c.id as contract_id, 
+	c."operationType" Tip_Modificare,
+	c."createdAt" as Data_Modificare,
+	c.number as Contract_Number, 
+	a.name as Nume_Partener, 
+	b.name as Nume_Entitate, 
+	cs.name as Stare,
+	c.start as Start_Date ,
+	c.end as End_Date ,
+	c.sign as Sign_Date ,
+	c.completion as Completion_Date ,
+	ca.name as Nume_Categorie ,
+	dep.name as Departament ,
+    cf.name as Cashflow ,
+    ct.name as Tip_Contract ,
+    cc.name as Centru_Cost ,
+    us.name as Utilizator
+	from public."ContractsAudit" c
+    left join public."Partners" a on c."partnersId" = a.id 
+	left join public."Partners" b on c."entityId" = b.id 
+	left join public."Category" ca  on c."categoryId"  = ca.id 
+	left join public."ContractStatus" cs on cs."id" = c."statusId"
+	left join public."Department" dep  on dep."id" = c."departmentId"
+	left join public."Cashflow" cf on cf."id" = c."cashflowId"
+	left join public."ContractType" ct on ct."id" = c."typeId"
+	left join public."CostCenter"  cc on cc."id" = c."costcenterId"
+	left join public."User" us on us."id" = c."userId"
+where c.id  = contractid;
+end;
+$function$
+;
+
+select * from GetAuditContract22(4)
 
 
 https://www.postgresql.org/docs/current/plpgsql-trigger.html
