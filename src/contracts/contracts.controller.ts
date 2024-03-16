@@ -849,10 +849,15 @@ export class ContractsController {
             select: {
               name: true
             }
-          }
+          },
         },
         where: {
-          assignedId: parseInt(userId)
+          assignedId: parseInt(userId),
+          progress: {
+            lt: 100
+            // Filter tasks where progress is less than or equal to 100
+          },
+          statusId: 1
         },
       }
     );
@@ -883,7 +888,13 @@ export class ContractsController {
           }
         }
       },
-      where: { contractId: parseInt(id) },
+      where: {
+        contractId: parseInt(id),
+        progress: {
+          lte: 100 // Filter tasks where progress is less than or equal to 100
+        },
+        statusId: 1
+      },
     });
     return result;
   }
