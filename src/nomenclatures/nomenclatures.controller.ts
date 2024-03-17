@@ -264,6 +264,30 @@ export class NomenclaturesController {
     return users;
   }
 
+  @UseGuards(AuthGuard)
+  // @Roles('Administrator', 'Editor') // Set multiple roles here
+  @Roles('Administrator', 'Editor')
+  @UseGuards(RolesGuard)
+  @Get('susers/:userId')
+  async getSimplifyUsersById(@Param('userId') userId: any, @Body() data: any, @Headers() headers): Promise<any> {
+
+    const entity: string[] = [headers.entity]
+
+    const intArray: number[] = entity.map(str => parseInt(str, 10));
+    const users = await this.prisma.user.findUnique({
+      where: {
+        id: parseInt(userId)
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        status: true,
+      },
+    });
+    return users;
+  }
+
 
   @Get('user/:id')
   async getUser3(@Param('id') id: any) {

@@ -900,11 +900,14 @@ export class ContractsController {
   }
 
 
-  @Patch('task/:id')
-  async updateTasks(@Param('id') id: number, @Body() data: any): Promise<any> {
+  @Patch('task/:id/:contractId')
+  async updateTasks(
+    @Param('id') id: any,
+    @Param('contractId') contractId: any,
+    @Body() data: any): Promise<any> {
 
     const result = await this.prisma.contractTasks.update({
-      where: { id: +id },
+      where: { id: parseInt(id) },
       data: data,
     });
 
@@ -924,7 +927,7 @@ export class ContractsController {
     });
 
     // --to be implemented contract id instead of this hardcoding
-    const ctr = this.findContractById(4)
+    const ctr = this.findContractById(contractId)
     const ctr_number = (await ctr).number
     const ctr_partener = (await ctr).partner.name
     const ctr_entity = (await ctr).entity.name
