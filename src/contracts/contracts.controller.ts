@@ -238,6 +238,10 @@ export class ContractsController {
   }
 
 
+
+
+
+
   @Post()
   async createContract(@Body() data: any): Promise<any> {
 
@@ -1064,6 +1068,133 @@ export class ContractsController {
     )
     return contracts;
   }
+  //cf
+  @Post('stackedbar')
+  async StackedBar(): Promise<any> {
+
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() + 6);
+
+
+    const receipts = await this.prisma.contractItems.findMany({
+      where: {
+        active: true
+      },
+      include: {
+        ContractFinancialDetail: {
+          where: {
+            active: true
+          },
+          include: {
+            ContractFinancialDetailSchedule: {
+              where: {
+                active: true,
+                date: {
+                  lte: sixMonthsAgo.toISOString(),
+                  gte: new Date().toISOString()
+                }
+              }
+            }
+          }
+        },
+        contract: {
+          where: {
+            isPurchasing: false,
+            id: 5
+          }
+        }
+      }
+    });
+
+    const x = receipts.map(res => res.ContractFinancialDetail)
+
+    interface Reee {
+      date: Date,
+      billingValue: Number,
+      currencyid: Number,
+      type: String
+    }
+    const receipts_final: Reee[] = []
+    for (let i = 1; i < x[0][0].ContractFinancialDetailSchedule.length; i++) {
+
+      receipts_final.push({
+        date: x[0][0].ContractFinancialDetailSchedule[i].date,
+        billingValue: x[0][0].ContractFinancialDetailSchedule[i].billingValue,
+        currencyid: x[0][0].ContractFinancialDetailSchedule[i].currencyid,
+        type: "I"
+      }
+      )
+    }
+
+    console.log(receipts_final)
+    //treb sa returnez ce gasesc in ContractFinancialDetailSchedule zi,luna ,valoare,
+    // return x;
+
+
+  }
+
+  // @Post('stackedbar')
+  // async StackedBar(): Promise<any> {
+
+  //   const counts = await this.prisma.contracts.groupBy({
+  //     by: ['isPurchasing'],
+  //     _count: true,
+  //     // _sum: true
+  //   }
+
+  //   );
+
+  //   return counts;
+  // }
+
+  @Post('cashflow')
+  async getCashflow() {
+    try {
+      const userTransactions = await this.prisma.contractItems.findMany({
+        // where: {
+        //   statusId: {
+        //     gt: 1,
+        //   },
+        // },
+        // include: {
+        //   ContractItems: true,
+        // },
+        //  groupBy: ['isPurchasing'],
+        // _sum: {
+        //   amount: true,
+        // },
+      });
+
+      console.log(userTransactions);
+      return (userTransactions)
+      // userTransactions will contain an array of objects,
+      // each object representing a user and their total transaction amount.
+    } catch (error) {
+      console.error('Error fetching user transaction sum:', error);
+    } finally {
+      await this.prisma.$disconnect();
+    }
+  }
+
+
+
+  //   async function getTotalSalesByCategory() {
+  //   const totalSalesByCategory = await prisma.order.aggregate({
+  //     groupBy: {
+  //       category: {
+  //         // Assuming 'category' is the field you want to group by
+  //         category: true,
+  //       },
+  //     },
+  //     sum: {
+  //       // Assuming 'totalAmount' is the field you want to sum
+  //       totalAmount: true,
+  //     },
+  //   });
+
+  //   return totalSalesByCategory;
+  // }
+
 
   @Get('basic/:id')
   async findSimplifiedCtr(@Param('id') id: any) {
