@@ -1072,8 +1072,8 @@ export class ContractsController {
   @Post('stackedbar')
   async StackedBar(): Promise<any> {
 
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() + 6);
+    const overSixMonths = new Date();
+    overSixMonths.setMonth(overSixMonths.getMonth() + 6);
 
 
     const receipts = await this.prisma.contractItems.findMany({
@@ -1090,7 +1090,7 @@ export class ContractsController {
               where: {
                 active: true,
                 date: {
-                  lte: sixMonthsAgo.toISOString(),
+                  lte: overSixMonths.toISOString(),
                   gte: new Date().toISOString()
                 }
               }
