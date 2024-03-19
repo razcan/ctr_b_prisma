@@ -404,6 +404,8 @@ export class ContractsController {
     const final = []
     final.push(Receipts2);
     final.push(Payments2);
+    final.push(month);
+    final.push(maxMonth);
 
     return final;
   }
