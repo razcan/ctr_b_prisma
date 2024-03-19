@@ -386,40 +386,61 @@ where c.id = contractid;
     )
 
     prisma.$executeRaw(`
-     CREATE OR REPLACE FUNCTION public.cashflow()
-     RETURNS TABLE(tip text, code text, billingValue DOUBLE PRECISION, month_number DECIMAL)
-        LANGUAGE plpgsql
-        AS $function$
-    begin 
-	RETURN QUERY
-	 
-select x.tip, x.code, sum(x."billingValue") billingValue, EXTRACT(MONTH FROM x."date") AS month_number
-    from(select
-	'P' as tip, cfdb.date, cr."code", cfdb."billingValue"
-	from public."ContractItems" ci
-	left join public."Contracts" c on c."id" = ci."contractId"
-  	left join public."ContractFinancialDetail" cfd on cfd."contractItemId" = ci."id"
-	left join public."ContractFinancialDetailSchedule" cfdb 
-	left join public."Currency" cr on cr."id" = cfdb.currencyid
-	on cfdb."contractfinancialItemId" = cfd."id"
-where ci.active is true and cfd.active is true and cfdb.active is true and c."isPurchasing" is true
-	and date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '6 months'
-union all
-select
-	'I' as tip, cfdb.date, cr."code", cfdb."billingValue"
-	from public."ContractItems" ci
-	left join public."Contracts" c on c."id" = ci."contractId"
-  	left join public."ContractFinancialDetail" cfd on cfd."contractItemId" = ci."id"
-	left join public."ContractFinancialDetailSchedule" cfdb 
-	left join public."Currency" cr on cr."id" = cfdb.currencyid
-	on cfdb."contractfinancialItemId" = cfd."id"
-where ci.active is true and cfd.active is true and cfdb.active is true and c."isPurchasing" is false
-	and date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '6 months'
-    )x
-group by x.tip, x.code, EXTRACT(MONTH FROM x."date") 
-order by 1, 4;
-    end;
-    $function$;
+     CREATE OR REPLACE PROCEDURE calculate_cashflow()
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RAISE NOTICE 'Calculating cashflow...';
+    
+    CREATE  TABLE temp_cashflow AS
+    SELECT x.tip,
+           SUM(x.billingValue) AS billingValue,
+           EXTRACT(MONTH FROM x."date") AS month_number
+    FROM (
+        SELECT 'P' AS tip,
+               cfdb.date,
+               ROUND((cfdb."billingValue" * er.amount)::NUMERIC, 2) AS billingValue
+        FROM public."ContractItems" ci
+        LEFT JOIN public."Contracts" c ON c."id" = ci."contractId"
+        LEFT JOIN public."ContractFinancialDetail" cfd ON cfd."contractItemId" = ci."id"
+        LEFT JOIN public."ContractFinancialDetailSchedule" cfdb ON cfdb."contractfinancialItemId" = cfd."id"
+        LEFT JOIN public."Currency" cr ON cr."id" = cfdb.currencyid
+        LEFT JOIN (
+            SELECT * FROM public."ExchangeRates" WHERE public."ExchangeRates"."date" =
+                (SELECT MAX("date") FROM public."ExchangeRates") 
+        ) er ON er."name" = cr.code
+        WHERE ci.active IS TRUE
+        AND cfd.active IS TRUE
+        AND cfdb.active IS TRUE
+        AND c."isPurchasing" IS TRUE
+        AND cfdb."date" BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '6 months'
+        
+        UNION ALL
+        
+        SELECT 'I' AS tip,
+               cfdb.date,
+               ROUND((cfdb."billingValue" * er.amount)::NUMERIC, 2) AS billingValue
+        FROM public."ContractItems" ci
+        LEFT JOIN public."Contracts" c ON c."id" = ci."contractId"
+        LEFT JOIN public."ContractFinancialDetail" cfd ON cfd."contractItemId" = ci."id"
+        LEFT JOIN public."ContractFinancialDetailSchedule" cfdb ON cfdb."contractfinancialItemId" = cfd."id"
+        LEFT JOIN public."Currency" cr ON cr."id" = cfdb.currencyid
+        LEFT JOIN (
+            SELECT * FROM public."ExchangeRates" WHERE public."ExchangeRates"."date" =
+                (SELECT MAX("date") FROM public."ExchangeRates") 
+        ) er ON er."name" = cr.code
+        WHERE ci.active IS TRUE
+        AND cfd.active IS TRUE
+        AND cfdb.active IS TRUE
+        AND c."isPurchasing" IS FALSE
+        AND cfdb."date" BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '6 months'
+    ) x
+    GROUP BY x.tip, EXTRACT(MONTH FROM x."date")
+    ORDER BY 1;
+    
+    RAISE NOTICE 'Cashflow calculation completed.';
+END;
+$$;
 
     --select * from cashflow()
 `

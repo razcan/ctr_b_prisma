@@ -339,6 +339,76 @@ export class ContractsController {
     return result;
   }
 
+  @Get('cashflow')
+  async getExecutePartnerAudit() {
+
+    const result1 = await this.prisma.$queryRaw(
+      Prisma.sql`drop table public."temp_cashflow"`
+    )
+
+    const result2 = await this.prisma.$queryRaw(
+      Prisma.sql`call public.calculate_cashflow()`
+    )
+
+    const result3: { tip: string, billingvalue: string, month_number: number }[]
+      = await this.prisma.$queryRaw(
+        Prisma.sql`SELECT * FROM public."temp_cashflow"`
+      )
+
+    const start_date = new Date()
+    let month = 1 + start_date.getMonth();
+
+
+
+    const Receipts = result3
+      .filter(item => item.tip === "I")
+
+
+    const Payments = result3
+      .filter(item => item.tip === "P")
+
+    const rec: any[] = [];
+    // const maxMonth = Math.max(...Receipts.map(item => item.month_number));
+    const maxMonth = month + 5;
+
+    for (let i = month; i <= maxMonth; i++) {
+      const found = Receipts.find(item => item.month_number == i);
+      if (found) {
+        rec.push(found);
+      } else {
+        rec.push({ tip: 'I', billingvalue: 0, month_number: i });
+      }
+    }
+
+    const Receipts2 = rec
+      .map(item => parseFloat(item.billingvalue)
+      );
+
+
+
+    const pay: any[] = [];
+
+    for (let i = month; i <= maxMonth; i++) {
+      const found = Payments.find(item => item.month_number == i);
+      if (found) {
+        pay.push(found);
+      } else {
+        pay.push({ tip: 'P', billingvalue: 0, month_number: i });
+      }
+    }
+
+    const Payments2 = pay
+      .map(item => parseFloat(item.billingvalue)
+      );
+
+    const final = []
+    final.push(Receipts2);
+    final.push(Payments2);
+
+    return final;
+  }
+
+
 
   @Patch('/:id')
   async update(@Param('id') id: number, @Body() data: any) {

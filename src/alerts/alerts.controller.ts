@@ -7,6 +7,8 @@ import { ContractsController } from '../contracts/contracts.controller'
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { async } from 'rxjs';
+import BNR = require("bnr")
+import { Interface } from 'readline';
 
 @Controller('alerts')
 export class AlertsController {
@@ -14,6 +16,92 @@ export class AlertsController {
         private prisma: PrismaService,
         private contracts: ContractsController
     ) { }
+
+
+    @Cron('0 */30 6-11 * * *')
+    getExchangeForEUR(): any {
+
+        BNR.getRates(async (err, rates) => {
+            // console.log(err || rates);
+
+            const res = rates
+
+            interface currency_interface {
+                date: string,
+                amount: number,
+                name: string,
+                multiplier: number
+            }
+
+            const jsonArray = Object.values(rates);
+            // console.log(jsonArray);
+            const dateObject = new Date();
+            const dateOnlyString = dateObject.toISOString().split("T")[0];
+            const currency_result: currency_interface[] = []
+            jsonArray.map(result => {
+                const toAdd = {
+                    date: dateOnlyString,
+                    amount: result.amount,
+                    name: result.name,
+                    multiplier: result.multiplier
+                }
+                currency_result.push(toAdd)
+            }
+
+            )
+            // const x = currency_result.findIndex((name) => name.name == "RON")
+            // currency_result.splice(x, 1)
+
+            currency_result.map((save) =>
+                this.prisma.exchangeRates.create({
+                    data: {
+                        date: save.date,
+                        amount: save.amount,
+                        name: save.name,
+                        multiplier: save.multiplier
+                    }
+
+                })
+            )
+
+            const ins = await this.prisma.exchangeRates.findFirst({
+                where: {
+                    date: dateOnlyString
+                }
+            })
+
+            if (ins && ins.date !== undefined && ins.amount !== null) {
+                // Property exists and has a non-null value
+                console.log("we already have the foreign exchanges")
+            } else {
+                // Property does not exist or has a null value
+                for (let i = 0; i < currency_result.length; i++) {
+                    await this.prisma.exchangeRates.create({
+                        data: {
+                            date: currency_result[i].date,
+                            amount: currency_result[i].amount,
+                            name: currency_result[i].name,
+                            multiplier: currency_result[i].multiplier
+                        }
+
+                    })
+                }
+            }
+
+
+        })
+
+        // The promise way
+        // BNR.getRates().then(console.log)
+
+        // let result = BNR.convert(1, "EUR", "RON", function (err, amount, output) {
+        //     if (err) { return console.error(err); }
+        //     console.log(`Result: ${amount}`);
+        //     console.log(`${output.input.amount} ${output.input.currency} is ${output.output.amount} ${output.output.currency}`);
+        // });
+        // return result;
+    }
+
 
 
     @Get('')
