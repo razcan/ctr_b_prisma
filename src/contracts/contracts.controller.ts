@@ -339,8 +339,18 @@ export class ContractsController {
     return result;
   }
 
+  @Get('generalreport')
+  async getGeneralReport() {
+
+    const result1 = await this.prisma.$queryRaw(
+      Prisma.sql`SELECT * FROM public.get_contract_details()`
+    )
+    return result1;
+  }
+
+
   @Get('cashflow')
-  async getExecutePartnerAudit() {
+  async getCalculate_cashflow() {
 
     const result1 = await this.prisma.$queryRaw(
       Prisma.sql`drop table public."temp_cashflow"`

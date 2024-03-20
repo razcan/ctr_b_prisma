@@ -9,6 +9,14 @@ import { Prisma } from '@prisma/client';
 import { async } from 'rxjs';
 import BNR = require("bnr")
 import { Interface } from 'readline';
+import fetch from 'node-fetch';
+import { parseString } from 'xml2js';
+
+export interface CurrencyInterface {
+    date: string;
+    amount: number;
+    name: string;
+}
 
 @Controller('alerts')
 export class AlertsController {
@@ -18,11 +26,57 @@ export class AlertsController {
     ) { }
 
 
-    @Cron('0 */30 6-11 * * *')
+    async fetchExchangeRates(): Promise<CurrencyInterface[] | null> {
+        try {
+            const response = await fetch('https://www.bnr.ro/nbrfxrates.xml');
+            const data = await response.text();
+
+            // Parse XML data
+            const result = await new Promise<any>((resolve, reject) => {
+                parseString(data, (err, result) => {
+                    if (err) {
+                        console.error('Error parsing XML:', err);
+                        reject(err);
+                    }
+                    resolve(result);
+                });
+            });
+
+            // Access XML elements and attributes
+            const rates = result.DataSet.Body[0].Cube[0].Rate;
+            const atdate = result.DataSet.Body[0].Cube[0].$.date;
+            const currencyResult: CurrencyInterface[] = [];
+            rates.forEach((rate: any) => {
+                const currency = rate.$.currency;
+                const value = rate._;
+                const toAdd: CurrencyInterface = {
+                    date: atdate,
+                    amount: value,
+                    name: currency
+                };
+                currencyResult.push(toAdd);
+            });
+            console.log(currencyResult)
+            return currencyResult;
+        } catch (error) {
+            console.error('Error fetching XML:', error);
+            return null;
+        }
+    }
+
+    @Get('bnr')
+    async exampleUsage() {
+        const exchangeRates = await this.fetchExchangeRates();
+        return exchangeRates
+    }
+
+
+
+    @Cron('0 */30 9-11 * * *')
     getExchangeForEUR(): any {
 
         BNR.getRates(async (err, rates) => {
-            // console.log(err || rates);
+            console.log(err || rates);
 
             const res = rates
 
@@ -110,6 +164,9 @@ export class AlertsController {
         // this.sendMail();
         return alerts;
     }
+
+
+
 
     @Get('byId/:id')
     async getAlertById(@Param('id') id: any) {

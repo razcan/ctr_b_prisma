@@ -386,9 +386,126 @@ where c.id = contractid;
     )
 
     prisma.$executeRaw(`
-     CREATE OR REPLACE PROCEDURE calculate_cashflow()
-LANGUAGE plpgsql
+   CREATE OR REPLACE FUNCTION get_contract_details()
+RETURNS TABLE (
+    TipContract TEXT,
+    number TEXT,
+    start_date DATE,
+    end_date DATE,
+    sign_date DATE,
+    completion_date DATE,
+    remarks TEXT,
+    partner_name TEXT,
+    entity_name TEXT,
+    automatic_renewal TEXT,
+    status_name TEXT,
+    cashflow_name TEXT,
+    category_name TEXT,
+    contract_type_name TEXT,
+    department_name TEXT,
+    cost_center_name TEXT,
+    partner_person_name TEXT,
+    partner_person_role TEXT,
+    partner_person_email TEXT,
+    entity_person_name TEXT,
+    entity_person_role TEXT,
+    entity_person_email TEXT,
+    partner_address TEXT,
+    entity_address TEXT,
+    partner_bank TEXT,
+    partner_currency TEXT,
+    partner_iban TEXT,
+    entity_bank TEXT,
+    entity_currency TEXT,
+    entity_iban TEXT
+)
 AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        CASE
+            WHEN c."isPurchasing" = FALSE THEN 'Client'
+            ELSE 'Furnizor'
+        END AS TipContract,
+        c.number,
+        c.start::DATE,
+        c.end::DATE,
+        c.sign::DATE,
+        c.completion::DATE,
+        COALESCE(c.remarks, '') AS remarks,
+        p.name AS partner_name,
+        e.name AS entity_name,
+       case when  c."automaticRenewal" = true then 'Da' else 'NU' END AS automatic_renewal,
+        cs.name AS status_name,
+        COALESCE(c2.name, '') AS cashflow_name,
+        COALESCE(c3.name, '') AS category_name,
+        COALESCE(ct.name, '') AS contract_type_name,
+        COALESCE(d.name, '') AS department_name,
+        COALESCE(cc.name, '') AS cost_center_name,
+        COALESCE(pp.name, '') AS partner_person_name,
+        COALESCE(pp.role, '') AS partner_person_role,
+        pp.email AS partner_person_email,
+        COALESCE(pe.name, '') AS entity_person_name,
+        COALESCE(pe.role, '') AS entity_person_role,
+        pe.email AS entity_person_email,
+        COALESCE(ap."completeAddress", '') AS partner_address,
+        COALESCE(ae."completeAddress", '') AS entity_address,
+        COALESCE(bp.bank, '') AS partner_bank,
+        COALESCE(bp.currency, '') AS partner_currency,
+        COALESCE(bp.iban, '') AS partner_iban,
+        COALESCE(be.bank, '') AS entity_bank,
+        COALESCE(be.currency, '') AS entity_currency,
+        COALESCE(be.iban, '') AS entity_iban
+    FROM 
+        public."Contracts" c 
+    JOIN 
+        public."ContractStatus" cs ON c."statusId" = cs.id 
+    JOIN 
+        "Partners" p ON p.id = c."partnersId" 
+    JOIN 
+        "Partners" e ON e.id = c."entityId"    
+    LEFT JOIN 
+        "Cashflow" c2 ON c2.id = c."cashflowId" 
+    LEFT JOIN 
+        "Category" c3 ON c3.id = c."categoryId" 
+    LEFT JOIN 
+        "ContractType" ct ON ct.id = c."typeId" 
+    LEFT JOIN 
+        "Department" d ON d.id = c."departmentId" 
+    LEFT JOIN 
+        "CostCenter" cc ON cc.id = c."costcenterId" 
+    LEFT JOIN 
+        "Persons" pp ON pp.id = c."partnerpersonsId"
+    LEFT JOIN 
+        "Persons" pe ON pe.id = c."entitypersonsId"
+    LEFT JOIN 
+        "Address" ap ON ap.id = c."partneraddressId" 
+    LEFT JOIN 
+        "Address" ae ON ae.id = c."entityaddressId" 
+    LEFT JOIN 
+        "Banks" bp ON bp.id = c."partnerbankId"  
+    LEFT JOIN 
+        "Banks" be ON be.id = c."entitybankId";
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+--SELECT * FROM get_contract_details();
+    `
+    )
+
+
+
+    prisma.$executeRaw(`
+   -- PROCEDURE: public.calculate_cashflow()
+
+-- DROP PROCEDURE IF EXISTS public.calculate_cashflow();
+
+CREATE OR REPLACE PROCEDURE public.calculate_cashflow(
+	)
+LANGUAGE 'plpgsql'
+AS $BODY$
 BEGIN
     RAISE NOTICE 'Calculating cashflow...';
     
@@ -440,9 +557,10 @@ BEGIN
     
     RAISE NOTICE 'Cashflow calculation completed.';
 END;
-$$;
+$BODY$;
+ALTER PROCEDURE public.calculate_cashflow()
+    OWNER TO postgres;
 
-    --select * from cashflow()
 `
     )
 
