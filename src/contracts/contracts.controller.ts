@@ -348,6 +348,15 @@ export class ContractsController {
     return result1;
   }
 
+  @Get('cashflowreport')
+  async getCashFlowReport() {
+
+    const result1 = await this.prisma.$queryRaw(
+      Prisma.sql`SELECT * FROM  public.report_cashflow()`
+    )
+    return result1;
+  }
+
 
   @Get('cashflow')
   async getCalculate_cashflow() {
@@ -740,7 +749,7 @@ export class ContractsController {
     return result;
   }
 
-  @Get('cashflow')
+  @Get('cashflownom')
   async getAllCashflow(@Body() data: Prisma.CashflowCreateInput): Promise<any> {
     const result = await this.prisma.cashflow.findMany()
     return result;

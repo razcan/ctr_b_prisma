@@ -564,6 +564,103 @@ ALTER PROCEDURE public.calculate_cashflow()
 `
     )
 
+    prisma.$executeRaw(`
+    CREATE OR REPLACE FUNCTION public.report_cashflow(
+    )
+    RETURNS TABLE(
+        ContractId integer, TipTranzactie text, Partener text,
+        Entitate text, NumarContract text, Start date, Final date,
+        DescriereContract text,
+        Cashflow text,
+        Data date, ProcentPlusBNR double precision,
+        ProcentPenalitate double precision, NrZileScadente integer,
+        Articol text, Cantitate double precision, PretUnitarInValuta double precision,
+        ValoareInValuta double precision,
+        Valuta text, CursValutar double precision,
+        ValoareRon numeric, --20
+	PlatitIncasat text, Facturat text
+    ) 
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 1000
+
+AS $BODY$
+    BEGIN
+    RETURN QUERY
+SELECT c.id AS ContractId,
+        CASE
+            WHEN c."isPurchasing" = FALSE THEN 'Incasare'
+            ELSE 'Plata'
+        END AS TipTranzactie,
+        p.name  AS Partener,
+            e.name  AS Entitate,
+                c.number AS NumarContract,
+                    c.start::DATE Start,
+                        c.end::DATE Final,
+                            COALESCE(c.remarks, '') AS DescriereContract,
+                                --cs.name AS status_name,
+                                    COALESCE(c2.name, '') AS Cashflow,
+                                        cfdb.date::DATE Data, --10
+    cfd."currencyPercent" ProcentPlusBNR,
+        cfd."billingPenaltyPercent" ProcentPenalitate,
+            cfd."billingDueDays" NrZileScadente,
+                it.name Articol,
+                    cfdb."billingQtty" Cantitate,
+                        cfdb."billingValue" PretUnitarInValuta,
+                            (cfdb."billingQtty" * cfdb."billingValue") ValoareInValuta,
+                                cr.code Valuta,
+                                    er.amount CursValutar,
+                                        ROUND((cfdb."billingQtty" * cfdb."billingValue" * er.amount):: NUMERIC, 2) AS ValoareRon,
+                                            CASE
+            WHEN cfdb."isPayed" = FALSE THEN 'Nu'
+            ELSE 'Da'
+        END AS PlatitIncasat,
+
+        CASE
+            WHEN cfdb."isInvoiced" = FALSE THEN 'Nu'
+            ELSE 'Da'
+        END AS Facturat
+
+    FROM
+    public."ContractItems" ci
+	join public."Item" it on ci."itemid" = it."id"
+	left join public."Contracts" c on c."id" = ci."contractId"
+  	left join public."ContractFinancialDetail" cfd on cfd."contractItemId" = ci."id"
+	left join public."ContractFinancialDetailSchedule" cfdb 
+	left join public."Currency" cr on cr."id" = cfdb.currencyid
+	left join(select * from public."ExchangeRates" 
+		where public."ExchangeRates"."date" =
+    (select max("date") from public."ExchangeRates") 
+	) er  
+	on er."name" = cr.code
+	on cfdb."contractfinancialItemId" = cfd."id"
+    JOIN
+    public."ContractStatus" cs ON c."statusId" = cs.id
+    JOIN
+    "Partners" p ON p.id = c."partnersId"
+    JOIN
+    "Partners" e ON e.id = c."entityId"    
+    LEFT JOIN
+    "Cashflow" c2 ON c2.id = c."cashflowId" 
+    LEFT JOIN
+    "ContractType" ct ON ct.id = c."typeId" 
+    LEFT JOIN
+    "Banks" bp ON bp.id = c."partnerbankId"  
+    LEFT JOIN
+    "Banks" be ON be.id = c."entitybankId"
+where ci.active is true and cfd.active is true and cfdb.active is true;
+    END;
+    $BODY$;
+
+ALTER FUNCTION public.report_cashflow()
+    OWNER TO sysadmin;
+
+
+    --select * from public.report_cashflow()
+    `
+    )
+
     await prisma.alerts.createMany({
         data: [
             {
