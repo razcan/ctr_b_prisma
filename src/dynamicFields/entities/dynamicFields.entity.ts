@@ -8,5 +8,6 @@ updateadAt: Date ;
 createdAt: Date ;
 fieldname: string ;
 fieldlabel: string ;
-fieldorder: number  | null;
+fieldorder: number ;
+fieldtype: string ;
 }

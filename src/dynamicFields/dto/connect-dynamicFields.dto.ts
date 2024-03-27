@@ -1,5 +1,7 @@
 
   export class ConnectDynamicFieldsDto {
-    id: number;
+    id?: number;
+fieldname?: string;
+fieldorder?: number;
   }
   
