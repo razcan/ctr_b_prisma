@@ -386,7 +386,11 @@ export class NomenclaturesController {
 
   @Get('dynamicfield')
   async getDynamicfield(@Body() data: Prisma.DynamicFieldsCreateInput): Promise<any> {
-    const result = this.prisma.dynamicFields.findMany();
+    const result = this.prisma.dynamicFields.findMany({
+      orderBy: {
+        fieldorder: 'asc', // 'asc' for ascending order, 'desc' for descending order
+      },
+    });
     return result;
   }
 

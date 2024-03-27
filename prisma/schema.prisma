@@ -237,7 +237,7 @@ model DynamicFields {
   createdAt  DateTime @default(now())
   fieldname  String
   fieldlabel String
-  fieldorder Int?
+  fieldorder Int      @unique
 }
 
 model ContractItems {
