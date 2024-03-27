@@ -68,11 +68,6 @@ model MeasuringUnit {
   ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
 }
 
-model Entity {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-}
-
 model PaymentType {
   id                      Int                       @id @default(autoincrement())
   name                    String                    @unique
@@ -133,53 +128,54 @@ model ContractContent {
 }
 
 model Contracts {
-  id                  Int                   @id @default(autoincrement())
-  number              String
-  type                ContractType          @relation(fields: [typeId], references: [id])
-  typeId              Int
-  costcenter          CostCenter            @relation(fields: [costcenterId], references: [id])
-  costcenterId        Int                   @default(1)
-  status              ContractStatus        @relation(fields: [statusId], references: [id])
-  statusId            Int
-  start               DateTime
-  end                 DateTime
-  sign                DateTime?
-  completion          DateTime?
-  remarks             String?
-  Category            Category?             @relation(fields: [categoryId], references: [id])
-  categoryId          Int?
-  departament         Department?           @relation(fields: [departmentId], references: [id])
-  departmentId        Int?
-  cashflow            Cashflow?             @relation(fields: [cashflowId], references: [id])
-  cashflowId          Int?
-  item                Item?                 @relation(fields: [itemId], references: [id])
-  itemId              Int?
-  automaticRenewal    Boolean?              @default(false)
-  partner             Partners              @relation("partner", fields: [partnersId], references: [id])
-  partnersId          Int
-  entity              Partners              @relation("entity", fields: [entityId], references: [id])
-  entityId            Int
-  parentId            Int?                  @default(0)
-  PartnerPerson       Persons?              @relation("partner", fields: [partnerpersonsId], references: [id])
-  partnerpersonsId    Int?
-  EntityPerson        Persons?              @relation("entity", fields: [entitypersonsId], references: [id])
-  entitypersonsId     Int?
-  EntityAddress       Address?              @relation("entity", fields: [entityaddressId], references: [id])
-  entityaddressId     Int?
-  PartnerAddress      Address?              @relation("partner", fields: [partneraddressId], references: [id])
-  partneraddressId    Int?
-  EntityBank          Banks?                @relation("entity", fields: [entitybankId], references: [id])
-  entitybankId        Int?
-  PartnerBank         Banks?                @relation("partner", fields: [partnerbankId], references: [id])
-  partnerbankId       Int?
-  ContractItems       ContractItems[]
-  ContractAttachments ContractAttachments[]
-  ContractContent     ContractContent[]
-  PaymentType         PaymentType?          @relation(fields: [paymentTypeId], references: [id])
-  paymentTypeId       Int?
-  User                User?                 @relation(fields: [userId], references: [id])
-  userId              Int?
-  isPurchasing        Boolean?              @default(false)
+  id                    Int                     @id @default(autoincrement())
+  number                String
+  type                  ContractType            @relation(fields: [typeId], references: [id])
+  typeId                Int
+  costcenter            CostCenter              @relation(fields: [costcenterId], references: [id])
+  costcenterId          Int                     @default(1)
+  status                ContractStatus          @relation(fields: [statusId], references: [id])
+  statusId              Int
+  start                 DateTime
+  end                   DateTime
+  sign                  DateTime?
+  completion            DateTime?
+  remarks               String?
+  Category              Category?               @relation(fields: [categoryId], references: [id])
+  categoryId            Int?
+  departament           Department?             @relation(fields: [departmentId], references: [id])
+  departmentId          Int?
+  cashflow              Cashflow?               @relation(fields: [cashflowId], references: [id])
+  cashflowId            Int?
+  item                  Item?                   @relation(fields: [itemId], references: [id])
+  itemId                Int?
+  automaticRenewal      Boolean?                @default(false)
+  partner               Partners                @relation("partner", fields: [partnersId], references: [id])
+  partnersId            Int
+  entity                Partners                @relation("entity", fields: [entityId], references: [id])
+  entityId              Int
+  parentId              Int?                    @default(0)
+  PartnerPerson         Persons?                @relation("partner", fields: [partnerpersonsId], references: [id])
+  partnerpersonsId      Int?
+  EntityPerson          Persons?                @relation("entity", fields: [entitypersonsId], references: [id])
+  entitypersonsId       Int?
+  EntityAddress         Address?                @relation("entity", fields: [entityaddressId], references: [id])
+  entityaddressId       Int?
+  PartnerAddress        Address?                @relation("partner", fields: [partneraddressId], references: [id])
+  partneraddressId      Int?
+  EntityBank            Banks?                  @relation("entity", fields: [entitybankId], references: [id])
+  entitybankId          Int?
+  PartnerBank           Banks?                  @relation("partner", fields: [partnerbankId], references: [id])
+  partnerbankId         Int?
+  ContractItems         ContractItems[]
+  ContractAttachments   ContractAttachments[]
+  ContractContent       ContractContent[]
+  PaymentType           PaymentType?            @relation(fields: [paymentTypeId], references: [id])
+  paymentTypeId         Int?
+  User                  User?                   @relation(fields: [userId], references: [id])
+  userId                Int?
+  isPurchasing          Boolean?                @default(false)
+  ContractDynamicFields ContractDynamicFields[]
 }
 
 model ContractsAudit {
@@ -217,12 +213,31 @@ model ContractsAudit {
   userId                Int?
 }
 
-model ContractsDetails {
-  id     Int    @id @default(autoincrement())
-  name   String
-  itemid Int
-  // contract   Contracts @relation(fields: [contractId], references: [id])
-  // contractId Int
+model ContractDynamicFields {
+  id         Int        @id @default(autoincrement())
+  updateadAt DateTime   @updatedAt
+  createdAt  DateTime   @default(now())
+  contract   Contracts? @relation(fields: [contractId], references: [id])
+  contractId Int
+  dffInt1    Int?
+  dffInt2    Int?
+  dffInt3    Int?
+  dffInt4    Int?
+  dffString1 String?
+  dffString2 String?
+  dffString3 String?
+  dffString4 String?
+  dffDate1   DateTime?
+  dffDate2   DateTime?
+}
+
+model DynamicFields {
+  id         Int      @id @default(autoincrement())
+  updateadAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  fieldname  String
+  fieldlabel String
+  fieldorder Int?
 }
 
 model ContractItems {

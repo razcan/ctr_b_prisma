@@ -4,7 +4,7 @@ import {
   Delete, UploadedFile, UploadedFiles, HttpException, HttpCode,
   Request, UseGuards, UsePipes, ValidationPipe, Res, Headers
 } from '@nestjs/common';
-import { ContractFinancialDetail, ContractFinancialDetailSchedule, Contracts, ContractsDetails, Prisma } from '@prisma/client';
+import { ContractFinancialDetail, ContractFinancialDetailSchedule, Contracts, Prisma } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma.service';
 import { ContractsService } from './contracts.service';
@@ -829,14 +829,14 @@ export class ContractsController {
     }
   }
 
-  @Post('type')
-  async createEntity(@Body() data: Prisma.EntityCreateInput): Promise<any> {
+  // @Post('type')
+  // async createEntity(@Body() data: Prisma.EntityCreateInput): Promise<any> {
 
-    const result = this.prisma.contractType.create({
-      data,
-    });
-    return result;
-  }
+  //   const result = this.prisma.contractType.create({
+  //     data,
+  //   });
+  //   return result;
+  // }
 
   @Post('task')
   async createTask(@Body() data: Prisma.ContractTasksCreateInput): Promise<any> {
@@ -1060,7 +1060,7 @@ export class ContractsController {
   }
 
   @Get('type')
-  async getEntity(@Body() data: Prisma.EntityCreateInput): Promise<any> {
+  async getEntity(@Body() data: any): Promise<any> {
     const result = await this.prisma.contractType.findMany()
     return result;
   }

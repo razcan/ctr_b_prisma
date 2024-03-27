@@ -7,7 +7,7 @@ import {
   UseGuards, UsePipes, ValidationPipe, Res, UseInterceptors, InternalServerErrorException
 } from '@nestjs/common';
 import { NomenclaturesService } from './nomenclatures.service';
-import { ContractFinancialDetail, ContractFinancialDetailSchedule, Contracts, ContractsDetails, Prisma } from '@prisma/client';
+import { ContractFinancialDetail, ContractFinancialDetailSchedule, Contracts, Prisma } from '@prisma/client';
 
 import { Injectable } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
@@ -374,6 +374,22 @@ export class NomenclaturesController {
     });
     return result;
   }
+
+  @Post('dynamicfield')
+  async createDynamicfield(@Body() data: Prisma.DynamicFieldsCreateInput): Promise<any> {
+    console.log(data)
+    const result = this.prisma.dynamicFields.create({
+      data,
+    });
+    return result;
+  }
+
+  @Get('dynamicfield')
+  async getDynamicfield(@Body() data: Prisma.DynamicFieldsCreateInput): Promise<any> {
+    const result = this.prisma.dynamicFields.findMany();
+    return result;
+  }
+
 
 
   @Get('groups')
