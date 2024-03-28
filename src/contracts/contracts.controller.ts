@@ -245,45 +245,121 @@ export class ContractsController {
   @Post()
   async createContract(@Body() data: any): Promise<any> {
 
-    // console.log(data);
+    const header = data[0]
+
+    const dynamicInfo = data[1]
 
     const result = await this.prisma.contracts.create({
-      data,
+      data: header
     });
 
+    dynamicInfo.contractId = result.id;
+
+    const resdynamicInfo = await this.prisma.contractDynamicFields.create({ data: dynamicInfo })
 
     const audit = this.prisma.contractsAudit.create({
       data: {
         operationType: "I",
         id: result.id,
-        number: data.number,
-        typeId: data.typeId,
-        statusId: data.statusId,
-        start: data.start,
-        end: data.end,
-        sign: data.sign,
-        completion: data.completion,
-        remarks: data.remarks,
-        categoryId: data.categoryId,
-        departmentId: data.departmentId,
-        cashflowId: data.cashflowId,
-        itemId: data.itemId,
-        costcenterId: data.costcenterId,
-        automaticRenewal: data.automaticRenewal,
-        partnersId: data.partnersId,
-        entityId: data.entityId,
-        partnerpersonsId: data.partnerpersonsId,
-        entitypersonsId: data.entitypersonsId,
-        entityaddressId: data.entityaddressId,
-        partneraddressId: data.partneraddressId,
-        entitybankId: data.entitybankId,
-        partnerbankId: data.partnerbankId,
-        userId: data.userId
+        number: header.number,
+        typeId: header.typeId,
+        statusId: header.statusId,
+        start: header.start,
+        end: header.end,
+        sign: header.sign,
+        completion: header.completion,
+        remarks: header.remarks,
+        categoryId: header.categoryId,
+        departmentId: header.departmentId,
+        cashflowId: header.cashflowId,
+        itemId: header.itemId,
+        costcenterId: header.costcenterId,
+        automaticRenewal: header.automaticRenewal,
+        partnersId: header.partnersId,
+        entityId: header.entityId,
+        partnerpersonsId: header.partnerpersonsId,
+        entitypersonsId: header.entitypersonsId,
+        entityaddressId: header.entityaddressId,
+        partneraddressId: header.partneraddressId,
+        entitybankId: header.entitybankId,
+        partnerbankId: header.partnerbankId,
+        userId: header.userId
       }
     });
 
     return audit;
   }
+
+  @Patch('/:id')
+  async update(@Param('id') id: number, @Body() data: any) {
+
+    const header = data[0]
+
+    const dynamicInfo = data[1]
+
+    const existdynamicInfo = await this.prisma.contractDynamicFields.findFirst({
+      where: { contractId: +id }
+    })
+
+    if (existdynamicInfo) {
+      const resdynamicInfo = await this.prisma.contractDynamicFields.updateMany({
+        where: { contractId: +id },
+        data: dynamicInfo,
+      })
+    } else {
+      const resdynamicInfo = await this.prisma.contractDynamicFields.create({ data: dynamicInfo })
+    }
+
+    const contract = await this.prisma.contracts.update({
+      where: { id: +id },
+      data: header,
+    })
+
+    const audit = this.prisma.contractsAudit.create({
+      data: {
+        operationType: "U",
+        id: contract.id,
+        number: header.number,
+        typeId: header.typeId,
+        statusId: header.statusId,
+        start: header.start,
+        end: header.end,
+        sign: header.sign,
+        completion: header.completion,
+        remarks: header.remarks,
+        categoryId: header.categoryId,
+        departmentId: header.departmentId,
+        cashflowId: header.cashflowId,
+        itemId: header.itemId,
+        costcenterId: header.costcenterId,
+        automaticRenewal: header.automaticRenewal,
+        partnersId: header.partnersId,
+        entityId: header.entityId,
+        partnerpersonsId: header.partnerpersonsId,
+        entitypersonsId: header.entitypersonsId,
+        entityaddressId: header.entityaddressId,
+        partneraddressId: header.partneraddressId,
+        entitybankId: header.entitybankId,
+        partnerbankId: header.partnerbankId,
+        userId: header.userId
+      }
+
+    });
+
+    // return audit;
+  }
+
+
+  @Get('dynamicfields/:id')
+  async getDynamicfields(@Body() data: Prisma.ContractDynamicFieldsCreateInput, @Param('id') id: any): Promise<any> {
+    const content = await this.prisma.contractDynamicFields.findMany({
+      where: {
+        contractId: parseInt(id),
+      },
+    })
+    return content;
+  }
+
 
 
   @Post('contractItems')
@@ -431,68 +507,7 @@ export class ContractsController {
 
 
 
-  @Patch('/:id')
-  async update(@Param('id') id: number, @Body() data: any) {
 
-    const header = data[0]
-
-    const dynamicInfo = data[1]
-
-    const existdynamicInfo = await this.prisma.contractDynamicFields.findFirst({
-      where: { contractId: +id }
-    })
-
-    if (existdynamicInfo) {
-      const resdynamicInfo = await this.prisma.contractDynamicFields.updateMany({
-        where: { contractId: +id },
-        data: dynamicInfo,
-      })
-    } else {
-      const resdynamicInfo = await this.prisma.contractDynamicFields.create({ data: dynamicInfo })
-    }
-
-
-
-    const contract = await this.prisma.contracts.update({
-      where: { id: +id },
-      data: header,
-    })
-
-    // console.log(header)
-
-    const audit = this.prisma.contractsAudit.create({
-      data: {
-        operationType: "U",
-        id: contract.id,
-        number: header.number,
-        typeId: header.typeId,
-        statusId: header.statusId,
-        start: header.start,
-        end: header.end,
-        sign: header.sign,
-        completion: header.completion,
-        remarks: header.remarks,
-        categoryId: header.categoryId,
-        departmentId: header.departmentId,
-        cashflowId: header.cashflowId,
-        itemId: header.itemId,
-        costcenterId: header.costcenterId,
-        automaticRenewal: header.automaticRenewal,
-        partnersId: header.partnersId,
-        entityId: header.entityId,
-        partnerpersonsId: header.partnerpersonsId,
-        entitypersonsId: header.entitypersonsId,
-        entityaddressId: header.entityaddressId,
-        partneraddressId: header.partneraddressId,
-        entitybankId: header.entitybankId,
-        partnerbankId: header.partnerbankId,
-        userId: header.userId
-      }
-
-    });
-
-    // return audit;
-  }
 
 
   @Delete('financialDetailSchedule/:id')
