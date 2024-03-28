@@ -255,7 +255,18 @@ export class ContractsController {
 
     dynamicInfo.contractId = result.id;
 
-    const resdynamicInfo = await this.prisma.contractDynamicFields.create({ data: dynamicInfo })
+    const existdynamicInfo = await this.prisma.contractDynamicFields.findFirst({
+      where: { contractId: result.id }
+    })
+
+    if (existdynamicInfo) {
+      const resdynamicInfo = await this.prisma.contractDynamicFields.updateMany({
+        where: { contractId: result.id },
+        data: dynamicInfo,
+      })
+    } else {
+      const resdynamicInfo = await this.prisma.contractDynamicFields.create({ data: dynamicInfo })
+    }
 
     const audit = this.prisma.contractsAudit.create({
       data: {
@@ -344,9 +355,10 @@ export class ContractsController {
         userId: header.userId
       }
 
+
     });
 
-    // return audit;
+    return audit;
   }
 
 

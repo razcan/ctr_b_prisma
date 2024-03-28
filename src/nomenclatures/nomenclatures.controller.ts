@@ -377,7 +377,6 @@ export class NomenclaturesController {
 
   @Post('dynamicfield')
   async createDynamicfield(@Body() data: Prisma.DynamicFieldsCreateInput): Promise<any> {
-    console.log(data)
     const result = this.prisma.dynamicFields.create({
       data,
     });
