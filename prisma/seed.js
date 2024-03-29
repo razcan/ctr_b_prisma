@@ -681,7 +681,7 @@ ALTER FUNCTION public.report_cashflow()
                 text: "Va informam faptul ca urmeaza sa expire contractul cu numarul @@NumarContract din data de @@DataContract la partenerul @@Partener. Acest contract este in vigoare in compania @@Entitate si reprezinta @@ScurtaDescriere.",
                 internal_emails: "office@companie.ro",
                 nrofdays: 30,
-                param: "Inchis la data",
+                param: "Data Final",
                 isActivePartner: false,
                 isActivePerson: false
             },

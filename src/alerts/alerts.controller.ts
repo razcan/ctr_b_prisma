@@ -11,6 +11,7 @@ import BNR = require("bnr")
 import { Interface } from 'readline';
 import fetch from 'node-fetch';
 import { parseString } from 'xml2js';
+import { AlertsHistory } from 'src/alertsHistory/entities/alertsHistory.entity';
 
 export interface CurrencyInterface {
     date: string;
@@ -455,131 +456,166 @@ export class AlertsController {
 
 
     //expirare contracte
-    @Cron(CronExpression.EVERY_30_SECONDS)
-    // @Cron(CronExpression.EVERY_DAY_AT_10AM)
-    handleCronExpired() {
-        const allcontracts = this.contracts.findAllContracts()
+    //@Cron(CronExpression.EVERY_30_SECONDS)
+    @Cron(CronExpression.EVERY_DAY_AT_10AM)
+    async handleCronExpired() {
+
+        const allcontracts = await this.contracts.findAllContracts()
+
         interface ContractsForAlert {
-            id: Number,
-            number: String,
+            id: number,
+            number: string,
             start: Date,
             end: Date,
             sign: Date,
             completion: Date,
-            partner: String,
-            entity: String,
-            partner_email: String,
-            persons_email: String,
-            remarks: String
+            partner: string,
+            entity: string,
+            partner_email: string,
+            persons_email: string,
+            remarks: string,
+            dif: number
         }
 
+        interface AlertsHistory {
+            alertId: number,
+            alertContent: string,
+            sentTo: string,
+            contractId: number,
+            criteria: string,
+            param: string,
+            nrofdays: number
+
+        }
+        console.log("se ruleaza")
         const contractsforNotification: ContractsForAlert[] = [];
+
 
         const mailerService = new MailerService();
 
-        const emailSettings = this.getAlertById(2)
+        const emailSettings = await this.getAlertById(2)
+
+        const nrofdays = emailSettings.nrofdays;
+        const isActive = emailSettings.isActive
+
+        // console.log("se ruleaza", emailSettings, nrofdays, isActive, new Date())
 
 
-        var nrofdays = 0;
-        var isActive = false;
-
-        emailSettings.then(result => {
-            nrofdays = result.nrofdays;
-            isActive = result.isActive
-            console.log("nrofdays", nrofdays, "isActive", isActive)
-        })
-
-        if (isActive = true) {
-            allcontracts.then(result => {
-                const countCtr = result.length
+        if (isActive == true) {
+            if (allcontracts.length > 0) {
+                const countCtr = allcontracts.length
                 const today = new Date();
                 for (let i = 0; i < countCtr; i++) {
-                    // console.log(result[i].id, result[i].number, result[i].start, result[i].end, result[i].sign, result[i].completion, result[i].partner.name, result[i].entity.name)
-                    const countPers = result[i].partner.Persons.length;
+                    const countPers = allcontracts[i].partner.Persons.length;
 
-
-                    if (this.differenceInDays(result[i].end, today) >= nrofdays) {
-
+                    if (this.differenceInDays(allcontracts[i].end, today) >= -1 * nrofdays) {
+                        console.log("cond nr zile", this.differenceInDays(allcontracts[i].end, today))
                         for (let j = 0; j < countPers; j++) {
                             {
                                 const obj: ContractsForAlert = {
-                                    id: result[i].id,
-                                    number: result[i].number,
-                                    start: result[i].start,
-                                    end: result[i].end,
-                                    sign: result[i].sign,
-                                    completion: result[i].completion,
-                                    partner: result[i].partner.name,
-                                    entity: result[i].entity.name,
-                                    partner_email: result[i].partner.email,
-                                    persons_email: result[i].partner.Persons[j].email,
-                                    remarks: result[i].remarks
+                                    id: allcontracts[i].id,
+                                    number: allcontracts[i].number,
+                                    start: allcontracts[i].start,
+                                    end: allcontracts[i].end,
+                                    sign: allcontracts[i].sign,
+                                    completion: allcontracts[i].completion,
+                                    partner: allcontracts[i].partner.name,
+                                    entity: allcontracts[i].entity.name,
+                                    partner_email: allcontracts[i].partner.email,
+                                    persons_email: allcontracts[i].partner.Persons[j].email,
+                                    remarks: allcontracts[i].remarks,
+                                    dif: this.differenceInDays(allcontracts[i].end, today)
                                 }
                                 contractsforNotification.push(obj)
                             }
                         }
                     }
-
                 }
 
-                emailSettings.then(result => {
-
-                    for (let j = 0; j < contractsforNotification.length; j++) {
-
-                        const originalString: string = result.text;
-
-                        const originalDate = new Date(contractsforNotification[j].start.toString());
-
-                        const day = originalDate.getDate().toString().padStart(2, '0'); // Get the day and pad with leading zero if needed
-                        const month = (originalDate.getMonth() + 1).toString().padStart(2, '0'); // Get the month (January is 0, so we add 1) and pad with leading zero if needed
-                        const year = originalDate.getFullYear(); // Get the full year
-
-                        const formattedDateStart = `${day}.${month}.${year}`;
+                // console.log(contractsforNotification, "aici3")
 
 
-                        const originalDateEnd = new Date(contractsforNotification[j].end.toString());
 
-                        const day1 = originalDateEnd.getDate().toString().padStart(2, '0'); // Get the day and pad with leading zero if needed
-                        const month1 = (originalDateEnd.getMonth() + 1).toString().padStart(2, '0'); // Get the month (January is 0, so we add 1) and pad with leading zero if needed
-                        const year1 = originalDateEnd.getFullYear(); // Get the full year
+                for (let j = 0; j < contractsforNotification.length; j++) {
 
-                        const formattedDateEnd = `${day1}.${month1}.${year1}`;
+                    // console.log(contractsforNotification, "aici4")
+
+                    const originalString: string = emailSettings.text;
+                    const contractId: number = contractsforNotification[j].id;
+
+                    const originalDate = new Date(contractsforNotification[j].start.toString());
+
+                    const day = originalDate.getDate().toString().padStart(2, '0'); // Get the day and pad with leading zero if needed
+                    const month = (originalDate.getMonth() + 1).toString().padStart(2, '0'); // Get the month (January is 0, so we add 1) and pad with leading zero if needed
+                    const year = originalDate.getFullYear(); // Get the full year
+
+                    const formattedDateStart = `${day}.${month}.${year}`;
 
 
-                        const replacements: { [key: string]: string } = {
-                            "@@NumarContract": contractsforNotification[j].number.toString(),
-                            "@@DataContract": formattedDateStart,
-                            "@@DataFinal": formattedDateEnd,
-                            "@@Partener": contractsforNotification[j].partner?.toString(),
-                            "@@Entitate": contractsforNotification[j].entity?.toString(),
-                            "@@ScurtaDescriere": contractsforNotification[j].remarks?.toString()
-                        };
+                    const originalDateEnd = new Date(contractsforNotification[j].end.toString());
 
-                        let replacedString: string = originalString;
-                        for (const key in replacements) {
-                            if (Object.prototype.hasOwnProperty.call(replacements, key)) {
-                                replacedString = replacedString.replace(key, replacements[key]);
-                            }
+                    const day1 = originalDateEnd.getDate().toString().padStart(2, '0'); // Get the day and pad with leading zero if needed
+                    const month1 = (originalDateEnd.getMonth() + 1).toString().padStart(2, '0'); // Get the month (January is 0, so we add 1) and pad with leading zero if needed
+                    const year1 = originalDateEnd.getFullYear(); // Get the full year
+
+                    const formattedDateEnd = `${day1}.${month1}.${year1}`;
+
+
+                    const replacements: { [key: string]: string } = {
+                        "@@NumarContract": contractsforNotification[j].number.toString(),
+                        "@@DataContract": formattedDateStart,
+                        "@@DataFinal": formattedDateEnd,
+                        "@@Partener": contractsforNotification[j].partner?.toString(),
+                        "@@Entitate": contractsforNotification[j].entity?.toString(),
+                        "@@ScurtaDescriere": contractsforNotification[j].remarks?.toString()
+                    };
+
+                    let replacedString: string = originalString;
+                    for (const key in replacements) {
+                        if (Object.prototype.hasOwnProperty.call(replacements, key)) {
+                            replacedString = replacedString.replace(key, replacements[key]);
                         }
-
-
-                        const to = contractsforNotification[j].partner_email;
-                        const bcc = contractsforNotification[j].persons_email;
-                        const subject = result.subject + ' ' + contractsforNotification[j].number.toString();
-                        const text = replacedString;
-                        const html = replacedString;
-                        const attachments = [];
-
-                        mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
-                            .then(() => console.log('Email sent successfully.'))
-                            .catch(error => console.error('Error sending email:', error));
                     }
-                })
 
-            }).catch(error => {
-                console.error(error);
-            });
+
+                    const to = contractsforNotification[j].partner_email;
+                    const bcc = contractsforNotification[j].persons_email;
+                    const subject = emailSettings.subject + ' ' + contractsforNotification[j].number.toString();
+                    const text = replacedString;
+                    const html = replacedString;
+                    const attachments = [];
+                    const dif = contractsforNotification[j].dif
+
+
+                    const toAddInAlertsHistory = {
+                        alertId: 2,
+                        alertContent: html,
+                        sentTo: to,
+                        contractId: contractId,
+                        criteria: 'Data Final',
+                        param: 'end',
+                        nrofdays: nrofdays
+                        //     bcc: bcc,
+                        //    subject: subject,
+                        //    end: originalDateEnd,
+                        //    dif: dif
+                        //    nrofdays: nrofdays
+                    }
+
+                    const res = await this.prisma.alertsHistory.create({ data: toAddInAlertsHistory });
+                    // console.log(await res, "res")
+                    // console.log("x", toAddInAlertsHistory)
+                    mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
+                        .then(() => console.log('Email sent successfully.'))
+                        .catch(error => console.error('Error sending email:', error));
+                }
+            }
+
         }
+
+        // contractsforNotification = [];
+
+
     }
 
 

@@ -325,6 +325,19 @@ model Alerts {
   isActivePerson  Boolean
 }
 
+model AlertsHistory {
+  id           Int      @id @default(autoincrement())
+  updateadAt   DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  alertId      Int
+  alertContent String   @db.Text
+  sentTo       String   @db.Text
+  contractId   Int
+  criteria     String   @db.Text
+  param        String   @db.Text
+  nrofdays     Int
+}
+
 model ContractAlertSchedule {
   id           Int      @id @default(autoincrement())
   updateadAt   DateTime @updatedAt
