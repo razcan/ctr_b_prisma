@@ -353,9 +353,10 @@ model ContractAlertSchedule {
 }
 
 model ContractTasksStatus {
-  id            Int             @id @default(autoincrement())
-  name          String          @unique
-  ContractTasks ContractTasks[]
+  id                    Int                     @id @default(autoincrement())
+  name                  String                  @unique
+  ContractTasks         ContractTasks[]
+  WorkFlowContractTasks WorkFlowContractTasks[]
 }
 
 model ContractTasks {
@@ -374,6 +375,100 @@ model ContractTasks {
   assignedId  Int
   due         DateTime
   notes       String
+}
+
+model ContractTasksPriority {
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @unique
+  WorkFlowTaskSettings WorkFlowTaskSettings[]
+}
+
+model ContractTasksReminders {
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @unique
+  value                Int
+  WorkFlowTaskSettings WorkFlowTaskSettings[]
+}
+
+model WorkFlow {
+  id                    Int                     @id @default(autoincrement())
+  updateadAt            DateTime                @updatedAt
+  createdAt             DateTime                @default(now())
+  wfName                String
+  wfDescription         String
+  status                Boolean
+  WorkFlowRules         WorkFlowRules[]
+  WorkFlowTaskSettings  WorkFlowTaskSettings[]
+  WorkFlowRejectActions WorkFlowRejectActions[]
+}
+
+model WorkFlowRules {
+  id               Int      @id @default(autoincrement())
+  updateadAt       DateTime @updatedAt
+  createdAt        DateTime @default(now())
+  workflow         WorkFlow @relation(fields: [workflowId], references: [id])
+  workflowId       Int
+  ruleFilterName   String
+  ruleFilterSource String
+  ruleFilterValue  String
+}
+
+model WorkFlowTaskSettings {
+  id                        Int                         @id @default(autoincrement())
+  updateadAt                DateTime                    @updatedAt
+  createdAt                 DateTime                    @default(now())
+  workflow                  WorkFlow                    @relation(fields: [workflowId], references: [id])
+  workflowId                Int
+  approvedByAll             Boolean
+  approvalTypeInParallel    Boolean
+  approvalOrder             Int
+  WorkFlowTaskSettingsUsers WorkFlowTaskSettingsUsers[]
+  taskName                  String
+  taskDueDate               DateTime
+  taskNotes                 String
+  taskSendNotifications     Boolean
+  taskSendReminders         Boolean
+  taskReminder              ContractTasksReminders      @relation(fields: [taskReminderId], references: [id])
+  taskReminderId            Int
+  taskPriority              ContractTasksPriority       @relation(fields: [taskPriorityId], references: [id])
+  taskPriorityId            Int
+  WorkFlowContractTasks     WorkFlowContractTasks[]
+}
+
+model WorkFlowTaskSettingsUsers {
+  id                     Int                  @id @default(autoincrement())
+  updateadAt             DateTime             @updatedAt
+  createdAt              DateTime             @default(now())
+  workflowSettings       WorkFlowTaskSettings @relation(fields: [workflowTaskSettingsId], references: [id])
+  workflowTaskSettingsId Int
+  user                   User?                @relation(fields: [userId], references: [id])
+  userId                 Int
+  approvalOrderNumber    Int
+}
+
+model WorkFlowRejectActions {
+  id                                     Int      @id @default(autoincrement())
+  updateadAt                             DateTime @updatedAt
+  createdAt                              DateTime @default(now())
+  workflow                               WorkFlow @relation(fields: [workflowId], references: [id])
+  workflowId                             Int
+  sendNotificationsToAllApprovers        Boolean
+  sendNotificationsToContractResponsible Boolean
+}
+
+model WorkFlowContractTasks {
+  id                     Int                  @id @default(autoincrement())
+  updateadAt             DateTime             @updatedAt
+  createdAt              DateTime             @default(now())
+  contractId             Int?
+  status                 ContractTasksStatus? @relation(fields: [statusId], references: [id])
+  statusId               Int
+  requestor              User?                @relation("requestorwf", fields: [requestorId], references: [id])
+  requestorId            Int
+  assigned               User?                @relation("assignedwf", fields: [assignedId], references: [id])
+  assignedId             Int
+  workflowSettings       WorkFlowTaskSettings @relation(fields: [workflowTaskSettingsId], references: [id])
+  workflowTaskSettingsId Int
 }
 
 model ContractTemplates {
@@ -468,19 +563,22 @@ model Banks {
 // }
 
 model User {
-  id             Int             @id @default(autoincrement())
-  updatedAt      DateTime        @updatedAt
-  createdAt      DateTime        @default(now())
-  name           String          @unique
-  email          String          @unique
-  password       String
-  roles          Role_User[]
-  status         Boolean
-  picture        String?
-  User_Groups    Groups[]
-  Contracts      Contracts[]
-  AssignedTasks  ContractTasks[] @relation("assigned")
-  RequestorTasks ContractTasks[] @relation("requestor")
+  id                        Int                         @id @default(autoincrement())
+  updatedAt                 DateTime                    @updatedAt
+  createdAt                 DateTime                    @default(now())
+  name                      String                      @unique
+  email                     String                      @unique
+  password                  String
+  roles                     Role_User[]
+  status                    Boolean
+  picture                   String?
+  User_Groups               Groups[]
+  Contracts                 Contracts[]
+  AssignedTasks             ContractTasks[]             @relation("assigned")
+  RequestorTasks            ContractTasks[]             @relation("requestor")
+  WorkFlowTaskSettingsUsers WorkFlowTaskSettingsUsers[]
+  WorkFlowAssignedTasks     WorkFlowContractTasks[]     @relation("assignedwf")
+  WorkFlowRequestorTasks    WorkFlowContractTasks[]     @relation("requestorwf")
 }
 
 model Role {

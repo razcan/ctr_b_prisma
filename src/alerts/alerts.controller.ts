@@ -74,10 +74,11 @@ export class AlertsController {
 
 
     @Cron('0 */30 9-11 * * *')
+    // @Cron(CronExpression.EVERY_30_SECONDS)
     getExchangeForEUR(): any {
 
         BNR.getRates(async (err, rates) => {
-            console.log(err || rates);
+            // console.log(err || rates);
 
             const res = rates
 

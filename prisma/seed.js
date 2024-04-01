@@ -331,12 +331,42 @@ async function main() {
         });
     }
 
+
+    const reminders = [
+        { name: 'La data limită', value: 0 },
+        { name: '1 zi inainte de data limită', value: 1 },
+        { name: '2 zile inainte de data limită', value: 2 },
+        { name: '3 zile inainte de data limită', value: 3 },
+        { name: '4 zile inainte de data limită', value: 4 },
+        { name: '5 zile inainte de data limită', value: 5 }
+    ];
+
+    for (const reminder of reminders) {
+        await prisma.contractTasksReminders.create({
+            data: reminder,
+        });
+    }
+
+
+    const priorities = [
+        { name: 'Normală' },
+        { name: 'Foarte Importantă' },
+        { name: 'Importanță Maximă' }
+    ];
+
+    for (const priority of priorities) {
+        await prisma.ContractTasksPriority.create({
+            data: priority,
+        });
+    }
+
     prisma.$executeRaw(`
         INSERT INTO public."Alerts"
         ( "name", "isActive", subject, "text", internal_emails, nrofdays, param, "isActivePartner", "isActivePerson")
         VALUES
         ('Contract Inchis inainte de termen', false, 'Contract Inchis inainte de termen',
-        'Va informam faptul ca urmeaza sa expire contractul cu numarul @@NumarContract din data de @@DataContract la partenerul @@Partener. Acest contract este in vigoare in compania @@Entitate si reprezinta @@ScurtaDescriere.',
+        'Va informam faptul ca urmeaza sa expire contractul cu numarul @@NumarContract din data de @@DataContract la partenerul @@Partener. 
+        Acest contract este in vigoare in compania @@Entitate si reprezinta @@ScurtaDescriere.',
         'office@companie.ro',30, 'Data Final Contract', false, false);
         `
     )
@@ -498,18 +528,19 @@ $$ LANGUAGE plpgsql;
 
 
     prisma.$executeRaw(`
-   -- PROCEDURE: public.calculate_cashflow()
+  
+--select * from public.calculate_cashflow_func()
 
--- DROP PROCEDURE IF EXISTS public.calculate_cashflow();
-
-CREATE OR REPLACE PROCEDURE public.calculate_cashflow(
-	)
-LANGUAGE 'plpgsql'
+CREATE OR REPLACE FUNCTION public.calculate_cashflow_func()
+RETURNS TABLE(tip text, billingvalue numeric, month_number numeric ) 
+   
+LANGUAGE plpgsql
+COST 100
+VOLATILE PARALLEL UNSAFE
+ROWS 10000
 AS $BODY$
 BEGIN
-    RAISE NOTICE 'Calculating cashflow...';
-    
-    CREATE  TABLE temp_cashflow AS
+   RETURN QUERY
     SELECT x.tip,
            SUM(x.billingValue) AS billingValue,
            EXTRACT(MONTH FROM x."date") AS month_number
@@ -555,12 +586,12 @@ BEGIN
     GROUP BY x.tip, EXTRACT(MONTH FROM x."date")
     ORDER BY 1;
     
-    RAISE NOTICE 'Cashflow calculation completed.';
 END;
-$BODY$;
-ALTER PROCEDURE public.calculate_cashflow()
-    OWNER TO postgres;
+$BODY$
+;
 
+ALTER FUNCTION public.get_contract_details()
+    OWNER TO sysadmin;
 `
     )
 
