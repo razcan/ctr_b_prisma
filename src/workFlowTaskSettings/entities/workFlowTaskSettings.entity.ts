@@ -1,6 +1,7 @@
 
 import {WorkFlow} from '../../workFlow/entities/workFlow.entity'
 import {WorkFlowTaskSettingsUsers} from '../../workFlowTaskSettingsUsers/entities/workFlowTaskSettingsUsers.entity'
+import {ContractTasksDueDates} from '../../contractTasksDueDates/entities/contractTasksDueDates.entity'
 import {ContractTasksReminders} from '../../contractTasksReminders/entities/contractTasksReminders.entity'
 import {ContractTasksPriority} from '../../contractTasksPriority/entities/contractTasksPriority.entity'
 import {WorkFlowContractTasks} from '../../workFlowContractTasks/entities/workFlowContractTasks.entity'
@@ -14,10 +15,10 @@ workflow?: WorkFlow ;
 workflowId: number ;
 approvedByAll: boolean ;
 approvalTypeInParallel: boolean ;
-approvalOrder: number ;
 WorkFlowTaskSettingsUsers?: WorkFlowTaskSettingsUsers[] ;
 taskName: string ;
-taskDueDate: Date ;
+taskDueDate?: ContractTasksDueDates ;
+taskDueDateId: number ;
 taskNotes: string ;
 taskSendNotifications: boolean ;
 taskSendReminders: boolean ;

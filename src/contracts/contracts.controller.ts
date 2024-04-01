@@ -757,7 +757,6 @@ export class ContractsController {
     });
 
     for (let i = 0; i < size; i++) {
-      // console.log(rules[i])
       rules[i].workflowId = result.id
     }
 

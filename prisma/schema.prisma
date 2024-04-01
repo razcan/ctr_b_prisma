@@ -390,6 +390,13 @@ model ContractTasksReminders {
   WorkFlowTaskSettings WorkFlowTaskSettings[]
 }
 
+model ContractTasksDueDates {
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @unique
+  value                Int
+  WorkFlowTaskSettings WorkFlowTaskSettings[]
+}
+
 model WorkFlow {
   id                    Int                     @id @default(autoincrement())
   updateadAt            DateTime                @updatedAt
@@ -421,10 +428,10 @@ model WorkFlowTaskSettings {
   workflowId                Int
   approvedByAll             Boolean
   approvalTypeInParallel    Boolean
-  approvalOrder             Int
   WorkFlowTaskSettingsUsers WorkFlowTaskSettingsUsers[]
   taskName                  String
-  taskDueDate               DateTime
+  taskDueDate               ContractTasksDueDates       @relation(fields: [taskDueDateId], references: [id])
+  taskDueDateId             Int
   taskNotes                 String
   taskSendNotifications     Boolean
   taskSendReminders         Boolean
