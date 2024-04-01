@@ -410,7 +410,7 @@ model WorkFlowRules {
   workflowId       Int
   ruleFilterName   String
   ruleFilterSource String
-  ruleFilterValue  String
+  ruleFilterValue  Int
 }
 
 model WorkFlowTaskSettings {

@@ -742,6 +742,36 @@ export class ContractsController {
 
 
 
+
+  @Post('workflow')
+  async createworkflow(@Body() data: any): Promise<any> {
+    // console.log(data)
+
+    const wfg = data[0];
+    const rules = data[1];
+
+
+    const size = rules.length;
+    const result = await this.prisma.workFlow.create({
+      data: wfg,
+    });
+
+    for (let i = 0; i < size; i++) {
+      // console.log(rules[i])
+      rules[i].workflowId = result.id
+    }
+
+    const result1 = await this.prisma.workFlowRules.createMany({
+      data: rules,
+    });
+
+
+    //console.log(result, result1)
+    // return result;
+  }
+
+
+
   @Post('category')
   async createCategory(@Body() data: Prisma.CategoryCreateInput): Promise<any> {
     console.log(data)

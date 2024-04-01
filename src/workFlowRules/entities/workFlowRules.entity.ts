@@ -10,5 +10,5 @@ workflow?: WorkFlow ;
 workflowId: number ;
 ruleFilterName: string ;
 ruleFilterSource: string ;
-ruleFilterValue: string ;
+ruleFilterValue: number ;
 }
