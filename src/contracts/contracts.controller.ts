@@ -749,6 +749,8 @@ export class ContractsController {
 
     const wfg = data[0];
     const rules = data[1];
+    const settings = data[2];
+    const users = data[3];
 
 
     const size = rules.length;
@@ -764,11 +766,83 @@ export class ContractsController {
       data: rules,
     });
 
+    settings.workflowId = result.id;
 
-    //console.log(result, result1)
-    // return result;
+    const result2 = await this.prisma.workFlowTaskSettings.create({
+      data: settings,
+    });
+
+    users.workflowTaskSettingsId = result2.id
+
+    interface userss {
+      workflowTaskSettingsId: number,
+      userId: number,
+      approvalOrderNumber: number
+    }
+
+    const users_final: userss[] = []
+
+    for (let j = 0; j < users.target.length; j++) {
+      const add: userss = {
+        workflowTaskSettingsId: result2.id,
+        userId: users.target[j].id,
+        approvalOrderNumber: j + 1
+      }
+      users_final.push(add)
+    }
+
+    const result3 = await this.prisma.workFlowTaskSettingsUsers.createMany({
+      data: users_final,
+    });
+
+
+    console.log(result1, result2, result3)
+    //return result;
   }
 
+
+  @Get('workflow/:id')
+  async getworkflowbyId(@Param('id') id: any): Promise<any> {
+    const result = await this.prisma.workFlow.findUnique({
+      where: {
+        id: parseInt(id)
+      },
+      include: {
+        WorkFlowRules: true,
+        WorkFlowTaskSettings: {
+          include: {
+            WorkFlowTaskSettingsUsers: true
+          }
+        }
+      }
+    })
+    return result;
+  }
+
+  @Get('wflist')
+  async getAllWF(@Body() data: Prisma.WorkFlowContractTasksCreateInput): Promise<any> {
+    const result = await this.prisma.workFlow.findMany()
+    return result;
+  }
+
+
+  @Get('priority')
+  async getAllPriority(@Body() data: Prisma.ContractTasksPriorityCreateInput): Promise<any> {
+    const result = await this.prisma.contractTasksPriority.findMany()
+    return result;
+  }
+
+  @Get('reminders')
+  async getAllReminders(@Body() data: Prisma.ContractTasksRemindersCreateInput): Promise<any> {
+    const result = await this.prisma.contractTasksReminders.findMany()
+    return result;
+  }
+
+  @Get('duedates')
+  async getAllDueDates(@Body() data: Prisma.ContractTasksDueDatesCreateInput): Promise<any> {
+    const result = await this.prisma.contractTasksDueDates.findMany()
+    return result;
+  }
 
 
   @Post('category')

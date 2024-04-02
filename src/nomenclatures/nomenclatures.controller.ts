@@ -264,10 +264,9 @@ export class NomenclaturesController {
     return users;
   }
 
-  @UseGuards(AuthGuard)
-  // @Roles('Administrator', 'Editor') // Set multiple roles here
-  @Roles('Administrator', 'Editor')
-  @UseGuards(RolesGuard)
+  // @UseGuards(AuthGuard)
+  // @Roles('Administrator', 'Editor')
+  // @UseGuards(RolesGuard)
   @Get('susers/:userId')
   async getSimplifyUsersById(@Param('userId') userId: any, @Body() data: any, @Headers() headers): Promise<any> {
 
