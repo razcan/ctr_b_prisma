@@ -386,14 +386,14 @@ model ContractTasksPriority {
 model ContractTasksReminders {
   id                   Int                    @id @default(autoincrement())
   name                 String                 @unique
-  value                Int
+  days                 Int                    @default(0)
   WorkFlowTaskSettings WorkFlowTaskSettings[]
 }
 
 model ContractTasksDueDates {
   id                   Int                    @id @default(autoincrement())
   name                 String                 @unique
-  value                Int
+  days                 Int                    @default(0)
   WorkFlowTaskSettings WorkFlowTaskSettings[]
 }
 

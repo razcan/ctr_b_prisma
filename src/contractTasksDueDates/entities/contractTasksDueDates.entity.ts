@@ -5,6 +5,6 @@ import {WorkFlowTaskSettings} from '../../workFlowTaskSettings/entities/workFlow
 export class ContractTasksDueDates {
   id: number ;
 name: string ;
-value: number ;
+days: number ;
 WorkFlowTaskSettings?: WorkFlowTaskSettings[] ;
 }
