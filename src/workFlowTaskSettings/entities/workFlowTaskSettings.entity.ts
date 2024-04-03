@@ -5,6 +5,7 @@ import {ContractTasksDueDates} from '../../contractTasksDueDates/entities/contra
 import {ContractTasksReminders} from '../../contractTasksReminders/entities/contractTasksReminders.entity'
 import {ContractTasksPriority} from '../../contractTasksPriority/entities/contractTasksPriority.entity'
 import {WorkFlowContractTasks} from '../../workFlowContractTasks/entities/workFlowContractTasks.entity'
+import {WorkFlowXContracts} from '../../workFlowXContracts/entities/workFlowXContracts.entity'
 
 
 export class WorkFlowTaskSettings {
@@ -27,4 +28,5 @@ taskReminderId: number ;
 taskPriority?: ContractTasksPriority ;
 taskPriorityId: number ;
 WorkFlowContractTasks?: WorkFlowContractTasks[] ;
+WorkFlowXContracts?: WorkFlowXContracts[] ;
 }

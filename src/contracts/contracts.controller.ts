@@ -29,7 +29,7 @@ import { createHash } from 'crypto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
-
+import { v4 as uuidv4 } from 'uuid';
 
 @Controller('contracts')
 export class ContractsController {
@@ -571,7 +571,7 @@ export class ContractsController {
     @Param('ctrId') ctrId: string,
     @Param('contractfinancialItemId') contractfinancialItemId: string,
     @Body() data: any): Promise<any> {
-    console.log(id, ctrId, contractfinancialItemId)
+    // console.log(id, ctrId, contractfinancialItemId)
 
 
     const result = await this.prisma.contractItems.update({
@@ -746,6 +746,9 @@ export class ContractsController {
   @Post('workflow')
   async createworkflow(@Body() data: any): Promise<any> {
     // console.log(data)
+
+    const uuid = uuidv4();
+    console.log("uuid", uuid)
 
     const wfg = data[0];
     const rules = data[1];
@@ -1487,7 +1490,7 @@ export class ContractsController {
   }
 
   @Get('details/:id')
-  async findContractById(@Param('id') id: any) {
+  public async findContractById(@Param('id') id: any) {
     const contracts = await this.prisma.contracts.findUnique(
       {
         include: {
@@ -1525,35 +1528,119 @@ export class ContractsController {
     return contracts;
   }
 
-  // @Get('a3b')
-  // async findOnePlus() {
-  //   // return this.contractsService.findAll();
-  //   const contracts = await this.prisma.contracts.findMany(
-  //     {
-  //       where: {
-  //         partner: {
-  //           contains: 'a3b'
-  //         }
-  //       },
 
-  //       include: {
-  //         contract: true, // Include the related posts
-  //       },
-  //     })
-  //   console.log(contracts);
-  //   return contracts;
-  // }
+  formatDate = (actuallDate: Date) => {
 
-  // @Get(':id')
-  // async findOne(@Param('id') id: number) {
+    if (actuallDate) {
+      const originalDate = new Date(actuallDate.toString());
+      const day = originalDate.getDate().toString().padStart(2, '0'); // Get the day and pad with leading zero if needed
+      const month = (originalDate.getMonth() + 1).toString().padStart(2, '0'); // Get the month (January is 0, so we add 1) and pad with leading zero if needed
+      const year = originalDate.getFullYear(); // Get the full year
+      const date = `${day}.${month}.${year}`;
+      return (date)
+    }
+    else return
+  }
 
-  //   const user = await this.prisma.contracte.findUnique({
-  //     where: {
-  //       id: 2,
-  //     },
-  //   })
-  //   console.log(user);
-  // }
+  // trebuie escape char in loc de " trebuie \"
+  // trebuie trimis json de forma  {"text": "CONTRACT..."} 
+  @Post('replacePlaceholders/:CtrId')
+  async replacePlaceholders(
+    @Body() data: any,
+    @Param('CtrId') CtrId: any,
+  ): Promise<any> {
 
+    const actualContract = await this.findContractById(CtrId)
+
+    const originalString: any = data.text;
+
+    const contract_Sign = this.formatDate(actualContract?.sign);
+    const contract_Number = actualContract?.number;
+    const contract_Partner = actualContract?.partner.name;
+    const contract_Entity = actualContract?.entity.name;
+    const contract_Start = this.formatDate(actualContract?.start);
+    const contract_End = this.formatDate(actualContract?.end);
+    const contract_remarks = actualContract?.remarks;
+    const contract_PartnerFiscalCode = actualContract?.partner.fiscal_code;
+    const contract_PartnerComercialReg = actualContract?.partner.commercial_reg;
+    const contract_PartnerAddress = actualContract?.PartnerAddress.completeAddress;
+    const contract_PartnerStreet = actualContract?.PartnerAddress.Street;
+    const contract_PartnerCity = actualContract?.PartnerAddress.City;
+    const contract_PartnerCounty = actualContract?.PartnerAddress.County;
+    const contract_PartnerCountry = actualContract?.PartnerAddress.Country;
+    const contract_PartnerBank = actualContract?.PartnerBank.bank;
+    const contract_PartnerBranch = actualContract?.PartnerBank.branch;
+    const contract_PartnerIban = actualContract?.PartnerBank.iban;
+    const contract_PartnerCurrency = actualContract?.PartnerBank.currency;
+    const contract_PartnerPerson = actualContract?.PartnerPerson.name;
+    const contract_PartnerEmail = actualContract?.PartnerPerson.email;
+    const contract_PartnerPhone = actualContract?.PartnerPerson.phone;
+    const contract_PartnerRole = actualContract?.PartnerPerson.role;
+    const contract_EntityFiscalCode = actualContract?.entity.fiscal_code;
+    const contract_EntityComercialReg = actualContract?.entity.commercial_reg;
+    const contract_EntityAddress = actualContract?.EntityAddress.completeAddress;
+    const contract_EntityStreet = actualContract?.EntityAddress.Street;
+    const contract_EntityCity = actualContract?.EntityAddress.City;
+    const contract_EntityCounty = actualContract?.EntityAddress.County;
+    const contract_EntityCountry = actualContract?.EntityAddress.Country;
+    const contract_EntityBranch = actualContract?.EntityBank.branch;
+    const contract_EntityIban = actualContract?.EntityBank.iban;
+    const contract_EntityCurrency = actualContract?.EntityBank.currency;
+    const contract_EntityPerson = actualContract?.EntityPerson.name;
+    const contract_EntityEmail = actualContract?.EntityPerson.email;
+    const contract_EntityPhone = actualContract?.EntityPerson.phone;
+    const contract_EntityRole = actualContract?.EntityPerson.role;
+    const contract_Type = actualContract?.type.name;
+
+
+    //de adaugat cod uni de inregistrare si r, 
+    const replacements: { [key: string]: string } = {
+      "ContractNumber": contract_Number,
+      "SignDate": contract_Sign,
+      "StartDate": contract_Start,
+      "FinalDate": contract_End,
+      "PartnerName": contract_Partner,
+      "EntityName": contract_Entity,
+      "ShortDescription": contract_remarks,
+      "PartnerComercialReg": contract_PartnerComercialReg,
+      "PartnerFiscalCode": contract_PartnerFiscalCode,
+      "EntityFiscalCode": contract_EntityFiscalCode,
+      "EntityComercialReg": contract_EntityComercialReg,
+      "PartnerAddress": contract_PartnerAddress,
+      "PartnerStreet": contract_PartnerStreet,
+      "PartnerCity": contract_PartnerCity,
+      "PartnerCounty": contract_PartnerCounty,
+      "PartnerCountry": contract_PartnerCountry,
+      "PartnerBank": contract_PartnerBank,
+      "PartnerBranch": contract_PartnerBranch,
+      "PartnerIban": contract_PartnerIban,
+      "PartnerCurrency": contract_PartnerCurrency,
+      "PartnerPerson": contract_PartnerPerson,
+      "PartnerEmail": contract_PartnerEmail,
+      "PartnerPhone": contract_PartnerPhone,
+      "PartnerRole": contract_PartnerRole,
+      "EntityAddress": contract_EntityAddress,
+      "EntityStreet": contract_EntityStreet,
+      "EntityCity": contract_EntityCity,
+      "EntityCounty": contract_EntityCounty,
+      "EntityCountry": contract_EntityCountry,
+      "EntityBranch": contract_EntityBranch,
+      "EntityIban": contract_EntityIban,
+      "EntityCurrency": contract_EntityCurrency,
+      "EntityPerson": contract_EntityPerson,
+      "EntityEmail": contract_EntityEmail,
+      "EntityPhone": contract_EntityPhone,
+      "EntityRole": contract_EntityRole,
+      "Type": contract_Type
+    };
+
+    let replacedString: string = originalString;
+    for (const key in replacements) {
+      if (Object.prototype.hasOwnProperty.call(replacements, key)) {
+        replacedString = replacedString.replace(key, replacements[key]);
+      }
+    }
+    return replacedString
+  }
 
 }

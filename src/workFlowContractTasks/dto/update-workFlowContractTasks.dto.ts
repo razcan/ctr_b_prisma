@@ -5,5 +5,11 @@
 
 
 export class UpdateWorkFlowContractTasksDto {
-  contractId?: number;
+  name?: string;
+text?: string;
+contractId?: number;
+uuid?: string;
+approvalOrderNumber?: number;
+duedates?: Date;
+reminders?: Date;
 }

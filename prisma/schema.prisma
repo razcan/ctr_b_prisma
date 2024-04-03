@@ -76,9 +76,10 @@ model PaymentType {
 }
 
 model ContractStatus {
-  id         Int         @id @default(autoincrement())
-  name       String      @unique
-  contractId Contracts[]
+  id                 Int                  @id @default(autoincrement())
+  name               String               @unique
+  contractId         Contracts[]
+  WorkFlowXContracts WorkFlowXContracts[]
 }
 
 model ContractAttachments {
@@ -357,6 +358,7 @@ model ContractTasksStatus {
   name                  String                  @unique
   ContractTasks         ContractTasks[]
   WorkFlowContractTasks WorkFlowContractTasks[]
+  WorkFlowXContracts    WorkFlowXContracts[]
 }
 
 model ContractTasks {
@@ -378,9 +380,10 @@ model ContractTasks {
 }
 
 model ContractTasksPriority {
-  id                   Int                    @id @default(autoincrement())
-  name                 String                 @unique
-  WorkFlowTaskSettings WorkFlowTaskSettings[]
+  id                    Int                     @id @default(autoincrement())
+  name                  String                  @unique
+  WorkFlowTaskSettings  WorkFlowTaskSettings[]
+  WorkFlowContractTasks WorkFlowContractTasks[]
 }
 
 model ContractTasksReminders {
@@ -441,6 +444,7 @@ model WorkFlowTaskSettings {
   taskPriority              ContractTasksPriority       @relation(fields: [taskPriorityId], references: [id])
   taskPriorityId            Int
   WorkFlowContractTasks     WorkFlowContractTasks[]
+  WorkFlowXContracts        WorkFlowXContracts[]
 }
 
 model WorkFlowTaskSettingsUsers {
@@ -465,16 +469,37 @@ model WorkFlowRejectActions {
 }
 
 model WorkFlowContractTasks {
+  id                     Int                   @id @default(autoincrement())
+  updateadAt             DateTime              @updatedAt
+  createdAt              DateTime              @default(now())
+  name                   String
+  text                   String
+  contractId             Int?
+  status                 ContractTasksStatus?  @relation(fields: [statusId], references: [id])
+  statusId               Int
+  requestor              User?                 @relation("requestorwf", fields: [requestorId], references: [id])
+  requestorId            Int
+  assigned               User?                 @relation("assignedwf", fields: [assignedId], references: [id])
+  assignedId             Int
+  workflowSettings       WorkFlowTaskSettings  @relation(fields: [workflowTaskSettingsId], references: [id])
+  workflowTaskSettingsId Int
+  uuid                   String
+  approvalOrderNumber    Int
+  duedates               DateTime
+  taskPriority           ContractTasksPriority @relation(fields: [taskPriorityId], references: [id])
+  taskPriorityId         Int
+  reminders              DateTime
+}
+
+model WorkFlowXContracts {
   id                     Int                  @id @default(autoincrement())
   updateadAt             DateTime             @updatedAt
   createdAt              DateTime             @default(now())
   contractId             Int?
-  status                 ContractTasksStatus? @relation(fields: [statusId], references: [id])
-  statusId               Int
-  requestor              User?                @relation("requestorwf", fields: [requestorId], references: [id])
-  requestorId            Int
-  assigned               User?                @relation("assignedwf", fields: [assignedId], references: [id])
-  assignedId             Int
+  wfstatus               ContractTasksStatus? @relation(fields: [wfstatusId], references: [id])
+  wfstatusId             Int
+  ctrstatus              ContractStatus       @relation(fields: [ctrstatusId], references: [id])
+  ctrstatusId            Int
   workflowSettings       WorkFlowTaskSettings @relation(fields: [workflowTaskSettingsId], references: [id])
   workflowTaskSettingsId Int
 }

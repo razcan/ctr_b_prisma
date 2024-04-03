@@ -290,6 +290,8 @@ async function main() {
     //     { id: 1, name: "In curs" },
     //     { id: 2, name: "Finalizat" },
     //     { id: 3, name: "Anulat" },
+    //     { id: 4, name: "Aprobat" },
+    //     { id: 5, name: "Respins" }
     // ]
 
     // for (const status of ContractTasksStatus) {
