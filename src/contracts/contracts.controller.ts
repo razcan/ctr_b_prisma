@@ -30,6 +30,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { v4 as uuidv4 } from 'uuid';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Controller('contracts')
 export class ContractsController {
@@ -445,6 +446,15 @@ export class ContractsController {
     return result1;
   }
 
+  @Get('wfactiverules')
+  async wfactiverules() {
+
+    const result1 = await this.prisma.$queryRaw(
+      Prisma.sql`SELECT * FROM public.active_wf_rulesok()`
+    )
+    console.log(result1);
+    return result1;
+  }
 
   @Get('cashflow')
   async getCalculate_cashflow() {
@@ -1642,5 +1652,21 @@ export class ContractsController {
     }
     return replacedString
   }
+
+  // @Cron(CronExpression.EVERY_10_SECONDS)
+  // async Parser(): Promise<any> {
+  //   const all_wf = await this.prisma.workFlowRules.findMany({
+  //     where: {
+  //       workflow: {
+  //         status: true
+  //       }
+  //     },
+  //     include: {
+  //       workflow: true
+  //     }
+  //   });
+  //   console.log("iupi", all_wf);
+  // }
+
 
 }

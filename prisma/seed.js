@@ -364,6 +364,114 @@ async function main() {
         });
     }
 
+    prisma.$executeRaw(`
+   
+CREATE OR REPLACE FUNCTION public.active_wf_rulesok(
+	)
+    RETURNS TABLE(workflowId integer, costcenters integer[], departments integer[], cashflows integer[],  categories integer[]) 
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 10000
+
+AS $BODY$
+BEGIN
+   RETURN QUERY
+	
+SELECT 
+    y.workflowid,
+	array_remove(array_remove(array_remove(array_remove(array_agg(y.costcenters)::integer[], NULL), NULL), NULL), NULL) costcenters,
+	array_remove(array_remove(array_remove(array_remove(array_agg(y.departments)::integer[], NULL), NULL), NULL), NULL) departments,
+	array_remove(array_remove(array_remove(array_remove(array_agg(y.cashflows)::integer[], NULL), NULL), NULL), NULL) cashflows,
+	array_remove(array_remove(array_remove(array_remove(array_agg(y.categories)::integer[], NULL), NULL), NULL), NULL) categories
+FROM (
+    SELECT 
+        x.workflowid,
+        unnest(x.costcenters) AS costcenters,
+        unnest(x.departments) AS departments,
+        unnest(x.cashflows) AS cashflows,
+        unnest(x.categories) AS categories
+    FROM (
+        SELECT 
+            x.workflowid,
+            array_agg(x.costcenters) filter (WHERE x.costcenters <> '{}') AS costcenters,
+            array_agg(x.departments) filter (WHERE x.departments <> '{}') AS departments,
+            array_agg(x.cashflows) filter (WHERE x.cashflows <> '{}') AS cashflows,
+            array_agg(x.categories) filter (WHERE x.categories <> '{}') AS categories
+        FROM (
+            SELECT 
+                COALESCE(cc."workflowId", dep."workflowId", categ."workflowId", cf."workflowId") AS workflowId, 
+                COALESCE(cc."costcenters", '{}') AS costcenters,
+                COALESCE(dep."departments", '{}') AS departments,
+                COALESCE(cf."cashflows", '{}') AS cashflows,
+                COALESCE(categ."categories", '{}') AS categories
+            FROM 
+                (
+                    SELECT 
+                        "workflowId",
+                        array_agg("ruleFilterValue" ORDER BY "ruleFilterValue") AS costcenters
+                    FROM 
+                        public."WorkFlowRules"
+                    WHERE 
+                        "ruleFilterSource" = 'costcenters'
+                    GROUP BY 
+                        "workflowId"
+                ) cc
+            FULL OUTER JOIN 
+                (
+                    SELECT 
+                        "workflowId",
+                        array_agg("ruleFilterValue" ORDER BY "ruleFilterValue") AS departments
+                    FROM 
+                        public."WorkFlowRules"
+                    WHERE 
+                        "ruleFilterSource" = 'departments'
+                    GROUP BY 
+                        "workflowId"
+                ) dep ON cc."workflowId" = dep."workflowId"
+            FULL OUTER JOIN 
+                (
+                    SELECT 
+                        "workflowId",
+                        array_agg("ruleFilterValue" ORDER BY "ruleFilterValue") AS cashflows
+                    FROM 
+                        public."WorkFlowRules"
+                    WHERE 
+                        "ruleFilterSource" = 'cashflows'
+                    GROUP BY 
+                        "workflowId"
+                ) cf ON cf."workflowId" = dep."workflowId"
+            FULL OUTER JOIN 
+                (
+                    SELECT 
+                        "workflowId",
+                        array_agg("ruleFilterValue" ORDER BY "ruleFilterValue") AS categories
+                    FROM 
+                        public."WorkFlowRules"
+                    WHERE 
+                        "ruleFilterSource" = 'categories'
+                    GROUP BY 
+                        "workflowId"
+                ) categ ON categ."workflowId" = cf."workflowId"
+        ) x
+        JOIN  
+            public."WorkFlow" wf ON wf.id = x.workflowId
+        WHERE 
+            wf."status" = true
+        GROUP BY 
+            x."workflowid"
+    ) x
+) y
+group by y.workflowid;
+
+
+select * from public.active_wf_rulesok()
+
+END;
+$BODY$;
+
+`
+
 
     //     const priorities = [
     //         { name: 'Normală' },

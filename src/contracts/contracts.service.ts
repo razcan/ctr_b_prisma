@@ -4,113 +4,130 @@ import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class ContractsService {
-  constructor(
-    private prisma: PrismaService
-  ) { }
+  constructor(private prisma: PrismaService) { }
 
-  async findContractsAvailableWf(
-    departmentId?: any[], categoryId?: any,
-    cashflowId?: any, costcenterId?: any) {
+  // @Cron(CronExpression.EVERY_5_SECONDS)
+  async Parser(): Promise<any> {
 
-    const contractsQuery: any = {};
-
-    // Conditionally include departament based on whether departmentId is provided
-    // if (departmentId) {
-    //   contractsQuery.include.departament = {
-    //     where: {
-    //       id: departmentId
-    //     }
-    //   };
-    // }
-
-    // // Conditionally include cashflow based on whether cashflowId is provided
-    // if (cashflowId) {
-    //   contractsQuery.include.cashflow = {
-    //     where: {
-    //       id: cashflowId
-    //     }
-    //   };
-    // }
-
-
-    // Conditionally include the where clause based on whether costcenterId is provided
-    if (costcenterId) {
-      contractsQuery.where = {
-        costcenterId: costcenterId
-      };
-    }
-
-    if (departmentId) {
-      contractsQuery.where = {
-        departmentId: {
-          in: departmentId
+    const all_wf = await this.prisma.workFlowRules.findMany({
+      where: {
+        workflow: {
+          status: true
         }
-      };
+      },
+      include: {
+        workflow: true
+      }
+    });
+
+    const resultwf = [];
+
+
+    all_wf.map((wf) => {
+      const add = wf.workflowId
+      resultwf.push(add)
+    })
+
+    const uniqueWf = [...new Set(resultwf)];
+    //un array cu wf-urile unice active
+    // console.log(uniqueWf)
+
+    function getDistinctElements(array: any[]): any[] {
+      return array.filter((element, index, self) => {
+        return index === self.findIndex((t) => (
+          t[0] === element[0] && t[1] === element[1] && t[2] === element[2]
+        ));
+      });
     }
 
-    if (cashflowId) {
-      contractsQuery.where = {
-        cashflowId: cashflowId
-      };
+
+    interface rule {
+      workflowId?: number,
+      departments?: number[],
+      categories?: number[],
+      cashflows?: number[],
+      costcenters?: number[]
     }
 
-    if (categoryId) {
-      contractsQuery.where = {
-        categoryId: categoryId
-      };
+    const x = [];
+
+    uniqueWf.map(
+      (wfid) => {
+        x.push(wfid)
+      }
+    )
+
+    const xxx: any[] = []
+    for (let i = 0; i < x.length; i++) {
+
+      const all_categ_data_filters = await this.prisma.workFlowRules.findMany({
+        where: {
+          workflowId: x[i],
+          ruleFilterSource: "categories"
+        }
+      })
+
+      const all_cc_data_filters = await this.prisma.workFlowRules.findMany({
+        where: {
+          workflowId: x[i],
+          ruleFilterSource: "costcenters"
+        }
+      })
+
+      const all_cf_data_filters = await this.prisma.workFlowRules.findMany({
+        where: {
+          workflowId: x[i],
+          ruleFilterSource: "cashflows"
+        }
+      })
+
+      const all_dep_data_filters = await this.prisma.workFlowRules.findMany({
+        where: {
+          workflowId: x[i],
+          ruleFilterSource: "departments"
+        }
+      })
+
+      const all_categories = [];
+      all_categ_data_filters.map((dep) => {
+        const add = dep.ruleFilterValue
+        all_categories.push(x[i], "categories", add)
+      })
+      const all_unique_categ_data_filters = [...new Set(all_categories)];
+
+      const all_costcenter = [];
+      all_cc_data_filters.map((dep) => {
+        const add = dep.ruleFilterValue
+        all_costcenter.push(x[i], "costcenters", add)
+      })
+      const all_unique_cc_data_filters = [...new Set(all_costcenter)];
+
+
+      const all_cashflow = [];
+      all_cf_data_filters.map((dep) => {
+        const add = dep.ruleFilterValue
+        all_cashflow.push(x[i], "cashflows", add)
+      })
+      const all_unique_cf_data_filters = [...new Set(all_cashflow)];
+
+      const all_departments = [];
+      all_dep_data_filters.map((dep) => {
+        const add = dep.ruleFilterValue
+        all_departments.push(x[i], "departments", add)
+      })
+      const all_unique_dep_data_filters = [...new Set(all_departments)];
+
+
+      xxx.push(...xxx, all_unique_categ_data_filters, all_unique_cc_data_filters, all_unique_cf_data_filters, all_unique_dep_data_filters)
+
     }
 
-    const contracts = await this.prisma.contracts.findMany(contractsQuery);
+    const distinctElements = getDistinctElements(xxx);
+    console.log(distinctElements);
 
+    return distinctElements;
 
-    return contracts;
   }
 
-  // @Cron('0 */30 9-11 * * *')
-  @Cron(CronExpression.EVERY_10_SECONDS)
-  async WFParser(): Promise<any> {
-    console.log("WFParser");
-
-    // Call with all parameters
-    const available_ctr = await this.findContractsAvailableWf([1, 2], undefined, undefined, undefined);
-    // const okctr = available_ctr.map(
-    //   (av) => {
-    //     console.log("x", av.departmentId)
-    //     // av.departament.id != null 
-    //   }
-    // )
-
-    // Call with departmentIdValue, cashflowIdValue, and costcenterIdValue
-    // await findContractsAvailableWf(departmentIdValue, undefined, cashflowIdValue, costcenterIdValue);
-    // await findContractsAvailableWf(departmentIdValue, categoryIdValue, cashflowIdValue, costcenterIdValue);
-
-
-    console.log(available_ctr)
-
-    // const actualContract = await this.findContractById(1)
-    // console.log(actualContract)
-
-
-    // WorkFlowContractTasks 
-    //     name                   String
-    // text                   String
-    // contractId             Int ?
-    //     status                 ContractTasksStatus ? @relation(fields: [statusId], references: [id])
-    // statusId               Int
-    // requestor              User ? @relation("requestorwf", fields: [requestorId], references: [id])
-    // requestorId            Int
-    // assigned               User ? @relation("assignedwf", fields: [assignedId], references: [id])
-    // assignedId             Int
-    // workflowSettings       WorkFlowTaskSettings @relation(fields: [workflowTaskSettingsId], references: [id])
-    // workflowTaskSettingsId Int
-    // uuid                   String
-    // approvalOrderNumber    Int
-    // duedates               DateTime
-    // taskPriority           ContractTasksPriority @relation(fields: [taskPriorityId], references: [id])
-    // taskPriorityId         Int
-    // reminders              DateTime
-
-
-  }
 
 }
