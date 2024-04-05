@@ -365,6 +365,32 @@ async function main() {
     }
 
     prisma.$executeRaw(`
+CREATE OR REPLACE FUNCTION remove_duplicates_from_table2()
+RETURNS SETOF text AS
+$$
+BEGIN
+    WITH duplicates AS (
+        SELECT "workflowTaskSettingsId", "contractId", MAX("id") AS max_id
+        FROM "WorkFlowXContracts"
+        GROUP BY "workflowTaskSettingsId", "contractId"
+        HAVING COUNT(*) > 1
+    )
+    DELETE FROM "WorkFlowXContracts" wfc
+    USING duplicates d
+    WHERE wfc."workflowTaskSettingsId" = d."workflowTaskSettingsId"
+      AND wfc."contractId" = d."contractId"
+      AND wfc."id" < d.max_id;
+
+    RETURN NEXT 'Duplicates removed successfully.';
+END;
+$$
+LANGUAGE plpgsql;
+
+--SELECT remove_duplicates_from_table2();
+
+`);
+
+    prisma.$executeRaw(`
    
 CREATE OR REPLACE FUNCTION public.active_wf_rulesok(
 	)

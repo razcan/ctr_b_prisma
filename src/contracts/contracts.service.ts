@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from 'src/prisma.service';
-import { ContractFinancialDetail, ContractFinancialDetailSchedule, Contracts, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ContractsService {
@@ -161,10 +161,18 @@ export class ContractsService {
   }
 
 
-  @Cron(CronExpression.EVERY_5_SECONDS)
+  @Cron(CronExpression.EVERY_MINUTE)
+  // @Cron(CronExpression.EVERY_10_MINUTES)
   async wfactiverules() {
 
-    const result1 = await this.prisma.$queryRaw(
+    const result1: Array<{
+      workflowid?: number,
+      costcenters?: string[],
+      departments?: string[],
+      cashflows?: string[],
+      categories?: string[],
+
+    }> = await this.prisma.$queryRaw(
       Prisma.sql`SELECT * FROM public.active_wf_rulesok()`
     )
 
@@ -172,13 +180,114 @@ export class ContractsService {
 
     // const test = await this.findContractsAvailableWf([1, 2], [1, 3], [1, 4], [1, 2, 4]);
 
-    const test = await this.findContractsAvailableWf([1, 2], [1, 3], [2], undefined);
+    //p1 identificarea tututor ctr prin rularea pe fiecare flux
+    //alerta in cazul in care un ctr intra pe mai multe fluxuri ?
+    //p2 pregatire/inserare taskuri utilizatori
+    //p3 update stare ctr
+    //treb populata tabela - WorkFlowXContracts ()
+    //WorkflowTaskSettings
+    //update contract status in  id =2 - asteapta aprobarea si inserat in WorkFlowXContracts cu status id 2
+    //contract task status = In curs = id =1 
+    //trebuie lista separata pt wf sau se poate folosi lista de la taskuri ? putem fol aceeasi lista.
+
+    const final_res = result1.map(res => {
+      if (res.costcenters.length === 0) {
+        res = { ...res, costcenters: undefined };
+      }
+      if (res.departments.length === 0) {
+        res = { ...res, departments: undefined };
+      }
+      if (res.cashflows.length === 0) {
+        res = { ...res, cashflows: undefined };
+      }
+      if (res.categories.length === 0) {
+        res = { ...res, categories: undefined };
+      }
+      return res;
+    });
+
+    const contracts_fin = [];
+    let externalArray = [];
+
+    const promises = final_res.map(async (rule, index) => {
+      const x = await this.findContractsAvailableWf(rule.departments, rule.categories, rule.cashflows, rule.costcenters);
+      const adds = x.map(async contract => ({
+        contractId: contract.id,
+        ctrstatusId: 2,
+        wfstatusId: 1,
+        workflowTaskSettingsId: 0,
+        // index,
+        workflowid: rule.workflowid
+      }));
+      return adds;
+    });
 
 
+    Promise.all(promises)
+      .then(async contractArrays => {
+        const contracts_fin = contractArrays.flat();
+        const mappedResults = contracts_fin.map(async (contract) => {
+          const result = await this.prisma.workFlowTaskSettings.findFirst({
+            select: {
+              id: true
+            },
+            where: {
+              workflowId: (await contract).workflowid
+            },
+          });
+          (await contract).workflowTaskSettingsId = result.id
 
-    console.log("test", test)
-    // console.log(result1);
-    return result1;
+          return contract;
+        });
+
+        // If you need to wait for all the mapped results to resolve:
+        const finalResults = await Promise.all(mappedResults);
+        externalArray = finalResults;
+        // console.log(externalArray, "externalArray inside")
+        return finalResults;
+      }).then(async fin => {
+        // console.log("externalArray outside", externalArray)
+        const uniqueValues = Array.from(new Set(externalArray));
+        // console.log(uniqueValues, "uniqueValues", uniqueValues.length);
+        // console.log(externalArray.length, "dim array")
+        for (let i = 0; i < uniqueValues.length; i++) {
+          //daca  exista combinatia(contractId,workflowTaskSettingsId), nu se face insert
+          const y = await this.prisma.workFlowXContracts.findFirst({
+            where: {
+              contractId: uniqueValues[i].contractId,
+              workflowTaskSettingsId: uniqueValues[i].workflowTaskSettingsId
+            }
+          })
+          if (y) {
+            console.log("exista");
+          }
+          else {
+            //daca nu exista combinatia(contractId,workflowTaskSettingsId), se face insert
+            console.log("nu exista, se face insert");
+            const x = await this.prisma.workFlowXContracts.create({
+              data:
+              {
+                contractId: uniqueValues[i].contractId,
+                wfstatusId: uniqueValues[i].wfstatusId,
+                ctrstatusId: uniqueValues[i].ctrstatusId,
+                workflowTaskSettingsId: uniqueValues[i].workflowTaskSettingsId,
+              }
+            })
+            const result1 = await this.prisma.$queryRaw(
+              Prisma.sql`SELECT remove_duplicates_from_table2()`
+            )
+            // return result1;
+
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error occurred:', error);
+      });
+
+
+    return contracts_fin;
   }
 
 }
+
