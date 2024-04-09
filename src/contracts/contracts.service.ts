@@ -302,17 +302,13 @@ export class ContractsService {
     return users;
   }
 
-  @Cron(CronExpression.EVERY_5_SECONDS)
-  async test() {
-    console.log("test");
-  }
-
-  @Cron(CronExpression.EVERY_5_SECONDS)
-  // @Cron(CronExpression.EVERY_30_SECONDS)
+  // @Cron(CronExpression.EVERY_5_SECONDS)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   async generateContractTasks() {
 
-    const xxx = this.getSimplifyUsersById(1)
-    console.log(await xxx)
+
+    // const user_assigned_email = await this.getSimplifyUsersById(2)
+    // console.log(user_assigned_email.email)
 
     const result: [any] = await this.prisma.$queryRaw(
       Prisma.sql`select * from public.contractTaskToBeGeneratedok()`
@@ -339,25 +335,93 @@ export class ContractsService {
         data,
       });
 
-      const remove_duplicates = await this.prisma.$queryRaw(
-        Prisma.sql`SELECT remove_duplicates_from_task()`
-      )
+      // const remove_duplicates = await this.prisma.$queryRaw(
+      //   Prisma.sql`SELECT remove_duplicates_from_task()`
+      // )
 
+      const user_assigned_email = await this.getSimplifyUsersById(task.assignedid)
+      // // console.log(user_assigned_email.email)
 
+      const link = `http://localhost:5500/uikit/workflowstask/${task.uuid}`
+      //trebuie adaugate date de genul nr ctr/ data/ prioritate/ due date/link de aprobare sau reject
+      //link contract/
 
-      // const to = contractsforNotification[j].partner_email;
-      // const bcc = contractsforNotification[j].persons_email;
-      // const subject = emailSettings.subject + ' ' + contractsforNotification[j].number.toString();
-      // const text = replacedString;
-      // const html = replacedString;
-      // const attachments = [];
-      // const allEmails = 'to: ' + to + ' bcc:' + bcc;
+      const inputDate = new Date(task.calculatedduedate);
+      const options: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      };
+      const localDate = inputDate.toLocaleDateString('ro-RO', options);
 
-      // mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
-      //   .then(() => console.log('Email sent successfully.'))
-      //   .catch(error => console.error('Error sending email:', error));
+      // const to = user_assigned_email.email;
+      const to = 'razvan.mustata@gmail.com';
+      const bcc = user_assigned_email.email;
+      const subject = task.taskname;
+      const text = task.tasknotes;
+      const html = `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Email Template</title>
+        <style>
+            /* Button styles */
+            .button_approve {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #007bff;
+                color: #ffffff;
+                text-decoration: none;
+                border-radius: 5px;
+            }
+            .button_reject {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #FF0000;
+                color: #ffffff;
+                text-decoration: none;
+                border-radius: 5px;
+            }
+            /* Button hover effect */
+            .button:hover {
+                background-color: #0056b3;
+            }
+        </style>
+        </head>
+        <body>
+            <!-- HTML content for your email -->
+            <p>Va rugam sa luati decizia daca aprobati contractul.</p>
+            ${task.tasknotes}
 
-      console.log(result);
+            <p> Acest task trebuie aprobat pana la data: <b>${localDate}</b> </p>
+            <p> Acest task are prioritatea:  <b>${task.priorityname}</b></p>
+
+             <p>Link: <b>${link}</b> <a href=${link}>Acceseaza Link</a> </p>
+
+          <!--Buttons with links-- >
+          <table border= "0" cellpadding = "0" cellspacing = "0" >
+                    <tr>
+                    <td>
+                        <a href="https://www.microsoft.com/ro-ro" class="button_approve">Aproba</a>
+                    </td>
+                    <td style="padding-left: 10px;">
+                        <a href="https://www.microsoft.com/ro-ro" class="button_reject">Respinge</a>
+                    </td>
+                </tr>
+                  </table>
+                  </body>
+                  </html>`
+      // const html = task.tasknotes;
+      const attachments = [];
+      const allEmails = 'to: ' + to + ' bcc:' + bcc;
+
+      // console.log(to.toString(), bcc.toString(), subject, text, html, attachments)
+      mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
+        .then(() => console.log('Email sent successfully.'))
+        .catch(error => console.error('Error sending email:', error));
+
+      // console.log(result);
     })
 
     //trebuie modificata starea ctr si a statusului dupa insert in tabela de x astfel incat sa nu se mai genereze inca odata.
