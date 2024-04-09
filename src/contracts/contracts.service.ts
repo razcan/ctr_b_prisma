@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from 'src/prisma.service';
 import { Prisma } from '@prisma/client';
-
+import { MailerService } from '../alerts/mailer.service'
 @Injectable()
 export class ContractsService {
   constructor(private prisma: PrismaService) { }
@@ -180,12 +180,8 @@ export class ContractsService {
 
     // const test = await this.findContractsAvailableWf([1, 2], [1, 3], [1, 4], [1, 2, 4]);
 
-    //p1 identificarea tututor ctr prin rularea pe fiecare flux
     //alerta in cazul in care un ctr intra pe mai multe fluxuri ?
-    //p2 pregatire/inserare taskuri utilizatori
-    //p3 update stare ctr
-    //treb populata tabela - WorkFlowXContracts ()
-    //WorkflowTaskSettings
+    //p2 pregatire/inserare taskuri utilizatori workflowcontracttasks
     //update contract status in  id =2 - asteapta aprobarea si inserat in WorkFlowXContracts cu status id 2
     //contract task status = In curs = id =1 
     //trebuie lista separata pt wf sau se poate folosi lista de la taskuri ? putem fol aceeasi lista.
@@ -259,11 +255,11 @@ export class ContractsService {
             }
           })
           if (y) {
-            console.log("exista");
+            // console.log("exista");
           }
           else {
             //daca nu exista combinatia(contractId,workflowTaskSettingsId), se face insert
-            console.log("nu exista, se face insert");
+            // console.log("nu exista, se face insert");
             const x = await this.prisma.workFlowXContracts.create({
               data:
               {
@@ -289,5 +285,60 @@ export class ContractsService {
     return contracts_fin;
   }
 
-}
 
+
+  @Cron(CronExpression.EVERY_5_SECONDS)
+  // @Cron(CronExpression.EVERY_30_SECONDS)
+  async generateContractTasks() {
+    const result: [any] = await this.prisma.$queryRaw(
+      Prisma.sql`select * from public.contractTaskToBeGeneratedok()`
+    )
+    const mailerService = new MailerService();
+
+    result.map(async (task) => {
+      const data = {
+        contractId: task.contractid,
+        statusId: task.statusid,
+        requestorId: task.requestorid,
+        assignedId: task.assignedid,
+        workflowTaskSettingsId: task.workflowtasksettingsid,
+        approvalOrderNumber: task.approvalordernumber,
+        duedates: task.calculatedduedate,
+        name: task.taskname,
+        reminders: task.calculatedreminderdate,
+        taskPriorityId: task.priorityid,
+        text: task.tasknotes,
+        uuid: task.uuid
+      }
+
+      const result = await this.prisma.workFlowContractTasks.create({
+        data,
+      });
+
+      const remove_duplicates = await this.prisma.$queryRaw(
+        Prisma.sql`SELECT remove_duplicates_from_task()`
+      )
+
+      // const to = contractsforNotification[j].partner_email;
+      // const bcc = contractsforNotification[j].persons_email;
+      // const subject = emailSettings.subject + ' ' + contractsforNotification[j].number.toString();
+      // const text = replacedString;
+      // const html = replacedString;
+      // const attachments = [];
+      // const allEmails = 'to: ' + to + ' bcc:' + bcc;
+
+      // mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
+      //   .then(() => console.log('Email sent successfully.'))
+      //   .catch(error => console.error('Error sending email:', error));
+
+      console.log(result);
+    })
+
+    //trebuie modificata starea ctr si a statusului dupa insert in tabela de x astfel incat sa nu se mai genereze inca odata.
+    //trebuie apelat endpoint pentru schimbare text fiecare task pe ctrid
+    // cand se populeaza tabela de x trebuie modificata starea ctr.
+
+  }
+
+
+}

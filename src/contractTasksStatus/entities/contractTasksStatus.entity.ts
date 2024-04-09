@@ -7,6 +7,7 @@ import {WorkFlowXContracts} from '../../workFlowXContracts/entities/workFlowXCon
 export class ContractTasksStatus {
   id: number ;
 name: string ;
+Desription: string ;
 ContractTasks?: ContractTasks[] ;
 WorkFlowContractTasks?: WorkFlowContractTasks[] ;
 WorkFlowXContracts?: WorkFlowXContracts[] ;

@@ -459,18 +459,6 @@ export class ContractsController {
   @Get('cashflow')
   async getCalculate_cashflow() {
 
-    // const result1 = await this.prisma.$queryRaw(
-    //   Prisma.sql`drop table public."temp_cashflow"`
-    // )
-
-    // const result2 = await this.prisma.$queryRaw(
-    //   Prisma.sql`call public.calculate_cashflow()`
-    // )
-
-    // const result3: { tip: string, billingvalue: string, month_number: number }[]
-    //   = await this.prisma.$queryRaw(
-    //     Prisma.sql`SELECT * FROM public."temp_cashflow"`
-    //   )
 
     const result3: { tip: string, billingvalue: string, month_number: number }[]
       = await this.prisma.$queryRaw(
@@ -479,7 +467,6 @@ export class ContractsController {
 
     const start_date = new Date()
     let month = 1 + start_date.getMonth();
-
 
 
     const Receipts = result3

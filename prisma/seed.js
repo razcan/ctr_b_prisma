@@ -284,15 +284,25 @@ async function main() {
     //     { name: "Kilowatt-ora (kWh)" },
     //     { name: "Hectare (ha)" }]
 
+    //de adaugat si useri - admin admin
 
+
+    //function for generating uuid
+    // prisma.$executeRaw(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`)
 
     // const ContractTasksStatus = [
-    //     { id: 1, name: "In curs" },
-    //     { id: 2, name: "Finalizat" },
-    //     { id: 3, name: "Anulat" },
-    //     { id: 4, name: "Aprobat" },
-    //     { id: 5, name: "Respins" }
+    // { id: 1, name: "In lucru", en: "Draft", Desription: "The initial state of the document or request before it's submitted for approval." },
+    // { id: 2, name: "Înaintat", en: "Submitted", Desription: "The document or request has been submitted for approval but hasn't been reviewed yet." },
+    // { id: 3, name: "În curs de revizuire", en: "Under Review", Desription: " The document or request is currently being reviewed by the approver(s)." },
+    // { id: 4, name: "Aprobat", en: "Approved", Desription: "The document or request has been reviewed and approved by the approver(s)." },
+    // { id: 5, name: "Respins", en: "Rejected", Desription: "The document or request has been reviewed and rejected by the approver(s).This might happen if the request doesn't meet certain criteria or needs further revisions." },
+    // { id: 6, name: "Revizii în așteptare", en: "Rejected", Desription: "The document or request has been reviewed and requires revisions before it can be resubmitted for approval." },
+    // { id: 7, name: "Aprobare în așteptare", en: "Rejected", Desription: "The document or request has been revised and is pending approval again." },
+    // { id: 8, name: "Anulat, en: "Canceled", Desription: "The document or request has been canceled by the requester or administrator.This might happen if the request is no longer needed or if it was submitted in error." },
+    // { id: 9, name: "În așteptare: "On Hold", Desription: "The approval process for the document or request has been temporarily paused." },
+    // { id: 10, name: "Arhivat": "Archived", Desription: "The document or request has been approved or rejected and is now archived for record - keeping purposes."
     // ]
+
 
     // for (const status of ContractTasksStatus) {
     //     await prisma.contractTasksStatus.create({
@@ -363,6 +373,94 @@ async function main() {
             data: duedate,
         });
     }
+
+    // prisma.$executeRaw(`
+    // INSERT INTO public."User"
+    //     ("name", email, "password", "createdAt", picture, status, "updatedAt")
+    // VALUES('admin', 'admin', 'admin', CURRENT_TIMESTAMP, '', false, '');
+    //         `
+    //     )
+
+
+    prisma.$executeRaw(`
+    --FUNCTION: public.remove_duplicates_from_task()
+
+    --DROP FUNCTION IF EXISTS public.remove_duplicates_from_task();
+
+CREATE OR REPLACE FUNCTION public.remove_duplicates_from_task(
+    )
+    RETURNS void
+        LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+    BEGIN
+    WITH duplicates AS(
+        SELECT "contractId", wf."workflowTaskSettingsId", MAX("id") AS max_id
+        FROM public."WorkFlowContractTasks" wf
+        GROUP BY "workflowTaskSettingsId", "contractId"
+        HAVING COUNT(*) > 1
+    )
+    DELETE FROM "WorkFlowContractTasks" wfc
+    USING duplicates d
+    WHERE wfc."workflowTaskSettingsId" = d."workflowTaskSettingsId"
+      AND wfc."contractId" = d."contractId"
+      AND wfc."id" < d.max_id;
+    END;
+    $BODY$;
+
+ALTER FUNCTION public.remove_duplicates_from_task()
+OWNER TO sysadmin;
+
+    --SELECT remove_duplicates_from_task()
+`);
+
+
+    prisma.$executeRaw(`
+    CREATE OR REPLACE FUNCTION contractTaskToBeGenerated(
+    )
+    RETURNS TABLE(taskName text, taskNotes text, contractId integer, statusId integer, requestorId integer,
+        assignedId integer, approvedByAll boolean, approvalTypeInParallel boolean, workflowTaskSettingsId integer,
+        Uuid uuid, approvalOrderNumber integer, workflowId integer, PriorityName text, PriorityId integer, ReminderName text,
+        ReminderDays integer, DueDate text, DueDateDays integer, CalculatedDueDate TIMESTAMP, CalculatedReminderDate TIMESTAMP,
+        taskSendNotifications boolean, taskSendReminders boolean
+    ) 
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 10000
+AS $BODY$
+    BEGIN
+   RETURN QUERY
+
+select wfts."taskName", wfts."taskNotes", wfx."contractId",
+        1 as statusId, 3 as requestorId, wftsu."userId" as assignedId,
+            wfts."approvedByAll", wfts."approvalTypeInParallel",
+                wfts.id as workflowTaskSettingsId, uuid_generate_v4() as Uuid,
+                wftsu."approvalOrderNumber" as approvalOrderNumber,
+                    wfts."workflowId", ctp."name" as PriorityName, wfts."taskPriorityId" PriorityId, ctr.name ReminderName,
+                        ctr."days" as ReminderDays,
+                            ctdd."name" as DueDate,
+                                ctdd."days" as DueDateDays,
+                                    CURRENT_DATE:: DATE + CONCAT(ctdd."days", ' day'):: INTERVAL as CalculatedDueDate,
+                                        (CURRENT_DATE:: DATE + CONCAT(ctdd."days", ' day')::INTERVAL):: DATE
+                                            + CONCAT(ctr."days", ' day')::INTERVAL AS CalculatedReminderDate,
+                                                wfts."taskSendNotifications", wfts."taskSendReminders"
+from public."WorkFlowXContracts" wfx 
+join public."Contracts" c  on wfx."contractId" = c.id 
+join "WorkFlowTaskSettings" wfts on wfts.id = wfx."workflowTaskSettingsId" 
+join "WorkFlowTaskSettingsUsers" wftsu  on wftsu."workflowTaskSettingsId" = wfts.id 
+join "ContractTasksStatus" cts on cts.id = wfx."ctrstatusId" 
+join "ContractStatus" cs  on cs.id = wfx."ctrstatusId" 
+left join "ContractTasksPriority" ctp on ctp.id = wfts."taskPriorityId" 
+left join "ContractTasksReminders" ctr on ctr.id = wfts."taskReminderId" 
+left join "ContractTasksDueDates" ctdd on ctdd.id = wfts."taskDueDateId"
+where wfx."ctrstatusId" <>2;
+
+    END;
+    $BODY$;
+--select * from public.contractTaskToBeGenerated()
+`);
 
     prisma.$executeRaw(`
 CREATE OR REPLACE FUNCTION remove_duplicates_from_table2()
@@ -883,7 +981,7 @@ $BODY$;
     //         });
     //     }
 
-    console.log('Seed completed');
+    // console.log('Seed completed');
 }
 main()
     .then(async () => {

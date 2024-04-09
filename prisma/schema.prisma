@@ -356,6 +356,7 @@ model ContractAlertSchedule {
 model ContractTasksStatus {
   id                    Int                     @id @default(autoincrement())
   name                  String                  @unique
+  Desription            String                  @default("")
   ContractTasks         ContractTasks[]
   WorkFlowContractTasks WorkFlowContractTasks[]
   WorkFlowXContracts    WorkFlowXContracts[]
