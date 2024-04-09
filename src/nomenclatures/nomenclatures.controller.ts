@@ -24,6 +24,8 @@ import { AuthGuard } from '../auth/auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 
+
+
 @Controller('nomenclatures')
 export class NomenclaturesController {
   constructor(

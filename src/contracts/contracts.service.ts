@@ -3,9 +3,11 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from 'src/prisma.service';
 import { Prisma } from '@prisma/client';
 import { MailerService } from '../alerts/mailer.service'
+
 @Injectable()
 export class ContractsService {
   constructor(private prisma: PrismaService) { }
+
 
   // @Cron(CronExpression.EVERY_5_SECONDS)
   // async Parser(): Promise<any> {
@@ -285,11 +287,33 @@ export class ContractsService {
     return contracts_fin;
   }
 
+  async getSimplifyUsersById(userId: any): Promise<any> {
+    const users = await this.prisma.user.findUnique({
+      where: {
+        id: parseInt(userId)
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        status: true,
+      },
+    });
+    return users;
+  }
 
+  @Cron(CronExpression.EVERY_5_SECONDS)
+  async test() {
+    console.log("test");
+  }
 
   @Cron(CronExpression.EVERY_5_SECONDS)
   // @Cron(CronExpression.EVERY_30_SECONDS)
   async generateContractTasks() {
+
+    const xxx = this.getSimplifyUsersById(1)
+    console.log(await xxx)
+
     const result: [any] = await this.prisma.$queryRaw(
       Prisma.sql`select * from public.contractTaskToBeGeneratedok()`
     )
@@ -318,6 +342,8 @@ export class ContractsService {
       const remove_duplicates = await this.prisma.$queryRaw(
         Prisma.sql`SELECT remove_duplicates_from_task()`
       )
+
+
 
       // const to = contractsforNotification[j].partner_email;
       // const bcc = contractsforNotification[j].persons_email;

@@ -6,9 +6,4 @@ import { Prisma } from '@prisma/client';
 @Injectable()
 export class AlertService {
     constructor(private prisma: PrismaService) { }
-
-
-
-
-
 }
