@@ -3,6 +3,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from 'src/prisma.service';
 import { Prisma } from '@prisma/client';
 import { MailerService } from '../alerts/mailer.service'
+import { access } from 'fs';
 
 @Injectable()
 export class ContractsService {
@@ -302,20 +303,169 @@ export class ContractsService {
     return users;
   }
 
+  public async findContractById(id: any) {
+    const contracts = await this.prisma.contracts.findUnique(
+      {
+        include: {
+          costcenter: true,
+          entity: true,
+          partner: true
+          // {
+          //   include:
+          //   {
+          //     Address: true
+          //   }
+          // }
+          ,
+          PartnerPerson: true,
+          EntityPerson: true,
+
+          EntityBank: true,
+          PartnerBank: true,
+
+          EntityAddress: true,
+          PartnerAddress: true,
+          item: true,
+          departament: true,
+          Category: true,
+          cashflow: true,
+          type: true,
+          status: true
+        },
+        where: {
+          id: parseInt(id),
+        },
+      }
+    )
+
+    return contracts;
+  }
+
+  formatDate = (actuallDate: Date) => {
+
+    if (actuallDate) {
+      const originalDate = new Date(actuallDate.toString());
+      const day = originalDate.getDate().toString().padStart(2, '0'); // Get the day and pad with leading zero if needed
+      const month = (originalDate.getMonth() + 1).toString().padStart(2, '0'); // Get the month (January is 0, so we add 1) and pad with leading zero if needed
+      const year = originalDate.getFullYear(); // Get the full year
+      const date = `${day}.${month}.${year}`;
+      return (date)
+    }
+    else return
+  }
+
+  async replacePlaceholders(CtrId: any, data: any,): Promise<any> {
+
+    const actualContract = await this.findContractById(CtrId)
+
+    const originalString: any = data;
+
+    const contract_Sign = this.formatDate(actualContract?.sign);
+    const contract_Number = actualContract?.number;
+    const contract_Partner = actualContract?.partner.name;
+    const contract_Entity = actualContract?.entity.name;
+    const contract_Start = this.formatDate(actualContract?.start);
+    const contract_End = this.formatDate(actualContract?.end);
+    const contract_remarks = actualContract?.remarks;
+    const contract_PartnerFiscalCode = actualContract?.partner.fiscal_code;
+    const contract_PartnerComercialReg = actualContract?.partner.commercial_reg;
+    const contract_PartnerAddress = actualContract?.PartnerAddress.completeAddress;
+    const contract_PartnerStreet = actualContract?.PartnerAddress.Street;
+    const contract_PartnerCity = actualContract?.PartnerAddress.City;
+    const contract_PartnerCounty = actualContract?.PartnerAddress.County;
+    const contract_PartnerCountry = actualContract?.PartnerAddress.Country;
+    const contract_PartnerBank = actualContract?.PartnerBank.bank;
+    const contract_PartnerBranch = actualContract?.PartnerBank.branch;
+    const contract_PartnerIban = actualContract?.PartnerBank.iban;
+    const contract_PartnerCurrency = actualContract?.PartnerBank.currency;
+    const contract_PartnerPerson = actualContract?.PartnerPerson.name;
+    const contract_PartnerEmail = actualContract?.PartnerPerson.email;
+    const contract_PartnerPhone = actualContract?.PartnerPerson.phone;
+    const contract_PartnerRole = actualContract?.PartnerPerson.role;
+    const contract_EntityFiscalCode = actualContract?.entity.fiscal_code;
+    const contract_EntityComercialReg = actualContract?.entity.commercial_reg;
+    const contract_EntityAddress = actualContract?.EntityAddress.completeAddress;
+    const contract_EntityStreet = actualContract?.EntityAddress.Street;
+    const contract_EntityCity = actualContract?.EntityAddress.City;
+    const contract_EntityCounty = actualContract?.EntityAddress.County;
+    const contract_EntityCountry = actualContract?.EntityAddress.Country;
+    const contract_EntityBranch = actualContract?.EntityBank.branch;
+    const contract_EntityIban = actualContract?.EntityBank.iban;
+    const contract_EntityCurrency = actualContract?.EntityBank.currency;
+    const contract_EntityPerson = actualContract?.EntityPerson.name;
+    const contract_EntityEmail = actualContract?.EntityPerson.email;
+    const contract_EntityPhone = actualContract?.EntityPerson.phone;
+    const contract_EntityRole = actualContract?.EntityPerson.role;
+    const contract_Type = actualContract?.type.name;
+
+
+    //de adaugat cod uni de inregistrare si r, 
+    const replacements: { [key: string]: string } = {
+      "ContractNumber": contract_Number,
+      "SignDate": contract_Sign,
+      "StartDate": contract_Start,
+      "FinalDate": contract_End,
+      "PartnerName": contract_Partner,
+      "EntityName": contract_Entity,
+      "ShortDescription": contract_remarks,
+      "PartnerComercialReg": contract_PartnerComercialReg,
+      "PartnerFiscalCode": contract_PartnerFiscalCode,
+      "EntityFiscalCode": contract_EntityFiscalCode,
+      "EntityComercialReg": contract_EntityComercialReg,
+      "PartnerAddress": contract_PartnerAddress,
+      "PartnerStreet": contract_PartnerStreet,
+      "PartnerCity": contract_PartnerCity,
+      "PartnerCounty": contract_PartnerCounty,
+      "PartnerCountry": contract_PartnerCountry,
+      "PartnerBank": contract_PartnerBank,
+      "PartnerBranch": contract_PartnerBranch,
+      "PartnerIban": contract_PartnerIban,
+      "PartnerCurrency": contract_PartnerCurrency,
+      "PartnerPerson": contract_PartnerPerson,
+      "PartnerEmail": contract_PartnerEmail,
+      "PartnerPhone": contract_PartnerPhone,
+      "PartnerRole": contract_PartnerRole,
+      "EntityAddress": contract_EntityAddress,
+      "EntityStreet": contract_EntityStreet,
+      "EntityCity": contract_EntityCity,
+      "EntityCounty": contract_EntityCounty,
+      "EntityCountry": contract_EntityCountry,
+      "EntityBranch": contract_EntityBranch,
+      "EntityIban": contract_EntityIban,
+      "EntityCurrency": contract_EntityCurrency,
+      "EntityPerson": contract_EntityPerson,
+      "EntityEmail": contract_EntityEmail,
+      "EntityPhone": contract_EntityPhone,
+      "EntityRole": contract_EntityRole,
+      "Type": contract_Type
+    };
+
+    let replacedString: string = originalString;
+    for (const key in replacements) {
+      if (Object.prototype.hasOwnProperty.call(replacements, key)) {
+        replacedString = replacedString.replace(key, replacements[key]);
+      }
+    }
+    return replacedString
+  }
+
+
   // @Cron(CronExpression.EVERY_5_SECONDS)
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  // @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_10_HOURS)
   async generateContractTasks() {
-
-
-    // const user_assigned_email = await this.getSimplifyUsersById(2)
-    // console.log(user_assigned_email.email)
 
     const result: [any] = await this.prisma.$queryRaw(
       Prisma.sql`select * from public.contractTaskToBeGeneratedok()`
     )
     const mailerService = new MailerService();
 
+
+
     result.map(async (task) => {
+
+      const textReplaced = await this.replacePlaceholders(task.contractid, task.tasknotes)
+
       const data = {
         contractId: task.contractid,
         statusId: task.statusid,
@@ -327,7 +477,8 @@ export class ContractsService {
         name: task.taskname,
         reminders: task.calculatedreminderdate,
         taskPriorityId: task.priorityid,
-        text: task.tasknotes,
+        // text: task.tasknotes,
+        text: textReplaced,
         uuid: task.uuid
       }
 
@@ -335,16 +486,9 @@ export class ContractsService {
         data,
       });
 
-      // const remove_duplicates = await this.prisma.$queryRaw(
-      //   Prisma.sql`SELECT remove_duplicates_from_task()`
-      // )
-
       const user_assigned_email = await this.getSimplifyUsersById(task.assignedid)
-      // // console.log(user_assigned_email.email)
 
-      const link = `http://localhost:5500/uikit/workflowstask/${task.uuid}`
-      //trebuie adaugate date de genul nr ctr/ data/ prioritate/ due date/link de aprobare sau reject
-      //link contract/
+      const link = `http://localhost:3000/uikit/workflowstask/${task.uuid}`
 
       const inputDate = new Date(task.calculatedduedate);
       const options: Intl.DateTimeFormatOptions = {
@@ -356,7 +500,11 @@ export class ContractsService {
 
       // const to = user_assigned_email.email;
       const to = 'razvan.mustata@gmail.com';
-      const bcc = user_assigned_email.email;
+
+      const approve_link = `http://localhost:3000/contracts/approveTask/${task.uuid}`
+      const reject_link = `http://localhost:3000/contracts/rejectTask/${task.uuid}`
+      // const bcc = user_assigned_email.email;
+      const bcc = 'razvan.mustata@nirogroup.ro';
       const subject = task.taskname;
       const text = task.tasknotes;
       const html = `<!DOCTYPE html>
@@ -367,18 +515,10 @@ export class ContractsService {
         <title>Email Template</title>
         <style>
             /* Button styles */
-            .button_approve {
+            .button {
                 display: inline-block;
                 padding: 10px 20px;
                 background-color: #007bff;
-                color: #ffffff;
-                text-decoration: none;
-                border-radius: 5px;
-            }
-            .button_reject {
-                display: inline-block;
-                padding: 10px 20px;
-                background-color: #FF0000;
                 color: #ffffff;
                 text-decoration: none;
                 border-radius: 5px;
@@ -387,32 +527,45 @@ export class ContractsService {
             .button:hover {
                 background-color: #0056b3;
             }
+              .button_approve {
+                      display: inline-block;
+                      padding: 10px 20px;
+                      background-color: #007bff;
+                      color: #ffffff;
+                      text-decoration: none;
+                      border-radius: 5px;
+                  }
+              .button_reject {
+                      display: inline-block;
+                      padding: 10px 20px;
+                      background-color: #FF0000;
+                      color: #ffffff;
+                      text-decoration: none;
+                      border-radius: 5px;
+                  }
         </style>
         </head>
         <body>
-            <!-- HTML content for your email -->
-            <p>Va rugam sa luati decizia daca aprobati contractul.</p>
-            ${task.tasknotes}
+
+          <p>Va rugam sa luati decizia daca aprobati contractul.</p>
+            <p>${textReplaced}</p>
 
             <p> Acest task trebuie aprobat pana la data: <b>${localDate}</b> </p>
             <p> Acest task are prioritatea:  <b>${task.priorityname}</b></p>
 
-             <p>Link: <b>${link}</b> <a href=${link}>Acceseaza Link</a> </p>
-
-          <!--Buttons with links-- >
-          <table border= "0" cellpadding = "0" cellspacing = "0" >
-                    <tr>
+            <table border="0" cellpadding="0" cellspacing="0">
+                <tr>
                     <td>
-                        <a href="https://www.microsoft.com/ro-ro" class="button_approve">Aproba</a>
+                        <a href=${approve_link} class="button_approve">Aproba</a>
                     </td>
                     <td style="padding-left: 10px;">
-                        <a href="https://www.microsoft.com/ro-ro" class="button_reject">Respinge</a>
+                        <a href=${reject_link} class="button_reject">Respinge</a>
                     </td>
                 </tr>
-                  </table>
-                  </body>
-                  </html>`
-      // const html = task.tasknotes;
+            </table>
+        </body>
+        </html>`
+
       const attachments = [];
       const allEmails = 'to: ' + to + ' bcc:' + bcc;
 

@@ -1640,6 +1640,63 @@ export class ContractsController {
     return replacedString
   }
 
+
+  @Get('approveTask/:uuid')
+  async approveTask(
+    @Param('uuid') uuid: any
+  ): Promise<any> {
+
+    const approve = await this.prisma.workFlowContractTasks.updateMany({
+      where: {
+        uuid: uuid
+      },
+      data: {
+        statusId: 4
+        // aprobat
+      }
+    })
+    if (approve.count > 0) {
+      const response = "Task-ul a fost aprobat cu succes!"
+      return (response)
+    }
+    else {
+      const response = "Task-ul nu a fost aprobat cu succes!"
+      return (response)
+    }
+  }
+
+  @Get('rejectTask/:uuid')
+  async rejectTask(
+    @Param('uuid') uuid: any
+  ): Promise<any> {
+
+    const approve = await this.prisma.workFlowContractTasks.updateMany({
+      where: {
+        uuid: uuid
+      },
+      data: {
+        statusId: 5
+        // aprobat
+      }
+    })
+    if (approve.count > 0) {
+      const response = "Task-ul a fost respins cu succes!"
+      return (response)
+    }
+    else {
+      const response = "Task-ul nu a fost respins!"
+      return (response)
+    }
+
+  }
+
+  // const result = await this.prisma.contractTasks.update({
+  //   where: { id: parseInt(id) },
+  //   data: data,
+  // });
+
+
+
   // @Cron(CronExpression.EVERY_10_SECONDS)
   // async Parser(): Promise<any> {
   //   const all_wf = await this.prisma.workFlowRules.findMany({
