@@ -894,6 +894,8 @@ export class ContractsController {
       users_final.push(add)
     }
 
+    console.log(users_final)
+
     const wfid = await this.prisma.workFlowTaskSettings.findFirst({
       where: {
         workflowId: parseInt(id)
