@@ -752,6 +752,7 @@ export class ContractsController {
     const settings = data[2];
     const users = data[3];
 
+    console.log(users)
 
     const size = rules.length;
     const result = await this.prisma.workFlow.create({
@@ -798,6 +799,125 @@ export class ContractsController {
 
     console.log(result1, result2, result3)
     //return result;
+  }
+
+  @Patch('workflow/:id')
+  async updateWorkflow(@Body() data: any, @Param('id') id: any): Promise<any> {
+    // console.log(data)
+
+    const wfg = data[0];
+    const rules = data[1];
+    const settings = data[2];
+    const users = data[3];
+
+
+    const size = rules.length;
+    const result = await this.prisma.workFlow.update({
+      where: {
+        id: parseInt(id)
+      },
+      data: wfg,
+    });
+
+
+    if (rules.length > 0) {
+      const result1 = await this.prisma.workFlowRules.deleteMany({
+        where: {
+          workflowId: parseInt(id)
+        }
+      })
+
+      for (let i = 0; i < rules.length; i++) {
+        const result1 = await this.prisma.workFlowRules.createMany({
+          data: {
+            workflowId: parseInt(id),
+            ruleFilterName: rules[i].ruleFilterName,
+            ruleFilterSource: rules[i].ruleFilterSource,
+            ruleFilterValue: rules[i].ruleFilterValue,
+            ruleFilterValueName: rules[i].ruleFilterValueName
+          }
+          ,
+        });
+      }
+    }
+
+    if (rules.length == 0) {
+      const result1 = await this.prisma.workFlowRules.deleteMany({
+        where: {
+          workflowId: parseInt(id)
+        }
+      })
+    }
+
+    if (settings.length > 0) {
+
+      const result1 = await this.prisma.workFlowTaskSettings.deleteMany({
+        where: {
+          workflowId: parseInt(id)
+        }
+      })
+
+      for (let i = 0; i < rules.length; i++) {
+        const result2 = await this.prisma.workFlowTaskSettings.createMany({
+          data: {
+            workflowId: parseInt(id),
+            approvedByAll: settings[i].approvedByAll,
+            approvalTypeInParallel: settings[i].approvalTypeInParallel,
+            taskName: settings[i].taskName,
+            taskDueDateId: settings[i].taskDueDateId,
+            taskNotes: settings[i].taskNotes,
+            taskSendNotifications: settings[i].taskSendNotifications,
+            taskSendReminders: settings[i].taskSendReminders,
+            taskReminderId: settings[i].taskReminderId,
+            taskPriorityId: settings[i].taskPriorityId
+          }
+        });
+      }
+
+    }
+
+
+    interface userss {
+      workflowTaskSettingsId: number,
+      userId: number,
+      approvalOrderNumber: number
+    }
+
+    const users_final: userss[] = []
+
+    for (let j = 0; j < users.target.length; j++) {
+      const add: userss = {
+        workflowTaskSettingsId: users.workflowTaskSettingsId,
+        userId: users.target[j].id,
+        approvalOrderNumber: j + 1
+      }
+      users_final.push(add)
+    }
+
+    const wfid = await this.prisma.workFlowTaskSettings.findFirst({
+      where: {
+        workflowId: parseInt(id)
+      }
+    })
+
+    if (users_final.length > 0) {
+
+      const result3 = await this.prisma.workFlowTaskSettingsUsers.deleteMany({
+        where: {
+          workflowTaskSettingsId: wfid.id
+        }
+      })
+      for (let j = 0; j < users_final.length; j++) {
+
+        const result = await this.prisma.workFlowTaskSettingsUsers.createMany({
+          data: {
+            workflowTaskSettingsId: wfid.id,
+            userId: users_final[j].userId,
+            approvalOrderNumber: users_final[j].approvalOrderNumber
+          },
+        });
+      }
+    }
   }
 
 
