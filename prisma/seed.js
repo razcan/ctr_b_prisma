@@ -41,18 +41,13 @@ async function main() {
 
 
     // const contractStatus = [
-    //     { name: 'In lucru' },
-    //     { name: 'Asteapta aprobarea' },
-    //     { name: 'In curs de revizuire' },
-    //     { name: 'Aprobat' },
-    //     { name: 'In executie' },
     //     { name: 'Activ' },
+    //     { name: 'Reinnoit' },
     //     { name: 'Expirat' },
     //     { name: 'Finalizat' },
-    //     { name: 'Reinnoit' },
-    //     { name: 'Modificat' },
-    //     { name: 'Inchis inainte de termen' },
     //     { name: 'Contestat' },
+    //     { name: 'Reziliat' },
+
     // ]
 
     // const cashflowLines = [
@@ -594,7 +589,56 @@ select * from public.active_wf_rulesok()
 END;
 $BODY$;
 
-`
+`);
+
+    prisma.$executeRaw(`
+  CREATE OR REPLACE FUNCTION contractTaskToBeGeneratedok(
+	)
+    RETURNS TABLE(taskName text, taskNotes text, contractId integer, statusId integer,  requestorId integer,
+    assignedId integer, approvedByAll boolean, approvalTypeInParallel boolean, workflowTaskSettingsId integer,
+    Uuid uuid,approvalOrderNumber integer, workflowId integer, PriorityName text, PriorityId integer, ReminderName text,
+    ReminderDays integer,DueDate text, DueDateDays integer, CalculatedDueDate TIMESTAMP, CalculatedReminderDate TIMESTAMP,
+    taskSendNotifications boolean, taskSendReminders boolean 
+    ) 
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 10000
+AS $BODY$
+BEGIN
+   RETURN QUERY
+
+select  wfts."taskName" ,  wfts."taskNotes",wfx."contractId"  , 
+	1 as statusId, 3 as requestorId, wftsu."userId" as assignedId,
+	wfts."approvedByAll",wfts."approvalTypeInParallel",
+wfts.id as workflowTaskSettingsId, uuid_generate_v4() as Uuid, 
+	wftsu."approvalOrderNumber"  as approvalOrderNumber,
+wfts."workflowId", ctp."name" as PriorityName,wfts."taskPriorityId" PriorityId, ctr.name ReminderName, 
+ctr."days" as ReminderDays, 
+ctdd."name" as DueDate, 
+ctdd."days" as DueDateDays,
+CURRENT_DATE::DATE + CONCAT(ctdd."days" , ' day')::INTERVAL as CalculatedDueDate, 
+(CURRENT_DATE::DATE + CONCAT(ctdd."days" , ' day')::INTERVAL)::DATE 
+	+ CONCAT(ctr."days" , ' day')::INTERVAL AS CalculatedReminderDate,
+wfts."taskSendNotifications", wfts."taskSendReminders"
+from public."WorkFlowXContracts" wfx 
+join public."Contracts" c  on wfx."contractId" =c.id 
+join "WorkFlowTaskSettings" wfts on wfts.id=wfx."workflowTaskSettingsId" 
+join "WorkFlowTaskSettingsUsers" wftsu  on wftsu."workflowTaskSettingsId" = wfts.id 
+join "ContractTasksStatus" cts on cts.id = wfx."ctrstatusId" 
+join "ContractStatus" cs  on cs.id =c."statusId" 
+left join "ContractTasksPriority" ctp on ctp.id =wfts."taskPriorityId" 
+left join "ContractTasksReminders" ctr on ctr.id =wfts."taskReminderId" 
+left join "ContractTasksDueDates" ctdd on ctdd.id =wfts."taskDueDateId" 
+where cs."id" = 1;
+
+
+END;
+$BODY$;
+
+
+select * from public.contractTaskToBeGeneratedok() `
+    );
 
 
     //     const priorities = [

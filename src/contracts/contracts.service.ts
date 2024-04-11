@@ -450,9 +450,9 @@ export class ContractsService {
   }
 
 
-  // @Cron(CronExpression.EVERY_5_SECONDS)
+  @Cron(CronExpression.EVERY_5_SECONDS)
   // @Cron(CronExpression.EVERY_10_MINUTES)
-  @Cron(CronExpression.EVERY_10_HOURS)
+  // @Cron(CronExpression.EVERY_10_HOURS)
   async generateContractTasks() {
 
     const result: [any] = await this.prisma.$queryRaw(
@@ -477,10 +477,19 @@ export class ContractsService {
         name: task.taskname,
         reminders: task.calculatedreminderdate,
         taskPriorityId: task.priorityid,
-        // text: task.tasknotes,
         text: textReplaced,
         uuid: task.uuid
       }
+
+      //update ctr status
+      const ctr_status = await this.prisma.contracts.update({
+        where: {
+          id: task.contractid
+        },
+        data: {
+          statusId: 2
+        }
+      })
 
       const result = await this.prisma.workFlowContractTasks.create({
         data,

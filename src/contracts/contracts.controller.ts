@@ -1777,6 +1777,79 @@ export class ContractsController {
         // aprobat
       }
     })
+
+    const ctr = await this.prisma.workFlowContractTasks.findFirst({
+      where: {
+        uuid: uuid
+      }
+    })
+
+    const count_task = await this.prisma.workFlowContractTasks.count({
+      where: {
+        contractId: ctr.contractId
+      }
+    })
+
+    const count_approved_task = await this.prisma.workFlowContractTasks.count({
+      where: {
+        contractId: ctr.contractId,
+        statusId: 4
+      }
+    })
+
+
+    if (count_approved_task == count_task) {
+
+      console.log("Contractul a fost aprobat!")
+
+      const resultUpdate = await this.prisma.contracts.update({
+        where: {
+          id: ctr.contractId
+        },
+        data: {
+          statusId: 4
+        }
+      })
+    }
+
+    const header = await this.prisma.contracts.findUnique({
+      where: {
+        id: ctr.contractId
+      }
+    })
+
+    const audit = await this.prisma.contractsAudit.create({
+      data: {
+        operationType: "U",
+        id: ctr.contractId,
+        number: header.number,
+        typeId: header.typeId,
+        statusId: 4,
+        start: header.start,
+        end: header.end,
+        sign: header.sign,
+        completion: header.completion,
+        remarks: header.remarks,
+        categoryId: header.categoryId,
+        departmentId: header.departmentId,
+        cashflowId: header.cashflowId,
+        itemId: header.itemId,
+        costcenterId: header.costcenterId,
+        automaticRenewal: header.automaticRenewal,
+        partnersId: header.partnersId,
+        entityId: header.entityId,
+        partnerpersonsId: header.partnerpersonsId,
+        entitypersonsId: header.entitypersonsId,
+        entityaddressId: header.entityaddressId,
+        partneraddressId: header.partneraddressId,
+        entitybankId: header.entitybankId,
+        partnerbankId: header.partnerbankId,
+        userId: header.userId
+      }
+    });
+
+    //email
+
     if (approve.count > 0) {
       const response = "Task-ul a fost aprobat cu succes!"
       return (response)
