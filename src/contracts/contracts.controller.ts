@@ -456,6 +456,15 @@ export class ContractsController {
     return result1;
   }
 
+  // @Get('nextTasks/:contractId')
+  // async nextTasks(@Param('contractId') contractId: string,) {
+  //   const nextTasks: [any] = await this.prisma.$queryRaw(
+  //     Prisma.sql`select * from public.contracttasktobegeneratedsecv(${contractId}::int4)`
+  //   )
+  //   return nextTasks;
+  // }
+
+
   @Get('cashflow')
   async getCalculate_cashflow() {
 

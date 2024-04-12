@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma.service';
 import { Prisma } from '@prisma/client';
 import { MailerService } from '../alerts/mailer.service'
 import { access } from 'fs';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class ContractsService {
@@ -310,12 +311,6 @@ export class ContractsService {
           costcenter: true,
           entity: true,
           partner: true
-          // {
-          //   include:
-          //   {
-          //     Address: true
-          //   }
-          // }
           ,
           PartnerPerson: true,
           EntityPerson: true,
@@ -449,21 +444,183 @@ export class ContractsService {
     return replacedString
   }
 
+  async nextTasks(contractId: number) {
+    const nextTasks: [any] = await this.prisma.$queryRaw(
+      Prisma.sql`select * from public.contracttasktobegeneratedsecv(${contractId}::int4)`
+    )
+    // return nextTasks;
+  }
 
   @Cron(CronExpression.EVERY_5_SECONDS)
   // @Cron(CronExpression.EVERY_10_MINUTES)
   // @Cron(CronExpression.EVERY_10_HOURS)
-  async generateContractTasks() {
+  async generateSecventialContractTasks() {
 
+    // const result: [] = await this.prisma.$queryRaw(Prisma.sql`SELECT * FROM cttobegeneratedsecv();`)
+    const result: any[] = await this.prisma.$queryRaw(Prisma.sql`SELECT * FROM cttobegeneratedsecv();`);
+
+
+    const res_array = [];
+
+    await Promise.all(result.map(async (task) => {
+      const nextTask = await this.prisma.$queryRaw(
+        Prisma.sql`select * from public.contracttasktobegeneratedsecv3(${task.contractid}::int4)`
+      )
+      res_array.push(nextTask)
+    }));
+
+    const flattenedArray = res_array.flat();
+
+    const distinctArray = [...new Set(flattenedArray)];
+
+    const uniqueContractIds = new Set();
+
+    // Filter the array to keep only distinct elements based on contractid
+    const distinctElements = distinctArray.filter((obj) => {
+      if (uniqueContractIds.has(obj.contractid)) {
+        return false; // Duplicate, skip
+      }
+      uniqueContractIds.add(obj.contractid);
+      return true; // Unique, keep
+    });
+
+
+    distinctElements.map(async (task) => {
+
+      const nextTask = {
+        contractId: task.contractid,
+        statusId: task.statusid,
+        requestorId: task.requestorid,
+        assignedId: task.assignedid,
+        workflowTaskSettingsId: task.workflowtasksettingsid,
+        approvalOrderNumber: task.approvalordernumber,
+        duedates: task.calculatedduedate,
+        name: task.taskname,
+        reminders: task.calculatedreminderdate,
+        taskPriorityId: task.priorityid,
+        text: task.tasknotes,
+        uuid: uuidv4()
+      }
+
+      const check = await this.prisma.workFlowContractTasks.findFirst({
+        where: {
+          contractId: task.contractid,
+          approvalOrderNumber: task.approvalordernumber,
+          workflowTaskSettingsId: task.workflowTaskSettingsId
+        }
+      })
+
+      if (!check) {
+        const rez = await this.prisma.workFlowContractTasks.create({
+          data: nextTask
+        });
+        console.log(rez)
+        const mailerService = new MailerService();
+
+        const user_assigned_email = await this.getSimplifyUsersById(task.assignedid)
+        const link = `http://localhost:3000/uikit/workflowstask/${nextTask.uuid}`
+        const inputDate = new Date(task.calculatedduedate);
+        const options: Intl.DateTimeFormatOptions = {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        };
+        const localDate = inputDate.toLocaleDateString('ro-RO', options);
+
+        // const to = user_assigned_email.email;
+        const to = 'razvan.mustata@gmail.com';
+
+        const approve_link = `http://localhost:3000/contracts/approveTask/${nextTask.uuid}`
+        const reject_link = `http://localhost:3000/contracts/rejectTask/${nextTask.uuid}`
+        // const bcc = user_assigned_email.email;
+        const bcc = 'razvan.mustata@nirogroup.ro';
+        const subject = task.taskname;
+        const text = task.tasknotes;
+        const html = `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Email Template</title>
+        <style>
+            /* Button styles */
+            .button {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #007bff;
+                color: #ffffff;
+                text-decoration: none;
+                border-radius: 5px;
+            }
+            /* Button hover effect */
+            .button:hover {
+                background-color: #0056b3;
+            }
+              .button_approve {
+                      display: inline-block;
+                      padding: 10px 20px;
+                      background-color: #007bff;
+                      color: #ffffff;
+                      text-decoration: none;
+                      border-radius: 5px;
+                  }
+              .button_reject {
+                      display: inline-block;
+                      padding: 10px 20px;
+                      background-color: #FF0000;
+                      color: #ffffff;
+                      text-decoration: none;
+                      border-radius: 5px;
+                  }
+        </style>
+        </head>
+        <body>
+
+          <p>Va rugam sa luati decizia daca aprobati contractul.</p>
+      
+
+            <p> Acest task trebuie aprobat pana la data: <b>${localDate}</b> </p>
+            <p> Acest task are prioritatea:  <b>${task.priorityname}</b></p>
+
+            <table border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td>
+                        <a href=${approve_link} class="button_approve">Aproba</a>
+                    </td>
+                    <td style="padding-left: 10px;">
+                        <a href=${reject_link} class="button_reject">Respinge</a>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        </html>`
+
+        const attachments = [];
+        const allEmails = 'to: ' + to + ' bcc:' + bcc;
+
+        // console.log(to.toString(), bcc.toString(), subject, text, html, attachments)
+        mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
+          .then(() => console.log('Email sent successfully.'))
+          .catch(error => console.error('Error sending email:', error));
+      }
+
+    })
+  }
+
+  @Cron(CronExpression.EVERY_5_SECONDS)
+  // @Cron(CronExpression.EVERY_10_MINUTES)
+  // @Cron(CronExpression.EVERY_10_HOURS)
+  async generateParalelContractTasks() {
+
+    //get all contracts with satateId=1
     const result: [any] = await this.prisma.$queryRaw(
       Prisma.sql`select * from public.contractTaskToBeGeneratedok()`
     )
     const mailerService = new MailerService();
 
-
-
     result.map(async (task) => {
 
+      //replace placeholders
       const textReplaced = await this.replacePlaceholders(task.contractid, task.tasknotes)
 
       const data = {
@@ -481,24 +638,28 @@ export class ContractsService {
         uuid: task.uuid
       }
 
-      //update ctr status
-      const ctr_status = await this.prisma.contracts.update({
-        where: {
-          id: task.contractid
-        },
-        data: {
-          statusId: 2
-        }
-      })
 
-      const result = await this.prisma.workFlowContractTasks.create({
-        data,
-      });
+      if (task.approvaltypeinparallel) {
 
+        // update contract status
+        const ctr_status = await this.prisma.contracts.update({
+          where: {
+            id: task.contractid
+          },
+          data: {
+            statusId: 2
+            //Asteapta aprobarea
+          }
+        })
+
+        const result = await this.prisma.workFlowContractTasks.create({
+          data,
+        });
+      }
+
+      //send notification emails
       const user_assigned_email = await this.getSimplifyUsersById(task.assignedid)
-
       const link = `http://localhost:3000/uikit/workflowstask/${task.uuid}`
-
       const inputDate = new Date(task.calculatedduedate);
       const options: Intl.DateTimeFormatOptions = {
         year: 'numeric',
