@@ -591,39 +591,13 @@ $BODY$;
 
 `);
 
-    prisma.$executeRaw(`CREATE OR REPLACE FUNCTION contracttasktobegeneratedsecv(
-    contractId_param integer
-)
-RETURNS TABLE(
-    taskName text, 
-    taskNotes text, 
-    contractId integer, 
-    statusId integer,  
-    requestorId integer,
-    assignedId integer, 
-    approvedByAll boolean, 
-    approvalTypeInParallel boolean, 
-    workflowTaskSettingsId integer,
-    Uuid uuid, 
-    approvalOrderNumber integer, 
-    workflowId integer, 
-    PriorityName text, 
-    PriorityId integer, 
-    ReminderName text,
-    ReminderDays integer,
-    DueDate text, 
-    DueDateDays integer, 
-    CalculatedDueDate TIMESTAMP, 
-    CalculatedReminderDate TIMESTAMP,
-    taskSendNotifications boolean, 
-    taskSendReminders boolean , 
-    TaskStatusId integer
-) 
-LANGUAGE 'plpgsql'
-COST 100
-VOLATILE PARALLEL UNSAFE
-ROWS 10000
-AS $BODY$
+    prisma.$executeRaw(`-- DROP FUNCTION public.contracttasktobegeneratedsecv3(int4);
+
+CREATE OR REPLACE FUNCTION public.contracttasktobegeneratedsecv3(contractid_param integer)
+ RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, approvedbyall boolean, approvaltypeinparallel boolean, workflowtasksettingsid integer, uuid integer, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer)
+ LANGUAGE plpgsql
+ ROWS 10000
+AS $function$
 BEGIN
     RETURN QUERY
     SELECT  
@@ -636,7 +610,7 @@ BEGIN
         wfts."approvedByAll",
         wfts."approvalTypeInParallel",
         wfts.id AS workflowTaskSettingsId, 
-        uuid_generate_v4() AS Uuid, 
+        1 AS uuid1, 
         wftsu."approvalOrderNumber" AS approvalOrderNumber,
         wfts."workflowId", 
         ctp."name" AS PriorityName,
@@ -663,15 +637,15 @@ BEGIN
         LEFT JOIN "WorkFlowContractTasks" wfct ON wfct."contractId" = c.id AND wfct."approvalOrderNumber" = wftsu."approvalOrderNumber" AND wfct."workflowTaskSettingsId" = wfx."workflowTaskSettingsId" 
     WHERE 
         wfx."contractId" = contractId_param 
-        AND wfct."statusId" NOT IN (4,5) 
-        AND cs."id" = 1
+        AND coalesce(wfct."statusId",0) NOT IN (4,5) 
+    --    AND wfct."uuid" is null
     ORDER BY 
         wftsu."approvalOrderNumber" 
     LIMIT 1;
 END;
-$BODY$;
-
---SELECT * FROM contracttasktobegeneratedsecv(contractId_param => 1);
+$function$
+;
+--SELECT * FROM contracttasktobegeneratedsecv3(1);
 `);
 
     prisma.$executeRaw(`
