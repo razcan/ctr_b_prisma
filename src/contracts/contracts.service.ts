@@ -487,6 +487,8 @@ export class ContractsService {
 
     distinctElements.map(async (task) => {
 
+      const textReplaced = await this.replacePlaceholders(task.contractid, task.tasknotes)
+
       const nextTask = {
         contractId: task.contractid,
         statusId: task.statusid,
@@ -576,8 +578,8 @@ export class ContractsService {
         </head>
         <body>
 
-          <p>Va rugam sa luati decizia daca aprobati contractul.</p>
-      
+    
+          <p>${textReplaced}</p>
 
             <p> Acest task trebuie aprobat pana la data: <b>${localDate}</b> </p>
             <p> Acest task are prioritatea:  <b>${task.priorityname}</b></p>
