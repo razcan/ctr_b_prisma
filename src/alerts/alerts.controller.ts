@@ -226,7 +226,7 @@ export class AlertsController {
 
     //sa se modifice starea ctr automat cand acestea expira si sa se trimita alerta
 
-    @Cron(CronExpression.EVERY_10_MINUTES)
+    @Cron(CronExpression.EVERY_10_SECONDS)
     PopulateAlertContractsCronId2() {
 
         const allcontracts = this.findAllContracts()

@@ -609,151 +609,151 @@ export class ContractsService {
     })
   }
 
-  @Cron(CronExpression.EVERY_5_SECONDS)
+
   // @Cron(CronExpression.EVERY_10_MINUTES)
   // @Cron(CronExpression.EVERY_10_HOURS)
-  async generateParalelContractTasks() {
+  // @Cron(CronExpression.EVERY_5_SECONDS)
+  // async generateParalelContractTasks() {
 
-    //get all contracts with satateId=1
-    const result: [any] = await this.prisma.$queryRaw(
-      Prisma.sql`select * from public.contractTaskToBeGeneratedok()`
-    )
-    const mailerService = new MailerService();
+  //   //get all contracts with satateId=1
+  //   const result: [any] = await this.prisma.$queryRaw(
+  //     Prisma.sql`select * from public.contractTaskToBeGeneratedok()`
+  //   )
+  //   const mailerService = new MailerService();
 
-    result.map(async (task) => {
+  //   result.map(async (task) => {
 
-      //replace placeholders
-      const textReplaced = await this.replacePlaceholders(task.contractid, task.tasknotes)
+  //     //replace placeholders
+  //     const textReplaced = await this.replacePlaceholders(task.contractid, task.tasknotes)
 
-      const data = {
-        contractId: task.contractid,
-        statusId: task.statusid,
-        requestorId: task.requestorid,
-        assignedId: task.assignedid,
-        workflowTaskSettingsId: task.workflowtasksettingsid,
-        approvalOrderNumber: task.approvalordernumber,
-        duedates: task.calculatedduedate,
-        name: task.taskname,
-        reminders: task.calculatedreminderdate,
-        taskPriorityId: task.priorityid,
-        text: textReplaced,
-        uuid: task.uuid
-      }
+  //     const data = {
+  //       contractId: task.contractid,
+  //       statusId: task.statusid,
+  //       requestorId: task.requestorid,
+  //       assignedId: task.assignedid,
+  //       workflowTaskSettingsId: task.workflowtasksettingsid,
+  //       approvalOrderNumber: task.approvalordernumber,
+  //       duedates: task.calculatedduedate,
+  //       name: task.taskname,
+  //       reminders: task.calculatedreminderdate,
+  //       taskPriorityId: task.priorityid,
+  //       text: textReplaced,
+  //       uuid: task.uuid
+  //     }
 
 
-      if (task.approvaltypeinparallel) {
+  //     if (task.approvaltypeinparallel) {
 
-        // update contract status
-        const ctr_status = await this.prisma.contracts.update({
-          where: {
-            id: task.contractid
-          },
-          data: {
-            statusId: 2
-            //Asteapta aprobarea
-          }
-        })
+  //       // update contract status
+  //       const ctr_status = await this.prisma.contracts.update({
+  //         where: {
+  //           id: task.contractid
+  //         },
+  //         data: {
+  //           statusId: 2
+  //           //Asteapta aprobarea
+  //         }
+  //       })
 
-        const result = await this.prisma.workFlowContractTasks.create({
-          data,
-        });
-      }
+  //       const result = await this.prisma.workFlowContractTasks.create({
+  //         data,
+  //       });
+  //     }
 
-      //send notification emails
-      const user_assigned_email = await this.getSimplifyUsersById(task.assignedid)
-      const link = `http://localhost:3000/uikit/workflowstask/${task.uuid}`
-      const inputDate = new Date(task.calculatedduedate);
-      const options: Intl.DateTimeFormatOptions = {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      };
-      const localDate = inputDate.toLocaleDateString('ro-RO', options);
+  //     //send notification emails
+  //     const user_assigned_email = await this.getSimplifyUsersById(task.assignedid)
+  //     const link = `http://localhost:3000/uikit/workflowstask/${task.uuid}`
+  //     const inputDate = new Date(task.calculatedduedate);
+  //     const options: Intl.DateTimeFormatOptions = {
+  //       year: 'numeric',
+  //       month: 'long',
+  //       day: 'numeric'
+  //     };
+  //     const localDate = inputDate.toLocaleDateString('ro-RO', options);
 
-      // const to = user_assigned_email.email;
-      const to = 'razvan.mustata@gmail.com';
+  //     // const to = user_assigned_email.email;
+  //     const to = 'razvan.mustata@gmail.com';
 
-      const approve_link = `http://localhost:3000/contracts/approveTask/${task.uuid}`
-      const reject_link = `http://localhost:3000/contracts/rejectTask/${task.uuid}`
-      // const bcc = user_assigned_email.email;
-      const bcc = 'razvan.mustata@nirogroup.ro';
-      const subject = task.taskname;
-      const text = task.tasknotes;
-      const html = `<!DOCTYPE html>
-        <html lang="en">
-        <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Email Template</title>
-        <style>
-            /* Button styles */
-            .button {
-                display: inline-block;
-                padding: 10px 20px;
-                background-color: #007bff;
-                color: #ffffff;
-                text-decoration: none;
-                border-radius: 5px;
-            }
-            /* Button hover effect */
-            .button:hover {
-                background-color: #0056b3;
-            }
-              .button_approve {
-                      display: inline-block;
-                      padding: 10px 20px;
-                      background-color: #007bff;
-                      color: #ffffff;
-                      text-decoration: none;
-                      border-radius: 5px;
-                  }
-              .button_reject {
-                      display: inline-block;
-                      padding: 10px 20px;
-                      background-color: #FF0000;
-                      color: #ffffff;
-                      text-decoration: none;
-                      border-radius: 5px;
-                  }
-        </style>
-        </head>
-        <body>
+  //     const approve_link = `http://localhost:3000/contracts/approveTask/${task.uuid}`
+  //     const reject_link = `http://localhost:3000/contracts/rejectTask/${task.uuid}`
+  //     // const bcc = user_assigned_email.email;
+  //     const bcc = 'razvan.mustata@nirogroup.ro';
+  //     const subject = task.taskname;
+  //     const text = task.tasknotes;
+  //     const html = `<!DOCTYPE html>
+  //       <html lang="en">
+  //       <head>
+  //       <meta charset="UTF-8">
+  //       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  //       <title>Email Template</title>
+  //       <style>
+  //           /* Button styles */
+  //           .button {
+  //               display: inline-block;
+  //               padding: 10px 20px;
+  //               background-color: #007bff;
+  //               color: #ffffff;
+  //               text-decoration: none;
+  //               border-radius: 5px;
+  //           }
+  //           /* Button hover effect */
+  //           .button:hover {
+  //               background-color: #0056b3;
+  //           }
+  //             .button_approve {
+  //                     display: inline-block;
+  //                     padding: 10px 20px;
+  //                     background-color: #007bff;
+  //                     color: #ffffff;
+  //                     text-decoration: none;
+  //                     border-radius: 5px;
+  //                 }
+  //             .button_reject {
+  //                     display: inline-block;
+  //                     padding: 10px 20px;
+  //                     background-color: #FF0000;
+  //                     color: #ffffff;
+  //                     text-decoration: none;
+  //                     border-radius: 5px;
+  //                 }
+  //       </style>
+  //       </head>
+  //       <body>
 
-          <p>Va rugam sa luati decizia daca aprobati contractul.</p>
-            <p>${textReplaced}</p>
+  //         <p>Va rugam sa luati decizia daca aprobati contractul.</p>
+  //           <p>${textReplaced}</p>
 
-            <p> Acest task trebuie aprobat pana la data: <b>${localDate}</b> </p>
-            <p> Acest task are prioritatea:  <b>${task.priorityname}</b></p>
+  //           <p> Acest task trebuie aprobat pana la data: <b>${localDate}</b> </p>
+  //           <p> Acest task are prioritatea:  <b>${task.priorityname}</b></p>
 
-            <table border="0" cellpadding="0" cellspacing="0">
-                <tr>
-                    <td>
-                        <a href=${approve_link} class="button_approve">Aproba</a>
-                    </td>
-                    <td style="padding-left: 10px;">
-                        <a href=${reject_link} class="button_reject">Respinge</a>
-                    </td>
-                </tr>
-            </table>
-        </body>
-        </html>`
+  //           <table border="0" cellpadding="0" cellspacing="0">
+  //               <tr>
+  //                   <td>
+  //                       <a href=${approve_link} class="button_approve">Aproba</a>
+  //                   </td>
+  //                   <td style="padding-left: 10px;">
+  //                       <a href=${reject_link} class="button_reject">Respinge</a>
+  //                   </td>
+  //               </tr>
+  //           </table>
+  //       </body>
+  //       </html>`
 
-      const attachments = [];
-      const allEmails = 'to: ' + to + ' bcc:' + bcc;
+  //     const attachments = [];
+  //     const allEmails = 'to: ' + to + ' bcc:' + bcc;
 
-      // console.log(to.toString(), bcc.toString(), subject, text, html, attachments)
-      mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
-        .then(() => console.log('Email sent successfully.'))
-        .catch(error => console.error('Error sending email:', error));
+  //     // console.log(to.toString(), bcc.toString(), subject, text, html, attachments)
+  //     mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
+  //       .then(() => console.log('Email sent successfully.'))
+  //       .catch(error => console.error('Error sending email:', error));
 
-      // console.log(result);
-    })
+  //     // console.log(result);
+  //   })
 
-    //trebuie modificata starea ctr si a statusului dupa insert in tabela de x astfel incat sa nu se mai genereze inca odata.
-    //trebuie apelat endpoint pentru schimbare text fiecare task pe ctrid
-    // cand se populeaza tabela de x trebuie modificata starea ctr.
+  //   //trebuie modificata starea ctr si a statusului dupa insert in tabela de x astfel incat sa nu se mai genereze inca odata.
+  //   //trebuie apelat endpoint pentru schimbare text fiecare task pe ctrid
+  //   // cand se populeaza tabela de x trebuie modificata starea ctr.
 
-  }
-
+  // }
 
 }

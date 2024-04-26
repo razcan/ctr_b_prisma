@@ -248,6 +248,7 @@ export class ContractsController {
 
     const header = data[0]
 
+
     const dynamicInfo = data[1]
 
     const result = await this.prisma.contracts.create({
@@ -787,7 +788,8 @@ export class ContractsController {
     interface userss {
       workflowTaskSettingsId: number,
       userId: number,
-      approvalOrderNumber: number
+      approvalOrderNumber: number,
+      approvalStepName: string
     }
 
     const users_final: userss[] = []
@@ -795,18 +797,21 @@ export class ContractsController {
     for (let j = 0; j < users.target.length; j++) {
       const add: userss = {
         workflowTaskSettingsId: result2.id,
-        userId: users.target[j].id,
-        approvalOrderNumber: j + 1
+        userId: users.target[j].UserId.id,
+        approvalOrderNumber: j + 1,
+        approvalStepName: users.target[j].StepName
       }
       users_final.push(add)
     }
+
+    console.log("x", users_final);
 
     const result3 = await this.prisma.workFlowTaskSettingsUsers.createMany({
       data: users_final,
     });
 
 
-    console.log(result1, result2, result3)
+    // console.log(result1, result2, result3)
     //return result;
   }
 
@@ -889,7 +894,8 @@ export class ContractsController {
     interface userss {
       workflowTaskSettingsId: number,
       userId: number,
-      approvalOrderNumber: number
+      approvalOrderNumber: number,
+      approvalStepName: string
     }
 
     const users_final: userss[] = []
@@ -898,7 +904,8 @@ export class ContractsController {
       const add: userss = {
         workflowTaskSettingsId: users.workflowTaskSettingsId,
         userId: users.target[j].id,
-        approvalOrderNumber: j + 1
+        approvalOrderNumber: j + 1,
+        approvalStepName: users.target[j].StepName
       }
       users_final.push(add)
     }
@@ -924,7 +931,8 @@ export class ContractsController {
           data: {
             workflowTaskSettingsId: wfid.id,
             userId: users_final[j].userId,
-            approvalOrderNumber: users_final[j].approvalOrderNumber
+            approvalOrderNumber: users_final[j].approvalOrderNumber,
+            approvalStepName: users.target[j].StepName
           },
         });
       }

@@ -12,4 +12,5 @@ workflowTaskSettingsId: number ;
 user?: User  | null;
 userId: number  | null;
 approvalOrderNumber: number ;
+approvalStepName: string ;
 }

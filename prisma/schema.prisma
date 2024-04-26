@@ -457,6 +457,7 @@ model WorkFlowTaskSettingsUsers {
   user                   User?                @relation(fields: [userId], references: [id])
   userId                 Int
   approvalOrderNumber    Int
+  approvalStepName       String
 }
 
 model WorkFlowRejectActions {
