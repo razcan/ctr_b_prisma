@@ -14,8 +14,6 @@ updateadAt: Date ;
 createdAt: Date ;
 workflow?: WorkFlow ;
 workflowId: number ;
-approvedByAll: boolean ;
-approvalTypeInParallel: boolean ;
 WorkFlowTaskSettingsUsers?: WorkFlowTaskSettingsUsers[] ;
 taskName: string ;
 taskDueDate?: ContractTasksDueDates ;

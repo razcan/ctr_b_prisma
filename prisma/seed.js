@@ -410,6 +410,64 @@ OWNER TO sysadmin;
     --SELECT remove_duplicates_from_task()
 `);
 
+    prisma.$executeRaw(`-- FUNCTION: public.cttobegeneratedsecv()
+
+-- DROP FUNCTION IF EXISTS public.cttobegeneratedsecv();
+
+CREATE OR REPLACE FUNCTION public.cttobegeneratedsecv(
+	)
+    RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, approvedbyall boolean, approvaltypeinparallel boolean, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer) 
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 10000
+
+AS $BODY$
+BEGIN
+    RETURN QUERY
+    SELECT  
+        wfts."taskName",  
+        wfts."taskNotes", 
+        wfx."contractId", 
+        1 AS statusId, 
+        3 AS requestorId, 
+        wftsu."userId" AS assignedId,
+        wfts."approvedByAll",
+        wfts."approvalTypeInParallel",
+        wfts.id AS workflowTaskSettingsId, 
+        uuid_generate_v4() AS Uuid, 
+        wftsu."approvalOrderNumber" AS approvalOrderNumber,
+        wfts."workflowId", 
+        ctp."name" AS PriorityName,
+        wfts."taskPriorityId" AS PriorityId, 
+        ctr.name AS ReminderName, 
+        ctr."days" AS ReminderDays, 
+        ctdd."name" AS DueDate, 
+        ctdd."days" AS DueDateDays,
+        CURRENT_DATE::DATE + CONCAT(ctdd."days" , ' day')::INTERVAL AS CalculatedDueDate, 
+        (CURRENT_DATE::DATE + CONCAT(ctdd."days" , ' day')::INTERVAL)::DATE + CONCAT(ctr."days" , ' day')::INTERVAL AS CalculatedReminderDate,
+        wfts."taskSendNotifications", 
+        wfts."taskSendReminders",
+        wfct."statusId" AS TaskStatusId
+    FROM 
+        public."WorkFlowXContracts" wfx 
+        JOIN public."Contracts" c ON wfx."contractId" = c.id 
+        JOIN "WorkFlowTaskSettings" wfts ON wfts.id = wfx."workflowTaskSettingsId" 
+        JOIN "WorkFlowTaskSettingsUsers" wftsu ON wftsu."workflowTaskSettingsId" = wfts.id 
+        JOIN "ContractTasksStatus" cts ON cts.id = wfx."ctrstatusId" 
+        JOIN "ContractStatus" cs ON cs.id = c."statusId" 
+        LEFT JOIN "ContractTasksPriority" ctp ON ctp.id = wfts."taskPriorityId" 
+        LEFT JOIN "ContractTasksReminders" ctr ON ctr.id = wfts."taskReminderId" 
+        LEFT JOIN "ContractTasksDueDates" ctdd ON ctdd.id = wfts."taskDueDateId" 
+        LEFT JOIN "WorkFlowContractTasks" wfct ON wfct."contractId" = c.id AND wfct."approvalOrderNumber" = wftsu."approvalOrderNumber" AND wfct."workflowTaskSettingsId" = wfx."workflowTaskSettingsId"  ;
+
+END;
+$BODY$;
+
+ALTER FUNCTION public.cttobegeneratedsecv()
+    OWNER TO sysadmin;
+ `);
+
 
     prisma.$executeRaw(`
     CREATE OR REPLACE FUNCTION contractTaskToBeGenerated(
@@ -692,14 +750,21 @@ $function$
 ;`);
 
     prisma.$executeRaw(`
-CREATE OR REPLACE FUNCTION public.contracttasktobegeneratedok()
- RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, approvedbyall boolean, approvaltypeinparallel boolean, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer)
- LANGUAGE plpgsql
- ROWS 10000
-AS $function$
+-- FUNCTION: public.contracttasktobegeneratedok()
+
+-- DROP FUNCTION IF EXISTS public.contracttasktobegeneratedok();
+
+CREATE OR REPLACE FUNCTION public.contracttasktobegeneratedok(
+	)
+    RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, approvedbyall boolean, approvaltypeinparallel boolean, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer) 
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 10000
+
+AS $BODY$
 BEGIN
    RETURN QUERY
-
 
 select  wfts."taskName" ,  wfts."taskNotes",wfx."contractId"  , 
 	1 as statusId, 3 as requestorId, wftsu."userId" as assignedId,
@@ -726,13 +791,13 @@ left join "ContractTasksReminders" ctr on ctr.id =wfts."taskReminderId"
 left join "ContractTasksDueDates" ctdd on ctdd.id =wfts."taskDueDateId" 
 left join "WorkFlowContractTasks" wfct on wfct."contractId" = c.id and wfct."approvalOrderNumber" = wftsu."approvalOrderNumber" and wfct."workflowTaskSettingsId" = wfx."workflowTaskSettingsId" 
 where 
-cs."id" = 1 and 
-wfts."approvalTypeInParallel" =true ;
-
+cs."id" = 1 ;
 
 END;
-$function$
-;
+$BODY$;
+
+ALTER FUNCTION public.contracttasktobegeneratedok()
+    OWNER TO sysadmin;
 
 --select * from public.contracttasktobegeneratedok() `
     );

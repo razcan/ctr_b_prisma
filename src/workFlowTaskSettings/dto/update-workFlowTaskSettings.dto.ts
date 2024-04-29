@@ -5,9 +5,7 @@
 
 
 export class UpdateWorkFlowTaskSettingsDto {
-  approvedByAll?: boolean;
-approvalTypeInParallel?: boolean;
-taskName?: string;
+  taskName?: string;
 taskNotes?: string;
 taskSendNotifications?: boolean;
 taskSendReminders?: boolean;

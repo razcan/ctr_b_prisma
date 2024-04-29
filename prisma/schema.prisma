@@ -431,8 +431,6 @@ model WorkFlowTaskSettings {
   createdAt                 DateTime                    @default(now())
   workflow                  WorkFlow                    @relation(fields: [workflowId], references: [id])
   workflowId                Int
-  approvedByAll             Boolean
-  approvalTypeInParallel    Boolean
   WorkFlowTaskSettingsUsers WorkFlowTaskSettingsUsers[]
   taskName                  String
   taskDueDate               ContractTasksDueDates       @relation(fields: [taskDueDateId], references: [id])

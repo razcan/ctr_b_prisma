@@ -804,8 +804,6 @@ export class ContractsController {
       users_final.push(add)
     }
 
-    console.log("x", users_final);
-
     const result3 = await this.prisma.workFlowTaskSettingsUsers.createMany({
       data: users_final,
     });
@@ -817,13 +815,15 @@ export class ContractsController {
 
   @Patch('workflow/:id')
   async updateWorkflow(@Body() data: any, @Param('id') id: any): Promise<any> {
-    // console.log(data)
+
+    console.log(data)
 
     const wfg = data[0];
     const rules = data[1];
     const settings = data[2];
     const users = data[3];
 
+    console.log(users, "users")
 
     const size = rules.length;
     const result = await this.prisma.workFlow.update({
@@ -863,34 +863,31 @@ export class ContractsController {
       })
     }
 
-    if (settings.length > 0) {
-
-      const result1 = await this.prisma.workFlowTaskSettings.deleteMany({
-        where: {
-          workflowId: parseInt(id)
-        }
-      })
+    if (settings) {
 
       for (let i = 0; i < rules.length; i++) {
-        const result2 = await this.prisma.workFlowTaskSettings.createMany({
+        const result2 = await this.prisma.workFlowTaskSettings.updateMany({
           data: {
             workflowId: parseInt(id),
-            approvedByAll: settings[i].approvedByAll,
-            approvalTypeInParallel: settings[i].approvalTypeInParallel,
-            taskName: settings[i].taskName,
-            taskDueDateId: settings[i].taskDueDateId,
-            taskNotes: settings[i].taskNotes,
-            taskSendNotifications: settings[i].taskSendNotifications,
-            taskSendReminders: settings[i].taskSendReminders,
-            taskReminderId: settings[i].taskReminderId,
-            taskPriorityId: settings[i].taskPriorityId
+            taskName: settings.taskName,
+            taskDueDateId: settings.taskDueDateId,
+            taskNotes: settings.taskNotes,
+            taskSendNotifications: settings.taskSendNotifications,
+            taskSendReminders: settings.taskSendReminders,
+            taskReminderId: settings.taskReminderId,
+            taskPriorityId: settings.taskPriorityId
+          },
+          where: {
+            workflowId: parseInt(id)
           }
         });
       }
 
+
+
     }
 
-
+    console.log(users)
     interface userss {
       workflowTaskSettingsId: number,
       userId: number,
@@ -903,14 +900,14 @@ export class ContractsController {
     for (let j = 0; j < users.target.length; j++) {
       const add: userss = {
         workflowTaskSettingsId: users.workflowTaskSettingsId,
-        userId: users.target[j].id,
+        userId: users.target[j].UserId.id,
         approvalOrderNumber: j + 1,
         approvalStepName: users.target[j].StepName
       }
       users_final.push(add)
     }
 
-    console.log(users_final)
+    // console.log(users_final)
 
     const wfid = await this.prisma.workFlowTaskSettings.findFirst({
       where: {
@@ -937,6 +934,7 @@ export class ContractsController {
         });
       }
     }
+
   }
 
 
@@ -1835,6 +1833,7 @@ export class ContractsController {
       }
     })
 
+    //header.userId trebuie inlocuit cu userul efectiv care face update-ul
     const audit = await this.prisma.contractsAudit.create({
       data: {
         operationType: "U",
