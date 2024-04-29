@@ -416,7 +416,7 @@ OWNER TO sysadmin;
 
 CREATE OR REPLACE FUNCTION public.cttobegeneratedsecv(
 	)
-    RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, approvedbyall boolean, approvaltypeinparallel boolean, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer) 
+    RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer) 
     LANGUAGE 'plpgsql'
     COST 100
     VOLATILE PARALLEL UNSAFE
@@ -432,8 +432,6 @@ BEGIN
         1 AS statusId, 
         3 AS requestorId, 
         wftsu."userId" AS assignedId,
-        wfts."approvedByAll",
-        wfts."approvalTypeInParallel",
         wfts.id AS workflowTaskSettingsId, 
         uuid_generate_v4() AS Uuid, 
         wftsu."approvalOrderNumber" AS approvalOrderNumber,
@@ -466,6 +464,7 @@ $BODY$;
 
 ALTER FUNCTION public.cttobegeneratedsecv()
     OWNER TO sysadmin;
+
  `);
 
 
@@ -649,13 +648,19 @@ $BODY$;
 
 `);
 
-    prisma.$executeRaw(`-- DROP FUNCTION public.contracttasktobegeneratedsecv3(int4);
+    prisma.$executeRaw(`-- FUNCTION: public.contracttasktobegeneratedsecv3(integer)
 
-CREATE OR REPLACE FUNCTION public.contracttasktobegeneratedsecv3(contractid_param integer)
- RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, approvedbyall boolean, approvaltypeinparallel boolean, workflowtasksettingsid integer, uuid integer, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer)
- LANGUAGE plpgsql
- ROWS 10000
-AS $function$
+-- DROP FUNCTION IF EXISTS public.contracttasktobegeneratedsecv3(integer);
+
+CREATE OR REPLACE FUNCTION public.contracttasktobegeneratedsecv3(
+	contractid_param integer)
+    RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, workflowtasksettingsid integer, uuid integer, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer) 
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 10000
+
+AS $BODY$
 BEGIN
     RETURN QUERY
     SELECT  
@@ -665,8 +670,6 @@ BEGIN
         1 AS statusId, 
         3 AS requestorId, 
         wftsu."userId" AS assignedId,
-        wfts."approvedByAll",
-        wfts."approvalTypeInParallel",
         wfts.id AS workflowTaskSettingsId, 
         1 AS uuid1, 
         wftsu."approvalOrderNumber" AS approvalOrderNumber,
@@ -701,8 +704,11 @@ BEGIN
         wftsu."approvalOrderNumber" 
     LIMIT 1;
 END;
-$function$
-;
+$BODY$;
+
+ALTER FUNCTION public.contracttasktobegeneratedsecv3(integer)
+    OWNER TO sysadmin;
+
 --SELECT * FROM contracttasktobegeneratedsecv3(1);
 `);
 
@@ -756,7 +762,7 @@ $function$
 
 CREATE OR REPLACE FUNCTION public.contracttasktobegeneratedok(
 	)
-    RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, approvedbyall boolean, approvaltypeinparallel boolean, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer) 
+    RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer) 
     LANGUAGE 'plpgsql'
     COST 100
     VOLATILE PARALLEL UNSAFE
@@ -768,7 +774,6 @@ BEGIN
 
 select  wfts."taskName" ,  wfts."taskNotes",wfx."contractId"  , 
 	1 as statusId, 3 as requestorId, wftsu."userId" as assignedId,
-	wfts."approvedByAll",wfts."approvalTypeInParallel",
 wfts.id as workflowTaskSettingsId, uuid_generate_v4() as Uuid, 
 	wftsu."approvalOrderNumber"  as approvalOrderNumber,
 wfts."workflowId", ctp."name" as PriorityName,wfts."taskPriorityId" PriorityId, ctr.name ReminderName, 
