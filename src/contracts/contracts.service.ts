@@ -325,7 +325,8 @@ export class ContractsService {
           Category: true,
           cashflow: true,
           type: true,
-          status: true
+          status: true,
+
         },
         where: {
           id: parseInt(id),
@@ -335,6 +336,103 @@ export class ContractsService {
 
     return contracts;
   }
+
+  public async findContractSchById(id: any) {
+    const contracts = await this.prisma.contracts.findUnique(
+      {
+        include: {
+          ContractItems: {
+            include: {
+              ContractFinancialDetail: true,
+            }
+          }
+        },
+        where: {
+          id: parseInt(id),
+        },
+      }
+    )
+
+    if (contracts.ContractItems &&
+      contracts.ContractItems[0] &&
+      contracts.ContractItems[0].ContractFinancialDetail &&
+      contracts.ContractItems[0].ContractFinancialDetail[0] &&
+      contracts.ContractItems[0].ContractFinancialDetail[0].itemid !== undefined
+    ) {
+      const itemid = contracts.ContractItems[0].ContractFinancialDetail[0].itemid;
+      const itemres = await this.prisma.item.findUnique({
+        where: {
+          id: itemid,
+        }
+      })
+      const item = itemres.name
+      // console.log(item)
+
+      const currencyid = contracts.ContractItems[0].ContractFinancialDetail[0].currencyid;
+      const currencyres = await this.prisma.currency.findUnique({
+        where: {
+          id: currencyid,
+        }
+      })
+      const currency = currencyres.code
+      // console.log(currency)
+
+
+      const billingFrequencyid = contracts.ContractItems[0].ContractFinancialDetail[0].billingFrequencyid;
+      const frequencyres = await this.prisma.billingFrequency.findUnique({
+        where: {
+          id: billingFrequencyid,
+        }
+      })
+      const frequency = frequencyres.name
+      // console.log(frequency)
+
+
+      const measuringUnitid = contracts.ContractItems[0].ContractFinancialDetail[0].measuringUnitid;
+      const measuringUnitres = await this.prisma.measuringUnit.findUnique({
+        where: {
+          id: measuringUnitid,
+        }
+      })
+      const measuringUnit = measuringUnitres.name
+      // console.log(measuringUnit)
+
+
+      const paymentTypeid = contracts.ContractItems[0].ContractFinancialDetail[0].paymentTypeid;
+      const paymentTyperes = await this.prisma.paymentType.findUnique({
+        where: {
+          id: paymentTypeid,
+        }
+      })
+      const paymentType = paymentTyperes.name
+      // console.log(paymentType)
+
+
+      const res = {
+        item: item ? item : 'NA',
+        currency: currency ? currency : 'NA',
+        frequency: frequency ? frequency : 'NA',
+        measuringUnit: measuringUnit ? measuringUnit : 'NA',
+        paymentType: paymentType ? paymentType : 'NA',
+        totalContractValue: contracts.ContractItems[0].ContractFinancialDetail[0].totalContractValue,
+        remarks: contracts.ContractItems[0].ContractFinancialDetail[0].remarks
+      }
+
+      return res;
+    } else return {
+      item: 'NA',
+      currency: 'NA',
+      frequency: 'NA',
+      measuringUnit: 'NA',
+      paymentType: 'NA',
+      totalContractValue: 0,
+      remarks: 'NA'
+    }
+  }
+
+  // contracts.ContractItems[0].ContractFinancialDetail;
+
+
 
   formatDate = (actuallDate: Date) => {
 
@@ -352,6 +450,8 @@ export class ContractsService {
   async replacePlaceholders(CtrId: any, data: any,): Promise<any> {
 
     const actualContract = await this.findContractById(CtrId)
+    const actualContractFin = await this.findContractSchById(CtrId)
+    // console.log(actualContractFin)
 
     const originalString: any = data;
 
@@ -393,6 +493,18 @@ export class ContractsService {
     const contract_EntityRole = actualContract?.EntityPerson.role;
     const contract_Type = actualContract?.type.name;
 
+    // if (actualContractFin && actualContractFin !== undefined) {
+    const contract_Item = actualContractFin.item;
+    const contract_Currency = actualContractFin.currency;
+    const contract_Frequency = actualContractFin.frequency;
+    const contract_MeasuringUnit = actualContractFin.measuringUnit;
+    const contract_PaymentType = actualContractFin.paymentType;
+    const contract_TotalContractValue = actualContractFin.totalContractValue;
+    const contract_Remarks = actualContractFin.remarks;
+    // }
+
+
+
 
     //de adaugat cod uni de inregistrare si r, 
     const replacements: { [key: string]: string } = {
@@ -432,7 +544,15 @@ export class ContractsService {
       "EntityEmail": contract_EntityEmail,
       "EntityPhone": contract_EntityPhone,
       "EntityRole": contract_EntityRole,
-      "Type": contract_Type
+      "Type": contract_Type,
+      "Item": contract_Item,
+      "Currency": contract_Currency,
+      "Frequency": contract_Frequency,
+      "MeasuringUnit": contract_MeasuringUnit,
+      "PaymentType": contract_PaymentType,
+      "TotalContractValue": contract_TotalContractValue.toString(),
+      "PaymentRemarks": contract_Remarks
+
     };
 
     let replacedString: string = originalString;

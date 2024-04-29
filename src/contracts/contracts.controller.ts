@@ -1663,6 +1663,88 @@ export class ContractsController {
   }
 
 
+  @Get('detailsFin/:id')
+  public async findContractSchById(@Param('id') id: any) {
+    const contracts = await this.prisma.contracts.findUnique(
+      {
+        include: {
+          ContractItems: {
+            include: {
+              ContractFinancialDetail: true,
+            }
+          }
+        },
+        where: {
+          id: parseInt(id),
+        },
+      }
+    )
+
+    const itemid = contracts.ContractItems[0].ContractFinancialDetail[0].itemid;
+    const itemres = await this.prisma.item.findUnique({
+      where: {
+        id: itemid,
+      }
+    })
+    const item = itemres.name
+    // console.log(item)
+
+    const currencyid = contracts.ContractItems[0].ContractFinancialDetail[0].currencyid;
+    const currencyres = await this.prisma.currency.findUnique({
+      where: {
+        id: currencyid,
+      }
+    })
+    const currency = currencyres.code
+    // console.log(currency)
+
+
+    const billingFrequencyid = contracts.ContractItems[0].ContractFinancialDetail[0].billingFrequencyid;
+    const frequencyres = await this.prisma.billingFrequency.findUnique({
+      where: {
+        id: billingFrequencyid,
+      }
+    })
+    const frequency = frequencyres.name
+    // console.log(frequency)
+
+
+    const measuringUnitid = contracts.ContractItems[0].ContractFinancialDetail[0].measuringUnitid;
+    const measuringUnitres = await this.prisma.measuringUnit.findUnique({
+      where: {
+        id: measuringUnitid,
+      }
+    })
+    const measuringUnit = measuringUnitres.name
+    // console.log(measuringUnit)
+
+
+    const paymentTypeid = contracts.ContractItems[0].ContractFinancialDetail[0].paymentTypeid;
+    const paymentTyperes = await this.prisma.paymentType.findUnique({
+      where: {
+        id: paymentTypeid,
+      }
+    })
+    const paymentType = paymentTyperes.name
+    // console.log(paymentType)
+
+
+    const res = {
+      item: item,
+      currency: currency,
+      frequency: frequency,
+      measuringUnit: measuringUnit,
+      paymentType: paymentType,
+      totalContractValue: contracts.ContractItems[0].ContractFinancialDetail[0].totalContractValue,
+      remarks: contracts.ContractItems[0].ContractFinancialDetail[0].remarks
+    }
+
+
+    return res;
+    // contracts.ContractItems[0].ContractFinancialDetail;
+  }
+
+
   formatDate = (actuallDate: Date) => {
 
     if (actuallDate) {

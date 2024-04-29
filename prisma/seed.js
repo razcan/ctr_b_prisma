@@ -1203,3 +1203,42 @@ main()
         await prisma.$disconnect()
         process.exit(1)
     })
+
+// Placeholdere Flux 
+// Numar Contract: ContractNumber; 
+// Data semnarii: SignDate; 
+// Incepand cu data: StartDate; 
+// Termene de finalizare: FinalDate; 
+// Scurta descriere: ShortDescription; 
+// Tip Contract: Type; 
+
+// Nume Partener: PartnerName; 
+// Reg Comertului Partener: PartnerComercialReg
+// Cod Fiscal Partener: PartnerFiscalCode; 
+// Adresa Partener: PartnerAddress; 
+// Banca Partener: PartnerBank; 
+// Filiala Banca Partener: PartnerBranch; 
+// Iban Partener: PartnerIban; 
+// Persoana Partener: PartnerPerson; 
+// Email Partener: PartnerEmail; 
+// Telefon Partener: PartnerPhone; 
+// Rol Persoana Partener: PartnerRole; 
+
+// Nume Entitate: EntityName; 
+// Reg Comertului Entitate: EntityFiscalCode; 
+// Cod Fiscal Entitate: EntityComercialReg; 
+// Adresa Entitate: EntityAddress; 
+// Iban Entitate: EntityIban; 
+// Valuta Cont Iban Entitate: EntityCurrency; 
+// Persoana Entitate: EntityPerson; 
+// Email Entitate: EntityEmail; 
+// Telefon Entitate: EntityPhone; 
+// Rol Persoana Entitate: EntityRole; 
+
+// Obiect de contract: Item;
+// Pretul contractului: TotalContractValue;
+// Valuta contractului: Currency;
+// Recurenta: Frequency 
+// Tip Plata: PaymentType;
+// Unitate de masura: MeasuringUnit;
+// Note Plata: PaymentRemarks;
