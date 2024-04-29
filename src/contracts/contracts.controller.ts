@@ -1630,14 +1630,7 @@ export class ContractsController {
         include: {
           costcenter: true,
           entity: true,
-          partner: true
-          // {
-          //   include:
-          //   {
-          //     Address: true
-          //   }
-          // }
-          ,
+          partner: true,
           PartnerPerson: true,
           EntityPerson: true,
 
@@ -1662,6 +1655,70 @@ export class ContractsController {
     return contracts;
   }
 
+  @Get('getWFHistory/:contractId')
+  public async getWFHistoryByContractId(@Param('contractId') contractId: any) {
+    const res = await this.prisma.workFlowContractTasks.findMany({
+      where: {
+        contractId: parseInt(contractId)
+      }
+    })
+
+    console.log(res)
+
+    const result_fin = []
+    for (let i = 0; i < res.length; i++) {
+      const statusid = res[i].statusId
+      const statusres = await this.prisma.contractTasksStatus.findUnique({
+        where: {
+          id: statusid,
+        }
+      })
+      const status = statusres.name
+
+      const userId = res[i].assignedId
+      const userres = await this.prisma.user.findUnique({
+        where: {
+          id: userId,
+        }
+      })
+      const user = userres.name
+
+      const stepname = await this.prisma.workFlowTaskSettingsUsers.findFirst({
+        where: {
+          workflowTaskSettingsId: res[i].workflowTaskSettingsId,
+          userId: res[i].assignedId,
+          approvalOrderNumber: res[i].approvalOrderNumber
+        }
+      })
+
+      const workflowTaskSettingsId = res[i].workflowTaskSettingsId
+      const wf = await this.prisma.workFlowTaskSettings.findFirst({
+        where: {
+          id: workflowTaskSettingsId
+        }
+      })
+
+      const workflow = await this.prisma.workFlow.findFirst({
+        where: {
+          id: wf.workflowId
+        }
+      })
+
+      const result = {
+        createdAt: res[i].createdAt,
+        duedates: res[i].duedates,
+        approvalOrderNumber: res[i].approvalOrderNumber,
+        user: user,
+        status: status,
+        stepname: stepname.approvalStepName,
+        workflowname: workflow.wfName
+      }
+
+      result_fin.push(result)
+    }
+
+    return result_fin;
+  }
 
   @Get('detailsFin/:id')
   public async findContractSchById(@Param('id') id: any) {
