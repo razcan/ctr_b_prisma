@@ -887,7 +887,7 @@ export class ContractsController {
 
     }
 
-    console.log(users)
+    // console.log(users)
     interface userss {
       workflowTaskSettingsId: number,
       userId: number,
@@ -1242,10 +1242,10 @@ export class ContractsController {
         },
         where: {
           assignedId: parseInt(userId),
-          progress: {
-            lt: 100
-            // Filter tasks where progress is less than or equal to 100
-          },
+          // progress: {
+          //   lt: 100
+          //   // Filter tasks where progress is less than or equal to 100
+          // },
           statusId: 1
         },
       }
@@ -1279,10 +1279,10 @@ export class ContractsController {
       },
       where: {
         contractId: parseInt(id),
-        progress: {
-          lte: 100 // Filter tasks where progress is less than or equal to 100
-        },
-        statusId: 1
+        // progress: {
+        //   lte: 100 // Filter tasks where progress is less than or equal to 100
+        // },
+        // statusId: 1
       },
     });
     return result;
@@ -1342,16 +1342,16 @@ export class ContractsController {
     return result;
   }
 
-  @Get('task/:id')
-  async getTaskById(@Param('id') id: any): Promise<any> {
+  // @Get('task/:id')
+  // async getTaskById(@Param('id') id: any): Promise<any> {
 
-    const result = this.prisma.contractTasks.findFirst({
-      where: {
-        id: parseInt(id)
-      }
-    });
-    return result;
-  }
+  //   const result = this.prisma.contractTasks.findFirst({
+  //     where: {
+  //       id: parseInt(id)
+  //     }
+  //   });
+  //   return result;
+  // }
 
   @Get('type')
   async getEntity(@Body() data: any): Promise<any> {
