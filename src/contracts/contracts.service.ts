@@ -609,6 +609,8 @@ export class ContractsService {
 
       const textReplaced = await this.replacePlaceholders(task.contractid, task.tasknotes)
 
+      const uuid = uuidv4();
+
       const nextTask = {
         contractId: task.contractid,
         statusId: task.statusid,
@@ -621,7 +623,21 @@ export class ContractsService {
         reminders: task.calculatedreminderdate,
         taskPriorityId: task.priorityid,
         text: task.tasknotes,
-        uuid: uuidv4()
+        uuid: uuid
+      }
+
+      const ctrTask = {
+        taskName: task.taskname,
+        contractId: task.contractid,
+        statusId: task.statusid,
+        requestorId: task.requestorid,
+        assignedId: task.assignedid,
+        due: task.calculatedduedate,
+        notes: textReplaced,
+        uuid: uuid,
+        type: 'approval_task',
+        taskPriorityId: task.priorityid,
+        rejected_reason: '',
       }
 
       const check = await this.prisma.workFlowContractTasks.findFirst({
@@ -633,10 +649,18 @@ export class ContractsService {
       })
 
       if (!check) {
+
+
         const rez = await this.prisma.workFlowContractTasks.create({
           data: nextTask
         });
-        console.log(rez)
+
+        const rezCtrTask = await this.prisma.contractTasks.create({
+          data: ctrTask
+        });
+
+
+        console.log(rez, rezCtrTask)
         const mailerService = new MailerService();
 
         const user_assigned_email = await this.getSimplifyUsersById(task.assignedid)
