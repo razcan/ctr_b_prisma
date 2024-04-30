@@ -1663,7 +1663,7 @@ export class ContractsController {
       }
     })
 
-    console.log(res)
+    // console.log(res)
 
     const result_fin = []
     for (let i = 0; i < res.length; i++) {
@@ -1916,6 +1916,32 @@ export class ContractsController {
     return replacedString
   }
 
+  // @Get('kkmk/:ctrid')
+  async getWFEmailsByCtrId(
+    @Param('ctrid') ctrid: any
+  ): Promise<any> {
+
+    const users = await this.prisma.workFlowContractTasks.findMany({
+      where: {
+        contractId: parseInt(ctrid)
+      }
+    })
+
+    const emails = [];
+    for (let i = 0; i < users.length; i++) {
+      const email = await this.prisma.user.findFirst({
+        where: {
+          id: users[i].assignedId
+        }
+      })
+
+      emails.push(email.email)
+    }
+
+    return emails;
+
+  }
+
 
   @Get('approveTask/:uuid')
   async approveTask(
@@ -1932,11 +1958,22 @@ export class ContractsController {
       }
     })
 
+    await this.prisma.contractTasks.updateMany({
+      where: {
+        uuid: uuid
+      },
+      data: {
+        statusId: 4
+      }
+    })
+
     const ctr = await this.prisma.workFlowContractTasks.findFirst({
       where: {
         uuid: uuid
       }
     })
+
+    const actualCtrId = ctr.contractId
 
     const count_task = await this.prisma.workFlowContractTasks.count({
       where: {
@@ -1956,9 +1993,89 @@ export class ContractsController {
 
       console.log("Contractul a fost aprobat!")
 
+      const email_list = await this.getWFEmailsByCtrId(actualCtrId)
+
+      //aici contruim email
+
+      //   const dateString = result.due;
+      //   const dateDue = new Date(dateString);
+
+
+
+      //   // --to be implemented contract id instead of this hardcoding
+      const ctr_email = this.findContractById(actualCtrId)
+
+      const formattedStartDate = (await ctr_email).start.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+
+      const formattedEndDate = (await ctr_email).end.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+
+
+      const ctr_number = (await ctr_email).number
+      const ctr_partener = (await ctr_email).partner.name
+      const ctr_entity = (await ctr_email).entity.name
+      const ctr_start = formattedStartDate
+      const ctr_end = formattedEndDate
+      const ctr_remarks = (await ctr_email).remarks
+      const ctr_item_name = (await ctr_email).item.name
+      const ctr_departament_name = (await ctr_email).departament.name
+      const ctr_category_name = (await ctr_email).Category.name
+      const ctr_type = (await ctr_email).type.name
+
+
+      for (let i = 0; i < email_list.length; i++) {
+
+        const to = email_list[i];
+        const bcc = 'razvan.mustata@gmail.com';
+        const subject = 'Contractul a fost aprobat!';
+
+        const text = `
+        Contractul de mai jos a fost aprobat.
+        Numar Contract: <b>${ctr_number}</b>,
+        Data de inceput: <b>${ctr_start}</b>,
+        Data de sfarsit: <b>${ctr_end}</b>,
+        Partener: <b>${ctr_partener}</b>,
+        Entitatea: <b>${ctr_entity}</b>,
+        Scurta descriere: <b>${ctr_remarks}</b>,
+        Obiect de contract: <b>${ctr_item_name}</b>,
+        Departament: <b>${ctr_departament_name}</b>,
+        Categorie: <b>${ctr_category_name}</b>,
+        Tip Contract: <b>${ctr_type}</b>
+        `;
+
+        const html = `
+        Contractul de mai jos a fost aprobat. 
+        Numar Contract: <b>${ctr_number}</b>,
+        Data de inceput: <b>${ctr_start}</b>,
+        Data de sfarsit: <b>${ctr_end}</b>,
+        Partener: <b>${ctr_partener}</b>,
+        Entitatea: <b>${ctr_entity}</b>,
+        Scurta descriere: <b>${ctr_remarks}</b>,
+        Obiect de contract: <b>${ctr_item_name}</b>,
+        Departament: <b>${ctr_departament_name}</b>,
+        Categorie: <b>${ctr_category_name}</b>,
+        Tip Contract: <b>${ctr_type}</b>
+        `;
+
+        const attachments = [];
+
+        this.mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
+          .then(() => console.log('Email sent successfully.'))
+          .catch(error => console.error('Error sending email:', error));
+
+      }
+
+
       const resultUpdate = await this.prisma.contracts.update({
         where: {
-          id: ctr.contractId
+          id: actualCtrId
         },
         data: {
           statusId: 4
