@@ -576,9 +576,7 @@ export class ContractsService {
   // @Cron(CronExpression.EVERY_10_HOURS)
   async generateSecventialContractTasks() {
 
-    // const result: [] = await this.prisma.$queryRaw(Prisma.sql`SELECT * FROM cttobegeneratedsecv();`)
     const result: any[] = await this.prisma.$queryRaw(Prisma.sql`SELECT * FROM cttobegeneratedsecv();`);
-
 
     const res_array = [];
 

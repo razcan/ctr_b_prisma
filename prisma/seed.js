@@ -41,6 +41,8 @@ async function main() {
 
 
     // const contractStatus = [
+    //     { name: 'In lucru'},
+    //     { name: 'Respins' },
     //     { name: 'Activ' },
     //     { name: 'Reinnoit' },
     //     { name: 'Expirat' },
@@ -698,6 +700,8 @@ BEGIN
         LEFT JOIN "WorkFlowContractTasks" wfct ON wfct."contractId" = c.id AND wfct."approvalOrderNumber" = wftsu."approvalOrderNumber" AND wfct."workflowTaskSettingsId" = wfx."workflowTaskSettingsId" 
     WHERE 
         wfx."contractId" = contractId_param 
+	    AND 
+		c."statusId" <> 13
         AND coalesce(wfct."statusId",0) NOT IN (4,5) 
     --    AND wfct."uuid" is null
     ORDER BY 

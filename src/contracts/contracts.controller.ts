@@ -1991,18 +1991,10 @@ export class ContractsController {
 
     if (count_approved_task == count_task) {
 
-      console.log("Contractul a fost aprobat!")
+      // console.log("Contractul a fost aprobat!")
 
       const email_list = await this.getWFEmailsByCtrId(actualCtrId)
 
-      //aici contruim email
-
-      //   const dateString = result.due;
-      //   const dateDue = new Date(dateString);
-
-
-
-      //   // --to be implemented contract id instead of this hardcoding
       const ctr_email = this.findContractById(actualCtrId)
 
       const formattedStartDate = (await ctr_email).start.toLocaleDateString('en-GB', {
@@ -2037,7 +2029,7 @@ export class ContractsController {
         const subject = 'Contractul a fost aprobat!';
 
         const text = `
-        Contractul de mai jos a fost aprobat.
+        Contractul de mai jos, a fost aprobat.
         Numar Contract: <b>${ctr_number}</b>,
         Data de inceput: <b>${ctr_start}</b>,
         Data de sfarsit: <b>${ctr_end}</b>,
@@ -2051,7 +2043,7 @@ export class ContractsController {
         `;
 
         const html = `
-        Contractul de mai jos a fost aprobat. 
+        Contractul de mai jos, a fost aprobat. 
         Numar Contract: <b>${ctr_number}</b>,
         Data de inceput: <b>${ctr_start}</b>,
         Data de sfarsit: <b>${ctr_end}</b>,
@@ -2071,7 +2063,6 @@ export class ContractsController {
           .catch(error => console.error('Error sending email:', error));
 
       }
-
 
       const resultUpdate = await this.prisma.contracts.update({
         where: {
@@ -2132,10 +2123,47 @@ export class ContractsController {
     }
   }
 
+
+  @Get('deletewfxctr/:uuid')
+  async deletewfxctr(
+    @Param('uuid') uuid: any
+  ): Promise<any> {
+
+    const ctr = await this.prisma.workFlowContractTasks.findFirst({
+      where: {
+        uuid: uuid
+      }
+    })
+
+    const actualCtrId = ctr.contractId
+
+    console.log(actualCtrId)
+    const delete_wf = await this.prisma.workFlowXContracts.deleteMany({
+      where: {
+        contractId: actualCtrId
+      }
+    })
+
+    console.log(delete_wf)
+
+  }
+
+
   @Get('rejectTask/:uuid')
   async rejectTask(
     @Param('uuid') uuid: any
   ): Promise<any> {
+
+
+    await this.prisma.contractTasks.updateMany({
+      where: {
+        uuid: uuid
+      },
+      data: {
+        statusId: 5
+        // aprobat
+      }
+    })
 
     const approve = await this.prisma.workFlowContractTasks.updateMany({
       where: {
@@ -2146,8 +2174,164 @@ export class ContractsController {
         // aprobat
       }
     })
+
+    const ctr = await this.prisma.workFlowContractTasks.findFirst({
+      where: {
+        uuid: uuid
+      }
+    })
+
+    const actualCtrId = ctr.contractId
+
+
     if (approve.count > 0) {
+
+
+      const ctr = await this.prisma.workFlowContractTasks.findFirst({
+        where: {
+          uuid: uuid
+        }
+      })
+      const actualCtrId = ctr.contractId
+
+
+      const header = await this.prisma.contracts.findUnique({
+        where: {
+          id: actualCtrId
+        }
+      })
+
+
+      //header.userId trebuie inlocuit cu userul efectiv care face update-ul
+      const audit = await this.prisma.contractsAudit.create({
+        data: {
+          operationType: "U",
+          id: actualCtrId,
+          number: header.number,
+          typeId: header.typeId,
+          statusId: 13,
+          start: header.start,
+          end: header.end,
+          sign: header.sign,
+          completion: header.completion,
+          remarks: header.remarks,
+          categoryId: header.categoryId,
+          departmentId: header.departmentId,
+          cashflowId: header.cashflowId,
+          itemId: header.itemId,
+          costcenterId: header.costcenterId,
+          automaticRenewal: header.automaticRenewal,
+          partnersId: header.partnersId,
+          entityId: header.entityId,
+          partnerpersonsId: header.partnerpersonsId,
+          entitypersonsId: header.entitypersonsId,
+          entityaddressId: header.entityaddressId,
+          partneraddressId: header.partneraddressId,
+          entitybankId: header.entitybankId,
+          partnerbankId: header.partnerbankId,
+          userId: header.userId
+        }
+      });
+
+
+
+      const email_list = await this.getWFEmailsByCtrId(actualCtrId)
+
+      const ctr_email = this.findContractById(actualCtrId)
+
+      const formattedStartDate = (await ctr_email).start.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+
+      const formattedEndDate = (await ctr_email).end.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+
+
+      const ctr_number = (await ctr_email).number
+      const ctr_partener = (await ctr_email).partner.name
+      const ctr_entity = (await ctr_email).entity.name
+      const ctr_start = formattedStartDate
+      const ctr_end = formattedEndDate
+      const ctr_remarks = (await ctr_email).remarks
+      const ctr_item_name = (await ctr_email).item.name
+      const ctr_departament_name = (await ctr_email).departament.name
+      const ctr_category_name = (await ctr_email).Category.name
+      const ctr_type = (await ctr_email).type.name
+
+
+      for (let i = 0; i < email_list.length; i++) {
+
+        const to = email_list[i];
+        const bcc = 'razvan.mustata@gmail.com';
+        const subject = 'Contractul nu a fost aprobat!';
+
+        const text = `
+        Contractul de mai jos, nu a fost aprobat.
+        Numar Contract: <b>${ctr_number}</b>,
+        Data de inceput: <b>${ctr_start}</b>,
+        Data de sfarsit: <b>${ctr_end}</b>,
+        Partener: <b>${ctr_partener}</b>,
+        Entitatea: <b>${ctr_entity}</b>,
+        Scurta descriere: <b>${ctr_remarks}</b>,
+        Obiect de contract: <b>${ctr_item_name}</b>,
+        Departament: <b>${ctr_departament_name}</b>,
+        Categorie: <b>${ctr_category_name}</b>,
+        Tip Contract: <b>${ctr_type}</b>
+        `;
+
+        const html = `
+        Contractul de mai jos, nu a fost aprobat. 
+        Numar Contract: <b>${ctr_number}</b>,
+        Data de inceput: <b>${ctr_start}</b>,
+        Data de sfarsit: <b>${ctr_end}</b>,
+        Partener: <b>${ctr_partener}</b>,
+        Entitatea: <b>${ctr_entity}</b>,
+        Scurta descriere: <b>${ctr_remarks}</b>,
+        Obiect de contract: <b>${ctr_item_name}</b>,
+        Departament: <b>${ctr_departament_name}</b>,
+        Categorie: <b>${ctr_category_name}</b>,
+        Tip Contract: <b>${ctr_type}</b>
+        `;
+
+        const attachments = [];
+
+        this.mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
+          .then(() => console.log('Email sent successfully.'))
+          .catch(error => console.error('Error sending email:', error));
+
+      }
+
+      await this.prisma.contracts.update({
+        where: {
+          id: actualCtrId
+        },
+        data: {
+          statusId: 13 //Respins
+        }
+      })
+
+      // ca sa poata intra din nou pe flux un ctr, treb sa fie sters din tabela de mai jos
+      const delete_wf = await this.prisma.workFlowXContracts.deleteMany({
+        where: {
+          contractId: actualCtrId
+        }
+      })
+
+      // console.log(delete_wf, "test stergere")
+
+      const delete_wfct = await this.prisma.workFlowContractTasks.deleteMany({
+        where: {
+          contractId: actualCtrId
+        }
+      })
+
       const response = "Task-ul a fost respins cu succes!"
+
       return (response)
     }
     else {
@@ -2156,28 +2340,5 @@ export class ContractsController {
     }
 
   }
-
-  // const result = await this.prisma.contractTasks.update({
-  //   where: { id: parseInt(id) },
-  //   data: data,
-  // });
-
-
-
-  // @Cron(CronExpression.EVERY_10_SECONDS)
-  // async Parser(): Promise<any> {
-  //   const all_wf = await this.prisma.workFlowRules.findMany({
-  //     where: {
-  //       workflow: {
-  //         status: true
-  //       }
-  //     },
-  //     include: {
-  //       workflow: true
-  //     }
-  //   });
-  //   console.log("iupi", all_wf);
-  // }
-
 
 }
