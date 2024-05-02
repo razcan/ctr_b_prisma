@@ -2322,8 +2322,6 @@ export class ContractsController {
         }
       })
 
-      // console.log(delete_wf, "test stergere")
-
       const delete_wfct = await this.prisma.workFlowContractTasks.deleteMany({
         where: {
           contractId: actualCtrId
