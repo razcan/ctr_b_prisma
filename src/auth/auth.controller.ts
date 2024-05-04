@@ -13,14 +13,27 @@ import { AuthService } from './auth.service';
 // import { format } from 'date-fns';
 // import { format } from 'date-fns-tz';
 import moment from 'moment-timezone';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) { }
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        username: { type: 'string' },
+        password: { type: 'string' }
+      },
+      required: ['username', 'password']
+    }
+  })
+  @ApiResponse({ status: 200, description: 'Successful login' })
   signIn(@Body() data: any) {
     return this.authService.signIn(data.username, data.password);
   }
