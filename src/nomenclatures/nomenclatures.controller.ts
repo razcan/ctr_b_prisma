@@ -211,6 +211,55 @@ export class NomenclaturesController {
     fileStream.pipe(res);
   }
 
+
+  @Get('exchangerates')
+  async GetExchageRates() {
+    const exchangeRates = await this.prisma.exchangeRates.findMany({
+      where: {
+        name: {
+          not: {
+            contains: "RON"
+          }
+        }
+      }
+    })
+    return exchangeRates;
+  }
+
+  @Get('exchangerates/:date')
+  async GetExchageRatesbyDate(@Param('date') date: any): Promise<any> {
+    const exchangeRates = await this.prisma.exchangeRates.findMany(
+      {
+        where: {
+          date: date,
+          name: {
+            not: {
+              contains: "RON"
+            }
+          }
+        }
+      }
+    )
+    return exchangeRates;
+  }
+
+  @Get('exchangerates/:date/:currencycode')
+  async GetExchageRatesbyDateCurrency(@Param('date') date: any,
+    @Param('currencycode') currencycode: any
+  ): Promise<any> {
+    const exchangeRates = await this.prisma.exchangeRates.findMany(
+      {
+        where: {
+          date: date,
+          name: currencycode
+        }
+      }
+    )
+    return exchangeRates;
+  }
+
+
+
   @UseGuards(AuthGuard)
   // @Roles('Administrator', 'Editor') // Set multiple roles here
   @Roles('Editor')
