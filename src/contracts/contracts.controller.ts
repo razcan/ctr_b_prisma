@@ -2,7 +2,7 @@
 import {
   Controller, Get, Post, Body, Patch, Param, Header, HttpStatus,
   Delete, UploadedFile, UploadedFiles, HttpException, HttpCode,
-  Request, UseGuards, UsePipes, ValidationPipe, Res, Headers
+  Request, UseGuards, UsePipes, ValidationPipe, Res, Headers, Query
 } from '@nestjs/common';
 import { ContractFinancialDetail, ContractFinancialDetailSchedule, Contracts, Prisma } from '@prisma/client';
 
@@ -31,7 +31,10 @@ import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { v4 as uuidv4 } from 'uuid';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 
+
+@ApiTags('Contracts')
 @Controller('contracts')
 export class ContractsController {
   constructor(
@@ -208,11 +211,13 @@ export class ContractsController {
   }
 
 
-  @Get('content/:id')
-  async getContent(@Body() data: Prisma.ContractContentFindFirstArgs, @Param('id') id: any): Promise<any> {
+  @Get('content/:ContractId')
+  // @ApiQuery({ name: 'ContractId', required: true, type: String, description: 'ContractId for which you want to get the content' })
+  @ApiParam({ name: 'ContractId', type: String, description: 'ContractId for which you want to get the content' })
+  async getContent(@Param('ContractId') ContractId: any): Promise<any> {
     const content = await this.prisma.contractContent.findMany({
       where: {
-        contractId: parseInt(id),
+        contractId: parseInt(ContractId),
       },
     })
     return content;
