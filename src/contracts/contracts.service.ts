@@ -5,6 +5,7 @@ import { Prisma } from '@prisma/client';
 import { MailerService } from '../alerts/mailer.service'
 import { access } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
+import { exec } from 'child_process';
 
 @Injectable()
 export class ContractsService {
@@ -162,6 +163,25 @@ export class ContractsService {
 
 
     return contracts;
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_10AM)
+  async runScript(): Promise<void> {
+    // Command to run your bash script
+    const command = 'sh /Users/razvanmustata/Projects/contracts/backend/bck_db/run_backup.sh';
+    // backend / bck_db / run_backup.sh
+    // Execute the bash script
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error executing bash script: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        console.error(`Error output from bash script: ${stderr}`);
+        return;
+      }
+      console.log(`Output from bash script: ${stdout}`);
+    });
   }
 
 
