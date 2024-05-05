@@ -23,9 +23,12 @@ import { AuthService } from '../auth/auth.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 
 
+@ApiTags('Nomenclatures')
 @Controller('nomenclatures')
 export class NomenclaturesController {
   constructor(

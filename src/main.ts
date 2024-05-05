@@ -21,7 +21,6 @@ async function bootstrap() {
     .setTitle('Contracts')
     .setDescription('The Contracts App API description')
     .setVersion('1.0')
-    .addTag('contracts')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

@@ -12,6 +12,11 @@ import { Interface } from 'readline';
 import fetch from 'node-fetch';
 import { parseString } from 'xml2js';
 import { AlertsHistory } from 'src/alertsHistory/entities/alertsHistory.entity';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+
+
+
 
 export interface CurrencyInterface {
     date: string;
@@ -19,6 +24,7 @@ export interface CurrencyInterface {
     name: string;
 }
 
+@ApiTags('Alerts')
 @Controller('alerts')
 export class AlertsController {
     constructor(

@@ -4,12 +4,12 @@ npx nest g module auth
 
 todo
 
-.afisare langa user lista de taskuri - link catre lista task-uri
+http://localhost:3000/swagger#/
 
 .adugat user(context) in toate tabelele
 .scos la actul aditional - tabul de acte aditionale 
 .in toate nomenclatoarele inlocuit true cu verde 
-.modificat dimensiune grafice si inlocuit logica de preluare a datelor - direct din api
+
 .placeholderele din alerta similar cele din template ctr
 .de diferentiat rol persoana firma si utilizator - catre cine se asigneaza taskuri/ unde se trimit emailuri ...
 .toate rutele trebuie sa contina ca param si entitatea/tatile
@@ -17,7 +17,6 @@ todo
 .autentificare & autorizare pe toate rutele
 .meniu setari alerte(expira inainte cu n zile, s-a inchis inainte de termen, s-a schimbat resp ctr, nu a ajuns factura, modificat stare ctr)
 
-.campuri variabile - utilizator (text/data nr. ordine, tip, tag)
 .preluare data anaf parteneri
 .corectii erori ui
 .parametrizare link-ip, adresa de email sender,
