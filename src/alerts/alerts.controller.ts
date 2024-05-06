@@ -621,7 +621,8 @@ export class AlertsController {
     }
 
 
-    @Cron(CronExpression.EVERY_5_SECONDS)
+    @Cron(CronExpression.EVERY_30_SECONDS)
+    // @Cron(CronExpression.EVERY_5_SECONDS)
     async handleCron() {
 
         const allcontracts = await this.findAllContracts()
