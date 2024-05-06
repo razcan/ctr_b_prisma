@@ -19,7 +19,7 @@ remarks?: string;
 categoryId?: number;
 departmentId?: number;
 cashflowId?: number;
-itemId?: number;
+locationId?: number;
 automaticRenewal?: boolean;
 partnersId?: number;
 entityId?: number;

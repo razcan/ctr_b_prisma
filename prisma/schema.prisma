@@ -34,6 +34,12 @@ model Department {
   contractId Contracts[]
 }
 
+model Location {
+  id         Int         @id @default(autoincrement())
+  name       String      @unique
+  contractId Contracts[]
+}
+
 model Cashflow {
   id         Int         @id @default(autoincrement())
   name       String      @unique
@@ -43,7 +49,6 @@ model Cashflow {
 model Item {
   id                              Int                               @id @default(autoincrement())
   name                            String                            @unique
-  contractId                      Contracts[]
   ContractItems                   ContractItems[]
   ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
 }
@@ -148,8 +153,8 @@ model Contracts {
   departmentId          Int?
   cashflow              Cashflow?               @relation(fields: [cashflowId], references: [id])
   cashflowId            Int?
-  item                  Item?                   @relation(fields: [itemId], references: [id])
-  itemId                Int?
+  location              Location?               @relation(fields: [locationId], references: [id])
+  locationId            Int?
   automaticRenewal      Boolean?                @default(false)
   partner               Partners                @relation("partner", fields: [partnersId], references: [id])
   partnersId            Int
@@ -197,7 +202,7 @@ model ContractsAudit {
   categoryId            Int?
   departmentId          Int?
   cashflowId            Int?
-  itemId                Int?
+  locationId            Int?
   automaticRenewal      Boolean?
   partnersId            Int?
   entityId              Int?

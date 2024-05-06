@@ -290,7 +290,7 @@ export class ContractsController {
         categoryId: header.categoryId,
         departmentId: header.departmentId,
         cashflowId: header.cashflowId,
-        itemId: header.itemId,
+        locationId: header.locationId,
         costcenterId: header.costcenterId,
         automaticRenewal: header.automaticRenewal,
         partnersId: header.partnersId,
@@ -348,7 +348,7 @@ export class ContractsController {
         categoryId: header.categoryId,
         departmentId: header.departmentId,
         cashflowId: header.cashflowId,
-        itemId: header.itemId,
+        locationId: header.locationId,
         costcenterId: header.costcenterId,
         automaticRenewal: header.automaticRenewal,
         partnersId: header.partnersId,
@@ -1012,6 +1012,32 @@ export class ContractsController {
     return category;
   }
 
+  // 
+  @Post('location')
+  async createLocation(@Body() data: Prisma.LocationCreateInput): Promise<any> {
+    const result = this.prisma.location.create({
+      data,
+    });
+    return result;
+  }
+
+  @Get('location')
+  async getAllLocation(@Body() data: Prisma.LocationCreateInput): Promise<any> {
+    const result = await this.prisma.location.findMany()
+    return result;
+  }
+
+  @Delete('location/:id')
+  async removelocation(@Param('id') id: any) {
+    const location = await this.prisma.location.delete({
+      where: {
+        id: parseInt(id),
+      },
+    })
+    return location;
+  }
+  // 
+
 
   @Post('department')
   async createDepartment(@Body() data: Prisma.DepartmentCreateInput): Promise<any> {
@@ -1407,7 +1433,7 @@ export class ContractsController {
           costcenter: true,
           partner: true,
           entity: true,
-          item: true,
+          location: true,
           departament: true,
           Category: true,
           cashflow: true,
@@ -1447,7 +1473,7 @@ export class ContractsController {
           costcenter: true,
           partner: true,
           entity: true,
-          item: true,
+          location: true,
           departament: true,
           Category: true,
           cashflow: true,
@@ -1644,7 +1670,7 @@ export class ContractsController {
 
           EntityAddress: true,
           PartnerAddress: true,
-          item: true,
+          location: true,
           departament: true,
           Category: true,
           cashflow: true,
@@ -2021,7 +2047,7 @@ export class ContractsController {
       const ctr_start = formattedStartDate
       const ctr_end = formattedEndDate
       const ctr_remarks = (await ctr_email).remarks
-      const ctr_item_name = (await ctr_email).item.name
+      const ctr_item_name = (await ctr_email).location.name
       const ctr_departament_name = (await ctr_email).departament.name
       const ctr_category_name = (await ctr_email).Category.name
       const ctr_type = (await ctr_email).type.name
@@ -2101,7 +2127,7 @@ export class ContractsController {
         categoryId: header.categoryId,
         departmentId: header.departmentId,
         cashflowId: header.cashflowId,
-        itemId: header.itemId,
+        locationId: header.locationId,
         costcenterId: header.costcenterId,
         automaticRenewal: header.automaticRenewal,
         partnersId: header.partnersId,
@@ -2223,7 +2249,7 @@ export class ContractsController {
           categoryId: header.categoryId,
           departmentId: header.departmentId,
           cashflowId: header.cashflowId,
-          itemId: header.itemId,
+          locationId: header.locationId,
           costcenterId: header.costcenterId,
           automaticRenewal: header.automaticRenewal,
           partnersId: header.partnersId,
@@ -2263,7 +2289,7 @@ export class ContractsController {
       const ctr_start = formattedStartDate
       const ctr_end = formattedEndDate
       const ctr_remarks = (await ctr_email).remarks
-      const ctr_item_name = (await ctr_email).item.name
+      const ctr_item_name = (await ctr_email).location.name
       const ctr_departament_name = (await ctr_email).departament.name
       const ctr_category_name = (await ctr_email).Category.name
       const ctr_type = (await ctr_email).type.name

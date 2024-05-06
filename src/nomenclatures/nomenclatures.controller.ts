@@ -901,6 +901,30 @@ export class NomenclaturesController {
     return bank;
   }
 
+  @Post('location')
+  async createLocation(@Body() data: Prisma.LocationCreateInput): Promise<any> {
+    const result = this.prisma.location.create({
+      data,
+    });
+    return result;
+  }
+
+  @Get('location')
+  async getAllLocation(@Body() data: Prisma.LocationCreateInput): Promise<any> {
+    const result = await this.prisma.location.findMany()
+    return result;
+  }
+
+  @Delete('location/:id')
+  async removelocation(@Param('id') id: any) {
+    const location = await this.prisma.location.delete({
+      where: {
+        id: parseInt(id),
+      },
+    })
+    return location;
+  }
+
   // @Delete(':id')
   // remove(@Param('id') id: string) {
   //   return this.nomenclaturesService.remove(+id);

@@ -340,7 +340,7 @@ export class ContractsService {
 
           EntityAddress: true,
           PartnerAddress: true,
-          item: true,
+          location: true,
           departament: true,
           Category: true,
           cashflow: true,

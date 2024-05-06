@@ -20,7 +20,7 @@ remarks: string  | null;
 categoryId: number  | null;
 departmentId: number  | null;
 cashflowId: number  | null;
-itemId: number  | null;
+locationId: number  | null;
 automaticRenewal: boolean  | null;
 partnersId: number  | null;
 entityId: number  | null;

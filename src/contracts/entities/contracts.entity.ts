@@ -5,7 +5,7 @@ import {ContractStatus} from '../../contractStatus/entities/contractStatus.entit
 import {Category} from '../../category/entities/category.entity'
 import {Department} from '../../department/entities/department.entity'
 import {Cashflow} from '../../cashflow/entities/cashflow.entity'
-import {Item} from '../../item/entities/item.entity'
+import {Location} from '../../location/entities/location.entity'
 import {Partners} from '../../partners/entities/partners.entity'
 import {Persons} from '../../persons/entities/persons.entity'
 import {Address} from '../../address/entities/address.entity'
@@ -38,8 +38,8 @@ departament?: Department  | null;
 departmentId: number  | null;
 cashflow?: Cashflow  | null;
 cashflowId: number  | null;
-item?: Item  | null;
-itemId: number  | null;
+location?: Location  | null;
+locationId: number  | null;
 automaticRenewal: boolean  | null;
 partner?: Partners ;
 partnersId: number ;
