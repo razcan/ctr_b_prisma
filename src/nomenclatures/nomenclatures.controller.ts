@@ -243,6 +243,7 @@ export class NomenclaturesController {
     return exchangeRates;
   }
 
+
   @Get('exchangerates/:date/:currencycode')
   async GetExchageRatesbyDateCurrency(@Param('date') date: any,
     @Param('currencycode') currencycode: any
@@ -251,6 +252,27 @@ export class NomenclaturesController {
       {
         where: {
           date: date,
+          name: currencycode
+        }
+      }
+    )
+    return exchangeRates;
+  }
+
+  @Get('exchangeratesbet/:start/:end/:currencycode')
+  async GetExchageRatesFiltered(
+    @Param('start') start: any,
+    @Param('end') end: any,
+    @Param('currencycode') currencycode: any
+  ): Promise<any> {
+
+    const exchangeRates = await this.prisma.exchangeRates.findMany(
+      {
+        where: {
+          date: {
+            gte: start,
+            lte: end,
+          },
           name: currencycode
         }
       }
