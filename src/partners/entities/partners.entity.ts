@@ -17,6 +17,7 @@ state: string ;
 type: string ;
 email: string ;
 remarks: string ;
+isVatPayer: boolean ;
 contractsId: number  | null;
 Persons?: Persons[] ;
 Address?: Address[] ;

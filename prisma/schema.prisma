@@ -536,6 +536,7 @@ model Partners {
   type           String
   email          String
   remarks        String
+  isVatPayer     Boolean     @default(false)
   contractsId    Int?
   Persons        Persons[]
   Address        Address[]
