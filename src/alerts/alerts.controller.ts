@@ -364,9 +364,268 @@ export class AlertsController {
     //     return contracts;
     // }
 
-    @Cron(CronExpression.EVERY_DAY_AT_10AM)
+    public async findContractById(id: any) {
+        const contracts = await this.prisma.contracts.findUnique(
+            {
+                include: {
+                    costcenter: true,
+                    entity: true,
+                    partner: true
+                    ,
+                    PartnerPerson: true,
+                    EntityPerson: true,
+
+                    EntityBank: true,
+                    PartnerBank: true,
+
+                    EntityAddress: true,
+                    PartnerAddress: true,
+                    location: true,
+                    departament: true,
+                    Category: true,
+                    cashflow: true,
+                    type: true,
+                    status: true,
+
+                },
+                where: {
+                    id: parseInt(id),
+                },
+            }
+        )
+
+        return contracts;
+    }
+
+    public async findContractSchById(id: any) {
+        const contracts = await this.prisma.contracts.findUnique(
+            {
+                include: {
+                    ContractItems: {
+                        include: {
+                            ContractFinancialDetail: true,
+                        }
+                    }
+                },
+                where: {
+                    id: parseInt(id),
+                },
+            }
+        )
+
+        if (contracts.ContractItems &&
+            contracts.ContractItems[0] &&
+            contracts.ContractItems[0].ContractFinancialDetail &&
+            contracts.ContractItems[0].ContractFinancialDetail[0] &&
+            contracts.ContractItems[0].ContractFinancialDetail[0].itemid !== undefined
+        ) {
+            const itemid = contracts.ContractItems[0].ContractFinancialDetail[0].itemid;
+            const itemres = await this.prisma.item.findUnique({
+                where: {
+                    id: itemid,
+                }
+            })
+            const item = itemres.name
+            // console.log(item)
+
+            const currencyid = contracts.ContractItems[0].ContractFinancialDetail[0].currencyid;
+            const currencyres = await this.prisma.currency.findUnique({
+                where: {
+                    id: currencyid,
+                }
+            })
+            const currency = currencyres.code
+            // console.log(currency)
+
+
+            const billingFrequencyid = contracts.ContractItems[0].ContractFinancialDetail[0].billingFrequencyid;
+            const frequencyres = await this.prisma.billingFrequency.findUnique({
+                where: {
+                    id: billingFrequencyid,
+                }
+            })
+            const frequency = frequencyres.name
+            // console.log(frequency)
+
+
+            const measuringUnitid = contracts.ContractItems[0].ContractFinancialDetail[0].measuringUnitid;
+            const measuringUnitres = await this.prisma.measuringUnit.findUnique({
+                where: {
+                    id: measuringUnitid,
+                }
+            })
+            const measuringUnit = measuringUnitres.name
+            // console.log(measuringUnit)
+
+
+            const paymentTypeid = contracts.ContractItems[0].ContractFinancialDetail[0].paymentTypeid;
+            const paymentTyperes = await this.prisma.paymentType.findUnique({
+                where: {
+                    id: paymentTypeid,
+                }
+            })
+            const paymentType = paymentTyperes.name
+            // console.log(paymentType)
+
+
+            const res = {
+                item: item ? item : 'NA',
+                currency: currency ? currency : 'NA',
+                frequency: frequency ? frequency : 'NA',
+                measuringUnit: measuringUnit ? measuringUnit : 'NA',
+                paymentType: paymentType ? paymentType : 'NA',
+                totalContractValue: contracts.ContractItems[0].ContractFinancialDetail[0].totalContractValue,
+                remarks: contracts.ContractItems[0].ContractFinancialDetail[0].remarks
+            }
+
+            return res;
+        } else return {
+            item: 'NA',
+            currency: 'NA',
+            frequency: 'NA',
+            measuringUnit: 'NA',
+            paymentType: 'NA',
+            totalContractValue: 0,
+            remarks: 'NA'
+        }
+    }
+
+    formatDate = (actuallDate: Date) => {
+
+        if (actuallDate) {
+            const originalDate = new Date(actuallDate.toString());
+            const day = originalDate.getDate().toString().padStart(2, '0'); // Get the day and pad with leading zero if needed
+            const month = (originalDate.getMonth() + 1).toString().padStart(2, '0'); // Get the month (January is 0, so we add 1) and pad with leading zero if needed
+            const year = originalDate.getFullYear(); // Get the full year
+            const date = `${day}.${month}.${year}`;
+            return (date)
+        }
+        else return
+    }
+
+    async replacePlaceholders(CtrId: any, data: any,): Promise<any> {
+
+        const actualContract = await this.findContractById(CtrId)
+        const actualContractFin = await this.findContractSchById(CtrId)
+        // console.log(actualContractFin)
+
+        const originalString: any = data;
+
+        const contract_Sign = this.formatDate(actualContract?.sign);
+        const contract_Number = actualContract?.number;
+        const contract_Partner = actualContract?.partner.name;
+        const contract_Entity = actualContract?.entity.name;
+        const contract_Start = this.formatDate(actualContract?.start);
+        const contract_End = this.formatDate(actualContract?.end);
+        const contract_remarks = actualContract?.remarks;
+        const contract_PartnerFiscalCode = actualContract?.partner.fiscal_code;
+        const contract_PartnerComercialReg = actualContract?.partner.commercial_reg;
+        const contract_PartnerAddress = actualContract?.PartnerAddress.completeAddress;
+        const contract_PartnerStreet = actualContract?.PartnerAddress.Street;
+        const contract_PartnerCity = actualContract?.PartnerAddress.City;
+        const contract_PartnerCounty = actualContract?.PartnerAddress.County;
+        const contract_PartnerCountry = actualContract?.PartnerAddress.Country;
+        const contract_PartnerBank = actualContract?.PartnerBank.bank;
+        const contract_PartnerBranch = actualContract?.PartnerBank.branch;
+        const contract_PartnerIban = actualContract?.PartnerBank.iban;
+        const contract_PartnerCurrency = actualContract?.PartnerBank.currency;
+        const contract_PartnerPerson = actualContract?.PartnerPerson.name;
+        const contract_PartnerEmail = actualContract?.PartnerPerson.email;
+        const contract_PartnerPhone = actualContract?.PartnerPerson.phone;
+        const contract_PartnerRole = actualContract?.PartnerPerson.role;
+        const contract_EntityFiscalCode = actualContract?.entity.fiscal_code;
+        const contract_EntityComercialReg = actualContract?.entity.commercial_reg;
+        const contract_EntityAddress = actualContract?.EntityAddress.completeAddress;
+        const contract_EntityStreet = actualContract?.EntityAddress.Street;
+        const contract_EntityCity = actualContract?.EntityAddress.City;
+        const contract_EntityCounty = actualContract?.EntityAddress.County;
+        const contract_EntityCountry = actualContract?.EntityAddress.Country;
+        const contract_EntityBranch = actualContract?.EntityBank.branch;
+        const contract_EntityIban = actualContract?.EntityBank.iban;
+        const contract_EntityCurrency = actualContract?.EntityBank.currency;
+        const contract_EntityPerson = actualContract?.EntityPerson.name;
+        const contract_EntityEmail = actualContract?.EntityPerson.email;
+        const contract_EntityPhone = actualContract?.EntityPerson.phone;
+        const contract_EntityRole = actualContract?.EntityPerson.role;
+        const contract_Type = actualContract?.type.name;
+
+        // if (actualContractFin && actualContractFin !== undefined) {
+        const contract_Item = actualContractFin.item;
+        const contract_Currency = actualContractFin.currency;
+        const contract_Frequency = actualContractFin.frequency;
+        const contract_MeasuringUnit = actualContractFin.measuringUnit;
+        const contract_PaymentType = actualContractFin.paymentType;
+        const contract_TotalContractValue = actualContractFin.totalContractValue;
+        const contract_Remarks = actualContractFin.remarks;
+        // }
+
+
+
+
+        //de adaugat cod uni de inregistrare si r, 
+        const replacements: { [key: string]: string } = {
+            "ContractNumber": contract_Number,
+            "SignDate": contract_Sign,
+            "StartDate": contract_Start,
+            "FinalDate": contract_End,
+            "PartnerName": contract_Partner,
+            "EntityName": contract_Entity,
+            "ShortDescription": contract_remarks,
+            "PartnerComercialReg": contract_PartnerComercialReg,
+            "PartnerFiscalCode": contract_PartnerFiscalCode,
+            "EntityFiscalCode": contract_EntityFiscalCode,
+            "EntityComercialReg": contract_EntityComercialReg,
+            "PartnerAddress": contract_PartnerAddress,
+            "PartnerStreet": contract_PartnerStreet,
+            "PartnerCity": contract_PartnerCity,
+            "PartnerCounty": contract_PartnerCounty,
+            "PartnerCountry": contract_PartnerCountry,
+            "PartnerBank": contract_PartnerBank,
+            "PartnerBranch": contract_PartnerBranch,
+            "PartnerIban": contract_PartnerIban,
+            "PartnerCurrency": contract_PartnerCurrency,
+            "PartnerPerson": contract_PartnerPerson,
+            "PartnerEmail": contract_PartnerEmail,
+            "PartnerPhone": contract_PartnerPhone,
+            "PartnerRole": contract_PartnerRole,
+            "EntityAddress": contract_EntityAddress,
+            "EntityStreet": contract_EntityStreet,
+            "EntityCity": contract_EntityCity,
+            "EntityCounty": contract_EntityCounty,
+            "EntityCountry": contract_EntityCountry,
+            "EntityBranch": contract_EntityBranch,
+            "EntityIban": contract_EntityIban,
+            "EntityCurrency": contract_EntityCurrency,
+            "EntityPerson": contract_EntityPerson,
+            "EntityEmail": contract_EntityEmail,
+            "EntityPhone": contract_EntityPhone,
+            "EntityRole": contract_EntityRole,
+            "Type": contract_Type,
+            "Item": contract_Item,
+            "Currency": contract_Currency,
+            "Frequency": contract_Frequency,
+            "MeasuringUnit": contract_MeasuringUnit,
+            "PaymentType": contract_PaymentType,
+            "TotalContractValue": contract_TotalContractValue.toString(),
+            "PaymentRemarks": contract_Remarks
+
+        };
+
+        let replacedString: string = originalString;
+        for (const key in replacements) {
+            if (Object.prototype.hasOwnProperty.call(replacements, key)) {
+                replacedString = replacedString.replace(key, replacements[key]);
+            }
+        }
+        return replacedString
+    }
+
+
+    @Cron(CronExpression.EVERY_5_SECONDS)
     async handleCron() {
+
         const allcontracts = await this.findAllContracts()
+
         interface ContractsForAlert {
             id: number,
             number: string,
@@ -392,6 +651,7 @@ export class AlertsController {
         const isActive = emailSettings.isActive
 
 
+
         if (isActive == true) {
             if (allcontracts.length > 0) {
                 const countCtr = allcontracts.length
@@ -410,6 +670,8 @@ export class AlertsController {
 
                         for (let j = 0; j < countPers; j++) {
                             {
+
+
                                 const obj: ContractsForAlert = {
                                     id: allcontracts[i].id,
                                     number: allcontracts[i].number,
@@ -451,29 +713,31 @@ export class AlertsController {
 
                     const formattedDateEnd = `${day1}.${month1}.${year1}`;
 
+                    const replacements = await this.replacePlaceholders(contractsforNotification[j].id, emailSettings.text)
+                    // console.log(replacements, "replacements")
 
-                    const replacements: { [key: string]: string } = {
-                        "@@NumarContract": contractsforNotification[j].number.toString(),
-                        "@@DataContract": formattedDateStart,
-                        "@@DataFinal": formattedDateEnd,
-                        "@@Partener": contractsforNotification[j].partner?.toString(),
-                        "@@Entitate": contractsforNotification[j].entity?.toString(),
-                        "@@ScurtaDescriere": contractsforNotification[j].remarks?.toString()
-                    };
+                    // const replacements: { [key: string]: string } = {
+                    //     "@@NumarContract": contractsforNotification[j].number.toString(),
+                    //     "@@DataContract": formattedDateStart,
+                    //     "@@DataFinal": formattedDateEnd,
+                    //     "@@Partener": contractsforNotification[j].partner?.toString(),
+                    //     "@@Entitate": contractsforNotification[j].entity?.toString(),
+                    //     "@@ScurtaDescriere": contractsforNotification[j].remarks?.toString()
+                    // };
 
-                    let replacedString: string = originalString;
-                    for (const key in replacements) {
-                        if (Object.prototype.hasOwnProperty.call(replacements, key)) {
-                            replacedString = replacedString.replace(key, replacements[key]);
-                        }
-                    }
+                    // let replacedString: string = originalString;
+                    // for (const key in replacements) {
+                    //     if (Object.prototype.hasOwnProperty.call(replacements, key)) {
+                    //         replacedString = replacedString.replace(key, replacements[key]);
+                    //     }
+                    // }
 
 
                     const to = contractsforNotification[j].partner_email;
                     const bcc = contractsforNotification[j].persons_email;
                     const subject = emailSettings.subject; + ' ' + contractsforNotification[j].number.toString();
-                    const text = replacedString;
-                    const html = replacedString;
+                    const text = replacements;
+                    const html = replacements;
                     const attachments = [];
                     const allEmails = 'to: ' + to + ' bcc:' + bcc;
 
