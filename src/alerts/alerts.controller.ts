@@ -620,8 +620,8 @@ export class AlertsController {
         return replacedString
     }
 
-
-    @Cron(CronExpression.EVERY_30_SECONDS)
+    @Cron(CronExpression.EVERY_10_HOURS)
+    // @Cron(CronExpression.EVERY_30_SECONDS)
     // @Cron(CronExpression.EVERY_5_SECONDS)
     async handleCron() {
 
