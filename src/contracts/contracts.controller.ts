@@ -412,7 +412,7 @@ export class ContractsController {
       data: finCtrFinSchDetail,
     });
 
-    return result2;
+    return result3;
   }
 
   @Post('financialDetail')
