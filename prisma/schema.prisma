@@ -103,21 +103,6 @@ model ContractAttachments {
   contractId   Int?
 }
 
-model Currency {
-  id                              Int                               @id @default(autoincrement())
-  code                            String                            @unique
-  name                            String                            @unique
-  ContractItems                   ContractItems[]
-  ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
-  item                            ContractFinancialDetail[]         @relation("item")
-  guarantee                       ContractFinancialDetail[]         @relation("guarantee")
-}
-
-model Bank {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-}
-
 model BillingFrequency {
   id            Int             @id @default(autoincrement())
   name          String          @unique
@@ -264,12 +249,30 @@ model ContractItems {
   ContractFinancialDetail ContractFinancialDetail[]
 }
 
+model Currency {
+  id                              Int                               @id @default(autoincrement())
+  code                            String                            @unique
+  name                            String                            @unique
+  ContractItems                   ContractItems[]
+  ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
+  item                            ContractFinancialDetail[]         @relation("item")
+  guarantee                       ContractFinancialDetail[]         @relation("guarantee")
+  goodexecution                   ContractFinancialDetail[]         @relation("goodexecution")
+}
+
+model Bank {
+  id             Int                       @id @default(autoincrement())
+  name           String                    @unique
+  goodexecutionb ContractFinancialDetail[] @relation("goodexecutionb")
+  guaranteeb     ContractFinancialDetail[] @relation("guaranteeb")
+}
+
 model ContractFinancialDetail {
   id                              Int                               @id @default(autoincrement())
   updateadAt                      DateTime                          @updatedAt
   createdAt                       DateTime                          @default(now())
   itemid                          Int?
-  totalContractValue              Float
+  price                           Float
   currency                        Currency?                         @relation("item", fields: [currencyid], references: [id])
   currencyid                      Int?
   currencyValue                   Float?
@@ -289,10 +292,22 @@ model ContractFinancialDetail {
   guaranteeLetterCurrencyid       Int?
   guaranteeLetterDate             DateTime?
   guaranteeLetterValue            Float?
+  guaranteeLetterInfo             String?
+  guaranteeLetterBank             Bank?                             @relation("guaranteeb", fields: [guaranteeLetterBankId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  guaranteeLetterBankId           Int?
+  goodexecutionLetter             Boolean?
+  goodexecutionLetterCurrency     Currency?                         @relation("goodexecution", fields: [goodexecutionLetterCurrencyId], references: [id])
+  goodexecutionLetterCurrencyId   Int?
+  goodexecutionLetterDate         DateTime?
+  goodexecutionLetterValue        Float?
+  goodexecutionLetterInfo         String?
+  goodexecutionLetterBank         Bank?                             @relation("goodexecutionb", fields: [goodexecutionLetterBankId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  goodexecutionLetterBankId       Int?
   active                          Boolean?                          @default(true)
   items                           ContractItems?                    @relation(fields: [contractItemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   contractItemId                  Int?
   ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
+  advancePercent                  Float?
 }
 
 model ContractFinancialDetailSchedule {

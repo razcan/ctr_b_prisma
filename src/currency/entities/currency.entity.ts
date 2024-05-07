@@ -12,4 +12,5 @@ ContractItems?: ContractItems[] ;
 ContractFinancialDetailSchedule?: ContractFinancialDetailSchedule[] ;
 item?: ContractFinancialDetail[] ;
 guarantee?: ContractFinancialDetail[] ;
+goodexecution?: ContractFinancialDetail[] ;
 }

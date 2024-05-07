@@ -386,6 +386,7 @@ export class ContractsController {
   dataAll: any
   ): Promise<any> {
 
+    console.log(dataAll)
     let dataItem: Prisma.ContractItemsCreateManyInput = dataAll[0];
     const result = this.prisma.contractItems.create({
       data: dataItem,
@@ -393,10 +394,9 @@ export class ContractsController {
 
     const finDetail: any = dataAll[1]
     finDetail.contractItemId = (await result).id
-    const finCtrFinDetail: Prisma.ContractFinancialDetailUncheckedCreateInput = finDetail
 
     const result2 = this.prisma.contractFinancialDetail.create({
-      data: finCtrFinDetail,
+      data: finDetail,
     });
 
     let schBill = dataAll[2]
@@ -412,12 +412,12 @@ export class ContractsController {
       data: finCtrFinSchDetail,
     });
 
-    return result3;
+    return result2;
   }
 
   @Post('financialDetail')
   async createFinancialDetail(@Body()
-  data: Prisma.ContractFinancialDetailCreateInput): Promise<any> {
+  data: any): Promise<any> {
     // console.log(data)
     const result = this.prisma.contractFinancialDetail.create({
       data,
@@ -613,7 +613,7 @@ export class ContractsController {
         active: finCtrFinDetail.active,
         currencyid: finCtrFinDetail.currencyid,
         guaranteeLetterCurrencyid: finCtrFinDetail.guaranteeLetterCurrencyid,
-        totalContractValue: finCtrFinDetail.totalContractValue
+        price: finCtrFinDetail.price
       }
     }
     );
@@ -706,7 +706,7 @@ export class ContractsController {
             ,
             measuringUnit: true,
             paymentType: true,
-            currency: true,
+            // Currency: true,
             items: true,
             guaranteecurrency: true
           }
@@ -742,7 +742,7 @@ export class ContractsController {
             ,
             measuringUnit: true,
             paymentType: true,
-            currency: true,
+            // Currency: true,
             items: true
           }
         }
@@ -1823,7 +1823,7 @@ export class ContractsController {
       frequency: frequency,
       measuringUnit: measuringUnit,
       paymentType: paymentType,
-      totalContractValue: contracts.ContractItems[0].ContractFinancialDetail[0].totalContractValue,
+      price: contracts.ContractItems[0].ContractFinancialDetail[0].price,
       remarks: contracts.ContractItems[0].ContractFinancialDetail[0].remarks
     }
 

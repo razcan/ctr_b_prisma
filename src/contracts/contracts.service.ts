@@ -434,7 +434,7 @@ export class ContractsService {
         frequency: frequency ? frequency : 'NA',
         measuringUnit: measuringUnit ? measuringUnit : 'NA',
         paymentType: paymentType ? paymentType : 'NA',
-        totalContractValue: contracts.ContractItems[0].ContractFinancialDetail[0].totalContractValue,
+        price: contracts.ContractItems[0].ContractFinancialDetail[0].price,
         remarks: contracts.ContractItems[0].ContractFinancialDetail[0].remarks
       }
 
@@ -445,7 +445,7 @@ export class ContractsService {
       frequency: 'NA',
       measuringUnit: 'NA',
       paymentType: 'NA',
-      totalContractValue: 0,
+      price: 0,
       remarks: 'NA'
     }
   }
@@ -519,7 +519,7 @@ export class ContractsService {
     const contract_Frequency = actualContractFin.frequency;
     const contract_MeasuringUnit = actualContractFin.measuringUnit;
     const contract_PaymentType = actualContractFin.paymentType;
-    const contract_TotalContractValue = actualContractFin.totalContractValue;
+    const contract_TotalContractValue = actualContractFin.price;
     const contract_Remarks = actualContractFin.remarks;
     // }
 
