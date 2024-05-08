@@ -708,7 +708,11 @@ export class ContractsController {
             paymentType: true,
             // Currency: true,
             items: true,
-            guaranteecurrency: true
+            guaranteecurrency: true,
+            guaranteeLetterBank: true,
+            goodexecutionLetterBank: true,
+            goodexecutionLetterCurrency: true,
+
           }
         }
       }
