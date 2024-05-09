@@ -18,7 +18,7 @@ frequency?: BillingFrequency  | null;
 billingFrequencyid: number  | null;
 currency?: Currency  | null;
 currencyid: number  | null;
-currencyValue: number ;
+currencyValue: number  | null;
 active: boolean ;
 ContractFinancialDetail?: ContractFinancialDetail[] ;
 }

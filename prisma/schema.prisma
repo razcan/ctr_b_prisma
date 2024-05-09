@@ -244,7 +244,7 @@ model ContractItems {
   billingFrequencyid      Int
   currency                Currency?                 @relation(fields: [currencyid], references: [id])
   currencyid              Int
-  currencyValue           Float
+  currencyValue           Float?
   active                  Boolean                   @default(true)
   ContractFinancialDetail ContractFinancialDetail[]
 }

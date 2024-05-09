@@ -5,5 +5,5 @@
 
 
 export class CreateContractItemsDto {
-  currencyValue: number;
+  currencyValue?: number;
 }
