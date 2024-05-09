@@ -598,7 +598,7 @@ export class ContractsController {
       where: { id: parseInt(contractfinancialItemId) },
       data: {
         itemid: finCtrFinDetail.itemid,
-        currencyValue: finCtrFinDetail.currencyValue,
+        price: finCtrFinDetail.price,
         currencyPercent: finCtrFinDetail.currencyPercent,
         paymentTypeid: finCtrFinDetail.paymentTypeid,
         billingDay: finCtrFinDetail.billingDay,
@@ -613,11 +613,24 @@ export class ContractsController {
         active: finCtrFinDetail.active,
         currencyid: finCtrFinDetail.currencyid,
         guaranteeLetterCurrencyid: finCtrFinDetail.guaranteeLetterCurrencyid,
-        price: finCtrFinDetail.price
+        currencyValue: finCtrFinDetail.currencyValue,
+        measuringUnitid: finCtrFinDetail.measuringUnitid,
+        advancePercent: finCtrFinDetail.advancePercent,
+        goodexecutionLetter: finCtrFinDetail.goodexecutionLetter,
+        goodexecutionLetterCurrencyId: finCtrFinDetail.goodexecutionLetterCurrencyId,
+        goodexecutionLetterDate: finCtrFinDetail.goodexecutionLetterDate,
+        goodexecutionLetterValue: finCtrFinDetail.goodexecutionLetterValue,
+        goodexecutionLetterInfo: finCtrFinDetail.goodexecutionLetterInfo,
+        goodexecutionLetterBankId: finCtrFinDetail.goodexecutionLetterBankId,
+        guaranteeLetterInfo: finCtrFinDetail.guaranteeLetterInfo,
+        guaranteeLetterBankId: finCtrFinDetail.guaranteeLetterBankId
+        // contractItemId: finCtrFinDetail.contractItemId
+
       }
+
     }
     );
-    // console.log(await result2)
+    console.log(await result2)
 
     let schBill = data[2]
     let x = parseInt(id)
