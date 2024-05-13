@@ -87,6 +87,15 @@ model ContractStatus {
   WorkFlowXContracts WorkFlowXContracts[]
 }
 
+model ContractWFStatus {
+  id                    Int                     @id @default(autoincrement())
+  name                  String                  @unique
+  Desription            String                  @default("")
+  WorkFlowContractTasks WorkFlowContractTasks[]
+  WorkFlowXContracts    WorkFlowXContracts[]
+  ContractId            Contracts[]
+}
+
 model ContractAttachments {
   id           Int        @id @default(autoincrement())
   updateadAt   DateTime   @updatedAt
@@ -127,6 +136,8 @@ model Contracts {
   costcenterId          Int                     @default(1)
   status                ContractStatus          @relation(fields: [statusId], references: [id])
   statusId              Int
+  statusWF              ContractWFStatus?       @relation(fields: [statusWFId], references: [id])
+  statusWFId            Int?                    @default(1)
   start                 DateTime
   end                   DateTime
   sign                  DateTime?
@@ -178,7 +189,8 @@ model ContractsAudit {
   number                String
   typeId                Int?
   costcenterId          Int?
-  statusId              Int
+  statusId              Int?      @default(1)
+  statusWFId            Int?      @default(1)
   start                 DateTime?
   end                   DateTime?
   sign                  DateTime?
@@ -374,12 +386,10 @@ model ContractAlertSchedule {
 }
 
 model ContractTasksStatus {
-  id                    Int                     @id @default(autoincrement())
-  name                  String                  @unique
-  Desription            String                  @default("")
-  ContractTasks         ContractTasks[]
-  WorkFlowContractTasks WorkFlowContractTasks[]
-  WorkFlowXContracts    WorkFlowXContracts[]
+  id            Int             @id @default(autoincrement())
+  name          String          @unique
+  Desription    String          @default("")
+  ContractTasks ContractTasks[]
 }
 
 model ContractTasks {
@@ -499,7 +509,7 @@ model WorkFlowContractTasks {
   name                   String
   text                   String
   contractId             Int?
-  status                 ContractTasksStatus?  @relation(fields: [statusId], references: [id])
+  status                 ContractWFStatus?     @relation(fields: [statusId], references: [id])
   statusId               Int
   requestor              User?                 @relation("requestorwf", fields: [requestorId], references: [id])
   requestorId            Int
@@ -520,7 +530,7 @@ model WorkFlowXContracts {
   updateadAt             DateTime             @updatedAt
   createdAt              DateTime             @default(now())
   contractId             Int?
-  wfstatus               ContractTasksStatus? @relation(fields: [wfstatusId], references: [id])
+  wfstatus               ContractWFStatus?    @relation(fields: [wfstatusId], references: [id])
   wfstatusId             Int
   ctrstatus              ContractStatus       @relation(fields: [ctrstatusId], references: [id])
   ctrstatusId            Int

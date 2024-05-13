@@ -632,7 +632,7 @@ export class ContractsController {
 
     }
     );
-    console.log(await result2)
+    // console.log(await result2)
 
     let schBill = data[2]
     let x = parseInt(id)
@@ -1270,6 +1270,7 @@ export class ContractsController {
     @Param('userId') userId: any,
     @Body() data: Prisma.ContractTasksCreateInput): Promise<any> {
 
+    // const result = [0]
     const result = await this.prisma.contractTasks.findMany(
       {
         include:
@@ -1291,7 +1292,7 @@ export class ContractsController {
           },
         },
         where: {
-          assignedId: parseInt(userId),
+          // assignedId: parseInt(userId),
           // progress: {
           //   lt: 100
           //   // Filter tasks where progress is less than or equal to 100
@@ -1694,7 +1695,8 @@ export class ContractsController {
           Category: true,
           cashflow: true,
           type: true,
-          status: true
+          status: true,
+          statusWF: true
         },
         where: {
           id: parseInt(id),

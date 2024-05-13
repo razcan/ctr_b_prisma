@@ -1,5 +1,5 @@
 
-import {ContractTasksStatus} from '../../contractTasksStatus/entities/contractTasksStatus.entity'
+import {ContractWFStatus} from '../../contractWFStatus/entities/contractWFStatus.entity'
 import {User} from '../../user/entities/user.entity'
 import {WorkFlowTaskSettings} from '../../workFlowTaskSettings/entities/workFlowTaskSettings.entity'
 import {ContractTasksPriority} from '../../contractTasksPriority/entities/contractTasksPriority.entity'
@@ -12,7 +12,7 @@ createdAt: Date ;
 name: string ;
 text: string ;
 contractId: number  | null;
-status?: ContractTasksStatus  | null;
+status?: ContractWFStatus  | null;
 statusId: number  | null;
 requestor?: User  | null;
 requestorId: number  | null;

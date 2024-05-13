@@ -2,6 +2,7 @@
 import {ContractType} from '../../contractType/entities/contractType.entity'
 import {CostCenter} from '../../costCenter/entities/costCenter.entity'
 import {ContractStatus} from '../../contractStatus/entities/contractStatus.entity'
+import {ContractWFStatus} from '../../contractWFStatus/entities/contractWFStatus.entity'
 import {Category} from '../../category/entities/category.entity'
 import {Department} from '../../department/entities/department.entity'
 import {Cashflow} from '../../cashflow/entities/cashflow.entity'
@@ -27,6 +28,8 @@ costcenter?: CostCenter ;
 costcenterId: number ;
 status?: ContractStatus ;
 statusId: number ;
+statusWF?: ContractWFStatus  | null;
+statusWFId: number  | null;
 start: Date ;
 end: Date ;
 sign: Date  | null;

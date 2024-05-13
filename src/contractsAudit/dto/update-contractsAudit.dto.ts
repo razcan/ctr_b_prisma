@@ -11,6 +11,7 @@ number?: string;
 typeId?: number;
 costcenterId?: number;
 statusId?: number;
+statusWFId?: number;
 start?: Date;
 end?: Date;
 sign?: Date;

@@ -535,6 +535,12 @@ export class NomenclaturesController {
     return contractstatus;
   }
 
+  @Get('contractwfstatus')
+  async getAllContractWFStatuses() {
+    const contractwfstatus = await this.prisma.contractWFStatus.findMany()
+    return contractwfstatus;
+  }
+
 
   @Get('partners')
   async getAllPartners() {
