@@ -458,7 +458,7 @@ export class ContractsController {
     const result1 = await this.prisma.$queryRaw(
       Prisma.sql`SELECT * FROM public.active_wf_rulesok()`
     )
-    console.log(result1);
+    // console.log(result1);
     return result1;
   }
 
@@ -470,7 +470,9 @@ export class ContractsController {
   //   return nextTasks;
   // }
 
-
+  @UseGuards(AuthGuard)
+  @Roles('Administrator', 'Editor', 'Reader', 'Requestor')
+  @UseGuards(RolesGuard)
   @Get('cashflow')
   async getCalculate_cashflow() {
 
