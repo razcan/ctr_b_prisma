@@ -386,7 +386,7 @@ export class ContractsController {
   dataAll: any
   ): Promise<any> {
 
-    console.log(dataAll)
+    // console.log(dataAll)
     let dataItem: Prisma.ContractItemsCreateManyInput = dataAll[0];
     const result = this.prisma.contractItems.create({
       data: dataItem,
@@ -394,6 +394,8 @@ export class ContractsController {
 
     const finDetail: any = dataAll[1]
     finDetail.contractItemId = (await result).id
+
+    // console.log(finDetail, "finDetail")
 
     const result2 = this.prisma.contractFinancialDetail.create({
       data: finDetail,
