@@ -157,6 +157,14 @@ export class ContractsService {
       where.categoryId = { in: categoryId };
     }
 
+
+    where.statusWFId = { in: [1, 2] }
+
+    where.statusId = { in: [1, 2] }
+
+    //    console.log(where, "where")
+
+
     const contracts = await this.prisma.contracts.findMany({
       where: where
     });
@@ -185,7 +193,7 @@ export class ContractsService {
   }
 
 
-  // @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_MINUTE)
   // @Cron(CronExpression.EVERY_10_MINUTES)
   async wfactiverules() {
 
@@ -197,7 +205,7 @@ export class ContractsService {
       categories?: string[],
 
     }> = await this.prisma.$queryRaw(
-      Prisma.sql`SELECT * FROM public.active_wf_rulesok()`
+      Prisma.sql`SELECT * FROM public.active_wf_rulesok99()`
     )
 
     // await this.findContractsAvailableWf(departmentIdValue, categoryIdValue, cashflowIdValue, costcenterIdValue);
