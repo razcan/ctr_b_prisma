@@ -340,6 +340,7 @@ export class ContractsController {
         number: header.number,
         typeId: header.typeId,
         statusId: header.statusId,
+        statusWFId: header.statusWFId,
         start: header.start,
         end: header.end,
         sign: header.sign,
@@ -2141,7 +2142,8 @@ export class ContractsController {
         id: ctr.contractId,
         number: header.number,
         typeId: header.typeId,
-        statusId: 4,
+        statusId: header.statusId,
+        statusWFId: 3,
         start: header.start,
         end: header.end,
         sign: header.sign,
@@ -2214,8 +2216,8 @@ export class ContractsController {
         uuid: uuid
       },
       data: {
-        statusId: 5
-        // aprobat
+        statusId: 3
+        // respins
       }
     })
 
@@ -2224,8 +2226,8 @@ export class ContractsController {
         uuid: uuid
       },
       data: {
-        statusId: 5
-        // aprobat
+        statusId: 4
+        // respins
       }
     })
 
@@ -2263,7 +2265,8 @@ export class ContractsController {
           id: actualCtrId,
           number: header.number,
           typeId: header.typeId,
-          statusId: 13,
+          statusId: header.statusId,
+          statusWFId: 4, //respins
           start: header.start,
           end: header.end,
           sign: header.sign,

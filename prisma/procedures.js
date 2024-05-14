@@ -179,15 +179,9 @@ select wfts."taskName", wfts."taskNotes", wfx."contractId",
 
     try {
         const result = await prisma.$executeRaw`    
-    CREATE OR REPLACE FUNCTION public.active_wf_rulesok(
-	)
-    RETURNS TABLE(workflowId integer, costcenters integer[], departments integer[], cashflows integer[],  categories integer[]) 
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE PARALLEL UNSAFE
-    ROWS 10000
-
-AS $BODY$
+    CREATE FUNCTION public.active_wf_rulesok99() RETURNS TABLE(workflowid integer, costcenters integer[], departments integer[], cashflows integer[], categories integer[])
+    LANGUAGE plpgsql ROWS 10000
+    AS $$
 BEGIN
    RETURN QUERY
 	
@@ -278,11 +272,10 @@ FROM (
 group by y.workflowid;
 
 
--- select * from public.active_wf_rulesok();
 
 END;
-$BODY$;
-
+$$;
+ALTER FUNCTION public.active_wf_rulesok99() OWNER TO postgres;
     `;
 
         console.log('Function creation query executed successfully:', result);
@@ -461,48 +454,53 @@ $BODY$;
 
     try {
         const result = await prisma.$executeRaw`          
-                CREATE OR REPLACE FUNCTION public.getauditcontract(contractid integer)
-         RETURNS TABLE(contract_id integer, tip_modificare text, data_modificare timestamp without time zone,
-         contract_number text, nume_partener text, nume_entitate text, stare text, start_date timestamp without time zone,
-         end_date timestamp without time zone, sign_date timestamp without time zone, completion_date timestamp without time zone,
-         nume_categorie text, departament text, cashflow text, tip_contract text, centru_cost text, utilizator text)
-            LANGUAGE plpgsql
-            AS $function$
-        begin 
-    	RETURN QUERY
-        select
-        c.id as contract_id,
-            c."operationType" Tip_Modificare,
-                c."createdAt" as Data_Modificare,
-                    c.number as Contract_Number,
-                    a.name as Nume_Partener,
-                    b.name as Nume_Entitate,
-                    cs.name as Stare,
-                    c.start as Start_Date,
-                    c.end as End_Date,
-                    c.sign as Sign_Date,
-                    c.completion as Completion_Date,
-                    ca.name as Nume_Categorie,
-                    dep.name as Departament,
-                    cf.name as Cashflow,
-                    ct.name as Tip_Contract,
-                    cc.name as Centru_Cost,
-                    us.name as Utilizator
-    	from public."ContractsAudit" c
-        left join public."Partners" a on c."partnersId" = a.id 
-    	left join public."Partners" b on c."entityId" = b.id 
-    	left join public."Category" ca  on c."categoryId" = ca.id 
-    	left join public."ContractStatus" cs on cs."id" = c."statusId"
-    	left join public."Department" dep  on dep."id" = c."departmentId"
-    	left join public."Cashflow" cf on cf."id" = c."cashflowId"
-    	left join public."ContractType" ct on ct."id" = c."typeId"
-    	left join public."CostCenter"  cc on cc."id" = c."costcenterId"
-    	left join public."User" us on us."id" = c."userId"
-        where c.id = contractid;
-        end;
-        $function$;
-       
-    `;
+        CREATE OR REPLACE FUNCTION public.getauditcontract2(contractid integer)
+        RETURNS TABLE(contract_id integer, tip_modificare text, data_modificare timestamp without time zone, 
+        contract_number text, nume_partener text, nume_entitate text, stare text, starewf text , start_date timestamp without time zone, 
+        end_date timestamp without time zone, sign_date timestamp without time zone, completion_date timestamp without time zone, 
+        nume_categorie text, departament text, cashflow text, tip_contract text, centru_cost text, locatie text, utilizator text)
+        LANGUAGE plpgsql
+        AS $function$
+                begin 
+                RETURN QUERY
+                select
+                c.id as contract_id,
+                    c."operationType" Tip_Modificare,
+                        c."createdAt" as Data_Modificare,
+                            c.number as Contract_Number,
+                            a.name as Nume_Partener,
+                            b.name as Nume_Entitate,
+                            cs.name as Stare,
+                            cswf.name as StareWF,
+                            c.start as Start_Date,
+                            c.end as End_Date,
+                            c.sign as Sign_Date,
+                            c.completion as Completion_Date,
+                            ca.name as Nume_Categorie,
+                            dep.name as Departament,
+                            cf.name as Cashflow,
+                            ct.name as Tip_Contract,
+                            cc.name as Centru_Cost,
+                            ll.name as Locatie,
+                            us.name as Utilizator
+                from public."ContractsAudit" c
+                left join public."Partners" a on c."partnersId" = a.id 
+                left join public."Partners" b on c."entityId" = b.id 
+                left join public."Category" ca  on c."categoryId" = ca.id 
+                left join public."ContractStatus" cs on cs."id" = c."statusId"
+                left join public."ContractWFStatus" cswf on cswf."id" = c."statusWFId"
+                left join public."Department" dep  on dep."id" = c."departmentId"
+                left join public."Cashflow" cf on cf."id" = c."cashflowId"
+                left join public."Location" ll on ll."id" = c."locationId"
+                left join public."ContractType" ct on ct."id" = c."typeId"
+                left join public."CostCenter"  cc on cc."id" = c."costcenterId"
+                left join public."User" us on us."id" = c."userId"
+                where c.id = contractid;
+                end;
+                $function$
+        ;
+    `
+            ;
 
         console.log('Function creation query executed successfully:', result);
     } catch (error) {

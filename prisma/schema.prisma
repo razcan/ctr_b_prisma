@@ -214,6 +214,7 @@ model ContractsAudit {
   paymentTypeId         Int?
   contractContentId     Int?
   userId                Int?
+  locationId            Int?
 }
 
 model ContractDynamicFields {

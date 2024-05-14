@@ -682,7 +682,7 @@ export class NomenclaturesController {
     let contractid: number = parseInt(id, 10);
     const result = await this.prisma.$queryRaw(
       // Prisma.sql`SELECT delete()`
-      Prisma.sql`select * from public.GetAuditContract(${contractid}::int4)`
+      Prisma.sql`select * from public.GetAuditContract2(${contractid}::int4)`
       //Prisma.sql`select * from public."ContractsAudit"`
     )
     return result;
