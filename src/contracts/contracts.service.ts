@@ -158,16 +158,19 @@ export class ContractsService {
     }
 
 
-    where.statusWFId = { in: [1, 2] }
+    where.statusWFId = { in: [2] } //Asteapta aprobarea
 
-    where.statusId = { in: [1, 2] }
+    where.statusId = { in: [2] } //Activ
+    //the selected contracts, it will be choosen only by the combination between the upper to states 
 
-    //    console.log(where, "where")
+    // console.log(where, "where")
 
 
     const contracts = await this.prisma.contracts.findMany({
       where: where
     });
+
+    // console.log(contracts, "contracte regula")
 
 
     return contracts;
@@ -239,6 +242,7 @@ export class ContractsService {
 
     const promises = final_res.map(async (rule, index) => {
       const x = await this.findContractsAvailableWf(rule.departments, rule.categories, rule.cashflows, rule.costcenters);
+      // console.log(x, "contracte")
       const adds = x.map(async contract => ({
         contractId: contract.id,
         ctrstatusId: 2,

@@ -244,8 +244,47 @@ export class ContractsController {
   }
 
 
+  // @Get('findContractsAvailableWf/:departmentId/:categoryId/:cashflowId/:costcenterId')
+  @Get('findContractsAvailableWf')
+  async findContractsAvailableWf(
+  ) {
+
+    const where: any = {};
 
 
+    where.costcenterId = { in: [1] };
+
+
+
+    // where.departmentId = { in: departmentId };
+
+
+
+    where.cashflowId = { in: [2] };
+
+
+
+    // where.categoryId = { in: categoryId };
+
+
+
+    where.statusWFId = { in: [2] } //Asteapta aprobarea
+
+    where.statusId = { in: [2] } //Activ
+    //the selected contracts, it will be choosen only by the combination between the upper to states 
+
+    console.log(where, "where")
+
+
+    const contracts = await this.prisma.contracts.findMany({
+      where: where
+    });
+
+    console.log(contracts, "contracte regula")
+
+
+    return contracts;
+  }
 
 
   @Post()
@@ -782,14 +821,14 @@ export class ContractsController {
     // console.log(data)
 
     const uuid = uuidv4();
-    console.log("uuid", uuid)
+    // console.log("uuid", uuid)
 
     const wfg = data[0];
     const rules = data[1];
     const settings = data[2];
     const users = data[3];
 
-    console.log(users)
+    // console.log(users)
 
     const size = rules.length;
     const result = await this.prisma.workFlow.create({
@@ -837,7 +876,7 @@ export class ContractsController {
 
 
     // console.log(result1, result2, result3)
-    //return result;
+    return result;
   }
 
   @Patch('workflow/:id')
