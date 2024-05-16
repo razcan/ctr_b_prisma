@@ -32,6 +32,7 @@ import { RolesGuard } from '../auth/roles.guard';
 import { v4 as uuidv4 } from 'uuid';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { WorkFlowTaskSettings } from 'src/workFlowTaskSettings/entities/workFlowTaskSettings.entity';
 
 
 @ApiTags('Contracts')
@@ -2062,6 +2063,18 @@ export class ContractsController {
       }
     })
 
+    const actualWFTaskSettingsId = await this.prisma.workFlowContractTasks.findFirst({
+      where: {
+        uuid: uuid
+      }
+    })
+
+    // console.log(actualWFTaskSettingsId, "actualWFTaskSettingsId")
+
+    const WFTaskSettingsId: number = actualWFTaskSettingsId.workflowTaskSettingsId;
+
+    // console.log(WFTaskSettingsId, "WFTaskSettingsId");
+
     await this.prisma.contractTasks.updateMany({
       where: {
         uuid: uuid
@@ -2079,9 +2092,15 @@ export class ContractsController {
 
     const actualCtrId = ctr.contractId
 
-    const count_task = await this.prisma.workFlowContractTasks.count({
+    // const count_task = await this.prisma.workFlowContractTasks.count({
+    //   where: {
+    //     contractId: ctr.contractId
+    //   }
+    // })
+
+    const count_task = await this.prisma.workFlowTaskSettingsUsers.count({
       where: {
-        contractId: ctr.contractId
+        workflowTaskSettingsId: WFTaskSettingsId
       }
     })
 
@@ -2092,10 +2111,20 @@ export class ContractsController {
       }
     })
 
+    //WorkFlowTaskSettingsUsers aici treb sa facem count dupa wf task settingid
 
     if (count_approved_task == count_task) {
 
       // console.log("Contractul a fost aprobat!")
+
+      const resultUpdate = await this.prisma.contracts.update({
+        where: {
+          id: actualCtrId
+        },
+        data: {
+          statusWFId: 3 //Aprobat
+        }
+      })
 
       const email_list = await this.getWFEmailsByCtrId(actualCtrId)
 
@@ -2168,14 +2197,7 @@ export class ContractsController {
 
       }
 
-      const resultUpdate = await this.prisma.contracts.update({
-        where: {
-          id: actualCtrId
-        },
-        data: {
-          statusId: 2 //Activ
-        }
-      })
+
     }
 
     const header = await this.prisma.contracts.findUnique({
