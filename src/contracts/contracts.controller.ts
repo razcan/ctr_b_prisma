@@ -1332,6 +1332,11 @@ export class ContractsController {
               name: true
             }
           },
+          statusWF: {
+            select: {
+              name: true
+            }
+          }
         },
         where: {
           // assignedId: parseInt(userId),
@@ -1365,6 +1370,11 @@ export class ContractsController {
           }
         },
         status: {
+          select: {
+            name: true
+          }
+        },
+        statusWF: {
           select: {
             name: true
           }
@@ -2047,7 +2057,7 @@ export class ContractsController {
         uuid: uuid
       },
       data: {
-        statusId: 4
+        statusId: 3
         // aprobat
       }
     })
@@ -2057,7 +2067,7 @@ export class ContractsController {
         uuid: uuid
       },
       data: {
-        statusId: 4
+        statusWFId: 3
       }
     })
 
@@ -2078,7 +2088,7 @@ export class ContractsController {
     const count_approved_task = await this.prisma.workFlowContractTasks.count({
       where: {
         contractId: ctr.contractId,
-        statusId: 4
+        statusId: 3//Aprobat
       }
     })
 
@@ -2163,7 +2173,7 @@ export class ContractsController {
           id: actualCtrId
         },
         data: {
-          statusId: 4
+          statusId: 2 //Activ
         }
       })
     }
@@ -2182,7 +2192,7 @@ export class ContractsController {
         number: header.number,
         typeId: header.typeId,
         statusId: header.statusId,
-        statusWFId: 3,
+        statusWFId: 3, //Aprobat
         start: header.start,
         end: header.end,
         sign: header.sign,

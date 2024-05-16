@@ -1,5 +1,6 @@
 
 import {ContractTasksStatus} from '../../contractTasksStatus/entities/contractTasksStatus.entity'
+import {ContractWFStatus} from '../../contractWFStatus/entities/contractWFStatus.entity'
 import {User} from '../../user/entities/user.entity'
 import {ContractTasksPriority} from '../../contractTasksPriority/entities/contractTasksPriority.entity'
 
@@ -12,6 +13,8 @@ taskName: string ;
 contractId: number  | null;
 status?: ContractTasksStatus  | null;
 statusId: number  | null;
+statusWF?: ContractWFStatus  | null;
+statusWFId: number  | null;
 requestor?: User  | null;
 requestorId: number  | null;
 assigned?: User  | null;

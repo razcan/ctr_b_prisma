@@ -608,11 +608,14 @@ export class ContractsService {
   // @Cron(CronExpression.EVERY_10_HOURS)
   async generateSecventialContractTasks() {
 
+    //se iau toate ctr active(ctr in stare Activ si statusWf Asteapta aprobarea) pt fluxuri Active
     const result: any[] = await this.prisma.$queryRaw(Prisma.sql`SELECT * FROM cttobegeneratedsecv();`);
-
+    // console.log(result)
     const res_array = [];
 
     await Promise.all(result.map(async (task) => {
+
+      //se ia urmatorul task(supa order number) care nu este in stare Aprobat
       const nextTask = await this.prisma.$queryRaw(
         Prisma.sql`select * from public.contracttasktobegeneratedsecv3(${task.contractid}::int4)`
       )
@@ -634,6 +637,9 @@ export class ContractsService {
       return true; // Unique, keep
     });
 
+    // for (let i = 0; i < distinctElements.length; i++) {
+    //   console.log(distinctElements[i].contractid, "distinctElements")
+    // }
 
     distinctElements.map(async (task) => {
 
@@ -643,7 +649,7 @@ export class ContractsService {
 
       const nextTask = {
         contractId: task.contractid,
-        statusId: task.statusid,
+        statusId: 2, //Asteapta aprobarea
         requestorId: task.requestorid,
         assignedId: task.assignedid,
         workflowTaskSettingsId: task.workflowtasksettingsid,
@@ -659,7 +665,7 @@ export class ContractsService {
       const ctrTask = {
         taskName: task.taskname,
         contractId: task.contractid,
-        statusId: task.statusid,
+        statusId: 2,//Asteapta aprobarea
         requestorId: task.requestorid,
         assignedId: task.assignedid,
         due: task.calculatedduedate,
@@ -678,6 +684,8 @@ export class ContractsService {
         }
       })
 
+      // console.log(check.contractId, task.contractid, "aiciiiii")
+
       if (!check) {
 
 
@@ -690,7 +698,7 @@ export class ContractsService {
         });
 
 
-        console.log(rez, rezCtrTask)
+        // console.log(rez, rezCtrTask)
         const mailerService = new MailerService();
 
         const user_assigned_email = await this.getSimplifyUsersById(task.assignedid)
