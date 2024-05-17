@@ -179,6 +179,7 @@ model Contracts {
   userId                Int?
   isPurchasing          Boolean?                @default(false)
   ContractDynamicFields ContractDynamicFields[]
+  ContractTasks         ContractTasks[]
 }
 
 model ContractsAudit {
@@ -398,6 +399,7 @@ model ContractTasks {
   updateadAt      DateTime              @updatedAt
   createdAt       DateTime              @default(now())
   taskName        String
+  contract        Contracts?            @relation(fields: [contractId], references: [id])
   contractId      Int?
   status          ContractTasksStatus?  @relation(fields: [statusId], references: [id])
   statusId        Int

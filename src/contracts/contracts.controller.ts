@@ -1314,10 +1314,16 @@ export class ContractsController {
     @Body() data: Prisma.ContractTasksCreateInput): Promise<any> {
 
     // const result = [0]
-    const result = await this.prisma.contractTasks.findMany(
+    const result_wf = await this.prisma.contractTasks.findMany(
       {
         include:
         {
+          contract: {
+            select: {
+              number: true,
+
+            }
+          },
           requestor: {
             select: {
               name: true
@@ -1340,19 +1346,69 @@ export class ContractsController {
           }
         },
         where: {
-          // assignedId: parseInt(userId),
-          // progress: {
-          //   lt: 100
-          //   // Filter tasks where progress is less than or equal to 100
-          // },
-          statusId: 1
+          assignedId: parseInt(userId),
+          statusWFId: {
+            in: [1, 2]
+          }
         },
       }
     );
-    return result;
+
+    const result_ac = await this.prisma.contractTasks.findMany(
+      {
+        include:
+        {
+          contract: {
+            select: {
+              number: true,
+
+            }
+          },
+          requestor: {
+            select: {
+              name: true
+            }
+          },
+          assigned: {
+            select: {
+              name: true
+            }
+          },
+          status: {
+            select: {
+              name: true
+            }
+          },
+          statusWF: {
+            select: {
+              name: true
+            }
+          }
+        },
+        where: {
+          assignedId: parseInt(userId),
+          statusId: 1,
+        },
+      }
+    );
+
+    const result = [];
+
+    result_ac.forEach(result_ac => { result.push(result_ac) })
+    result_wf.forEach(result_wf => { result.push(result_wf) })
+
+    const uniqueResult = Array.from(new Set(result));
+    console.log(uniqueResult)
+
+
+    return uniqueResult;
   }
 
-
+  // assignedId: parseInt(userId),
+  // progress: {
+  //   lt: 100
+  //   // Filter tasks where progress is less than or equal to 100
+  // },
 
   @Get('task/:id')
   async getTasksByContractId(@Param('id') id: any, @Body() data: Prisma.ContractTasksCreateInput): Promise<any> {

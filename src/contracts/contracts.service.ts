@@ -665,7 +665,8 @@ export class ContractsService {
       const ctrTask = {
         taskName: task.taskname,
         contractId: task.contractid,
-        statusId: 2,//Asteapta aprobarea
+        statusId: 4,//Anulat
+        statusWFId: 2, //Asteapta aprobarea
         requestorId: task.requestorid,
         assignedId: task.assignedid,
         due: task.calculatedduedate,

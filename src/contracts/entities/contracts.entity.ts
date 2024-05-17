@@ -17,6 +17,7 @@ import {ContractContent} from '../../contractContent/entities/contractContent.en
 import {PaymentType} from '../../paymentType/entities/paymentType.entity'
 import {User} from '../../user/entities/user.entity'
 import {ContractDynamicFields} from '../../contractDynamicFields/entities/contractDynamicFields.entity'
+import {ContractTasks} from '../../contractTasks/entities/contractTasks.entity'
 
 
 export class Contracts {
@@ -70,4 +71,5 @@ User?: User  | null;
 userId: number  | null;
 isPurchasing: boolean  | null;
 ContractDynamicFields?: ContractDynamicFields[] ;
+ContractTasks?: ContractTasks[] ;
 }

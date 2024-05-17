@@ -1,4 +1,5 @@
 
+import {Contracts} from '../../contracts/entities/contracts.entity'
 import {ContractTasksStatus} from '../../contractTasksStatus/entities/contractTasksStatus.entity'
 import {ContractWFStatus} from '../../contractWFStatus/entities/contractWFStatus.entity'
 import {User} from '../../user/entities/user.entity'
@@ -10,6 +11,7 @@ export class ContractTasks {
 updateadAt: Date ;
 createdAt: Date ;
 taskName: string ;
+contract?: Contracts  | null;
 contractId: number  | null;
 status?: ContractTasksStatus  | null;
 statusId: number  | null;
