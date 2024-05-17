@@ -404,7 +404,7 @@ model ContractTasks {
   status          ContractTasksStatus?  @relation(fields: [statusId], references: [id])
   statusId        Int
   statusWF        ContractWFStatus?     @relation(fields: [statusWFId], references: [id])
-  statusWFId      Int                   @default(2)
+  statusWFId      Int                   @default(4)
   requestor       User?                 @relation("requestor", fields: [requestorId], references: [id])
   requestorId     Int
   assigned        User?                 @relation("assigned", fields: [assignedId], references: [id])
