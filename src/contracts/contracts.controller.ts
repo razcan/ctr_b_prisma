@@ -1773,7 +1773,7 @@ export class ContractsController {
     const result_fin = []
     for (let i = 0; i < res.length; i++) {
       const statusid = res[i].statusId
-      const statusres = await this.prisma.contractTasksStatus.findUnique({
+      const statusres = await this.prisma.contractWFStatus.findUnique({
         where: {
           id: statusid,
         }
@@ -2287,18 +2287,18 @@ export class ContractsController {
         uuid: uuid
       },
       data: {
-        statusId: 3
-        // respins
+        statusWFId: 4 //Respins
       }
     })
+
+
 
     const approve = await this.prisma.workFlowContractTasks.updateMany({
       where: {
         uuid: uuid
       },
       data: {
-        statusId: 4
-        // respins
+        statusId: 4 //Respins
       }
     })
 
@@ -2439,7 +2439,7 @@ export class ContractsController {
           id: actualCtrId
         },
         data: {
-          statusId: 13 //Respins
+          statusWFId: 4 //Respins
         }
       })
 
