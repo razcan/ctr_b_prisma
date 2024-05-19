@@ -51,6 +51,34 @@ export class NomenclaturesController {
     return isMatch;
   }
 
+  @Post('checkuser')
+  async checkuser(
+    @Body() data: any,
+  ): Promise<any> {
+    // console.log(data.email)
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: data.email
+      }
+
+    })
+
+    // console.log(user, "user")
+
+    let response = "NA";
+    if (user !== null && Object.keys(user).length > 0) {
+      response = 'Exist'
+    }
+    else {
+      response = 'Not exist'
+    };
+
+    // console.log(response)
+
+    return response;
+
+  }
 
   @Patch('user/:id')
   @UseInterceptors(FilesInterceptor('avatar'))
