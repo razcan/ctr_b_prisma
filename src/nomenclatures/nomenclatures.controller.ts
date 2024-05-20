@@ -25,8 +25,8 @@ import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
-
-
+import { v4 as uuidv4 } from 'uuid';
+import { MailerService } from 'src/alerts/mailer.service';
 
 @ApiTags('Nomenclatures')
 @Controller('nomenclatures')
@@ -34,7 +34,8 @@ export class NomenclaturesController {
   constructor(
     private readonly nomenclaturesService: NomenclaturesService,
     private prisma: PrismaService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private mailerService: MailerService,
   ) { }
 
 
@@ -55,7 +56,6 @@ export class NomenclaturesController {
   async checkuser(
     @Body() data: any,
   ): Promise<any> {
-    // console.log(data.email)
 
     const user = await this.prisma.user.findUnique({
       where: {
@@ -63,8 +63,6 @@ export class NomenclaturesController {
       }
 
     })
-
-    // console.log(user, "user")
 
     let response = "NA";
     if (user !== null && Object.keys(user).length > 0) {
@@ -74,11 +72,93 @@ export class NomenclaturesController {
       response = 'Not exist'
     };
 
-    // console.log(response)
-
     return response;
 
   }
+
+  @Post('forgotpass')
+  async forgotpass(
+    @Body() data: any,
+  ): Promise<any> {
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: data.email
+      }
+    })
+
+    const uuid = uuidv4();
+
+    interface add_forgot_pass {
+      email: string,
+      actual_password: string,
+      old_password: string,
+      uuid: string,
+      userId: number,
+    }
+
+    const add: add_forgot_pass = {
+      email: user.email,
+      actual_password: user.password,
+      old_password: user.password,
+      uuid: uuid,
+      userId: user.id,
+    }
+
+    const user_forgot = await this.prisma.forgotPass.create({
+      data: add
+    })
+
+    const to = user.email;
+    const bcc = '';
+    const subject = 'Recuperare parola aplicatie ContractsHub';
+    const url = `http://localhost:5500/auth/forgottenpassword/rp?uuid=${uuid}`
+
+    const text = `Va rugam sa accesati linkul de mai jos pentru a va modifica parola: ${url}`;
+
+    const html = `Va rugam sa accesati linkul de mai jos pentru a va modifica parola: ${url}`;
+    const attachments = [];
+
+    this.mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
+      .then(() => console.log('Email sent successfully.'))
+      .catch(error => console.error('Error sending email:', error));
+
+    return user_forgot;
+
+  }
+
+  @Get('forgotpass/:uuid')
+  async getforgotpass(
+    @Param('uuid') uuid: any,
+  ): Promise<any> {
+    const rp = await this.prisma.forgotPass.findFirst({
+      where: {
+        uuid: uuid
+      }
+    })
+    return rp;
+  }
+
+
+  @Post('forgotpass/:uuid')
+  async postforgotpass(
+    @Body() data: any,
+    @Param('uuid') uuid: any,
+  ): Promise<any> {
+
+    console.log(data)
+
+    // const rp = await this.prisma.forgotPass.update({
+    //   where: {
+    //     uuid: uuid
+    //   },
+    //   data: {
+
+    //   }
+    // })
+    // return rp;
+  }
+
 
   @Patch('user/:id')
   @UseInterceptors(FilesInterceptor('avatar'))

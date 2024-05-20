@@ -5,6 +5,7 @@ import {Contracts} from '../../contracts/entities/contracts.entity'
 import {ContractTasks} from '../../contractTasks/entities/contractTasks.entity'
 import {WorkFlowTaskSettingsUsers} from '../../workFlowTaskSettingsUsers/entities/workFlowTaskSettingsUsers.entity'
 import {WorkFlowContractTasks} from '../../workFlowContractTasks/entities/workFlowContractTasks.entity'
+import {ForgotPass} from '../../forgotPass/entities/forgotPass.entity'
 
 
 export class User {
@@ -24,4 +25,5 @@ RequestorTasks?: ContractTasks[] ;
 WorkFlowTaskSettingsUsers?: WorkFlowTaskSettingsUsers[] ;
 WorkFlowAssignedTasks?: WorkFlowContractTasks[] ;
 WorkFlowRequestorTasks?: WorkFlowContractTasks[] ;
+ForgotPass?: ForgotPass[] ;
 }
