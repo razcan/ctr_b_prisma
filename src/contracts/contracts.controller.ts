@@ -274,14 +274,14 @@ export class ContractsController {
     where.statusId = { in: [2] } //Activ
     //the selected contracts, it will be choosen only by the combination between the upper to states 
 
-    console.log(where, "where")
+    // console.log(where, "where")
 
 
     const contracts = await this.prisma.contracts.findMany({
       where: where
     });
 
-    console.log(contracts, "contracte regula")
+    // console.log(contracts, "contracte regula")
 
 
     return contracts;
@@ -1268,7 +1268,7 @@ export class ContractsController {
       .then(() => console.log('Email sent successfully.'))
       .catch(error => console.error('Error sending email:', error));
 
-    console.log(result)
+    // console.log(result)
     return result;
   }
 
@@ -1313,95 +1313,96 @@ export class ContractsController {
     @Param('userId') userId: any,
     @Body() data: Prisma.ContractTasksCreateInput): Promise<any> {
 
-    // const result = [0]
-    const result_wf = await this.prisma.contractTasks.findMany(
-      {
-        include:
+    if (userId !== 'undefined' && userId !== null) {
+      const result_wf = await this.prisma.contractTasks.findMany(
         {
-          contract: {
-            select: {
-              number: true,
+          include:
+          {
+            contract: {
+              select: {
+                number: true,
 
+              }
+            },
+            requestor: {
+              select: {
+                name: true
+              }
+            },
+            assigned: {
+              select: {
+                name: true
+              }
+            },
+            status: {
+              select: {
+                name: true
+              }
+            },
+            statusWF: {
+              select: {
+                name: true
+              }
             }
           },
-          requestor: {
-            select: {
-              name: true
+          where: {
+            assignedId: parseInt(userId),
+            statusWFId: {
+              in: [1, 2]
             }
           },
-          assigned: {
-            select: {
-              name: true
-            }
-          },
-          status: {
-            select: {
-              name: true
-            }
-          },
-          statusWF: {
-            select: {
-              name: true
-            }
-          }
-        },
-        where: {
-          assignedId: parseInt(userId),
-          statusWFId: {
-            in: [1, 2]
-          }
-        },
-      }
-    );
+        }
+      );
 
-    const result_ac = await this.prisma.contractTasks.findMany(
-      {
-        include:
+      const result_ac = await this.prisma.contractTasks.findMany(
         {
-          contract: {
-            select: {
-              number: true,
+          include:
+          {
+            contract: {
+              select: {
+                number: true,
 
+              }
+            },
+            requestor: {
+              select: {
+                name: true
+              }
+            },
+            assigned: {
+              select: {
+                name: true
+              }
+            },
+            status: {
+              select: {
+                name: true
+              }
+            },
+            statusWF: {
+              select: {
+                name: true
+              }
             }
           },
-          requestor: {
-            select: {
-              name: true
-            }
+          where: {
+            assignedId: parseInt(userId),
+            statusId: 1,
           },
-          assigned: {
-            select: {
-              name: true
-            }
-          },
-          status: {
-            select: {
-              name: true
-            }
-          },
-          statusWF: {
-            select: {
-              name: true
-            }
-          }
-        },
-        where: {
-          assignedId: parseInt(userId),
-          statusId: 1,
-        },
-      }
-    );
+        }
+      );
 
-    const result = [];
+      const result = [];
 
-    result_ac.forEach(result_ac => { result.push(result_ac) })
-    result_wf.forEach(result_wf => { result.push(result_wf) })
+      result_ac.forEach(result_ac => { result.push(result_ac) })
+      result_wf.forEach(result_wf => { result.push(result_wf) })
 
-    const uniqueResult = Array.from(new Set(result));
-    console.log(uniqueResult)
+      const uniqueResult = Array.from(new Set(result));
 
+      return uniqueResult;
 
-    return uniqueResult;
+    }
+
   }
 
   // assignedId: parseInt(userId),
@@ -1671,7 +1672,7 @@ export class ContractsController {
       )
     }
 
-    console.log(receipts_final)
+    // console.log(receipts_final)
     //treb sa returnez ce gasesc in ContractFinancialDetailSchedule zi,luna ,valoare,
     // return x;
 
@@ -1710,7 +1711,7 @@ export class ContractsController {
         // },
       });
 
-      console.log(userTransactions);
+      // console.log(userTransactions);
       return (userTransactions)
       // userTransactions will contain an array of objects,
       // each object representing a user and their total transaction amount.
@@ -2320,14 +2321,14 @@ export class ContractsController {
 
     const actualCtrId = ctr.contractId
 
-    console.log(actualCtrId)
+    // console.log(actualCtrId)
     const delete_wf = await this.prisma.workFlowXContracts.deleteMany({
       where: {
         contractId: actualCtrId
       }
     })
 
-    console.log(delete_wf)
+    // console.log(delete_wf)
 
   }
 

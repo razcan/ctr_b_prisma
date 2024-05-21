@@ -127,17 +127,17 @@ export class NomenclaturesController {
 
   }
 
-  @Get('forgotpass/:uuid')
-  async getforgotpass(
-    @Param('uuid') uuid: any,
-  ): Promise<any> {
-    const rp = await this.prisma.forgotPass.findFirst({
-      where: {
-        uuid: uuid
-      }
-    })
-    return rp;
-  }
+  // @Get('forgotpass/:uuid')
+  // async getforgotpass(
+  //   @Param('uuid') uuid: any,
+  // ): Promise<any> {
+  //   const rp = await this.prisma.forgotPass.findFirst({
+  //     where: {
+  //       uuid: uuid
+  //     }
+  //   })
+  //   return rp;
+  // }
 
 
   @Post('forgotpass/:uuid')
@@ -146,17 +146,29 @@ export class NomenclaturesController {
     @Param('uuid') uuid: any,
   ): Promise<any> {
 
-    console.log(data)
+    // console.log(data.password)
+    const hashedPassword = bcrypt.hash(data.password, 2);
 
-    // const rp = await this.prisma.forgotPass.update({
-    //   where: {
-    //     uuid: uuid
-    //   },
-    //   data: {
+    const rp = await this.prisma.forgotPass.update({
+      where: {
+        uuid: uuid
+      },
+      data: {
+        actual_password: await hashedPassword
+      }
+    })
 
-    //   }
-    // })
-    // return rp;
+    // console.log(rp)
+
+    await this.prisma.user.update({
+      where: {
+        id: rp.userId
+      },
+      data: {
+        password: await hashedPassword
+      }
+    })
+    return rp;
   }
 
 
