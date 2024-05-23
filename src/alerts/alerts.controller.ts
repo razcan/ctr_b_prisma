@@ -24,6 +24,9 @@ export interface CurrencyInterface {
     name: string;
 }
 
+
+
+
 @ApiTags('Alerts')
 @Controller('alerts')
 export class AlertsController {
@@ -31,6 +34,8 @@ export class AlertsController {
         private prisma: PrismaService,
         // private contracts: ContractsController
     ) { }
+
+
 
     async findAllContracts() {
         const contracts = await this.prisma.contracts.findMany(
@@ -667,7 +672,7 @@ export class AlertsController {
                         allcontracts[i].completion = currentDate
 
                     }
-                    if (this.differenceInDays(allcontracts[i].completion, today) >= nrofdays) {
+                    if (this.differenceInDays(allcontracts[i].completion, today) == nrofdays) {
 
                         for (let j = 0; j < countPers; j++) {
                             {
@@ -715,24 +720,6 @@ export class AlertsController {
                     const formattedDateEnd = `${day1}.${month1}.${year1}`;
 
                     const replacements = await this.replacePlaceholders(contractsforNotification[j].id, emailSettings.text)
-                    // console.log(replacements, "replacements")
-
-                    // const replacements: { [key: string]: string } = {
-                    //     "@@NumarContract": contractsforNotification[j].number.toString(),
-                    //     "@@DataContract": formattedDateStart,
-                    //     "@@DataFinal": formattedDateEnd,
-                    //     "@@Partener": contractsforNotification[j].partner?.toString(),
-                    //     "@@Entitate": contractsforNotification[j].entity?.toString(),
-                    //     "@@ScurtaDescriere": contractsforNotification[j].remarks?.toString()
-                    // };
-
-                    // let replacedString: string = originalString;
-                    // for (const key in replacements) {
-                    //     if (Object.prototype.hasOwnProperty.call(replacements, key)) {
-                    //         replacedString = replacedString.replace(key, replacements[key]);
-                    //     }
-                    // }
-
 
                     const to = contractsforNotification[j].partner_email;
                     const bcc = contractsforNotification[j].persons_email;
@@ -811,9 +798,6 @@ export class AlertsController {
         const nrofdays = emailSettings.nrofdays;
         const isActive = emailSettings.isActive
 
-        // console.log("se ruleaza", emailSettings, nrofdays, isActive, new Date())
-
-
         if (isActive == true) {
             if (allcontracts.length > 0) {
                 const countCtr = allcontracts.length
@@ -821,8 +805,8 @@ export class AlertsController {
                 for (let i = 0; i < countCtr; i++) {
                     const countPers = allcontracts[i].partner.Persons.length;
 
-                    if (this.differenceInDays(allcontracts[i].end, today) >= -1 * nrofdays) {
-                        console.log("cond nr zile", this.differenceInDays(allcontracts[i].end, today))
+                    if (this.differenceInDays(allcontracts[i].end, today) == -1 * nrofdays) {
+                        // console.log("cond nr zile", this.differenceInDays(allcontracts[i].end, today))
                         for (let j = 0; j < countPers; j++) {
                             {
                                 const obj: ContractsForAlert = {
@@ -845,15 +829,10 @@ export class AlertsController {
                     }
                 }
 
-                // console.log(contractsforNotification, "aici3")
-
-
 
                 for (let j = 0; j < contractsforNotification.length; j++) {
 
-                    // console.log(contractsforNotification, "aici4")
-
-                    const originalString: string = emailSettings.text;
+                    // const originalString: string = emailSettings.text;
                     const contractId: number = contractsforNotification[j].id;
 
                     const originalDate = new Date(contractsforNotification[j].start.toString());
@@ -872,30 +851,14 @@ export class AlertsController {
                     const year1 = originalDateEnd.getFullYear(); // Get the full year
 
                     const formattedDateEnd = `${day1}.${month1}.${year1}`;
-
-
-                    const replacements: { [key: string]: string } = {
-                        "@@NumarContract": contractsforNotification[j].number.toString(),
-                        "@@DataContract": formattedDateStart,
-                        "@@DataFinal": formattedDateEnd,
-                        "@@Partener": contractsforNotification[j].partner?.toString(),
-                        "@@Entitate": contractsforNotification[j].entity?.toString(),
-                        "@@ScurtaDescriere": contractsforNotification[j].remarks?.toString()
-                    };
-
-                    let replacedString: string = originalString;
-                    for (const key in replacements) {
-                        if (Object.prototype.hasOwnProperty.call(replacements, key)) {
-                            replacedString = replacedString.replace(key, replacements[key]);
-                        }
-                    }
+                    const replacements = await this.replacePlaceholders(contractsforNotification[j].id, emailSettings.text)
 
 
                     const to = contractsforNotification[j].partner_email;
                     const bcc = contractsforNotification[j].persons_email;
                     const subject = emailSettings.subject + ' ' + contractsforNotification[j].number.toString();
-                    const text = replacedString;
-                    const html = replacedString;
+                    const text = replacements;
+                    const html = replacements;
                     const attachments = [];
                     const dif = contractsforNotification[j].dif
                     const allEmails = 'to: ' + to + ' bcc:' + bcc;
@@ -908,16 +871,9 @@ export class AlertsController {
                         criteria: 'Data Final',
                         param: 'end',
                         nrofdays: nrofdays
-                        //    bcc: bcc,
-                        //    subject: subject,
-                        //    end: originalDateEnd,
-                        //    dif: dif
-                        //    nrofdays: nrofdays
                     }
 
                     const res = await this.prisma.alertsHistory.create({ data: toAddInAlertsHistory });
-                    // console.log(await res, "res")
-                    // console.log("x", toAddInAlertsHistory)
                     mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
                         .then(() => console.log('Email sent successfully.'))
                         .catch(error => console.error('Error sending email:', error));
@@ -931,5 +887,107 @@ export class AlertsController {
 
     }
 
+    //reminder contract task alerts
+    // @Cron(CronExpression.EVERY_30_SECONDS)
+    @Cron(CronExpression.EVERY_DAY_AT_10AM)
+    async handleCronTaskReminder() {
+
+        const res = await this.prisma.contractTasks.findMany({
+            where: {
+                AND: [
+                    {
+                        statusId: {
+                            in: [1]
+                        }
+                    },
+                    {
+                        statusWFId: {
+                            in: [1, 2]
+                        }
+                    }
+                ]
+
+            },
+            include: {
+                assigned: {
+                    select: {
+                        email: true
+                    }
+                }
+            }
+        })
+
+        const current_date = new Date();
+        const emailSettings = await this.getAlertById(3)
+
+        const day = current_date.getDate().toString().padStart(2, '0'); // Get the day and pad with leading zero if needed
+        const month = (current_date.getMonth() + 1).toString().padStart(2, '0'); // Get the month (January is 0, so we add 1) and pad with leading zero if needed
+        const year = current_date.getFullYear(); // Get the full year
+
+        const formattedCurrent_date = `${day}.${month}.${year}`;
+        const mailerService = new MailerService();
+
+        const taskForNotification = [];
+
+        for (let i = 0; i < res.length; i++) {
+
+            const originalDate = new Date(res[i].due.toString());
+
+            const day = originalDate.getDate().toString().padStart(2, '0'); // Get the day and pad with leading zero if needed
+            const month = (originalDate.getMonth() + 1).toString().padStart(2, '0'); // Get the month (January is 0, so we add 1) and pad with leading zero if needed
+            const year = originalDate.getFullYear(); // Get the full year
+
+            const formattedDateStart = `${day}.${month}.${year}`;
+
+            if (formattedDateStart == formattedCurrent_date) {
+                taskForNotification.push(res[i])
+            }
+        }
+
+        for (let j = 0; j < taskForNotification.length; j++) {
+
+            const selected_contract = await this.findContractById(taskForNotification[j].contractId);
+
+            const contract_Number = selected_contract?.number;
+            const contract_Partner = selected_contract?.partner.name;
+            const contract_Entity = selected_contract?.entity.name;
+
+            const createdAt = this.formatDate(taskForNotification[j].createdAt);
+
+
+            const url = `<b><a href="http://localhost:5500/uikit/editcontract/ctr?Id=${taskForNotification[j].contractId}&idxp=6">Link Task</a></b>
+            `
+            const text =
+                `Va informam ca trebuie sa finalizati task-ul cu numele <b>${taskForNotification[j].taskName}</b>
+            din data de <b>${createdAt}</b> 
+            pentru contractul cu numarul <b>${contract_Number}</b>, la partenerul <b>${contract_Partner}</b>, entitatea <b>${contract_Entity}</b>.
+            ${url}.
+
+            ${taskForNotification[j].notes}
+            `
+
+
+
+            const to = taskForNotification[j].assigned.email;
+            const bcc = taskForNotification[j].assigned.email;
+            const subject = emailSettings.subject + ' ' + taskForNotification[j].taskName;
+            // const text = emailSettings.text + ' ' + url + ' ' + taskForNotification[j].notes;
+            // const html = emailSettings.text + ' ' + url + ' ' + taskForNotification[j].notes;
+            const html = text;
+            const attachments = [];
+
+            // console.log(to, bcc, subject, text, html, url)
+
+            // const res = await this.prisma.alertsHistory.create({ data: toAddInAlertsHistory });
+            mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
+                .then(() => console.log('Email sent successfully.'))
+                .catch(error => console.error('Error sending email:', error));
+
+        }
+
+
+        // console.log(taskForNotification, "notifications")
+
+    }
 
 }
