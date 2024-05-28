@@ -4,6 +4,8 @@ import {Address} from '../../address/entities/address.entity'
 import {Banks} from '../../banks/entities/banks.entity'
 import {Contracts} from '../../contracts/entities/contracts.entity'
 import {Groups} from '../../groups/entities/groups.entity'
+import {InvoiceDetail} from '../../invoiceDetail/entities/invoiceDetail.entity'
+import {Invoice} from '../../invoice/entities/invoice.entity'
 
 
 export class Partners {
@@ -25,4 +27,7 @@ Banks?: Banks[] ;
 Contracts?: Contracts[] ;
 Entity?: Contracts[] ;
 Groups?: Groups[] ;
+InvoiceDetail?: InvoiceDetail[] ;
+partnerInvoice?: Invoice[] ;
+entityInvoice?: Invoice[] ;
 }

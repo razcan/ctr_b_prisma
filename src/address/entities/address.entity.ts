@@ -1,6 +1,7 @@
 
 import {Partners} from '../../partners/entities/partners.entity'
 import {Contracts} from '../../contracts/entities/contracts.entity'
+import {Invoice} from '../../invoice/entities/invoice.entity'
 
 
 export class Address {
@@ -23,4 +24,5 @@ partner?: Partners ;
 partnerId: number ;
 Contracts?: Contracts[] ;
 Entity?: Contracts[] ;
+Invoice?: Invoice[] ;
 }

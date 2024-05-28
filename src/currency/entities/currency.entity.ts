@@ -2,6 +2,7 @@
 import {ContractItems} from '../../contractItems/entities/contractItems.entity'
 import {ContractFinancialDetailSchedule} from '../../contractFinancialDetailSchedule/entities/contractFinancialDetailSchedule.entity'
 import {ContractFinancialDetail} from '../../contractFinancialDetail/entities/contractFinancialDetail.entity'
+import {Invoice} from '../../invoice/entities/invoice.entity'
 
 
 export class Currency {
@@ -13,4 +14,5 @@ ContractFinancialDetailSchedule?: ContractFinancialDetailSchedule[] ;
 item?: ContractFinancialDetail[] ;
 guarantee?: ContractFinancialDetail[] ;
 goodexecution?: ContractFinancialDetail[] ;
+Invoice?: Invoice[] ;
 }

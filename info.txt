@@ -30,6 +30,28 @@ http://localhost:3000/swagger#/
 . export word https://www.npmjs.com/package/docx
 . scoatere din care uikit
 
+VATId	SiteId	VATCode	VATDescription	VATPercent	VATType	TaxTypeId	AccVATPercent
+-105	0	TVA5	Cota redusa (5%)	5.0000	1	5	5.0000
+-104	0	TI5	Taxare inversa 5%	0.0000	1	5	5.0000
+-103	0	TVA20	Cota normala(20%)	20.0000	1	5	20.0000
+-102	0	TI20	Taxare inversa 20%	0.0000	1	5	20.0000
+-101	0	TVA24	Cota normala (24%)	24.0000	1	5	24.0000
+-100	0	TI24	Taxare inversa 24%	0.0000	1	5	24.0000
+-6	0	RSV	Regim special vanzari	0.0000	1	5	0.0000
+-5	0	NIC	Neimpozabil cumparari	0.0000	1	5	0.0000
+-4	0	NIV	Neimpozabil vanzari	0.0000	1	5	0.0000
+-3	0	TI9	Taxare inversa 9%	0.0000	1	5	9.0000
+-2	0	TI0	Taxare inversa 0%	0.0000	1	5	0.0000
+-1	0	TI19	Taxare inversa 19%	0.0000	1	5	19.0000
+17	0	TVA19	Cota normala (19 %)	19.0000	1	5	19.0000
+20	0	FARA	Fara TVA	0.0000	0	5	0.0000
+21	0	SDD	Scutite cu drept de deducere	0.0000	0	5	0.0000
+22	0	SFD	Scutite fara drept de deducere	0.0000	0	5	0.0000
+23	0	EXP	Export	0.0000	0	5	0.0000
+24	0	NI	Neimpozabile	0.0000	0	5	0.0000
+25	0	NEX	Neexigibil	19.0000	1	5	19.0000
+28	0	TVA9	Cota redusa (9%)	9.0000	1	5	9.0000
+140	0	TVA5	Cota redusa (5%)	5.0000	1	5	5.0000
 
 -- DROP FUNCTION public.getauditcontract(int4);
 

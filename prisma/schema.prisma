@@ -71,6 +71,8 @@ model MeasuringUnit {
   name                            String
   ContractFinancialDetail         ContractFinancialDetail[]
   ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
+  InvoiceItem                     InvoiceItem[]
+  InvoiceDetail                   InvoiceDetail[]
 }
 
 model PaymentType {
@@ -123,6 +125,8 @@ model VatQuota {
   VATType                 Int
   AccVATPercent           Int
   ContractFinancialDetail ContractFinancialDetail[]
+  InvoiceDetail           InvoiceDetail[]
+  InvoiceItem             InvoiceItem[]
 }
 
 model BillingFrequency {
@@ -284,6 +288,7 @@ model Currency {
   item                            ContractFinancialDetail[]         @relation("item")
   guarantee                       ContractFinancialDetail[]         @relation("guarantee")
   goodexecution                   ContractFinancialDetail[]         @relation("goodexecution")
+  Invoice                         Invoice[]
 }
 
 model Bank {
@@ -570,24 +575,27 @@ model ContractTemplates {
 }
 
 model Partners {
-  id             Int         @id @default(autoincrement())
-  updateadAt     DateTime    @updatedAt
-  createdAt      DateTime    @default(now())
-  name           String      @unique
-  fiscal_code    String      @unique
-  commercial_reg String      @unique
+  id             Int             @id @default(autoincrement())
+  updateadAt     DateTime        @updatedAt
+  createdAt      DateTime        @default(now())
+  name           String          @unique
+  fiscal_code    String          @unique
+  commercial_reg String          @unique
   state          String
   type           String
   email          String
   remarks        String
-  isVatPayer     Boolean     @default(false)
+  isVatPayer     Boolean         @default(false)
   contractsId    Int?
   Persons        Persons[]
   Address        Address[]
   Banks          Banks[]
-  Contracts      Contracts[] @relation("partner")
-  Entity         Contracts[] @relation("entity")
+  Contracts      Contracts[]     @relation("partner")
+  Entity         Contracts[]     @relation("entity")
   Groups         Groups[]
+  InvoiceDetail  InvoiceDetail[]
+  partnerInvoice Invoice[]       @relation("partner")
+  entityInvoice  Invoice[]       @relation("entity")
 }
 
 model Persons {
@@ -625,6 +633,7 @@ model Address {
   partnerId       Int
   Contracts       Contracts[] @relation("partner")
   Entity          Contracts[] @relation("entity")
+  Invoice         Invoice[]
 }
 
 model Banks {
@@ -640,6 +649,7 @@ model Banks {
   partnerId  Int
   Contracts  Contracts[] @relation("partner")
   Enity      Contracts[] @relation("entity")
+  Invoice    Invoice[]
 }
 
 // enum Roles {
@@ -667,6 +677,8 @@ model User {
   WorkFlowAssignedTasks     WorkFlowContractTasks[]     @relation("assignedwf")
   WorkFlowRequestorTasks    WorkFlowContractTasks[]     @relation("requestorwf")
   ForgotPass                ForgotPass[]
+  Invoice                   Invoice[]
+  InvoiceItem               InvoiceItem[]
 }
 
 model ForgotPass {
@@ -715,6 +727,114 @@ model ExchangeRates {
   multiplier Int
 }
 
+model InvoiceItem {
+  id               Int                        @id @default(autoincrement())
+  updateadAt       DateTime                   @updatedAt
+  createdAt        DateTime                   @default(now())
+  itemName         String
+  itemCode         String
+  barCode          String
+  itemDescription  String
+  vat              VatQuota?                  @relation(fields: [vatId], references: [id])
+  vatId            Int?
+  measuringUnit    MeasuringUnit?             @relation(fields: [measuringUnitid], references: [id])
+  measuringUnitid  Int?
+  isStockable      Boolean
+  isActive         Boolean
+  classification   InvoiceItemClassification? @relation(fields: [classificationId], references: [id])
+  classificationId Int
+  user             User                       @relation(fields: [userId], references: [id])
+  userId           Int
+  InvoiceDetail    InvoiceDetail[]
+}
+
+model InvoiceItemClassification {
+  id          Int           @id @default(autoincrement())
+  updateadAt  DateTime      @updatedAt
+  createdAt   DateTime      @default(now())
+  name        String        @unique
+  InvoiceItem InvoiceItem[]
+}
+
+model InvoiceStatus {
+  id         Int       @id @default(autoincrement())
+  updateadAt DateTime  @updatedAt
+  createdAt  DateTime  @default(now())
+  name       String    @unique
+  Invoice    Invoice[]
+}
+
+model InvoiceType {
+  id         Int       @id @default(autoincrement())
+  updateadAt DateTime  @updatedAt
+  createdAt  DateTime  @default(now())
+  name       String    @unique
+  Invoice    Invoice[]
+}
+
+model TransactionType {
+  id         Int       @id @default(autoincrement())
+  updateadAt DateTime  @updatedAt
+  createdAt  DateTime  @default(now())
+  name       String    @unique
+  Invoice    Invoice[]
+}
+
+model Invoice {
+  id                Int             @id @default(autoincrement())
+  updateadAt        DateTime        @updatedAt
+  createdAt         DateTime        @default(now())
+  partner           Partners        @relation("partner", fields: [partnersId], references: [id])
+  partnersId        Int
+  entity            Partners        @relation("entity", fields: [entityId], references: [id])
+  entityId          Int
+  number            String
+  date              DateTime
+  duedate           DateTime
+  totalAmount       Float
+  vatAmount         Float
+  totalPayment      Float
+  type              InvoiceType     @relation(fields: [typeId], references: [id])
+  typeId            Int
+  transaction       TransactionType @relation(fields: [transactionTypeId], references: [id])
+  transactionTypeId Int
+  status            InvoiceStatus   @relation(fields: [statusId], references: [id])
+  statusId          Int
+  entityBank        Banks?          @relation(fields: [entitybankId], references: [id])
+  entitybankId      Int?
+  partnerAddress    Address?        @relation(fields: [partneraddressId], references: [id])
+  partneraddressId  Int?
+  currencyRate      Float
+  user              User            @relation(fields: [userId], references: [id])
+  userId            Int
+  currency          Currency?       @relation(fields: [currencyId], references: [id])
+  currencyId        Int?
+  InvoiceDetail     InvoiceDetail[]
+  remarks           String
+}
+
+model InvoiceDetail {
+  id              Int            @id @default(autoincrement())
+  updateadAt      DateTime       @updatedAt
+  createdAt       DateTime       @default(now())
+  invoice         Invoice        @relation(fields: [invoiceId], references: [id])
+  invoiceId       Int
+  entity          Partners       @relation(fields: [entityId], references: [id])
+  entityId        Int
+  item            InvoiceItem?   @relation(fields: [itemId], references: [id])
+  itemId          Int?
+  qtty            Float
+  price           Float
+  measuringUnit   MeasuringUnit? @relation(fields: [measuringUnitid], references: [id])
+  measuringUnitid Int?
+  vat             VatQuota?      @relation(fields: [vatId], references: [id])
+  vatId           Int?
+  vatValue        Float
+  lineValue       Float
+  totalValue      Float
+  description     String
+}
+
 // model ExchangeRatesBNR {
 //   id         Int      @id @default(autoincrement())
 //   updateadAt DateTime @updatedAt
@@ -722,14 +842,4 @@ model ExchangeRates {
 //   date       String
 //   amount     Float
 //   name       String
-// }
-
-// model User_Groups {
-//   id         Int      @id @default(autoincrement())
-//   updateadAt DateTime @updatedAt
-//   createdAt  DateTime @default(now())
-//   // group      Groups   @relation(fields: [groupId], references: [id], onDelete: Cascade)
-//   // groupId    Int
-
-//   // @@id([userId, groupId]) //pk
 // }
