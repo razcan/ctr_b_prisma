@@ -5,6 +5,7 @@ import {PaymentType} from '../../paymentType/entities/paymentType.entity'
 import {Bank} from '../../bank/entities/bank.entity'
 import {ContractItems} from '../../contractItems/entities/contractItems.entity'
 import {ContractFinancialDetailSchedule} from '../../contractFinancialDetailSchedule/entities/contractFinancialDetailSchedule.entity'
+import {VatQuota} from '../../vatQuota/entities/vatQuota.entity'
 
 
 export class ContractFinancialDetail {
@@ -48,4 +49,6 @@ items?: ContractItems  | null;
 contractItemId: number  | null;
 ContractFinancialDetailSchedule?: ContractFinancialDetailSchedule[] ;
 advancePercent: number  | null;
+vat?: VatQuota  | null;
+vatId: number  | null;
 }

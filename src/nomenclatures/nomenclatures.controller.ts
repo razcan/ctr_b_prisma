@@ -632,7 +632,11 @@ export class NomenclaturesController {
   }
 
 
-
+  @Get('vatquota')
+  async vatquota() {
+    const vatquota = await this.prisma.vatQuota.findMany()
+    return vatquota;
+  }
 
   @Post('partners')
   async createPartner(@Body() data: Prisma.PartnersCreateInput): Promise<any> {

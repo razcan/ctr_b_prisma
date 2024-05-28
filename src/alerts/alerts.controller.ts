@@ -220,6 +220,7 @@ export class AlertsController {
 
     @Patch('/:id')
     async UpdateAlert(@Body() data: Prisma.AlertsCreateInput, @Param('id') id: any): Promise<any> {
+        console.log(data)
         const alert = await this.prisma.alerts.update({
             where: {
                 id: parseInt(id),

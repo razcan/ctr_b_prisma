@@ -209,7 +209,18 @@ async function main() {
         { name: "ING" },
         { name: "TBI " }]
 
+    const VatQuota = [
+        { VatCode: "TVA19", VATDescription: "Cota normala(19%)", VATPercent: "19", VATType: "1", AccVATPercent: "19" },
+        { VatCode: "TVA9", VATDescription: "Cota normala(9%)", VATPercent: "9", VATType: "1", AccVATPercent: "9" },
+        { VatCode: "TVA5", VATDescription: "Cota normala(5%)", VATPercent: "5", VATType: "1", AccVATPercent: "5" },
+        { VatCode: "FARA", VATDescription: "Fara TVA", VATPercent: "0", VATType: "0", AccVATPercent: "0" }
+    ]
 
+    for (const vat of VatQuota) {
+        await prisma.vatQuota.create({
+            data: vat,
+        });
+    }
 
     for (const type of contractType) {
         await prisma.contractType.create({
@@ -383,6 +394,18 @@ async function main() {
     VALUES(1, 'Administrator', 'razvan.mustata@gmail.com', 'a', CURRENT_TIMESTAMP, '', true, '2024-01-01');
     `
 
+
+    const priorities = [
+        { name: 'Normală' },
+        { name: 'Foarte Importantă' },
+        { name: 'Importanță Maximă' }
+    ];
+
+    for (const priority of priorities) {
+        await prisma.ContractTasksPriority.create({
+            data: priority,
+        });
+    }
 
 
     prisma.$executeRaw(`
@@ -817,19 +840,6 @@ ALTER FUNCTION public.contracttasktobegeneratedok()
 --select * from public.contracttasktobegeneratedok() `
     );
 
-
-    const priorities = [
-        { name: 'Normală' },
-        { name: 'Foarte Importantă' },
-        { name: 'Importanță Maximă' }
-    ];
-
-    for (const priority of priorities) {
-        await prisma.ContractTasksPriority.create({
-            data: priority,
-        });
-    }
-
     prisma.$executeRaw(`
             INSERT INTO public."Alerts"
             ( "name", "isActive", subject, "text", internal_emails, nrofdays, param, "isActivePartner", "isActivePerson")
@@ -994,8 +1004,6 @@ ALTER FUNCTION public.contracttasktobegeneratedok()
     --SELECT * FROM get_contract_details();
         `
     )
-
-
 
     prisma.$executeRaw(`
 

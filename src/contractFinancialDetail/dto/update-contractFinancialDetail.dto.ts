@@ -1,28 +1,86 @@
-
-
-
-
-
+import { IsString, IsOptional, IsInt } from 'class-validator';
 
 export class UpdateContractFinancialDetailDto {
   itemid?: number;
-price?: number;
-currencyValue?: number;
-currencyPercent?: number;
-billingDay?: number;
-billingQtty?: number;
-billingFrequencyid?: number;
-billingPenaltyPercent?: number;
-billingDueDays?: number;
-remarks?: string;
-guaranteeLetter?: boolean;
-guaranteeLetterDate?: Date;
-guaranteeLetterValue?: number;
-guaranteeLetterInfo?: string;
-goodexecutionLetter?: boolean;
-goodexecutionLetterDate?: Date;
-goodexecutionLetterValue?: number;
-goodexecutionLetterInfo?: string;
-active?: boolean;
-advancePercent?: number;
+  price: number;
+  currencyValue?: number;
+  currencyPercent?: number;
+  billingDay: number;
+  billingQtty: number;
+  billingFrequencyid?: number;
+  billingPenaltyPercent: number;
+  billingDueDays: number;
+  @IsOptional()
+  remarks?: string;
+  @IsOptional()
+  guaranteeLetter?: boolean;
+  @IsOptional()
+  guaranteeLetterDate?: Date;
+  @IsOptional()
+  guaranteeLetterValue?: number;
+  @IsOptional()
+  guaranteeLetterInfo?: string;
+  @IsOptional()
+  goodexecutionLetter?: boolean;
+  @IsOptional()
+  goodexecutionLetterDate?: Date;
+  @IsOptional()
+  goodexecutionLetterValue?: number;
+  @IsOptional()
+  goodexecutionLetterInfo?: string;
+  @IsOptional()
+  active?: boolean;
+  @IsOptional()
+  advancePercent?: number;
+  currencyid?: number;
+  measuringUnitid?: number;
+  paymentTypeid?: number;
+  @IsOptional()
+  guaranteeLetterCurrencyid?: number;
+  @IsOptional()
+  guaranteeLetterBankId?: number;
+  @IsOptional()
+  goodexecutionLetterCurrencyId?: number;
+  @IsOptional()
+  goodexecutionLetterBankId?: number;
+  @IsOptional()
+  contractItemId?: number;
+  vatId?: number;
 }
+
+
+
+
+
+// export class UpdateContractFinancialDetailDto {
+//   itemid?: number;
+//   price: number;
+//   currencyid?: number;
+//   currencyPercent?: number;
+//   billingDay: number;
+//   billingQtty: number;
+//   billingFrequencyid?: number;
+//   measuringUnitid?: number;
+//   paymentTypeid?: number;
+//   billingPenaltyPercent: number;
+//   billingDueDays: number;
+//   remarks?: string;
+//   guaranteeLetter?: boolean;
+//   guaranteeLetterCurrencyid?: number;
+//   goodexecutionLetterDate?: Date;
+//   goodexecutionLetterValue?: number;
+//   goodexecutionLetterInfo?: string;
+//   guaranteeLetterBankId?: number;
+//   goodexecutionLetter?: boolean;
+//   goodexecutionLetterCurrencyId?: number;
+//   guaranteeLetterDate?: Date;
+//   guaranteeLetterValue?: number;
+//   guaranteeLetterInfo?: string;
+//   goodexecutionLetterBankId?: number;
+//   active?: boolean;
+//   currencyValue?: number;
+//   advancePercent?: number;
+//   vatId?: number;
+//   contractItemId?: number;
+// }
+

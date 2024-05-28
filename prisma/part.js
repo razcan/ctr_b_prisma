@@ -6,16 +6,17 @@ async function main() {
 
 
 
-    const contractWFStatus = [
-        { name: "In lucru" },
-        { name: "Asteapta aprobarea" },
-        { name: "Aprobat" },
-        { name: "Respins" }
+    const VatQuota = [
+        { VatCode: "TVA19", VATDescription: "Cota normala(19%)", VATPercent: 19, VATType: 1, AccVATPercent: 19 },
+        { VatCode: "TVA9", VATDescription: "Cota normala(9%)", VATPercent: 9, VATType: 1, AccVATPercent: 9 },
+        { VatCode: "TVA5", VATDescription: "Cota normala(5%)", VATPercent: 5, VATType: 1, AccVATPercent: 5 },
+        { VatCode: "FARA", VATDescription: "Fara TVA", VATPercent: 0, VATType: 0, AccVATPercent: 0 }
     ]
 
-    for (const statuses of contractWFStatus) {
-        await prisma.ContractWFStatus.create({
-            data: statuses,
+
+    for (const vat of VatQuota) {
+        await prisma.vatQuota.create({
+            data: vat,
         });
     }
 

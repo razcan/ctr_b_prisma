@@ -113,6 +113,18 @@ model ContractAttachments {
   contractId   Int?
 }
 
+model VatQuota {
+  id                      Int                       @id @default(autoincrement())
+  updateadAt              DateTime                  @updatedAt
+  createdAt               DateTime                  @default(now())
+  VatCode                 String
+  VATDescription          String
+  VATPercent              Int
+  VATType                 Int
+  AccVATPercent           Int
+  ContractFinancialDetail ContractFinancialDetail[]
+}
+
 model BillingFrequency {
   id            Int             @id @default(autoincrement())
   name          String          @unique
@@ -322,6 +334,8 @@ model ContractFinancialDetail {
   contractItemId                  Int?
   ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
   advancePercent                  Float?
+  vat                             VatQuota?                         @relation(fields: [vatId], references: [id])
+  vatId                           Int?
 }
 
 model ContractFinancialDetailSchedule {

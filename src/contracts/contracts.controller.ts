@@ -33,6 +33,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { WorkFlowTaskSettings } from 'src/workFlowTaskSettings/entities/workFlowTaskSettings.entity';
+import { UpdateContractFinancialDetailDto } from '../contractFinancialDetail/dto/update-contractFinancialDetail.dto';
 
 
 @ApiTags('Contracts')
@@ -637,45 +638,48 @@ export class ContractsController {
     })
 
     const finDetail: any = data[1]
-    const finCtrFinDetail: Prisma.ContractFinancialDetailUncheckedUpdateInput = finDetail
+    // const finCtrFinDetail: Prisma.ContractFinancialDetailUncheckedUpdateInput = finDetail
+    const finCtrFinDetail: UpdateContractFinancialDetailDto = finDetail;
+
+
 
     const result2 = this.prisma.contractFinancialDetail.update({
       where: { id: parseInt(contractfinancialItemId) },
-      data: {
+      data:
+      {
         itemid: finCtrFinDetail.itemid,
         price: finCtrFinDetail.price,
+        currencyid: finCtrFinDetail.currencyid,
         currencyPercent: finCtrFinDetail.currencyPercent,
-        paymentTypeid: finCtrFinDetail.paymentTypeid,
         billingDay: finCtrFinDetail.billingDay,
         billingQtty: finCtrFinDetail.billingQtty,
         billingFrequencyid: finCtrFinDetail.billingFrequencyid,
-        remarks: finCtrFinDetail.remarks,
+        measuringUnitid: finCtrFinDetail.measuringUnitid,
+        paymentTypeid: finCtrFinDetail.paymentTypeid,
+        billingPenaltyPercent: finCtrFinDetail.billingPenaltyPercent,
         billingDueDays: finCtrFinDetail.billingDueDays,
-        billingPenaltyPercent: finCtrFinDetail.billingDueDays,
+        remarks: finCtrFinDetail.remarks,
         guaranteeLetter: finCtrFinDetail.guaranteeLetter,
+        guaranteeLetterCurrencyid: finCtrFinDetail.guaranteeLetterCurrencyid,
         guaranteeLetterDate: finCtrFinDetail.guaranteeLetterDate,
         guaranteeLetterValue: finCtrFinDetail.guaranteeLetterValue,
-        active: finCtrFinDetail.active,
-        currencyid: finCtrFinDetail.currencyid,
-        guaranteeLetterCurrencyid: finCtrFinDetail.guaranteeLetterCurrencyid,
-        currencyValue: finCtrFinDetail.currencyValue,
-        measuringUnitid: finCtrFinDetail.measuringUnitid,
-        advancePercent: finCtrFinDetail.advancePercent,
+        guaranteeLetterInfo: finCtrFinDetail.guaranteeLetterInfo,
+        guaranteeLetterBankId: finCtrFinDetail.guaranteeLetterBankId,
         goodexecutionLetter: finCtrFinDetail.goodexecutionLetter,
         goodexecutionLetterCurrencyId: finCtrFinDetail.goodexecutionLetterCurrencyId,
         goodexecutionLetterDate: finCtrFinDetail.goodexecutionLetterDate,
         goodexecutionLetterValue: finCtrFinDetail.goodexecutionLetterValue,
         goodexecutionLetterInfo: finCtrFinDetail.goodexecutionLetterInfo,
         goodexecutionLetterBankId: finCtrFinDetail.goodexecutionLetterBankId,
-        guaranteeLetterInfo: finCtrFinDetail.guaranteeLetterInfo,
-        guaranteeLetterBankId: finCtrFinDetail.guaranteeLetterBankId
-        // contractItemId: finCtrFinDetail.contractItemId
-
+        active: finCtrFinDetail.active,
+        currencyValue: finCtrFinDetail.currencyValue,
+        advancePercent: finCtrFinDetail.advancePercent,
+        vatId: finCtrFinDetail.vatId,
+        contractItemId: finCtrFinDetail.contractItemId
       }
-
     }
     );
-    // console.log(await result2)
+    console.log(await result2)
 
     let schBill = data[2]
     let x = parseInt(id)
@@ -750,6 +754,7 @@ export class ContractsController {
         item: true,
         frequency: true,
         currency: true,
+
         ContractFinancialDetail: {
           include: {
             ContractFinancialDetailSchedule:
@@ -770,7 +775,7 @@ export class ContractsController {
             guaranteeLetterBank: true,
             goodexecutionLetterBank: true,
             goodexecutionLetterCurrency: true,
-
+            vat: true,
           }
         }
       }
