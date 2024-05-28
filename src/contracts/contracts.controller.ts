@@ -641,12 +641,42 @@ export class ContractsController {
     // const finCtrFinDetail: Prisma.ContractFinancialDetailUncheckedUpdateInput = finDetail
     const finCtrFinDetail: UpdateContractFinancialDetailDto = finDetail;
 
+    console.log(finCtrFinDetail, "finCtrFinDetail")
 
-
-    const result2 = this.prisma.contractFinancialDetail.update({
+    const result2 = this.prisma.contractFinancialDetail.upsert({
       where: { id: parseInt(contractfinancialItemId) },
-      data:
-      {
+      update: {
+        itemid: finCtrFinDetail.itemid,
+        price: finCtrFinDetail.price,
+        currencyid: finCtrFinDetail.currencyid,
+        currencyPercent: finCtrFinDetail.currencyPercent,
+        billingDay: finCtrFinDetail.billingDay,
+        billingQtty: finCtrFinDetail.billingQtty,
+        billingFrequencyid: finCtrFinDetail.billingFrequencyid,
+        measuringUnitid: finCtrFinDetail.measuringUnitid,
+        paymentTypeid: finCtrFinDetail.paymentTypeid,
+        billingPenaltyPercent: finCtrFinDetail.billingPenaltyPercent,
+        billingDueDays: finCtrFinDetail.billingDueDays,
+        remarks: finCtrFinDetail.remarks,
+        guaranteeLetter: finCtrFinDetail.guaranteeLetter,
+        guaranteeLetterCurrencyid: finCtrFinDetail.guaranteeLetterCurrencyid,
+        guaranteeLetterDate: finCtrFinDetail.guaranteeLetterDate,
+        guaranteeLetterValue: finCtrFinDetail.guaranteeLetterValue,
+        guaranteeLetterInfo: finCtrFinDetail.guaranteeLetterInfo,
+        guaranteeLetterBankId: finCtrFinDetail.guaranteeLetterBankId,
+        goodexecutionLetter: finCtrFinDetail.goodexecutionLetter,
+        goodexecutionLetterCurrencyId: finCtrFinDetail.goodexecutionLetterCurrencyId,
+        goodexecutionLetterDate: finCtrFinDetail.goodexecutionLetterDate,
+        goodexecutionLetterValue: finCtrFinDetail.goodexecutionLetterValue,
+        goodexecutionLetterInfo: finCtrFinDetail.goodexecutionLetterInfo,
+        goodexecutionLetterBankId: finCtrFinDetail.goodexecutionLetterBankId,
+        active: finCtrFinDetail.active,
+        currencyValue: finCtrFinDetail.currencyValue,
+        advancePercent: finCtrFinDetail.advancePercent,
+        vatId: finCtrFinDetail.vatId,
+        contractItemId: finCtrFinDetail.contractItemId
+      },
+      create: {
         itemid: finCtrFinDetail.itemid,
         price: finCtrFinDetail.price,
         currencyid: finCtrFinDetail.currencyid,
