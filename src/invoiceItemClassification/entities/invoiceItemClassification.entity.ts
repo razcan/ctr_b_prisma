@@ -1,5 +1,5 @@
 
-import {InvoiceItem} from '../../invoiceItem/entities/invoiceItem.entity'
+import {Item} from '../../item/entities/item.entity'
 
 
 export class InvoiceItemClassification {
@@ -7,5 +7,5 @@ export class InvoiceItemClassification {
 updateadAt: Date ;
 createdAt: Date ;
 name: string ;
-InvoiceItem?: InvoiceItem[] ;
+Item?: Item[] ;
 }

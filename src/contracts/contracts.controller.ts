@@ -1199,9 +1199,28 @@ export class ContractsController {
 
   @Get('item')
   async getItem(@Body() data: Prisma.ItemCreateInput): Promise<any> {
-    const result = await this.prisma.item.findMany()
+    const result = await this.prisma.item.findMany({
+      include: {
+        measuringUnit: true,
+        classification: true,
+        vat: true
+      }
+    })
     return result;
   }
+
+
+  @Patch('item/:id')
+  async updateItem(
+    @Param('id') id: any,
+    @Body() data: any): Promise<any> {
+    const result = await this.prisma.item.update({
+      where: { id: parseInt(id) },
+      data: data,
+    });
+    return result;
+  }
+
 
   @Delete('item/:id')
   async removeItem(@Param('id') id: any) {

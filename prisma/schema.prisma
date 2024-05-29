@@ -26,6 +26,7 @@ model Category {
   id         Int         @id @default(autoincrement())
   name       String      @unique
   contractId Contracts[]
+  Item       Item[]
 }
 
 model Department {
@@ -49,6 +50,20 @@ model Cashflow {
 model Item {
   id                              Int                               @id @default(autoincrement())
   name                            String                            @unique
+  code                            String?
+  barCode                         String?
+  description                     String?
+  vat                             VatQuota?                         @relation(fields: [vatId], references: [id])
+  vatId                           Int?
+  measuringUnit                   MeasuringUnit?                    @relation(fields: [measuringUnitid], references: [id])
+  measuringUnitid                 Int?
+  isStockable                     Boolean                           @default(false)
+  isActive                        Boolean                           @default(true)
+  classification                  Category?                         @relation(fields: [classificationId], references: [id])
+  classificationId                Int?
+  user                            User                              @relation(fields: [userId], references: [id])
+  userId                          Int                               @default(1)
+  InvoiceDetail                   InvoiceDetail[]
   ContractItems                   ContractItems[]
   ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
 }
@@ -71,8 +86,8 @@ model MeasuringUnit {
   name                            String
   ContractFinancialDetail         ContractFinancialDetail[]
   ContractFinancialDetailSchedule ContractFinancialDetailSchedule[]
-  InvoiceItem                     InvoiceItem[]
   InvoiceDetail                   InvoiceDetail[]
+  Item                            Item[]
 }
 
 model PaymentType {
@@ -126,7 +141,7 @@ model VatQuota {
   AccVATPercent           Int
   ContractFinancialDetail ContractFinancialDetail[]
   InvoiceDetail           InvoiceDetail[]
-  InvoiceItem             InvoiceItem[]
+  Item                    Item[]
 }
 
 model BillingFrequency {
@@ -678,7 +693,7 @@ model User {
   WorkFlowRequestorTasks    WorkFlowContractTasks[]     @relation("requestorwf")
   ForgotPass                ForgotPass[]
   Invoice                   Invoice[]
-  InvoiceItem               InvoiceItem[]
+  Item                      Item[]
 }
 
 model ForgotPass {
@@ -725,35 +740,6 @@ model ExchangeRates {
   amount     Float
   name       String
   multiplier Int
-}
-
-model InvoiceItem {
-  id               Int                        @id @default(autoincrement())
-  updateadAt       DateTime                   @updatedAt
-  createdAt        DateTime                   @default(now())
-  itemName         String
-  itemCode         String
-  barCode          String
-  itemDescription  String
-  vat              VatQuota?                  @relation(fields: [vatId], references: [id])
-  vatId            Int?
-  measuringUnit    MeasuringUnit?             @relation(fields: [measuringUnitid], references: [id])
-  measuringUnitid  Int?
-  isStockable      Boolean
-  isActive         Boolean
-  classification   InvoiceItemClassification? @relation(fields: [classificationId], references: [id])
-  classificationId Int
-  user             User                       @relation(fields: [userId], references: [id])
-  userId           Int
-  InvoiceDetail    InvoiceDetail[]
-}
-
-model InvoiceItemClassification {
-  id          Int           @id @default(autoincrement())
-  updateadAt  DateTime      @updatedAt
-  createdAt   DateTime      @default(now())
-  name        String        @unique
-  InvoiceItem InvoiceItem[]
 }
 
 model InvoiceStatus {
@@ -821,8 +807,6 @@ model InvoiceDetail {
   invoiceId       Int
   entity          Partners       @relation(fields: [entityId], references: [id])
   entityId        Int
-  item            InvoiceItem?   @relation(fields: [itemId], references: [id])
-  itemId          Int?
   qtty            Float
   price           Float
   measuringUnit   MeasuringUnit? @relation(fields: [measuringUnitid], references: [id])
@@ -833,6 +817,8 @@ model InvoiceDetail {
   lineValue       Float
   totalValue      Float
   description     String
+  item            Item?          @relation(fields: [itemId], references: [id])
+  itemId          Int?
 }
 
 // model ExchangeRatesBNR {

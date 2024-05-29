@@ -1,7 +1,7 @@
 
 import {ContractFinancialDetail} from '../../contractFinancialDetail/entities/contractFinancialDetail.entity'
 import {InvoiceDetail} from '../../invoiceDetail/entities/invoiceDetail.entity'
-import {InvoiceItem} from '../../invoiceItem/entities/invoiceItem.entity'
+import {Item} from '../../item/entities/item.entity'
 
 
 export class VatQuota {
@@ -15,5 +15,5 @@ VATType: number ;
 AccVATPercent: number ;
 ContractFinancialDetail?: ContractFinancialDetail[] ;
 InvoiceDetail?: InvoiceDetail[] ;
-InvoiceItem?: InvoiceItem[] ;
+Item?: Item[] ;
 }
