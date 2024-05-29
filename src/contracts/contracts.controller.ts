@@ -1251,14 +1251,14 @@ export class ContractsController {
     }
   }
 
-  // @Post('type')
-  // async createEntity(@Body() data: Prisma.EntityCreateInput): Promise<any> {
+  @Post('type')
+  async createType(@Body() data: any): Promise<any> {
 
-  //   const result = this.prisma.contractType.create({
-  //     data,
-  //   });
-  //   return result;
-  // }
+    const result = this.prisma.contractType.create({
+      data,
+    });
+    return result;
+  }
 
   @Post('task')
   async createTask(@Body() data: Prisma.ContractTasksCreateInput): Promise<any> {
