@@ -925,7 +925,7 @@ export class ContractsController {
     const settings = data[2];
     const users = data[3];
 
-    console.log(users, "users")
+    // console.log(users, "users")
 
     const size = rules.length;
     const result = await this.prisma.workFlow.update({
@@ -1144,6 +1144,18 @@ export class ContractsController {
     });
     return result;
   }
+
+  @Patch('department/:id')
+  async upsertContent(@Body() data: any, @Param('id') id: any): Promise<any> {
+
+    const content = await this.prisma.department.upsert({
+      where: { id: parseInt(id) },
+      update: data,
+      create: data
+    })
+    return content;
+  }
+
 
   @Get('department')
   async getAllDepartments(@Body() data: Prisma.DepartmentCreateInput): Promise<any> {
