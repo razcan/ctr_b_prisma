@@ -640,6 +640,7 @@ export class NomenclaturesController {
 
   @Post('partners')
   async createPartner(@Body() data: Prisma.PartnersCreateInput): Promise<any> {
+
     const result = this.prisma.partners.create({
       data,
     });
