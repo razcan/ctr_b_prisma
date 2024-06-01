@@ -648,6 +648,18 @@ export class NomenclaturesController {
     return result;
   }
 
+  @Get('extrarates/:partnerid')
+  async getExtraRates(@Param('partnerid') partnerid: any): Promise<any> {
+    const result = this.prisma.partnersBanksExtraRates.findMany({
+      where: {
+        partnersId: parseInt(partnerid)
+      },
+    });
+    return result;
+  }
+
+
+
   @Get('contracttype')
   async getAllContractTypes() {
     const contracttype = await this.prisma.contractType.findMany()
