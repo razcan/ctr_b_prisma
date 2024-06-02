@@ -654,6 +654,10 @@ export class NomenclaturesController {
       where: {
         partnersId: parseInt(partnerid)
       },
+      include: {
+        currency: true
+      }
+
     });
     return result;
   }
