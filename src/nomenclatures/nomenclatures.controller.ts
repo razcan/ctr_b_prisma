@@ -27,6 +27,9 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { v4 as uuidv4 } from 'uuid';
 import { MailerService } from 'src/alerts/mailer.service';
+import { Entity } from 'src/entity/entities/entity.entity';
+import _ from 'lodash';
+
 
 @ApiTags('Nomenclatures')
 @Controller('nomenclatures')
@@ -75,6 +78,8 @@ export class NomenclaturesController {
     return response;
 
   }
+
+
 
   @Post('forgotpass')
   async forgotpass(
@@ -436,6 +441,50 @@ export class NomenclaturesController {
     });
     return users;
   }
+
+  // @UseGuards(AuthGuard)
+  // @Roles('Editor', 'Administrator')
+  // @UseGuards(RolesGuard)
+  @Get('userentity/:userid')
+  async getUserEntity(@Body() data: any, @Param('userid') userid: any): Promise<any> {
+
+
+    const users = await this.prisma.user.findUnique({
+      include: {
+        User_Groups: {
+          include: {
+            entity: true
+          }
+        }
+      },
+      where: {
+        id: parseInt(userid)
+      }
+    });
+
+    // Initialize an empty Set to store unique entity names
+    const uniqueEntities = new Set();
+
+    // Iterate through the User_Groups array
+    users.User_Groups.forEach(group => {
+      // Check if the entity array exists in the group
+      if (group.entity) {
+        // Iterate through each entity in the entity array
+        group.entity.forEach(entity => {
+          // Add the entity name to the Set (Set automatically handles duplicates)
+          uniqueEntities.add(entity);
+        });
+      }
+    });
+
+    const distinctEntities = Array.from(uniqueEntities);
+
+    const uniqueEntities2 = _.uniqBy(distinctEntities, 'id');
+
+    return uniqueEntities2;
+
+  }
+
 
 
   @UseGuards(AuthGuard)

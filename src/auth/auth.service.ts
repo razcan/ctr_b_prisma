@@ -94,9 +94,9 @@ export class AuthService {
 
       const currentDate = new Date();
 
-      // Add 10 minutes to the current date
+      // Add 1488 - 24 hours - minutes to the current date
       const futureDate = new Date(currentDate.getTime());
-      futureDate.setMinutes(currentDate.getMinutes() + 60);
+      futureDate.setMinutes(currentDate.getMinutes() + 1488);
 
 
       return {
