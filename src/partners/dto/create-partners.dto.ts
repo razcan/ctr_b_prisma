@@ -14,4 +14,5 @@ email: string;
 remarks: string;
 contractsId?: number;
 paymentTerm?: number;
+picture?: string;
 }

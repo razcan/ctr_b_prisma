@@ -33,4 +33,5 @@ InvoiceDetail?: InvoiceDetail[] ;
 partnerInvoice?: Invoice[] ;
 entityInvoice?: Invoice[] ;
 PartnerBanksExtraRates?: PartnersBanksExtraRates[] ;
+picture: string  | null;
 }

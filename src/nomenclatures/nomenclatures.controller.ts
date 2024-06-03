@@ -639,7 +639,9 @@ export class NomenclaturesController {
   }
 
   @Post('partners')
-  async createPartner(@Body() data: Prisma.PartnersCreateInput): Promise<any> {
+  async createPartner(
+    @Body() data: Prisma.PartnersCreateInput,
+  ): Promise<any> {
 
     const result = this.prisma.partners.create({
       data,
@@ -647,6 +649,44 @@ export class NomenclaturesController {
 
     return result;
   }
+
+
+  @Post('partnerlogo/:partnerId')
+  @UseInterceptors(FilesInterceptor('logo'))
+  async createPartnerLogo(
+    @UploadedFiles() logo: Express.Multer.File,
+    @Param('partnerId') partnerId: any
+  ): Promise<any> {
+
+    const picture = logo[0] ? logo[0].filename : 'default.jpeg'
+
+    const result = this.prisma.partners.update({
+      where: {
+        id: parseInt(partnerId)
+      },
+      data: {
+        picture: picture
+      }
+    });
+    return result;
+  }
+
+  @Delete('partnerlogo/:partnerId')
+  async deletePartnerLogo(
+    @Param('partnerId') partnerId: any
+  ): Promise<any> {
+
+    const result = this.prisma.partners.update({
+      where: {
+        id: parseInt(partnerId)
+      },
+      data: {
+        picture: null
+      }
+    });
+    return result;
+  }
+
 
   @Get('extrarates/:partnerid')
   async getExtraRates(@Param('partnerid') partnerid: any): Promise<any> {
@@ -658,6 +698,37 @@ export class NomenclaturesController {
         currency: true
       }
 
+    });
+    return result;
+  }
+
+  @Delete('extrarates/:id')
+  async deleteExtraRates(@Param('id') id: any): Promise<any> {
+    const result = this.prisma.partnersBanksExtraRates.delete({
+      where: {
+        id: parseInt(id)
+      }
+    });
+    return result;
+  }
+
+  @Patch('extrarates/:id')
+  async updateExtraRates(@Body() data: any, @Param('id') id: any): Promise<any> {
+    const result = this.prisma.partnersBanksExtraRates.update({
+      where: {
+        id: parseInt(id)
+      },
+      data: data
+
+    });
+    return result;
+  }
+
+
+  @Post('extrarates')
+  async addExtraRates(@Body() data: any): Promise<any> {
+    const result = this.prisma.partnersBanksExtraRates.createMany({
+      data: data
     });
     return result;
   }

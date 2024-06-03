@@ -614,6 +614,7 @@ model Partners {
   partnerInvoice         Invoice[]                 @relation("partner")
   entityInvoice          Invoice[]                 @relation("entity")
   PartnerBanksExtraRates PartnersBanksExtraRates[] @relation("partner")
+  picture                String?
 }
 
 model PartnersBanksExtraRates {
