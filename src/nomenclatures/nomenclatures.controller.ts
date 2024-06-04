@@ -634,6 +634,30 @@ export class NomenclaturesController {
     return result;
   }
 
+  @Get('documentseriesbytype/:documentTypeId')
+  async getDocSeriesByDocTypeId(@Param('documentTypeId') documentTypeId: any): Promise<any> {
+    const result = this.prisma.documentSeries.findMany({
+      where: {
+        documentTypeId: parseInt(documentTypeId)
+      },
+    });
+    return result;
+  }
+
+  @Get('documentseriesbytypeandseries/:documentTypeId/:id')
+  async getDocSeriesByDocTypeIdandSerieId(
+    @Param('documentTypeId') documentTypeId: any,
+    @Param('id') id: any
+  ): Promise<any> {
+    const result = this.prisma.documentSeries.findMany({
+      where: {
+        documentTypeId: parseInt(documentTypeId),
+        id: parseInt(id)
+      },
+    });
+    return result;
+  }
+
   @Patch('documentseries/:id')
   async editDocumentSeriesById(
     @Param('id') id: any,
