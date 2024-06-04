@@ -605,6 +605,50 @@ export class NomenclaturesController {
   // }
 
 
+
+  @Post('documentseries')
+  async createDocumentSeries(@Body() data: Prisma.DocumentSeriesCreateInput): Promise<any> {
+    const result = this.prisma.documentSeries.create({
+      data,
+    });
+    return result;
+  }
+
+
+
+  @Get('documentseries')
+  async getAllDocumentSeries(@Body() data: Prisma.DocumentSeriesCreateInput): Promise<any> {
+    const result = this.prisma.documentSeries.findMany({
+    });
+    return result;
+  }
+
+
+  @Get('documentseries/:id')
+  async getDocumentSeriesById(@Param('id') id: any): Promise<any> {
+    const result = this.prisma.documentSeries.findUnique({
+      where: {
+        id: parseInt(id)
+      },
+    });
+    return result;
+  }
+
+  @Patch('documentseries/:id')
+  async editDocumentSeriesById(
+    @Param('id') id: any,
+    @Body() data: Prisma.DocumentSeriesCreateInput): Promise<any> {
+    const result = this.prisma.documentSeries.update({
+      where: {
+        id: parseInt(id)
+      },
+      data: data
+    });
+    return result;
+  }
+
+
+
   @Get('roles')
   async getUserRoles() {
     const roles = await this.prisma.role.findMany()

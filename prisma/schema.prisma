@@ -836,6 +836,20 @@ model InvoiceDetail {
   itemId          Int?
 }
 
+model DocumentSeries {
+  id              Int      @id @default(autoincrement())
+  updateadAt      DateTime @updatedAt
+  createdAt       DateTime @default(now())
+  entityId        Int
+  updatedByUserId Int
+  documentTypeId  Int
+  series          String   @unique
+  start_number    Int
+  final_number    Int
+  last_number     Int
+  isActive        Boolean
+}
+
 // model ExchangeRatesBNR {
 //   id         Int      @id @default(autoincrement())
 //   updateadAt DateTime @updatedAt
