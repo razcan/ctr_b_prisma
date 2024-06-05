@@ -22,6 +22,7 @@ export interface CurrencyInterface {
     date: string;
     amount: number;
     name: string;
+    multiplier?: string
 }
 
 
@@ -53,6 +54,7 @@ export class AlertsController {
         return contracts;
     }
 
+    // @Cron(CronExpression.EVERY_30_SECONDS)
     async fetchExchangeRates(): Promise<CurrencyInterface[] | null> {
         try {
             const response = await fetch('https://www.bnr.ro/nbrfxrates.xml');
@@ -75,21 +77,57 @@ export class AlertsController {
             const currencyResult: CurrencyInterface[] = [];
             rates.forEach((rate: any) => {
                 const currency = rate.$.currency;
+                let multiplier = rate.$.multiplier;
+                if (!multiplier) {
+
+                    multiplier = 1;
+                }
                 const value = rate._;
                 const toAdd: CurrencyInterface = {
                     date: atdate,
-                    amount: value,
-                    name: currency
+                    amount: parseFloat(value),
+                    name: currency,
+                    multiplier: parseString(multiplier)
                 };
                 currencyResult.push(toAdd);
             });
             console.log(currencyResult)
+
+            const dateObject = new Date();
+            const dateOnlyString = dateObject.toISOString().split("T")[0];
+
+            const ins = await this.prisma.exchangeRatesBNR.findFirst({
+                where: {
+                    date: dateOnlyString
+                }
+            })
+
+            if (ins && ins.date !== undefined && ins.amount !== null) {
+                // Property exists and has a non-null value
+                console.log("we already have the foreign exchanges")
+            } else {
+                // Property does not exist or has a null value
+                for (let i = 0; i < currencyResult.length; i++) {
+                    await this.prisma.exchangeRatesBNR.create({
+                        data: {
+                            date: currencyResult[i].date,
+                            amount: currencyResult[i].amount,
+                            name: currencyResult[i].name,
+                            multiplier: currencyResult[i].multiplier
+                        }
+
+                    })
+                }
+            }
+
             return currencyResult;
         } catch (error) {
             console.error('Error fetching XML:', error);
             return null;
         }
     }
+
+
 
     @Get('bnr')
     async exampleUsage() {
