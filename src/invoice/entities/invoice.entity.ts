@@ -8,6 +8,7 @@ import {Address} from '../../address/entities/address.entity'
 import {User} from '../../user/entities/user.entity'
 import {Currency} from '../../currency/entities/currency.entity'
 import {InvoiceDetail} from '../../invoiceDetail/entities/invoiceDetail.entity'
+import {DocumentSeries} from '../../documentSeries/entities/documentSeries.entity'
 
 
 export class Invoice {
@@ -41,4 +42,11 @@ currency?: Currency  | null;
 currencyId: number  | null;
 InvoiceDetail?: InvoiceDetail[] ;
 remarks: string ;
+series?: DocumentSeries ;
+seriesId: number ;
+serialNumber: string ;
+eqvTotalAmount: number ;
+eqvVatAmount: number ;
+eqvTotalPayment: number ;
+vatOnReceipt: boolean ;
 }

@@ -813,6 +813,13 @@ model Invoice {
   currencyId        Int?
   InvoiceDetail     InvoiceDetail[]
   remarks           String
+  series            DocumentSeries  @relation(fields: [seriesId], references: [id])
+  seriesId          Int
+  serialNumber      String
+  eqvTotalAmount    Float
+  eqvVatAmount      Float
+  eqvTotalPayment   Float
+  vatOnReceipt      Boolean
 }
 
 model InvoiceDetail {
@@ -838,17 +845,18 @@ model InvoiceDetail {
 }
 
 model DocumentSeries {
-  id              Int      @id @default(autoincrement())
-  updateadAt      DateTime @updatedAt
-  createdAt       DateTime @default(now())
+  id              Int       @id @default(autoincrement())
+  updateadAt      DateTime  @updatedAt
+  createdAt       DateTime  @default(now())
   entityId        Int
   updatedByUserId Int
   documentTypeId  Int
-  series          String   @unique
+  series          String    @unique
   start_number    Int
   final_number    Int
   last_number     Int
   isActive        Boolean
+  Invoice         Invoice[]
 }
 
 model ExchangeRatesBNR {

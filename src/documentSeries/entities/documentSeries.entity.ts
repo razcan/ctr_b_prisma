@@ -1,5 +1,5 @@
 
-
+import {Invoice} from '../../invoice/entities/invoice.entity'
 
 
 export class DocumentSeries {
@@ -14,4 +14,5 @@ start_number: number ;
 final_number: number ;
 last_number: number ;
 isActive: boolean ;
+Invoice?: Invoice[] ;
 }

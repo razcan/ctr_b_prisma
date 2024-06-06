@@ -13,4 +13,9 @@ vatAmount?: number;
 totalPayment?: number;
 currencyRate?: number;
 remarks?: string;
+serialNumber?: string;
+eqvTotalAmount?: number;
+eqvVatAmount?: number;
+eqvTotalPayment?: number;
+vatOnReceipt?: boolean;
 }
