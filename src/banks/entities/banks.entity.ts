@@ -13,6 +13,7 @@ currency: string  | null;
 branch: string  | null;
 iban: string  | null;
 status: boolean  | null;
+isDefault: boolean  | null;
 partner?: Partners ;
 partnerId: number ;
 Contracts?: Contracts[] ;

@@ -48,6 +48,12 @@ async function main() {
         { name: 'Anulat' },
     ]
 
+    const invoiceStatus = [
+        { name: 'In lucru' },
+        { name: 'Validat' },
+        { name: 'Anulat' }
+    ]
+
 
     const contractWFStatus = [
         { name: "In lucru" },
@@ -58,6 +64,12 @@ async function main() {
 
     for (const statuses of contractWFStatus) {
         await prisma.ContractWFStatus.create({
+            data: statuses,
+        });
+    }
+
+    for (const statuses of invoiceStatus) {
+        await prisma.invoiceStatus.create({
             data: statuses,
         });
     }

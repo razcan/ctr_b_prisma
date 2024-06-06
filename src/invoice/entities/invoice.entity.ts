@@ -15,7 +15,7 @@ export class Invoice {
 updateadAt: Date ;
 createdAt: Date ;
 partner?: Partners ;
-partnersId: number ;
+partnerId: number ;
 entity?: Partners ;
 entityId: number ;
 number: string ;

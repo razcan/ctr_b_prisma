@@ -864,6 +864,12 @@ export class NomenclaturesController {
     return contractstatus;
   }
 
+  @Get('invoicestatus')
+  async getAllInvoiceStatuses() {
+    const invoicestatus = await this.prisma.invoiceStatus.findMany()
+    return invoicestatus;
+  }
+
   @Get('contractwfstatus')
   async getAllContractWFStatuses() {
     const contractwfstatus = await this.prisma.contractWFStatus.findMany()
@@ -1210,6 +1216,18 @@ export class NomenclaturesController {
     const banks = await this.prisma.banks.findMany({
       where: {
         partnerId: parseInt(partnerid),
+      },
+    })
+    return banks;
+  }
+
+  @Get('entitybank/:partnerid')
+  async getDefaultEntityBank(@Param('partnerid') partnerid: any) {
+    const banks = await this.prisma.banks.findMany({
+      where: {
+        partnerId: parseInt(partnerid),
+        isDefault: true,
+        status: true
       },
     })
     return banks;

@@ -675,6 +675,7 @@ model Banks {
   branch     String?
   iban       String?
   status     Boolean?
+  isDefault  Boolean?
   partner    Partners    @relation(fields: [partnerId], references: [id], onDelete: Cascade)
   partnerId  Int
   Contracts  Contracts[] @relation("partner")
@@ -785,8 +786,8 @@ model Invoice {
   id                Int             @id @default(autoincrement())
   updateadAt        DateTime        @updatedAt
   createdAt         DateTime        @default(now())
-  partner           Partners        @relation("partner", fields: [partnersId], references: [id])
-  partnersId        Int
+  partner           Partners        @relation("partner", fields: [partnerId], references: [id])
+  partnerId         Int
   entity            Partners        @relation("entity", fields: [entityId], references: [id])
   entityId          Int
   number            String
