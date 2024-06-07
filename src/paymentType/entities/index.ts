@@ -1,0 +1,2 @@
+
+export * from './paymentType.entity';

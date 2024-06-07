@@ -1,6 +1,13 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Apply migrations to your database to ensure schema consistency:
 // npx prisma migrate dev --name init
+// Clean up the old generated DTO files to ensure no outdated files remain:
+// rm -rf src/dto/*
+
+// Run the Prisma generate command to regenerate all DTOs:
+// npx prisma generate
+
 //  npx prisma studio   
 // https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding
 //node seed.js
@@ -11,8 +18,8 @@ generator nestjsDto {
   provider                        = "prisma-generator-nestjs-dto"
   output                          = "../src"
   outputToNestJsResourceStructure = "true"
-  exportRelationModifierClasses   = "true"
-  reExport                        = "true"
+  // exportRelationModifierClasses   = "true"
+  // reExport                        = "true"
 }
 
 generator client {
@@ -785,38 +792,38 @@ model TransactionType {
 }
 
 model Invoice {
-  id                Int             @id @default(autoincrement())
-  updateadAt        DateTime        @updatedAt
-  createdAt         DateTime        @default(now())
-  partner           Partners        @relation("partner", fields: [partnerId], references: [id])
-  partnerId         Int
-  entity            Partners        @relation("entity", fields: [entityId], references: [id])
-  entityId          Int
+  id                Int              @id @default(autoincrement())
+  updateadAt        DateTime         @updatedAt
+  createdAt         DateTime         @default(now())
+  partner           Partners?        @relation("partner", fields: [partnerId], references: [id])
+  partnerId         Int?
+  entity            Partners?        @relation("entity", fields: [entityId], references: [id])
+  entityId          Int?
   number            String
   date              DateTime
   duedate           DateTime
   totalAmount       Float
   vatAmount         Float
   totalPayment      Float
-  type              InvoiceType     @relation(fields: [typeId], references: [id])
-  typeId            Int
-  transaction       TransactionType @relation(fields: [transactionTypeId], references: [id])
-  transactionTypeId Int
-  status            InvoiceStatus   @relation(fields: [statusId], references: [id])
-  statusId          Int
-  entityBank        Banks?          @relation(fields: [entitybankId], references: [id])
+  type              InvoiceType?     @relation(fields: [typeId], references: [id])
+  typeId            Int?
+  transaction       TransactionType? @relation(fields: [transactionTypeId], references: [id])
+  transactionTypeId Int?
+  status            InvoiceStatus?   @relation(fields: [statusId], references: [id])
+  statusId          Int?
+  entityBank        Banks?           @relation(fields: [entitybankId], references: [id])
   entitybankId      Int?
-  partnerAddress    Address?        @relation(fields: [partneraddressId], references: [id])
+  partnerAddress    Address?         @relation(fields: [partneraddressId], references: [id])
   partneraddressId  Int?
   currencyRate      Float
-  user              User            @relation(fields: [userId], references: [id])
+  user              User             @relation(fields: [userId], references: [id])
   userId            Int
-  currency          Currency?       @relation(fields: [currencyId], references: [id])
+  currency          Currency?        @relation(fields: [currencyId], references: [id])
   currencyId        Int?
   InvoiceDetail     InvoiceDetail[]
   remarks           String
-  series            DocumentSeries  @relation(fields: [seriesId], references: [id])
-  seriesId          Int
+  series            DocumentSeries?  @relation(fields: [seriesId], references: [id])
+  seriesId          Int?
   serialNumber      String
   eqvTotalAmount    Float
   eqvVatAmount      Float

@@ -658,6 +658,27 @@ export class NomenclaturesController {
     return result;
   }
 
+
+  @Patch('documentseriesbytypeandseries/:documentTypeId/:id')
+  async patchDocSeriesByDocTypeIdandSerieId(
+    @Param('documentTypeId') documentTypeId: any,
+    @Param('id') id: any,
+    @Body() data: Prisma.DocumentSeriesCreateInput): Promise<any> {
+
+    const result = this.prisma.documentSeries.updateMany({
+      data: {
+        last_number: data.last_number + 1
+      },
+      where: {
+        documentTypeId: parseInt(documentTypeId),
+        id: parseInt(id)
+      },
+    });
+    return result;
+  }
+
+
+
   @Patch('documentseries/:id')
   async editDocumentSeriesById(
     @Param('id') id: any,

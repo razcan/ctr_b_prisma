@@ -1,0 +1,2 @@
+
+export * from './contractType.entity';
