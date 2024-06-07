@@ -11,10 +11,11 @@ import { AuthModule } from './auth/auth.module';
 import { AuthService } from './auth/auth.service'
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from './user/user.service'
+import { InvoiceModule } from './invoice/invoice.module';
 
 @Module({
   imports: [ContractsModule, NomenclaturesModule, AlertsModule,
-    ScheduleModule.forRoot(), AuthModule],
+    ScheduleModule.forRoot(), AuthModule, InvoiceModule],
   controllers: [AppController],
   providers: [AppService, PrismaService, NomenclaturesService, AuthService, JwtService, UsersService],
 })
