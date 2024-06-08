@@ -52,7 +52,19 @@ export class CreatepdfController {
   @Post('file2')
   async findAll() {
 
-    const { customerName, date, items, total } = { customerName: "SoftHub", date: "2024-06-06", items: "Branza", total: "200" };
+    const { customerName, date, items, total } = {
+      customerName: "SoftHub", date: "2024-06-06",
+      items: [
+        { name: "Branza", quantity: "1", price: "10" },
+        { name: "Carne", quantity: "2", price: "30" },
+        { name: "Carnati", quantity: "3", price: "310" },
+      ]
+
+      , total: "200"
+    };
+
+
+
 
     // Create a new PDF document
     const pdfDoc = await PDFDocument.create();
@@ -88,12 +100,12 @@ export class CreatepdfController {
     page.drawText('Price', { x: 400, y: 240, size: 15, font });
 
     // Draw table content
-    // items.forEach((item: any, index: number) => {
-    //   const y = 220 - index * 20;
-    //   page.drawText(item.name, { x: 50, y, size: 15, font });
-    //   page.drawText(item.quantity.toString(), { x: 250, y, size: 15, font });
-    //   page.drawText(item.price.toFixed(2), { x: 400, y, size: 15, font });
-    // });
+    items.forEach((item: any, index: number) => {
+      const y = 220 - index * 20;
+      page.drawText(item.name, { x: 50, y, size: 15, font });
+      page.drawText(item.quantity.toString(), { x: 250, y, size: 15, font });
+      page.drawText(item.price.toFixed(2), { x: 400, y, size: 15, font });
+    });
 
     // Draw total
     // page.drawText(`Total: $${total.toFixed(2)}`, { x: 50, y: 120, size: 20, font });
