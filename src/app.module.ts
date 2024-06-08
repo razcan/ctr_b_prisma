@@ -12,10 +12,11 @@ import { AuthService } from './auth/auth.service'
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from './user/user.service'
 import { InvoiceModule } from './invoice/invoice.module';
+import { CreatepdfModule } from './createpdf/createpdf.module';
 
 @Module({
   imports: [ContractsModule, NomenclaturesModule, AlertsModule,
-    ScheduleModule.forRoot(), AuthModule, InvoiceModule],
+    ScheduleModule.forRoot(), AuthModule, InvoiceModule, CreatepdfModule],
   controllers: [AppController],
   providers: [AppService, PrismaService, NomenclaturesService, AuthService, JwtService, UsersService],
 })
