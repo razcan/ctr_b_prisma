@@ -17,16 +17,16 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: public; Type: SCHEMA; Schema: -; Owner: sysadmin
+-- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
 --
 
 -- *not* creating schema, since initdb creates it
 
 
-ALTER SCHEMA public OWNER TO sysadmin;
+ALTER SCHEMA public OWNER TO postgres;
 
 --
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: sysadmin
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
 --
 
 COMMENT ON SCHEMA public IS '';
@@ -47,7 +47,7 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 
 
 --
--- Name: active_wf_rulesok(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: active_wf_rulesok(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.active_wf_rulesok() RETURNS TABLE(workflowid integer, costcenters integer[], departments integer[], cashflows integer[], categories integer[])
@@ -149,10 +149,10 @@ END;
 $$;
 
 
-ALTER FUNCTION public.active_wf_rulesok() OWNER TO sysadmin;
+ALTER FUNCTION public.active_wf_rulesok() OWNER TO postgres;
 
 --
--- Name: active_wf_rulesok99(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: active_wf_rulesok99(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.active_wf_rulesok99() RETURNS TABLE(workflowid integer, costcenters integer[], departments integer[], cashflows integer[], categories integer[])
@@ -253,10 +253,10 @@ END;
 $$;
 
 
-ALTER FUNCTION public.active_wf_rulesok99() OWNER TO sysadmin;
+ALTER FUNCTION public.active_wf_rulesok99() OWNER TO postgres;
 
 --
--- Name: calculate_cashflow_func(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: calculate_cashflow_func(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.calculate_cashflow_func() RETURNS TABLE(tip text, billingvalue numeric, month_number numeric)
@@ -313,10 +313,10 @@ CREATE FUNCTION public.calculate_cashflow_func() RETURNS TABLE(tip text, billing
     $$;
 
 
-ALTER FUNCTION public.calculate_cashflow_func() OWNER TO sysadmin;
+ALTER FUNCTION public.calculate_cashflow_func() OWNER TO postgres;
 
 --
--- Name: contracttasktobegenerated(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: contracttasktobegenerated(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.contracttasktobegenerated() RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, approvedbyall boolean, approvaltypeinparallel boolean, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean)
@@ -353,10 +353,10 @@ select wfts."taskName", wfts."taskNotes", wfx."contractId",
     $$;
 
 
-ALTER FUNCTION public.contracttasktobegenerated() OWNER TO sysadmin;
+ALTER FUNCTION public.contracttasktobegenerated() OWNER TO postgres;
 
 --
--- Name: contracttasktobegeneratedok(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: contracttasktobegeneratedok(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.contracttasktobegeneratedok() RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer)
@@ -394,10 +394,10 @@ CREATE FUNCTION public.contracttasktobegeneratedok() RETURNS TABLE(taskname text
         $$;
 
 
-ALTER FUNCTION public.contracttasktobegeneratedok() OWNER TO sysadmin;
+ALTER FUNCTION public.contracttasktobegeneratedok() OWNER TO postgres;
 
 --
--- Name: contracttasktobegeneratedsecv(integer); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: contracttasktobegeneratedsecv(integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.contracttasktobegeneratedsecv(contractid_param integer) RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, approvedbyall boolean, approvaltypeinparallel boolean, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer)
@@ -451,10 +451,10 @@ END;
 $$;
 
 
-ALTER FUNCTION public.contracttasktobegeneratedsecv(contractid_param integer) OWNER TO sysadmin;
+ALTER FUNCTION public.contracttasktobegeneratedsecv(contractid_param integer) OWNER TO postgres;
 
 --
--- Name: contracttasktobegeneratedsecv3(integer); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: contracttasktobegeneratedsecv3(integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.contracttasktobegeneratedsecv3(contractid_param integer) RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, workflowtasksettingsid integer, uuid integer, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer)
@@ -508,10 +508,10 @@ END;
 $$;
 
 
-ALTER FUNCTION public.contracttasktobegeneratedsecv3(contractid_param integer) OWNER TO sysadmin;
+ALTER FUNCTION public.contracttasktobegeneratedsecv3(contractid_param integer) OWNER TO postgres;
 
 --
--- Name: contracttasktobegeneratedsecv5(integer); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: contracttasktobegeneratedsecv5(integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.contracttasktobegeneratedsecv5(contractid_param integer) RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer)
@@ -563,10 +563,10 @@ END;
 $$;
 
 
-ALTER FUNCTION public.contracttasktobegeneratedsecv5(contractid_param integer) OWNER TO sysadmin;
+ALTER FUNCTION public.contracttasktobegeneratedsecv5(contractid_param integer) OWNER TO postgres;
 
 --
--- Name: contracttasktobegeneratedsecvent(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: contracttasktobegeneratedsecvent(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.contracttasktobegeneratedsecvent() RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, approvedbyall boolean, approvaltypeinparallel boolean, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer)
@@ -606,10 +606,10 @@ CREATE FUNCTION public.contracttasktobegeneratedsecvent() RETURNS TABLE(taskname
         $$;
 
 
-ALTER FUNCTION public.contracttasktobegeneratedsecvent() OWNER TO sysadmin;
+ALTER FUNCTION public.contracttasktobegeneratedsecvent() OWNER TO postgres;
 
 --
--- Name: cttobegeneratedsecv(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: cttobegeneratedsecv(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.cttobegeneratedsecv() RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer)
@@ -662,10 +662,10 @@ CREATE FUNCTION public.cttobegeneratedsecv() RETURNS TABLE(taskname text, taskno
         $$;
 
 
-ALTER FUNCTION public.cttobegeneratedsecv() OWNER TO sysadmin;
+ALTER FUNCTION public.cttobegeneratedsecv() OWNER TO postgres;
 
 --
--- Name: get_contract_details(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: get_contract_details(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.get_contract_details() RETURNS TABLE(tipcontract text, number text, start_date date, end_date date, sign_date date, completion_date date, remarks text, partner_name text, entity_name text, automatic_renewal text, status_name text, cashflow_name text, category_name text, contract_type_name text, department_name text, cost_center_name text, partner_person_name text, partner_person_role text, partner_person_email text, entity_person_name text, entity_person_role text, entity_person_email text, partner_address text, entity_address text, partner_bank text, partner_currency text, partner_iban text, entity_bank text, entity_currency text, entity_iban text)
@@ -741,10 +741,10 @@ CREATE FUNCTION public.get_contract_details() RETURNS TABLE(tipcontract text, nu
     $$;
 
 
-ALTER FUNCTION public.get_contract_details() OWNER TO sysadmin;
+ALTER FUNCTION public.get_contract_details() OWNER TO postgres;
 
 --
--- Name: get_workflow_data(); Type: PROCEDURE; Schema: public; Owner: sysadmin
+-- Name: get_workflow_data(); Type: PROCEDURE; Schema: public; Owner: postgres
 --
 
 CREATE PROCEDURE public.get_workflow_data()
@@ -842,10 +842,10 @@ END;
 $$;
 
 
-ALTER PROCEDURE public.get_workflow_data() OWNER TO sysadmin;
+ALTER PROCEDURE public.get_workflow_data() OWNER TO postgres;
 
 --
--- Name: getauditcontract(integer); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: getauditcontract(integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.getauditcontract(contractid integer) RETURNS TABLE(contract_id integer, tip_modificare text, data_modificare timestamp without time zone, contract_number text, nume_partener text, nume_entitate text, stare text, start_date timestamp without time zone, end_date timestamp without time zone, sign_date timestamp without time zone, completion_date timestamp without time zone, nume_categorie text, departament text, cashflow text, tip_contract text, centru_cost text, utilizator text)
@@ -890,10 +890,10 @@ CREATE FUNCTION public.getauditcontract(contractid integer) RETURNS TABLE(contra
         $$;
 
 
-ALTER FUNCTION public.getauditcontract(contractid integer) OWNER TO sysadmin;
+ALTER FUNCTION public.getauditcontract(contractid integer) OWNER TO postgres;
 
 --
--- Name: getauditcontract2(integer); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: getauditcontract2(integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.getauditcontract2(contractid integer) RETURNS TABLE(contract_id integer, tip_modificare text, data_modificare timestamp without time zone, contract_number text, nume_partener text, nume_entitate text, stare text, starewf text, start_date timestamp without time zone, end_date timestamp without time zone, sign_date timestamp without time zone, completion_date timestamp without time zone, nume_categorie text, departament text, cashflow text, tip_contract text, centru_cost text, locatie text, utilizator text)
@@ -938,10 +938,10 @@ CREATE FUNCTION public.getauditcontract2(contractid integer) RETURNS TABLE(contr
         $$;
 
 
-ALTER FUNCTION public.getauditcontract2(contractid integer) OWNER TO sysadmin;
+ALTER FUNCTION public.getauditcontract2(contractid integer) OWNER TO postgres;
 
 --
--- Name: remove_duplicates_from_table2(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: remove_duplicates_from_table2(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.remove_duplicates_from_table2() RETURNS SETOF text
@@ -965,10 +965,10 @@ CREATE FUNCTION public.remove_duplicates_from_table2() RETURNS SETOF text
         $$;
 
 
-ALTER FUNCTION public.remove_duplicates_from_table2() OWNER TO sysadmin;
+ALTER FUNCTION public.remove_duplicates_from_table2() OWNER TO postgres;
 
 --
--- Name: remove_duplicates_from_task(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: remove_duplicates_from_task(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.remove_duplicates_from_task() RETURNS void
@@ -990,10 +990,10 @@ CREATE FUNCTION public.remove_duplicates_from_task() RETURNS void
         $$;
 
 
-ALTER FUNCTION public.remove_duplicates_from_task() OWNER TO sysadmin;
+ALTER FUNCTION public.remove_duplicates_from_task() OWNER TO postgres;
 
 --
--- Name: report_cashflow(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: report_cashflow(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.report_cashflow() RETURNS TABLE(contractid integer, tiptranzactie text, partener text, entitate text, numarcontract text, start date, final date, descrierecontract text, cashflow text, data date, procentplusbnr double precision, procentpenalitate double precision, nrzilescadente integer, articol text, cantitate double precision, pretunitarinvaluta double precision, valoareinvaluta double precision, valuta text, cursvalutar double precision, valoareron numeric, platitincasat text, facturat text)
@@ -1066,14 +1066,14 @@ CREATE FUNCTION public.report_cashflow() RETURNS TABLE(contractid integer, tiptr
         $$;
 
 
-ALTER FUNCTION public.report_cashflow() OWNER TO sysadmin;
+ALTER FUNCTION public.report_cashflow() OWNER TO postgres;
 
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
 --
--- Name: Address; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Address; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Address" (
@@ -1096,10 +1096,10 @@ CREATE TABLE public."Address" (
 );
 
 
-ALTER TABLE public."Address" OWNER TO sysadmin;
+ALTER TABLE public."Address" OWNER TO postgres;
 
 --
--- Name: Address_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Address_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Address_id_seq"
@@ -1111,17 +1111,17 @@ CREATE SEQUENCE public."Address_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Address_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Address_id_seq" OWNER TO postgres;
 
 --
--- Name: Address_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Address_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Address_id_seq" OWNED BY public."Address".id;
 
 
 --
--- Name: Alerts; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Alerts; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Alerts" (
@@ -1140,10 +1140,10 @@ CREATE TABLE public."Alerts" (
 );
 
 
-ALTER TABLE public."Alerts" OWNER TO sysadmin;
+ALTER TABLE public."Alerts" OWNER TO postgres;
 
 --
--- Name: AlertsHistory; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: AlertsHistory; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."AlertsHistory" (
@@ -1160,10 +1160,10 @@ CREATE TABLE public."AlertsHistory" (
 );
 
 
-ALTER TABLE public."AlertsHistory" OWNER TO sysadmin;
+ALTER TABLE public."AlertsHistory" OWNER TO postgres;
 
 --
--- Name: AlertsHistory_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: AlertsHistory_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."AlertsHistory_id_seq"
@@ -1175,17 +1175,17 @@ CREATE SEQUENCE public."AlertsHistory_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."AlertsHistory_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."AlertsHistory_id_seq" OWNER TO postgres;
 
 --
--- Name: AlertsHistory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: AlertsHistory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."AlertsHistory_id_seq" OWNED BY public."AlertsHistory".id;
 
 
 --
--- Name: Alerts_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Alerts_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Alerts_id_seq"
@@ -1197,17 +1197,17 @@ CREATE SEQUENCE public."Alerts_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Alerts_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Alerts_id_seq" OWNER TO postgres;
 
 --
--- Name: Alerts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Alerts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Alerts_id_seq" OWNED BY public."Alerts".id;
 
 
 --
--- Name: Bank; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Bank; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Bank" (
@@ -1216,10 +1216,10 @@ CREATE TABLE public."Bank" (
 );
 
 
-ALTER TABLE public."Bank" OWNER TO sysadmin;
+ALTER TABLE public."Bank" OWNER TO postgres;
 
 --
--- Name: Bank_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Bank_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Bank_id_seq"
@@ -1231,17 +1231,17 @@ CREATE SEQUENCE public."Bank_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Bank_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Bank_id_seq" OWNER TO postgres;
 
 --
--- Name: Bank_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Bank_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Bank_id_seq" OWNED BY public."Bank".id;
 
 
 --
--- Name: Banks; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Banks; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Banks" (
@@ -1258,10 +1258,10 @@ CREATE TABLE public."Banks" (
 );
 
 
-ALTER TABLE public."Banks" OWNER TO sysadmin;
+ALTER TABLE public."Banks" OWNER TO postgres;
 
 --
--- Name: Banks_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Banks_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Banks_id_seq"
@@ -1273,17 +1273,17 @@ CREATE SEQUENCE public."Banks_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Banks_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Banks_id_seq" OWNER TO postgres;
 
 --
--- Name: Banks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Banks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Banks_id_seq" OWNED BY public."Banks".id;
 
 
 --
--- Name: BillingFrequency; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: BillingFrequency; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."BillingFrequency" (
@@ -1292,10 +1292,10 @@ CREATE TABLE public."BillingFrequency" (
 );
 
 
-ALTER TABLE public."BillingFrequency" OWNER TO sysadmin;
+ALTER TABLE public."BillingFrequency" OWNER TO postgres;
 
 --
--- Name: BillingFrequency_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: BillingFrequency_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."BillingFrequency_id_seq"
@@ -1307,17 +1307,17 @@ CREATE SEQUENCE public."BillingFrequency_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."BillingFrequency_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."BillingFrequency_id_seq" OWNER TO postgres;
 
 --
--- Name: BillingFrequency_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: BillingFrequency_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."BillingFrequency_id_seq" OWNED BY public."BillingFrequency".id;
 
 
 --
--- Name: Cashflow; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Cashflow; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Cashflow" (
@@ -1326,10 +1326,10 @@ CREATE TABLE public."Cashflow" (
 );
 
 
-ALTER TABLE public."Cashflow" OWNER TO sysadmin;
+ALTER TABLE public."Cashflow" OWNER TO postgres;
 
 --
--- Name: Cashflow_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Cashflow_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Cashflow_id_seq"
@@ -1341,17 +1341,17 @@ CREATE SEQUENCE public."Cashflow_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Cashflow_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Cashflow_id_seq" OWNER TO postgres;
 
 --
--- Name: Cashflow_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Cashflow_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Cashflow_id_seq" OWNED BY public."Cashflow".id;
 
 
 --
--- Name: Category; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Category; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Category" (
@@ -1360,10 +1360,10 @@ CREATE TABLE public."Category" (
 );
 
 
-ALTER TABLE public."Category" OWNER TO sysadmin;
+ALTER TABLE public."Category" OWNER TO postgres;
 
 --
--- Name: Category_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Category_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Category_id_seq"
@@ -1375,17 +1375,17 @@ CREATE SEQUENCE public."Category_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Category_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Category_id_seq" OWNER TO postgres;
 
 --
--- Name: Category_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Category_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Category_id_seq" OWNED BY public."Category".id;
 
 
 --
--- Name: ContractAlertSchedule; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractAlertSchedule; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractAlertSchedule" (
@@ -1403,10 +1403,10 @@ CREATE TABLE public."ContractAlertSchedule" (
 );
 
 
-ALTER TABLE public."ContractAlertSchedule" OWNER TO sysadmin;
+ALTER TABLE public."ContractAlertSchedule" OWNER TO postgres;
 
 --
--- Name: ContractAlertSchedule_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractAlertSchedule_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractAlertSchedule_id_seq"
@@ -1418,17 +1418,17 @@ CREATE SEQUENCE public."ContractAlertSchedule_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractAlertSchedule_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractAlertSchedule_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractAlertSchedule_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractAlertSchedule_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractAlertSchedule_id_seq" OWNED BY public."ContractAlertSchedule".id;
 
 
 --
--- Name: ContractAttachments; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractAttachments; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractAttachments" (
@@ -1447,10 +1447,10 @@ CREATE TABLE public."ContractAttachments" (
 );
 
 
-ALTER TABLE public."ContractAttachments" OWNER TO sysadmin;
+ALTER TABLE public."ContractAttachments" OWNER TO postgres;
 
 --
--- Name: ContractAttachments_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractAttachments_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractAttachments_id_seq"
@@ -1462,17 +1462,17 @@ CREATE SEQUENCE public."ContractAttachments_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractAttachments_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractAttachments_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractAttachments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractAttachments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractAttachments_id_seq" OWNED BY public."ContractAttachments".id;
 
 
 --
--- Name: ContractContent; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractContent; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractContent" (
@@ -1484,10 +1484,10 @@ CREATE TABLE public."ContractContent" (
 );
 
 
-ALTER TABLE public."ContractContent" OWNER TO sysadmin;
+ALTER TABLE public."ContractContent" OWNER TO postgres;
 
 --
--- Name: ContractContent_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractContent_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractContent_id_seq"
@@ -1499,17 +1499,17 @@ CREATE SEQUENCE public."ContractContent_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractContent_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractContent_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractContent_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractContent_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractContent_id_seq" OWNED BY public."ContractContent".id;
 
 
 --
--- Name: ContractDynamicFields; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractDynamicFields; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractDynamicFields" (
@@ -1530,10 +1530,10 @@ CREATE TABLE public."ContractDynamicFields" (
 );
 
 
-ALTER TABLE public."ContractDynamicFields" OWNER TO sysadmin;
+ALTER TABLE public."ContractDynamicFields" OWNER TO postgres;
 
 --
--- Name: ContractDynamicFields_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractDynamicFields_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractDynamicFields_id_seq"
@@ -1545,17 +1545,17 @@ CREATE SEQUENCE public."ContractDynamicFields_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractDynamicFields_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractDynamicFields_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractDynamicFields_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractDynamicFields_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractDynamicFields_id_seq" OWNED BY public."ContractDynamicFields".id;
 
 
 --
--- Name: ContractFinancialDetail; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractFinancialDetail" (
@@ -1594,10 +1594,10 @@ CREATE TABLE public."ContractFinancialDetail" (
 );
 
 
-ALTER TABLE public."ContractFinancialDetail" OWNER TO sysadmin;
+ALTER TABLE public."ContractFinancialDetail" OWNER TO postgres;
 
 --
--- Name: ContractFinancialDetailSchedule; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractFinancialDetailSchedule" (
@@ -1618,10 +1618,10 @@ CREATE TABLE public."ContractFinancialDetailSchedule" (
 );
 
 
-ALTER TABLE public."ContractFinancialDetailSchedule" OWNER TO sysadmin;
+ALTER TABLE public."ContractFinancialDetailSchedule" OWNER TO postgres;
 
 --
--- Name: ContractFinancialDetailSchedule_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractFinancialDetailSchedule_id_seq"
@@ -1633,17 +1633,17 @@ CREATE SEQUENCE public."ContractFinancialDetailSchedule_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractFinancialDetailSchedule_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractFinancialDetailSchedule_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractFinancialDetailSchedule_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractFinancialDetailSchedule_id_seq" OWNED BY public."ContractFinancialDetailSchedule".id;
 
 
 --
--- Name: ContractFinancialDetail_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractFinancialDetail_id_seq"
@@ -1655,17 +1655,17 @@ CREATE SEQUENCE public."ContractFinancialDetail_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractFinancialDetail_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractFinancialDetail_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractFinancialDetail_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractFinancialDetail_id_seq" OWNED BY public."ContractFinancialDetail".id;
 
 
 --
--- Name: ContractItems; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractItems; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractItems" (
@@ -1681,10 +1681,10 @@ CREATE TABLE public."ContractItems" (
 );
 
 
-ALTER TABLE public."ContractItems" OWNER TO sysadmin;
+ALTER TABLE public."ContractItems" OWNER TO postgres;
 
 --
--- Name: ContractItems_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractItems_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractItems_id_seq"
@@ -1696,17 +1696,17 @@ CREATE SEQUENCE public."ContractItems_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractItems_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractItems_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractItems_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractItems_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractItems_id_seq" OWNED BY public."ContractItems".id;
 
 
 --
--- Name: ContractStatus; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractStatus; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractStatus" (
@@ -1715,10 +1715,10 @@ CREATE TABLE public."ContractStatus" (
 );
 
 
-ALTER TABLE public."ContractStatus" OWNER TO sysadmin;
+ALTER TABLE public."ContractStatus" OWNER TO postgres;
 
 --
--- Name: ContractStatus_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractStatus_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractStatus_id_seq"
@@ -1730,17 +1730,17 @@ CREATE SEQUENCE public."ContractStatus_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractStatus_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractStatus_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractStatus_id_seq" OWNED BY public."ContractStatus".id;
 
 
 --
--- Name: ContractTasks; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractTasks; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractTasks" (
@@ -1762,10 +1762,10 @@ CREATE TABLE public."ContractTasks" (
 );
 
 
-ALTER TABLE public."ContractTasks" OWNER TO sysadmin;
+ALTER TABLE public."ContractTasks" OWNER TO postgres;
 
 --
--- Name: ContractTasksDueDates; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractTasksDueDates; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractTasksDueDates" (
@@ -1775,10 +1775,10 @@ CREATE TABLE public."ContractTasksDueDates" (
 );
 
 
-ALTER TABLE public."ContractTasksDueDates" OWNER TO sysadmin;
+ALTER TABLE public."ContractTasksDueDates" OWNER TO postgres;
 
 --
--- Name: ContractTasksDueDates_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractTasksDueDates_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractTasksDueDates_id_seq"
@@ -1790,17 +1790,17 @@ CREATE SEQUENCE public."ContractTasksDueDates_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractTasksDueDates_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractTasksDueDates_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractTasksDueDates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractTasksDueDates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractTasksDueDates_id_seq" OWNED BY public."ContractTasksDueDates".id;
 
 
 --
--- Name: ContractTasksPriority; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractTasksPriority; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractTasksPriority" (
@@ -1809,10 +1809,10 @@ CREATE TABLE public."ContractTasksPriority" (
 );
 
 
-ALTER TABLE public."ContractTasksPriority" OWNER TO sysadmin;
+ALTER TABLE public."ContractTasksPriority" OWNER TO postgres;
 
 --
--- Name: ContractTasksPriority_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractTasksPriority_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractTasksPriority_id_seq"
@@ -1824,17 +1824,17 @@ CREATE SEQUENCE public."ContractTasksPriority_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractTasksPriority_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractTasksPriority_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractTasksPriority_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractTasksPriority_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractTasksPriority_id_seq" OWNED BY public."ContractTasksPriority".id;
 
 
 --
--- Name: ContractTasksReminders; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractTasksReminders; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractTasksReminders" (
@@ -1844,10 +1844,10 @@ CREATE TABLE public."ContractTasksReminders" (
 );
 
 
-ALTER TABLE public."ContractTasksReminders" OWNER TO sysadmin;
+ALTER TABLE public."ContractTasksReminders" OWNER TO postgres;
 
 --
--- Name: ContractTasksReminders_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractTasksReminders_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractTasksReminders_id_seq"
@@ -1859,17 +1859,17 @@ CREATE SEQUENCE public."ContractTasksReminders_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractTasksReminders_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractTasksReminders_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractTasksReminders_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractTasksReminders_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractTasksReminders_id_seq" OWNED BY public."ContractTasksReminders".id;
 
 
 --
--- Name: ContractTasksStatus; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractTasksStatus; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractTasksStatus" (
@@ -1879,10 +1879,10 @@ CREATE TABLE public."ContractTasksStatus" (
 );
 
 
-ALTER TABLE public."ContractTasksStatus" OWNER TO sysadmin;
+ALTER TABLE public."ContractTasksStatus" OWNER TO postgres;
 
 --
--- Name: ContractTasksStatus_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractTasksStatus_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractTasksStatus_id_seq"
@@ -1894,17 +1894,17 @@ CREATE SEQUENCE public."ContractTasksStatus_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractTasksStatus_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractTasksStatus_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractTasksStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractTasksStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractTasksStatus_id_seq" OWNED BY public."ContractTasksStatus".id;
 
 
 --
--- Name: ContractTasks_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractTasks_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractTasks_id_seq"
@@ -1916,17 +1916,17 @@ CREATE SEQUENCE public."ContractTasks_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractTasks_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractTasks_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractTasks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractTasks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractTasks_id_seq" OWNED BY public."ContractTasks".id;
 
 
 --
--- Name: ContractTemplates; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractTemplates; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractTemplates" (
@@ -1941,10 +1941,10 @@ CREATE TABLE public."ContractTemplates" (
 );
 
 
-ALTER TABLE public."ContractTemplates" OWNER TO sysadmin;
+ALTER TABLE public."ContractTemplates" OWNER TO postgres;
 
 --
--- Name: ContractTemplates_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractTemplates_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractTemplates_id_seq"
@@ -1956,17 +1956,17 @@ CREATE SEQUENCE public."ContractTemplates_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractTemplates_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractTemplates_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractTemplates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractTemplates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractTemplates_id_seq" OWNED BY public."ContractTemplates".id;
 
 
 --
--- Name: ContractType; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractType; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractType" (
@@ -1975,10 +1975,10 @@ CREATE TABLE public."ContractType" (
 );
 
 
-ALTER TABLE public."ContractType" OWNER TO sysadmin;
+ALTER TABLE public."ContractType" OWNER TO postgres;
 
 --
--- Name: ContractType_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractType_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractType_id_seq"
@@ -1990,17 +1990,17 @@ CREATE SEQUENCE public."ContractType_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractType_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractType_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractType_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractType_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractType_id_seq" OWNED BY public."ContractType".id;
 
 
 --
--- Name: ContractWFStatus; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractWFStatus; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractWFStatus" (
@@ -2010,10 +2010,10 @@ CREATE TABLE public."ContractWFStatus" (
 );
 
 
-ALTER TABLE public."ContractWFStatus" OWNER TO sysadmin;
+ALTER TABLE public."ContractWFStatus" OWNER TO postgres;
 
 --
--- Name: ContractWFStatus_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractWFStatus_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractWFStatus_id_seq"
@@ -2025,17 +2025,17 @@ CREATE SEQUENCE public."ContractWFStatus_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractWFStatus_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractWFStatus_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractWFStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractWFStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractWFStatus_id_seq" OWNED BY public."ContractWFStatus".id;
 
 
 --
--- Name: Contracts; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Contracts; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Contracts" (
@@ -2070,10 +2070,10 @@ CREATE TABLE public."Contracts" (
 );
 
 
-ALTER TABLE public."Contracts" OWNER TO sysadmin;
+ALTER TABLE public."Contracts" OWNER TO postgres;
 
 --
--- Name: ContractsAudit; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractsAudit; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractsAudit" (
@@ -2113,10 +2113,10 @@ CREATE TABLE public."ContractsAudit" (
 );
 
 
-ALTER TABLE public."ContractsAudit" OWNER TO sysadmin;
+ALTER TABLE public."ContractsAudit" OWNER TO postgres;
 
 --
--- Name: ContractsAudit_auditid_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractsAudit_auditid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractsAudit_auditid_seq"
@@ -2128,17 +2128,17 @@ CREATE SEQUENCE public."ContractsAudit_auditid_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractsAudit_auditid_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractsAudit_auditid_seq" OWNER TO postgres;
 
 --
--- Name: ContractsAudit_auditid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractsAudit_auditid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractsAudit_auditid_seq" OWNED BY public."ContractsAudit".auditid;
 
 
 --
--- Name: Contracts_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Contracts_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Contracts_id_seq"
@@ -2150,17 +2150,17 @@ CREATE SEQUENCE public."Contracts_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Contracts_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Contracts_id_seq" OWNER TO postgres;
 
 --
--- Name: Contracts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Contracts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Contracts_id_seq" OWNED BY public."Contracts".id;
 
 
 --
--- Name: CostCenter; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: CostCenter; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."CostCenter" (
@@ -2169,10 +2169,10 @@ CREATE TABLE public."CostCenter" (
 );
 
 
-ALTER TABLE public."CostCenter" OWNER TO sysadmin;
+ALTER TABLE public."CostCenter" OWNER TO postgres;
 
 --
--- Name: CostCenter_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: CostCenter_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."CostCenter_id_seq"
@@ -2184,17 +2184,17 @@ CREATE SEQUENCE public."CostCenter_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."CostCenter_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."CostCenter_id_seq" OWNER TO postgres;
 
 --
--- Name: CostCenter_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: CostCenter_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."CostCenter_id_seq" OWNED BY public."CostCenter".id;
 
 
 --
--- Name: Currency; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Currency; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Currency" (
@@ -2204,10 +2204,10 @@ CREATE TABLE public."Currency" (
 );
 
 
-ALTER TABLE public."Currency" OWNER TO sysadmin;
+ALTER TABLE public."Currency" OWNER TO postgres;
 
 --
--- Name: Currency_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Currency_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Currency_id_seq"
@@ -2219,17 +2219,17 @@ CREATE SEQUENCE public."Currency_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Currency_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Currency_id_seq" OWNER TO postgres;
 
 --
--- Name: Currency_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Currency_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Currency_id_seq" OWNED BY public."Currency".id;
 
 
 --
--- Name: Department; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Department; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Department" (
@@ -2238,10 +2238,10 @@ CREATE TABLE public."Department" (
 );
 
 
-ALTER TABLE public."Department" OWNER TO sysadmin;
+ALTER TABLE public."Department" OWNER TO postgres;
 
 --
--- Name: Department_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Department_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Department_id_seq"
@@ -2253,17 +2253,17 @@ CREATE SEQUENCE public."Department_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Department_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Department_id_seq" OWNER TO postgres;
 
 --
--- Name: Department_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Department_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Department_id_seq" OWNED BY public."Department".id;
 
 
 --
--- Name: DocumentSeries; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: DocumentSeries; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."DocumentSeries" (
@@ -2281,10 +2281,10 @@ CREATE TABLE public."DocumentSeries" (
 );
 
 
-ALTER TABLE public."DocumentSeries" OWNER TO sysadmin;
+ALTER TABLE public."DocumentSeries" OWNER TO postgres;
 
 --
--- Name: DocumentSeries_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: DocumentSeries_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."DocumentSeries_id_seq"
@@ -2296,17 +2296,17 @@ CREATE SEQUENCE public."DocumentSeries_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."DocumentSeries_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."DocumentSeries_id_seq" OWNER TO postgres;
 
 --
--- Name: DocumentSeries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: DocumentSeries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."DocumentSeries_id_seq" OWNED BY public."DocumentSeries".id;
 
 
 --
--- Name: DynamicFields; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: DynamicFields; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."DynamicFields" (
@@ -2320,10 +2320,10 @@ CREATE TABLE public."DynamicFields" (
 );
 
 
-ALTER TABLE public."DynamicFields" OWNER TO sysadmin;
+ALTER TABLE public."DynamicFields" OWNER TO postgres;
 
 --
--- Name: DynamicFields_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: DynamicFields_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."DynamicFields_id_seq"
@@ -2335,17 +2335,17 @@ CREATE SEQUENCE public."DynamicFields_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."DynamicFields_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."DynamicFields_id_seq" OWNER TO postgres;
 
 --
--- Name: DynamicFields_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: DynamicFields_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."DynamicFields_id_seq" OWNED BY public."DynamicFields".id;
 
 
 --
--- Name: ExchangeRates; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ExchangeRates; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ExchangeRates" (
@@ -2359,10 +2359,10 @@ CREATE TABLE public."ExchangeRates" (
 );
 
 
-ALTER TABLE public."ExchangeRates" OWNER TO sysadmin;
+ALTER TABLE public."ExchangeRates" OWNER TO postgres;
 
 --
--- Name: ExchangeRatesBNR; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ExchangeRatesBNR; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ExchangeRatesBNR" (
@@ -2376,10 +2376,10 @@ CREATE TABLE public."ExchangeRatesBNR" (
 );
 
 
-ALTER TABLE public."ExchangeRatesBNR" OWNER TO sysadmin;
+ALTER TABLE public."ExchangeRatesBNR" OWNER TO postgres;
 
 --
--- Name: ExchangeRatesBNR_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ExchangeRatesBNR_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ExchangeRatesBNR_id_seq"
@@ -2391,17 +2391,17 @@ CREATE SEQUENCE public."ExchangeRatesBNR_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ExchangeRatesBNR_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ExchangeRatesBNR_id_seq" OWNER TO postgres;
 
 --
--- Name: ExchangeRatesBNR_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ExchangeRatesBNR_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ExchangeRatesBNR_id_seq" OWNED BY public."ExchangeRatesBNR".id;
 
 
 --
--- Name: ExchangeRates_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ExchangeRates_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ExchangeRates_id_seq"
@@ -2413,17 +2413,17 @@ CREATE SEQUENCE public."ExchangeRates_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ExchangeRates_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ExchangeRates_id_seq" OWNER TO postgres;
 
 --
--- Name: ExchangeRates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ExchangeRates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ExchangeRates_id_seq" OWNED BY public."ExchangeRates".id;
 
 
 --
--- Name: ForgotPass; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ForgotPass; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ForgotPass" (
@@ -2438,10 +2438,10 @@ CREATE TABLE public."ForgotPass" (
 );
 
 
-ALTER TABLE public."ForgotPass" OWNER TO sysadmin;
+ALTER TABLE public."ForgotPass" OWNER TO postgres;
 
 --
--- Name: ForgotPass_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ForgotPass_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ForgotPass_id_seq"
@@ -2453,17 +2453,17 @@ CREATE SEQUENCE public."ForgotPass_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ForgotPass_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ForgotPass_id_seq" OWNER TO postgres;
 
 --
--- Name: ForgotPass_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ForgotPass_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ForgotPass_id_seq" OWNED BY public."ForgotPass".id;
 
 
 --
--- Name: Groups; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Groups; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Groups" (
@@ -2475,10 +2475,10 @@ CREATE TABLE public."Groups" (
 );
 
 
-ALTER TABLE public."Groups" OWNER TO sysadmin;
+ALTER TABLE public."Groups" OWNER TO postgres;
 
 --
--- Name: Groups_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Groups_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Groups_id_seq"
@@ -2490,17 +2490,17 @@ CREATE SEQUENCE public."Groups_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Groups_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Groups_id_seq" OWNER TO postgres;
 
 --
--- Name: Groups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Groups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Groups_id_seq" OWNED BY public."Groups".id;
 
 
 --
--- Name: Invoice; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Invoice; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Invoice" (
@@ -2533,10 +2533,10 @@ CREATE TABLE public."Invoice" (
 );
 
 
-ALTER TABLE public."Invoice" OWNER TO sysadmin;
+ALTER TABLE public."Invoice" OWNER TO postgres;
 
 --
--- Name: InvoiceDetail; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."InvoiceDetail" (
@@ -2557,10 +2557,10 @@ CREATE TABLE public."InvoiceDetail" (
 );
 
 
-ALTER TABLE public."InvoiceDetail" OWNER TO sysadmin;
+ALTER TABLE public."InvoiceDetail" OWNER TO postgres;
 
 --
--- Name: InvoiceDetail_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."InvoiceDetail_id_seq"
@@ -2572,17 +2572,17 @@ CREATE SEQUENCE public."InvoiceDetail_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."InvoiceDetail_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."InvoiceDetail_id_seq" OWNER TO postgres;
 
 --
--- Name: InvoiceDetail_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."InvoiceDetail_id_seq" OWNED BY public."InvoiceDetail".id;
 
 
 --
--- Name: InvoiceStatus; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: InvoiceStatus; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."InvoiceStatus" (
@@ -2593,10 +2593,10 @@ CREATE TABLE public."InvoiceStatus" (
 );
 
 
-ALTER TABLE public."InvoiceStatus" OWNER TO sysadmin;
+ALTER TABLE public."InvoiceStatus" OWNER TO postgres;
 
 --
--- Name: InvoiceStatus_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: InvoiceStatus_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."InvoiceStatus_id_seq"
@@ -2608,17 +2608,17 @@ CREATE SEQUENCE public."InvoiceStatus_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."InvoiceStatus_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."InvoiceStatus_id_seq" OWNER TO postgres;
 
 --
--- Name: InvoiceStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: InvoiceStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."InvoiceStatus_id_seq" OWNED BY public."InvoiceStatus".id;
 
 
 --
--- Name: InvoiceType; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: InvoiceType; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."InvoiceType" (
@@ -2629,10 +2629,10 @@ CREATE TABLE public."InvoiceType" (
 );
 
 
-ALTER TABLE public."InvoiceType" OWNER TO sysadmin;
+ALTER TABLE public."InvoiceType" OWNER TO postgres;
 
 --
--- Name: InvoiceType_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: InvoiceType_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."InvoiceType_id_seq"
@@ -2644,17 +2644,17 @@ CREATE SEQUENCE public."InvoiceType_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."InvoiceType_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."InvoiceType_id_seq" OWNER TO postgres;
 
 --
--- Name: InvoiceType_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: InvoiceType_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."InvoiceType_id_seq" OWNED BY public."InvoiceType".id;
 
 
 --
--- Name: Invoice_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Invoice_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Invoice_id_seq"
@@ -2666,17 +2666,17 @@ CREATE SEQUENCE public."Invoice_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Invoice_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Invoice_id_seq" OWNER TO postgres;
 
 --
--- Name: Invoice_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Invoice_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Invoice_id_seq" OWNED BY public."Invoice".id;
 
 
 --
--- Name: Item; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Item; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Item" (
@@ -2694,10 +2694,10 @@ CREATE TABLE public."Item" (
 );
 
 
-ALTER TABLE public."Item" OWNER TO sysadmin;
+ALTER TABLE public."Item" OWNER TO postgres;
 
 --
--- Name: Item_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Item_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Item_id_seq"
@@ -2709,17 +2709,17 @@ CREATE SEQUENCE public."Item_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Item_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Item_id_seq" OWNER TO postgres;
 
 --
--- Name: Item_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Item_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Item_id_seq" OWNED BY public."Item".id;
 
 
 --
--- Name: Location; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Location; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Location" (
@@ -2728,10 +2728,10 @@ CREATE TABLE public."Location" (
 );
 
 
-ALTER TABLE public."Location" OWNER TO sysadmin;
+ALTER TABLE public."Location" OWNER TO postgres;
 
 --
--- Name: Location_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Location_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Location_id_seq"
@@ -2743,17 +2743,17 @@ CREATE SEQUENCE public."Location_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Location_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Location_id_seq" OWNER TO postgres;
 
 --
--- Name: Location_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Location_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Location_id_seq" OWNED BY public."Location".id;
 
 
 --
--- Name: MeasuringUnit; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: MeasuringUnit; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."MeasuringUnit" (
@@ -2762,10 +2762,10 @@ CREATE TABLE public."MeasuringUnit" (
 );
 
 
-ALTER TABLE public."MeasuringUnit" OWNER TO sysadmin;
+ALTER TABLE public."MeasuringUnit" OWNER TO postgres;
 
 --
--- Name: MeasuringUnit_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: MeasuringUnit_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."MeasuringUnit_id_seq"
@@ -2777,17 +2777,17 @@ CREATE SEQUENCE public."MeasuringUnit_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."MeasuringUnit_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."MeasuringUnit_id_seq" OWNER TO postgres;
 
 --
--- Name: MeasuringUnit_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: MeasuringUnit_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."MeasuringUnit_id_seq" OWNED BY public."MeasuringUnit".id;
 
 
 --
--- Name: Partners; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Partners; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Partners" (
@@ -2808,10 +2808,10 @@ CREATE TABLE public."Partners" (
 );
 
 
-ALTER TABLE public."Partners" OWNER TO sysadmin;
+ALTER TABLE public."Partners" OWNER TO postgres;
 
 --
--- Name: PartnersBanksExtraRates; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: PartnersBanksExtraRates; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."PartnersBanksExtraRates" (
@@ -2824,10 +2824,10 @@ CREATE TABLE public."PartnersBanksExtraRates" (
 );
 
 
-ALTER TABLE public."PartnersBanksExtraRates" OWNER TO sysadmin;
+ALTER TABLE public."PartnersBanksExtraRates" OWNER TO postgres;
 
 --
--- Name: PartnersBanksExtraRates_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: PartnersBanksExtraRates_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."PartnersBanksExtraRates_id_seq"
@@ -2839,17 +2839,17 @@ CREATE SEQUENCE public."PartnersBanksExtraRates_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."PartnersBanksExtraRates_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."PartnersBanksExtraRates_id_seq" OWNER TO postgres;
 
 --
--- Name: PartnersBanksExtraRates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: PartnersBanksExtraRates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."PartnersBanksExtraRates_id_seq" OWNED BY public."PartnersBanksExtraRates".id;
 
 
 --
--- Name: Partners_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Partners_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Partners_id_seq"
@@ -2861,17 +2861,17 @@ CREATE SEQUENCE public."Partners_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Partners_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Partners_id_seq" OWNER TO postgres;
 
 --
--- Name: Partners_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Partners_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Partners_id_seq" OWNED BY public."Partners".id;
 
 
 --
--- Name: PaymentType; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: PaymentType; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."PaymentType" (
@@ -2880,10 +2880,10 @@ CREATE TABLE public."PaymentType" (
 );
 
 
-ALTER TABLE public."PaymentType" OWNER TO sysadmin;
+ALTER TABLE public."PaymentType" OWNER TO postgres;
 
 --
--- Name: PaymentType_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: PaymentType_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."PaymentType_id_seq"
@@ -2895,17 +2895,17 @@ CREATE SEQUENCE public."PaymentType_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."PaymentType_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."PaymentType_id_seq" OWNER TO postgres;
 
 --
--- Name: PaymentType_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: PaymentType_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."PaymentType_id_seq" OWNED BY public."PaymentType".id;
 
 
 --
--- Name: Persons; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Persons; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Persons" (
@@ -2921,10 +2921,10 @@ CREATE TABLE public."Persons" (
 );
 
 
-ALTER TABLE public."Persons" OWNER TO sysadmin;
+ALTER TABLE public."Persons" OWNER TO postgres;
 
 --
--- Name: Persons_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Persons_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Persons_id_seq"
@@ -2936,17 +2936,17 @@ CREATE SEQUENCE public."Persons_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Persons_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Persons_id_seq" OWNER TO postgres;
 
 --
--- Name: Persons_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Persons_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Persons_id_seq" OWNED BY public."Persons".id;
 
 
 --
--- Name: Role; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Role; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Role" (
@@ -2955,10 +2955,10 @@ CREATE TABLE public."Role" (
 );
 
 
-ALTER TABLE public."Role" OWNER TO sysadmin;
+ALTER TABLE public."Role" OWNER TO postgres;
 
 --
--- Name: Role_User; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Role_User; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Role_User" (
@@ -2968,10 +2968,10 @@ CREATE TABLE public."Role_User" (
 );
 
 
-ALTER TABLE public."Role_User" OWNER TO sysadmin;
+ALTER TABLE public."Role_User" OWNER TO postgres;
 
 --
--- Name: Role_User_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Role_User_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Role_User_id_seq"
@@ -2983,17 +2983,17 @@ CREATE SEQUENCE public."Role_User_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Role_User_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Role_User_id_seq" OWNER TO postgres;
 
 --
--- Name: Role_User_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Role_User_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Role_User_id_seq" OWNED BY public."Role_User".id;
 
 
 --
--- Name: Role_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Role_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Role_id_seq"
@@ -3005,17 +3005,17 @@ CREATE SEQUENCE public."Role_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Role_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Role_id_seq" OWNER TO postgres;
 
 --
--- Name: Role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Role_id_seq" OWNED BY public."Role".id;
 
 
 --
--- Name: TransactionType; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: TransactionType; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."TransactionType" (
@@ -3026,10 +3026,10 @@ CREATE TABLE public."TransactionType" (
 );
 
 
-ALTER TABLE public."TransactionType" OWNER TO sysadmin;
+ALTER TABLE public."TransactionType" OWNER TO postgres;
 
 --
--- Name: TransactionType_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: TransactionType_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."TransactionType_id_seq"
@@ -3041,17 +3041,17 @@ CREATE SEQUENCE public."TransactionType_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."TransactionType_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."TransactionType_id_seq" OWNER TO postgres;
 
 --
--- Name: TransactionType_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: TransactionType_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."TransactionType_id_seq" OWNED BY public."TransactionType".id;
 
 
 --
--- Name: User; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: User; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."User" (
@@ -3066,10 +3066,10 @@ CREATE TABLE public."User" (
 );
 
 
-ALTER TABLE public."User" OWNER TO sysadmin;
+ALTER TABLE public."User" OWNER TO postgres;
 
 --
--- Name: User_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: User_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."User_id_seq"
@@ -3081,17 +3081,17 @@ CREATE SEQUENCE public."User_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."User_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."User_id_seq" OWNER TO postgres;
 
 --
--- Name: User_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: User_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."User_id_seq" OWNED BY public."User".id;
 
 
 --
--- Name: VatQuota; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: VatQuota; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."VatQuota" (
@@ -3106,10 +3106,10 @@ CREATE TABLE public."VatQuota" (
 );
 
 
-ALTER TABLE public."VatQuota" OWNER TO sysadmin;
+ALTER TABLE public."VatQuota" OWNER TO postgres;
 
 --
--- Name: VatQuota_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: VatQuota_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."VatQuota_id_seq"
@@ -3121,17 +3121,17 @@ CREATE SEQUENCE public."VatQuota_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."VatQuota_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."VatQuota_id_seq" OWNER TO postgres;
 
 --
--- Name: VatQuota_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: VatQuota_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."VatQuota_id_seq" OWNED BY public."VatQuota".id;
 
 
 --
--- Name: WorkFlow; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: WorkFlow; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."WorkFlow" (
@@ -3144,10 +3144,10 @@ CREATE TABLE public."WorkFlow" (
 );
 
 
-ALTER TABLE public."WorkFlow" OWNER TO sysadmin;
+ALTER TABLE public."WorkFlow" OWNER TO postgres;
 
 --
--- Name: WorkFlowContractTasks; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."WorkFlowContractTasks" (
@@ -3169,10 +3169,10 @@ CREATE TABLE public."WorkFlowContractTasks" (
 );
 
 
-ALTER TABLE public."WorkFlowContractTasks" OWNER TO sysadmin;
+ALTER TABLE public."WorkFlowContractTasks" OWNER TO postgres;
 
 --
--- Name: WorkFlowContractTasks_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."WorkFlowContractTasks_id_seq"
@@ -3184,17 +3184,17 @@ CREATE SEQUENCE public."WorkFlowContractTasks_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."WorkFlowContractTasks_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."WorkFlowContractTasks_id_seq" OWNER TO postgres;
 
 --
--- Name: WorkFlowContractTasks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."WorkFlowContractTasks_id_seq" OWNED BY public."WorkFlowContractTasks".id;
 
 
 --
--- Name: WorkFlowRejectActions; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRejectActions; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."WorkFlowRejectActions" (
@@ -3207,10 +3207,10 @@ CREATE TABLE public."WorkFlowRejectActions" (
 );
 
 
-ALTER TABLE public."WorkFlowRejectActions" OWNER TO sysadmin;
+ALTER TABLE public."WorkFlowRejectActions" OWNER TO postgres;
 
 --
--- Name: WorkFlowRejectActions_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRejectActions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."WorkFlowRejectActions_id_seq"
@@ -3222,17 +3222,17 @@ CREATE SEQUENCE public."WorkFlowRejectActions_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."WorkFlowRejectActions_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."WorkFlowRejectActions_id_seq" OWNER TO postgres;
 
 --
--- Name: WorkFlowRejectActions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRejectActions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."WorkFlowRejectActions_id_seq" OWNED BY public."WorkFlowRejectActions".id;
 
 
 --
--- Name: WorkFlowRules; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRules; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."WorkFlowRules" (
@@ -3247,10 +3247,10 @@ CREATE TABLE public."WorkFlowRules" (
 );
 
 
-ALTER TABLE public."WorkFlowRules" OWNER TO sysadmin;
+ALTER TABLE public."WorkFlowRules" OWNER TO postgres;
 
 --
--- Name: WorkFlowRules_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRules_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."WorkFlowRules_id_seq"
@@ -3262,17 +3262,17 @@ CREATE SEQUENCE public."WorkFlowRules_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."WorkFlowRules_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."WorkFlowRules_id_seq" OWNER TO postgres;
 
 --
--- Name: WorkFlowRules_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRules_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."WorkFlowRules_id_seq" OWNED BY public."WorkFlowRules".id;
 
 
 --
--- Name: WorkFlowTaskSettings; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."WorkFlowTaskSettings" (
@@ -3290,10 +3290,10 @@ CREATE TABLE public."WorkFlowTaskSettings" (
 );
 
 
-ALTER TABLE public."WorkFlowTaskSettings" OWNER TO sysadmin;
+ALTER TABLE public."WorkFlowTaskSettings" OWNER TO postgres;
 
 --
--- Name: WorkFlowTaskSettingsUsers; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettingsUsers; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."WorkFlowTaskSettingsUsers" (
@@ -3307,10 +3307,10 @@ CREATE TABLE public."WorkFlowTaskSettingsUsers" (
 );
 
 
-ALTER TABLE public."WorkFlowTaskSettingsUsers" OWNER TO sysadmin;
+ALTER TABLE public."WorkFlowTaskSettingsUsers" OWNER TO postgres;
 
 --
--- Name: WorkFlowTaskSettingsUsers_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettingsUsers_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."WorkFlowTaskSettingsUsers_id_seq"
@@ -3322,17 +3322,17 @@ CREATE SEQUENCE public."WorkFlowTaskSettingsUsers_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."WorkFlowTaskSettingsUsers_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."WorkFlowTaskSettingsUsers_id_seq" OWNER TO postgres;
 
 --
--- Name: WorkFlowTaskSettingsUsers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettingsUsers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."WorkFlowTaskSettingsUsers_id_seq" OWNED BY public."WorkFlowTaskSettingsUsers".id;
 
 
 --
--- Name: WorkFlowTaskSettings_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."WorkFlowTaskSettings_id_seq"
@@ -3344,17 +3344,17 @@ CREATE SEQUENCE public."WorkFlowTaskSettings_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."WorkFlowTaskSettings_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."WorkFlowTaskSettings_id_seq" OWNER TO postgres;
 
 --
--- Name: WorkFlowTaskSettings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."WorkFlowTaskSettings_id_seq" OWNED BY public."WorkFlowTaskSettings".id;
 
 
 --
--- Name: WorkFlowXContracts; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowXContracts; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."WorkFlowXContracts" (
@@ -3368,10 +3368,10 @@ CREATE TABLE public."WorkFlowXContracts" (
 );
 
 
-ALTER TABLE public."WorkFlowXContracts" OWNER TO sysadmin;
+ALTER TABLE public."WorkFlowXContracts" OWNER TO postgres;
 
 --
--- Name: WorkFlowXContracts_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowXContracts_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."WorkFlowXContracts_id_seq"
@@ -3383,17 +3383,17 @@ CREATE SEQUENCE public."WorkFlowXContracts_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."WorkFlowXContracts_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."WorkFlowXContracts_id_seq" OWNER TO postgres;
 
 --
--- Name: WorkFlowXContracts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: WorkFlowXContracts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."WorkFlowXContracts_id_seq" OWNED BY public."WorkFlowXContracts".id;
 
 
 --
--- Name: WorkFlow_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: WorkFlow_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."WorkFlow_id_seq"
@@ -3405,17 +3405,17 @@ CREATE SEQUENCE public."WorkFlow_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."WorkFlow_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."WorkFlow_id_seq" OWNER TO postgres;
 
 --
--- Name: WorkFlow_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: WorkFlow_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."WorkFlow_id_seq" OWNED BY public."WorkFlow".id;
 
 
 --
--- Name: _GroupsToPartners; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: _GroupsToPartners; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."_GroupsToPartners" (
@@ -3424,10 +3424,10 @@ CREATE TABLE public."_GroupsToPartners" (
 );
 
 
-ALTER TABLE public."_GroupsToPartners" OWNER TO sysadmin;
+ALTER TABLE public."_GroupsToPartners" OWNER TO postgres;
 
 --
--- Name: _GroupsToUser; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: _GroupsToUser; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."_GroupsToUser" (
@@ -3436,10 +3436,10 @@ CREATE TABLE public."_GroupsToUser" (
 );
 
 
-ALTER TABLE public."_GroupsToUser" OWNER TO sysadmin;
+ALTER TABLE public."_GroupsToUser" OWNER TO postgres;
 
 --
--- Name: _prisma_migrations; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: _prisma_migrations; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public._prisma_migrations (
@@ -3454,416 +3454,416 @@ CREATE TABLE public._prisma_migrations (
 );
 
 
-ALTER TABLE public._prisma_migrations OWNER TO sysadmin;
+ALTER TABLE public._prisma_migrations OWNER TO postgres;
 
 --
--- Name: Address id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Address id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Address" ALTER COLUMN id SET DEFAULT nextval('public."Address_id_seq"'::regclass);
 
 
 --
--- Name: Alerts id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Alerts id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Alerts" ALTER COLUMN id SET DEFAULT nextval('public."Alerts_id_seq"'::regclass);
 
 
 --
--- Name: AlertsHistory id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: AlertsHistory id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."AlertsHistory" ALTER COLUMN id SET DEFAULT nextval('public."AlertsHistory_id_seq"'::regclass);
 
 
 --
--- Name: Bank id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Bank id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Bank" ALTER COLUMN id SET DEFAULT nextval('public."Bank_id_seq"'::regclass);
 
 
 --
--- Name: Banks id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Banks id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Banks" ALTER COLUMN id SET DEFAULT nextval('public."Banks_id_seq"'::regclass);
 
 
 --
--- Name: BillingFrequency id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: BillingFrequency id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."BillingFrequency" ALTER COLUMN id SET DEFAULT nextval('public."BillingFrequency_id_seq"'::regclass);
 
 
 --
--- Name: Cashflow id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Cashflow id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Cashflow" ALTER COLUMN id SET DEFAULT nextval('public."Cashflow_id_seq"'::regclass);
 
 
 --
--- Name: Category id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Category id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Category" ALTER COLUMN id SET DEFAULT nextval('public."Category_id_seq"'::regclass);
 
 
 --
--- Name: ContractAlertSchedule id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractAlertSchedule id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractAlertSchedule" ALTER COLUMN id SET DEFAULT nextval('public."ContractAlertSchedule_id_seq"'::regclass);
 
 
 --
--- Name: ContractAttachments id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractAttachments id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractAttachments" ALTER COLUMN id SET DEFAULT nextval('public."ContractAttachments_id_seq"'::regclass);
 
 
 --
--- Name: ContractContent id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractContent id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractContent" ALTER COLUMN id SET DEFAULT nextval('public."ContractContent_id_seq"'::regclass);
 
 
 --
--- Name: ContractDynamicFields id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractDynamicFields id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractDynamicFields" ALTER COLUMN id SET DEFAULT nextval('public."ContractDynamicFields_id_seq"'::regclass);
 
 
 --
--- Name: ContractFinancialDetail id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail" ALTER COLUMN id SET DEFAULT nextval('public."ContractFinancialDetail_id_seq"'::regclass);
 
 
 --
--- Name: ContractFinancialDetailSchedule id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetailSchedule" ALTER COLUMN id SET DEFAULT nextval('public."ContractFinancialDetailSchedule_id_seq"'::regclass);
 
 
 --
--- Name: ContractItems id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractItems id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractItems" ALTER COLUMN id SET DEFAULT nextval('public."ContractItems_id_seq"'::regclass);
 
 
 --
--- Name: ContractStatus id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractStatus id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractStatus" ALTER COLUMN id SET DEFAULT nextval('public."ContractStatus_id_seq"'::regclass);
 
 
 --
--- Name: ContractTasks id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractTasks id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasks" ALTER COLUMN id SET DEFAULT nextval('public."ContractTasks_id_seq"'::regclass);
 
 
 --
--- Name: ContractTasksDueDates id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractTasksDueDates id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasksDueDates" ALTER COLUMN id SET DEFAULT nextval('public."ContractTasksDueDates_id_seq"'::regclass);
 
 
 --
--- Name: ContractTasksPriority id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractTasksPriority id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasksPriority" ALTER COLUMN id SET DEFAULT nextval('public."ContractTasksPriority_id_seq"'::regclass);
 
 
 --
--- Name: ContractTasksReminders id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractTasksReminders id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasksReminders" ALTER COLUMN id SET DEFAULT nextval('public."ContractTasksReminders_id_seq"'::regclass);
 
 
 --
--- Name: ContractTasksStatus id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractTasksStatus id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasksStatus" ALTER COLUMN id SET DEFAULT nextval('public."ContractTasksStatus_id_seq"'::regclass);
 
 
 --
--- Name: ContractTemplates id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractTemplates id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTemplates" ALTER COLUMN id SET DEFAULT nextval('public."ContractTemplates_id_seq"'::regclass);
 
 
 --
--- Name: ContractType id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractType id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractType" ALTER COLUMN id SET DEFAULT nextval('public."ContractType_id_seq"'::regclass);
 
 
 --
--- Name: ContractWFStatus id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractWFStatus id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractWFStatus" ALTER COLUMN id SET DEFAULT nextval('public."ContractWFStatus_id_seq"'::regclass);
 
 
 --
--- Name: Contracts id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Contracts id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts" ALTER COLUMN id SET DEFAULT nextval('public."Contracts_id_seq"'::regclass);
 
 
 --
--- Name: ContractsAudit auditid; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractsAudit auditid; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractsAudit" ALTER COLUMN auditid SET DEFAULT nextval('public."ContractsAudit_auditid_seq"'::regclass);
 
 
 --
--- Name: CostCenter id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: CostCenter id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."CostCenter" ALTER COLUMN id SET DEFAULT nextval('public."CostCenter_id_seq"'::regclass);
 
 
 --
--- Name: Currency id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Currency id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Currency" ALTER COLUMN id SET DEFAULT nextval('public."Currency_id_seq"'::regclass);
 
 
 --
--- Name: Department id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Department id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Department" ALTER COLUMN id SET DEFAULT nextval('public."Department_id_seq"'::regclass);
 
 
 --
--- Name: DocumentSeries id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: DocumentSeries id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."DocumentSeries" ALTER COLUMN id SET DEFAULT nextval('public."DocumentSeries_id_seq"'::regclass);
 
 
 --
--- Name: DynamicFields id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: DynamicFields id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."DynamicFields" ALTER COLUMN id SET DEFAULT nextval('public."DynamicFields_id_seq"'::regclass);
 
 
 --
--- Name: ExchangeRates id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ExchangeRates id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ExchangeRates" ALTER COLUMN id SET DEFAULT nextval('public."ExchangeRates_id_seq"'::regclass);
 
 
 --
--- Name: ExchangeRatesBNR id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ExchangeRatesBNR id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ExchangeRatesBNR" ALTER COLUMN id SET DEFAULT nextval('public."ExchangeRatesBNR_id_seq"'::regclass);
 
 
 --
--- Name: ForgotPass id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ForgotPass id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ForgotPass" ALTER COLUMN id SET DEFAULT nextval('public."ForgotPass_id_seq"'::regclass);
 
 
 --
--- Name: Groups id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Groups id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Groups" ALTER COLUMN id SET DEFAULT nextval('public."Groups_id_seq"'::regclass);
 
 
 --
--- Name: Invoice id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Invoice id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice" ALTER COLUMN id SET DEFAULT nextval('public."Invoice_id_seq"'::regclass);
 
 
 --
--- Name: InvoiceDetail id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceDetail" ALTER COLUMN id SET DEFAULT nextval('public."InvoiceDetail_id_seq"'::regclass);
 
 
 --
--- Name: InvoiceStatus id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: InvoiceStatus id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceStatus" ALTER COLUMN id SET DEFAULT nextval('public."InvoiceStatus_id_seq"'::regclass);
 
 
 --
--- Name: InvoiceType id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: InvoiceType id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceType" ALTER COLUMN id SET DEFAULT nextval('public."InvoiceType_id_seq"'::regclass);
 
 
 --
--- Name: Item id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Item id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Item" ALTER COLUMN id SET DEFAULT nextval('public."Item_id_seq"'::regclass);
 
 
 --
--- Name: Location id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Location id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Location" ALTER COLUMN id SET DEFAULT nextval('public."Location_id_seq"'::regclass);
 
 
 --
--- Name: MeasuringUnit id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: MeasuringUnit id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."MeasuringUnit" ALTER COLUMN id SET DEFAULT nextval('public."MeasuringUnit_id_seq"'::regclass);
 
 
 --
--- Name: Partners id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Partners id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Partners" ALTER COLUMN id SET DEFAULT nextval('public."Partners_id_seq"'::regclass);
 
 
 --
--- Name: PartnersBanksExtraRates id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: PartnersBanksExtraRates id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."PartnersBanksExtraRates" ALTER COLUMN id SET DEFAULT nextval('public."PartnersBanksExtraRates_id_seq"'::regclass);
 
 
 --
--- Name: PaymentType id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: PaymentType id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."PaymentType" ALTER COLUMN id SET DEFAULT nextval('public."PaymentType_id_seq"'::regclass);
 
 
 --
--- Name: Persons id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Persons id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Persons" ALTER COLUMN id SET DEFAULT nextval('public."Persons_id_seq"'::regclass);
 
 
 --
--- Name: Role id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Role id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Role" ALTER COLUMN id SET DEFAULT nextval('public."Role_id_seq"'::regclass);
 
 
 --
--- Name: Role_User id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Role_User id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Role_User" ALTER COLUMN id SET DEFAULT nextval('public."Role_User_id_seq"'::regclass);
 
 
 --
--- Name: TransactionType id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: TransactionType id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."TransactionType" ALTER COLUMN id SET DEFAULT nextval('public."TransactionType_id_seq"'::regclass);
 
 
 --
--- Name: User id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: User id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."User" ALTER COLUMN id SET DEFAULT nextval('public."User_id_seq"'::regclass);
 
 
 --
--- Name: VatQuota id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: VatQuota id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."VatQuota" ALTER COLUMN id SET DEFAULT nextval('public."VatQuota_id_seq"'::regclass);
 
 
 --
--- Name: WorkFlow id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: WorkFlow id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlow" ALTER COLUMN id SET DEFAULT nextval('public."WorkFlow_id_seq"'::regclass);
 
 
 --
--- Name: WorkFlowContractTasks id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowContractTasks" ALTER COLUMN id SET DEFAULT nextval('public."WorkFlowContractTasks_id_seq"'::regclass);
 
 
 --
--- Name: WorkFlowRejectActions id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRejectActions id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowRejectActions" ALTER COLUMN id SET DEFAULT nextval('public."WorkFlowRejectActions_id_seq"'::regclass);
 
 
 --
--- Name: WorkFlowRules id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRules id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowRules" ALTER COLUMN id SET DEFAULT nextval('public."WorkFlowRules_id_seq"'::regclass);
 
 
 --
--- Name: WorkFlowTaskSettings id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettings" ALTER COLUMN id SET DEFAULT nextval('public."WorkFlowTaskSettings_id_seq"'::regclass);
 
 
 --
--- Name: WorkFlowTaskSettingsUsers id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettingsUsers id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettingsUsers" ALTER COLUMN id SET DEFAULT nextval('public."WorkFlowTaskSettingsUsers_id_seq"'::regclass);
 
 
 --
--- Name: WorkFlowXContracts id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowXContracts id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowXContracts" ALTER COLUMN id SET DEFAULT nextval('public."WorkFlowXContracts_id_seq"'::regclass);
 
 
 --
--- Data for Name: Address; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Address; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Address" (id, "updateadAt", "createdAt", "addressName", "addressType", "Country", "County", "City", "Street", "Number", "postalCode", "completeAddress", "partnerId", "Status", "Default", aggregate) FROM stdin;
@@ -3877,7 +3877,7 @@ COPY public."Address" (id, "updateadAt", "createdAt", "addressName", "addressTyp
 
 
 --
--- Data for Name: Alerts; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Alerts; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Alerts" (id, "updateadAt", "createdAt", name, "isActive", subject, text, internal_emails, nrofdays, param, "isActivePartner", "isActivePerson") FROM stdin;
@@ -3888,7 +3888,7 @@ COPY public."Alerts" (id, "updateadAt", "createdAt", name, "isActive", subject, 
 
 
 --
--- Data for Name: AlertsHistory; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: AlertsHistory; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."AlertsHistory" (id, "updateadAt", "createdAt", "alertId", "alertContent", "sentTo", "contractId", criteria, param, nrofdays) FROM stdin;
@@ -4066,7 +4066,7 @@ COPY public."AlertsHistory" (id, "updateadAt", "createdAt", "alertId", "alertCon
 
 
 --
--- Data for Name: Bank; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Bank; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Bank" (id, name) FROM stdin;
@@ -4106,7 +4106,7 @@ COPY public."Bank" (id, name) FROM stdin;
 
 
 --
--- Data for Name: Banks; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Banks; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Banks" (id, "updateadAt", "createdAt", "partnerId", bank, branch, currency, iban, status, "isDefault") FROM stdin;
@@ -4121,7 +4121,7 @@ COPY public."Banks" (id, "updateadAt", "createdAt", "partnerId", bank, branch, c
 
 
 --
--- Data for Name: BillingFrequency; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: BillingFrequency; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."BillingFrequency" (id, name) FROM stdin;
@@ -4136,7 +4136,7 @@ COPY public."BillingFrequency" (id, name) FROM stdin;
 
 
 --
--- Data for Name: Cashflow; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Cashflow; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Cashflow" (id, name) FROM stdin;
@@ -4171,7 +4171,7 @@ COPY public."Cashflow" (id, name) FROM stdin;
 
 
 --
--- Data for Name: Category; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Category; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Category" (id, name) FROM stdin;
@@ -4181,7 +4181,7 @@ COPY public."Category" (id, name) FROM stdin;
 
 
 --
--- Data for Name: ContractAlertSchedule; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractAlertSchedule; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractAlertSchedule" (id, "updateadAt", "createdAt", "contractId", "alertId", alertname, "datetoBeSent", "isActive", status, subject, nrofdays) FROM stdin;
@@ -4373,7 +4373,7 @@ COPY public."ContractAlertSchedule" (id, "updateadAt", "createdAt", "contractId"
 
 
 --
--- Data for Name: ContractAttachments; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractAttachments; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractAttachments" (id, "updateadAt", "createdAt", size, path, mimetype, originalname, encoding, fieldname, filename, destination, "contractId") FROM stdin;
@@ -4433,7 +4433,7 @@ COPY public."ContractAttachments" (id, "updateadAt", "createdAt", size, path, mi
 
 
 --
--- Data for Name: ContractContent; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractContent; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractContent" (id, "updateadAt", "createdAt", content, "contractId") FROM stdin;
@@ -4457,7 +4457,7 @@ COPY public."ContractContent" (id, "updateadAt", "createdAt", content, "contract
 
 
 --
--- Data for Name: ContractDynamicFields; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractDynamicFields; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractDynamicFields" (id, "updateadAt", "createdAt", "contractId", "dffInt1", "dffInt2", "dffInt3", "dffInt4", "dffString1", "dffString2", "dffString3", "dffString4", "dffDate1", "dffDate2") FROM stdin;
@@ -4557,7 +4557,7 @@ COPY public."ContractDynamicFields" (id, "updateadAt", "createdAt", "contractId"
 
 
 --
--- Data for Name: ContractFinancialDetail; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractFinancialDetail; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractFinancialDetail" (id, "updateadAt", "createdAt", itemid, "currencyValue", "currencyPercent", "billingDay", "billingQtty", "billingFrequencyid", "measuringUnitid", "paymentTypeid", "billingPenaltyPercent", "billingDueDays", remarks, "guaranteeLetter", "guaranteeLetterCurrencyid", "guaranteeLetterDate", "guaranteeLetterValue", "contractItemId", active, price, currencyid, "advancePercent", "goodexecutionLetter", "goodexecutionLetterBankId", "goodexecutionLetterCurrencyId", "goodexecutionLetterDate", "goodexecutionLetterInfo", "goodexecutionLetterValue", "guaranteeLetterBankId", "guaranteeLetterInfo", "vatId") FROM stdin;
@@ -4616,7 +4616,7 @@ COPY public."ContractFinancialDetail" (id, "updateadAt", "createdAt", itemid, "c
 
 
 --
--- Data for Name: ContractFinancialDetailSchedule; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractFinancialDetailSchedule; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractFinancialDetailSchedule" (id, "updateadAt", "createdAt", itemid, date, "measuringUnitid", "billingQtty", "totalContractValue", "billingValue", "isInvoiced", "isPayed", currencyid, active, "contractfinancialItemId") FROM stdin;
@@ -4796,7 +4796,7 @@ COPY public."ContractFinancialDetailSchedule" (id, "updateadAt", "createdAt", it
 
 
 --
--- Data for Name: ContractItems; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractItems; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractItems" (id, "updateadAt", "createdAt", "contractId", itemid, active, "billingFrequencyid", "currencyValue", currencyid) FROM stdin;
@@ -4850,7 +4850,7 @@ COPY public."ContractItems" (id, "updateadAt", "createdAt", "contractId", itemid
 
 
 --
--- Data for Name: ContractStatus; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractStatus; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractStatus" (id, name) FROM stdin;
@@ -4863,7 +4863,7 @@ COPY public."ContractStatus" (id, name) FROM stdin;
 
 
 --
--- Data for Name: ContractTasks; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractTasks; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractTasks" (id, "updateadAt", "createdAt", "taskName", "contractId", due, notes, "assignedId", "requestorId", "statusId", rejected_reason, "taskPriorityId", type, uuid, "statusWFId") FROM stdin;
@@ -4891,7 +4891,7 @@ COPY public."ContractTasks" (id, "updateadAt", "createdAt", "taskName", "contrac
 
 
 --
--- Data for Name: ContractTasksDueDates; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractTasksDueDates; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractTasksDueDates" (id, name, days) FROM stdin;
@@ -4905,7 +4905,7 @@ COPY public."ContractTasksDueDates" (id, name, days) FROM stdin;
 
 
 --
--- Data for Name: ContractTasksPriority; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractTasksPriority; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractTasksPriority" (id, name) FROM stdin;
@@ -4916,7 +4916,7 @@ COPY public."ContractTasksPriority" (id, name) FROM stdin;
 
 
 --
--- Data for Name: ContractTasksReminders; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractTasksReminders; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractTasksReminders" (id, name, days) FROM stdin;
@@ -4930,7 +4930,7 @@ COPY public."ContractTasksReminders" (id, name, days) FROM stdin;
 
 
 --
--- Data for Name: ContractTasksStatus; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractTasksStatus; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractTasksStatus" (id, name, "Desription") FROM stdin;
@@ -4942,7 +4942,7 @@ COPY public."ContractTasksStatus" (id, name, "Desription") FROM stdin;
 
 
 --
--- Data for Name: ContractTemplates; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractTemplates; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractTemplates" (id, "updateadAt", "createdAt", name, active, "contractTypeId", notes, content) FROM stdin;
@@ -4952,7 +4952,7 @@ COPY public."ContractTemplates" (id, "updateadAt", "createdAt", name, active, "c
 
 
 --
--- Data for Name: ContractType; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractType; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractType" (id, name) FROM stdin;
@@ -5055,7 +5055,7 @@ COPY public."ContractType" (id, name) FROM stdin;
 
 
 --
--- Data for Name: ContractWFStatus; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractWFStatus; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractWFStatus" (id, name, "Desription") FROM stdin;
@@ -5067,7 +5067,7 @@ COPY public."ContractWFStatus" (id, name, "Desription") FROM stdin;
 
 
 --
--- Data for Name: Contracts; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Contracts; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Contracts" (id, number, start, "end", sign, completion, remarks, "partnersId", "entityId", "entityaddressId", "entitybankId", "entitypersonsId", "parentId", "partneraddressId", "partnerbankId", "partnerpersonsId", "automaticRenewal", "departmentId", "cashflowId", "categoryId", "costcenterId", "statusId", "typeId", "paymentTypeId", "userId", "isPurchasing", "locationId", "statusWFId") FROM stdin;
@@ -5167,7 +5167,7 @@ COPY public."Contracts" (id, number, start, "end", sign, completion, remarks, "p
 
 
 --
--- Data for Name: ContractsAudit; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractsAudit; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractsAudit" (auditid, number, "typeId", "costcenterId", "statusId", start, "end", sign, completion, remarks, "categoryId", "departmentId", "cashflowId", "automaticRenewal", "partnersId", "entityId", "parentId", "partnerpersonsId", "entitypersonsId", "entityaddressId", "partneraddressId", "entitybankId", "partnerbankId", "contractAttachmentsId", "paymentTypeId", "contractContentId", id, "operationType", "createdAt", "updateadAt", "userId", "locationId", "statusWFId") FROM stdin;
@@ -5315,7 +5315,7 @@ COPY public."ContractsAudit" (auditid, number, "typeId", "costcenterId", "status
 
 
 --
--- Data for Name: CostCenter; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: CostCenter; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."CostCenter" (id, name) FROM stdin;
@@ -5368,7 +5368,7 @@ COPY public."CostCenter" (id, name) FROM stdin;
 
 
 --
--- Data for Name: Currency; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Currency; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Currency" (id, code, name) FROM stdin;
@@ -5405,7 +5405,7 @@ COPY public."Currency" (id, code, name) FROM stdin;
 
 
 --
--- Data for Name: Department; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Department; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Department" (id, name) FROM stdin;
@@ -5435,7 +5435,7 @@ COPY public."Department" (id, name) FROM stdin;
 
 
 --
--- Data for Name: DocumentSeries; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: DocumentSeries; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."DocumentSeries" (id, "updateadAt", "createdAt", "entityId", "updatedByUserId", "documentTypeId", series, start_number, final_number, last_number, "isActive") FROM stdin;
@@ -5447,7 +5447,7 @@ COPY public."DocumentSeries" (id, "updateadAt", "createdAt", "entityId", "update
 
 
 --
--- Data for Name: DynamicFields; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: DynamicFields; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."DynamicFields" (id, "updateadAt", "createdAt", fieldname, fieldlabel, fieldorder, fieldtype) FROM stdin;
@@ -5456,7 +5456,7 @@ COPY public."DynamicFields" (id, "updateadAt", "createdAt", fieldname, fieldlabe
 
 
 --
--- Data for Name: ExchangeRates; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ExchangeRates; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ExchangeRates" (id, "updateadAt", "createdAt", date, amount, name, multiplier) FROM stdin;
@@ -6136,7 +6136,7 @@ COPY public."ExchangeRates" (id, "updateadAt", "createdAt", date, amount, name, 
 
 
 --
--- Data for Name: ExchangeRatesBNR; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ExchangeRatesBNR; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ExchangeRatesBNR" (id, "updateadAt", "createdAt", date, amount, name, multiplier) FROM stdin;
@@ -6144,7 +6144,7 @@ COPY public."ExchangeRatesBNR" (id, "updateadAt", "createdAt", date, amount, nam
 
 
 --
--- Data for Name: ForgotPass; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ForgotPass; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ForgotPass" (id, "updatedAt", "createdAt", email, actual_password, old_password, uuid, "userId") FROM stdin;
@@ -6159,7 +6159,7 @@ COPY public."ForgotPass" (id, "updatedAt", "createdAt", email, actual_password, 
 
 
 --
--- Data for Name: Groups; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Groups; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Groups" (id, "updateadAt", "createdAt", name, description) FROM stdin;
@@ -6170,7 +6170,7 @@ COPY public."Groups" (id, "updateadAt", "createdAt", name, description) FROM std
 
 
 --
--- Data for Name: Invoice; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Invoice; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Invoice" (id, "updateadAt", "createdAt", "partnerId", "entityId", number, date, duedate, "totalAmount", "vatAmount", "totalPayment", "typeId", "transactionTypeId", "statusId", "entitybankId", "partneraddressId", "currencyRate", "userId", "currencyId", remarks, "seriesId", "serialNumber", "eqvTotalAmount", "eqvVatAmount", "eqvTotalPayment", "vatOnReceipt") FROM stdin;
@@ -6207,7 +6207,7 @@ COPY public."Invoice" (id, "updateadAt", "createdAt", "partnerId", "entityId", n
 
 
 --
--- Data for Name: InvoiceDetail; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: InvoiceDetail; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."InvoiceDetail" (id, "updateadAt", "createdAt", "invoiceId", "entityId", "itemId", qtty, price, "measuringUnitid", "vatId", "vatValue", "lineValue", "totalValue", description) FROM stdin;
@@ -6215,7 +6215,7 @@ COPY public."InvoiceDetail" (id, "updateadAt", "createdAt", "invoiceId", "entity
 
 
 --
--- Data for Name: InvoiceStatus; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: InvoiceStatus; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."InvoiceStatus" (id, "updateadAt", "createdAt", name) FROM stdin;
@@ -6226,7 +6226,7 @@ COPY public."InvoiceStatus" (id, "updateadAt", "createdAt", name) FROM stdin;
 
 
 --
--- Data for Name: InvoiceType; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: InvoiceType; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."InvoiceType" (id, "updateadAt", "createdAt", name) FROM stdin;
@@ -6238,7 +6238,7 @@ COPY public."InvoiceType" (id, "updateadAt", "createdAt", name) FROM stdin;
 
 
 --
--- Data for Name: Item; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Item; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Item" (id, name, "barCode", "classificationId", code, description, "isActive", "isStockable", "measuringUnitid", "userId", "vatId") FROM stdin;
@@ -6252,7 +6252,7 @@ COPY public."Item" (id, name, "barCode", "classificationId", code, description, 
 
 
 --
--- Data for Name: Location; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Location; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Location" (id, name) FROM stdin;
@@ -6262,7 +6262,7 @@ COPY public."Location" (id, name) FROM stdin;
 
 
 --
--- Data for Name: MeasuringUnit; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: MeasuringUnit; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."MeasuringUnit" (id, name) FROM stdin;
@@ -6302,7 +6302,7 @@ COPY public."MeasuringUnit" (id, name) FROM stdin;
 
 
 --
--- Data for Name: Partners; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Partners; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Partners" (id, "updateadAt", "createdAt", name, fiscal_code, commercial_reg, state, type, email, remarks, "contractsId", "isVatPayer", "paymentTerm", picture) FROM stdin;
@@ -6322,7 +6322,7 @@ COPY public."Partners" (id, "updateadAt", "createdAt", name, fiscal_code, commer
 
 
 --
--- Data for Name: PartnersBanksExtraRates; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: PartnersBanksExtraRates; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."PartnersBanksExtraRates" (id, "updateadAt", "createdAt", "partnersId", "currencyId", percent) FROM stdin;
@@ -6337,7 +6337,7 @@ COPY public."PartnersBanksExtraRates" (id, "updateadAt", "createdAt", "partnersI
 
 
 --
--- Data for Name: PaymentType; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: PaymentType; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."PaymentType" (id, name) FROM stdin;
@@ -6355,7 +6355,7 @@ COPY public."PaymentType" (id, name) FROM stdin;
 
 
 --
--- Data for Name: Persons; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Persons; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Persons" (id, "updateadAt", "createdAt", name, phone, email, "partnerId", role, legalrepresent) FROM stdin;
@@ -6369,7 +6369,7 @@ COPY public."Persons" (id, "updateadAt", "createdAt", name, phone, email, "partn
 
 
 --
--- Data for Name: Role; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Role; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Role" (id, "roleName") FROM stdin;
@@ -6381,7 +6381,7 @@ COPY public."Role" (id, "roleName") FROM stdin;
 
 
 --
--- Data for Name: Role_User; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Role_User; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Role_User" (id, "userId", "roleId") FROM stdin;
@@ -6409,7 +6409,7 @@ COPY public."Role_User" (id, "userId", "roleId") FROM stdin;
 
 
 --
--- Data for Name: TransactionType; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: TransactionType; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."TransactionType" (id, "updateadAt", "createdAt", name) FROM stdin;
@@ -6419,7 +6419,7 @@ COPY public."TransactionType" (id, "updateadAt", "createdAt", name) FROM stdin;
 
 
 --
--- Data for Name: User; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: User; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."User" (id, name, email, password, "createdAt", picture, status, "updatedAt") FROM stdin;
@@ -6432,7 +6432,7 @@ COPY public."User" (id, name, email, password, "createdAt", picture, status, "up
 
 
 --
--- Data for Name: VatQuota; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: VatQuota; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."VatQuota" (id, "updateadAt", "createdAt", "VatCode", "VATDescription", "VATPercent", "VATType", "AccVATPercent") FROM stdin;
@@ -6444,7 +6444,7 @@ COPY public."VatQuota" (id, "updateadAt", "createdAt", "VatCode", "VATDescriptio
 
 
 --
--- Data for Name: WorkFlow; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: WorkFlow; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."WorkFlow" (id, "updateadAt", "createdAt", "wfName", "wfDescription", status) FROM stdin;
@@ -6459,7 +6459,7 @@ COPY public."WorkFlow" (id, "updateadAt", "createdAt", "wfName", "wfDescription"
 
 
 --
--- Data for Name: WorkFlowContractTasks; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: WorkFlowContractTasks; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."WorkFlowContractTasks" (id, "updateadAt", "createdAt", "contractId", "statusId", "requestorId", "assignedId", "workflowTaskSettingsId", "approvalOrderNumber", duedates, name, reminders, "taskPriorityId", text, uuid) FROM stdin;
@@ -6484,7 +6484,7 @@ COPY public."WorkFlowContractTasks" (id, "updateadAt", "createdAt", "contractId"
 
 
 --
--- Data for Name: WorkFlowRejectActions; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: WorkFlowRejectActions; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."WorkFlowRejectActions" (id, "updateadAt", "createdAt", "workflowId", "sendNotificationsToAllApprovers", "sendNotificationsToContractResponsible") FROM stdin;
@@ -6492,7 +6492,7 @@ COPY public."WorkFlowRejectActions" (id, "updateadAt", "createdAt", "workflowId"
 
 
 --
--- Data for Name: WorkFlowRules; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: WorkFlowRules; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."WorkFlowRules" (id, "updateadAt", "createdAt", "workflowId", "ruleFilterSource", "ruleFilterName", "ruleFilterValue", "ruleFilterValueName") FROM stdin;
@@ -6509,7 +6509,7 @@ COPY public."WorkFlowRules" (id, "updateadAt", "createdAt", "workflowId", "ruleF
 
 
 --
--- Data for Name: WorkFlowTaskSettings; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: WorkFlowTaskSettings; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."WorkFlowTaskSettings" (id, "updateadAt", "createdAt", "workflowId", "taskName", "taskNotes", "taskSendNotifications", "taskSendReminders", "taskReminderId", "taskPriorityId", "taskDueDateId") FROM stdin;
@@ -6524,7 +6524,7 @@ COPY public."WorkFlowTaskSettings" (id, "updateadAt", "createdAt", "workflowId",
 
 
 --
--- Data for Name: WorkFlowTaskSettingsUsers; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: WorkFlowTaskSettingsUsers; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."WorkFlowTaskSettingsUsers" (id, "updateadAt", "createdAt", "workflowTaskSettingsId", "userId", "approvalOrderNumber", "approvalStepName") FROM stdin;
@@ -6543,7 +6543,7 @@ COPY public."WorkFlowTaskSettingsUsers" (id, "updateadAt", "createdAt", "workflo
 
 
 --
--- Data for Name: WorkFlowXContracts; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: WorkFlowXContracts; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."WorkFlowXContracts" (id, "updateadAt", "createdAt", "contractId", "wfstatusId", "ctrstatusId", "workflowTaskSettingsId") FROM stdin;
@@ -6566,7 +6566,7 @@ COPY public."WorkFlowXContracts" (id, "updateadAt", "createdAt", "contractId", "
 
 
 --
--- Data for Name: _GroupsToPartners; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: _GroupsToPartners; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."_GroupsToPartners" ("A", "B") FROM stdin;
@@ -6578,7 +6578,7 @@ COPY public."_GroupsToPartners" ("A", "B") FROM stdin;
 
 
 --
--- Data for Name: _GroupsToUser; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: _GroupsToUser; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."_GroupsToUser" ("A", "B") FROM stdin;
@@ -6592,7 +6592,7 @@ COPY public."_GroupsToUser" ("A", "B") FROM stdin;
 
 
 --
--- Data for Name: _prisma_migrations; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: _prisma_migrations; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public._prisma_migrations (id, checksum, finished_at, migration_name, logs, rolled_back_at, started_at, applied_steps_count) FROM stdin;
@@ -6765,413 +6765,413 @@ d6b7d93b-4520-47e2-8124-2bd4054b17e4	eafb4cc2ebeb8ffdfb647f5252bcc222d23b9bd449f
 
 
 --
--- Name: Address_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Address_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Address_id_seq"', 6, true);
 
 
 --
--- Name: AlertsHistory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: AlertsHistory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."AlertsHistory_id_seq"', 170, true);
 
 
 --
--- Name: Alerts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Alerts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Alerts_id_seq"', 3, true);
 
 
 --
--- Name: Bank_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Bank_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Bank_id_seq"', 32, true);
 
 
 --
--- Name: Banks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Banks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Banks_id_seq"', 7, true);
 
 
 --
--- Name: BillingFrequency_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: BillingFrequency_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."BillingFrequency_id_seq"', 8, true);
 
 
 --
--- Name: Cashflow_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Cashflow_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Cashflow_id_seq"', 31, true);
 
 
 --
--- Name: Category_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Category_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Category_id_seq"', 4, true);
 
 
 --
--- Name: ContractAlertSchedule_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractAlertSchedule_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractAlertSchedule_id_seq"', 184, true);
 
 
 --
--- Name: ContractAttachments_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractAttachments_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractAttachments_id_seq"', 55, true);
 
 
 --
--- Name: ContractContent_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractContent_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractContent_id_seq"', 16, true);
 
 
 --
--- Name: ContractDynamicFields_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractDynamicFields_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractDynamicFields_id_seq"', 92, true);
 
 
 --
--- Name: ContractFinancialDetailSchedule_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractFinancialDetailSchedule_id_seq"', 455, true);
 
 
 --
--- Name: ContractFinancialDetail_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractFinancialDetail_id_seq"', 51, true);
 
 
 --
--- Name: ContractItems_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractItems_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractItems_id_seq"', 46, true);
 
 
 --
--- Name: ContractStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractStatus_id_seq"', 1, true);
 
 
 --
--- Name: ContractTasksDueDates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractTasksDueDates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractTasksDueDates_id_seq"', 6, true);
 
 
 --
--- Name: ContractTasksPriority_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractTasksPriority_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractTasksPriority_id_seq"', 3, true);
 
 
 --
--- Name: ContractTasksReminders_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractTasksReminders_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractTasksReminders_id_seq"', 7, true);
 
 
 --
--- Name: ContractTasksStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractTasksStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractTasksStatus_id_seq"', 1, false);
 
 
 --
--- Name: ContractTasks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractTasks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractTasks_id_seq"', 137, true);
 
 
 --
--- Name: ContractTemplates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractTemplates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractTemplates_id_seq"', 2, true);
 
 
 --
--- Name: ContractType_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractType_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractType_id_seq"', 98, true);
 
 
 --
--- Name: ContractWFStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractWFStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractWFStatus_id_seq"', 6, true);
 
 
 --
--- Name: ContractsAudit_auditid_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractsAudit_auditid_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractsAudit_auditid_seq"', 140, true);
 
 
 --
--- Name: Contracts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Contracts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Contracts_id_seq"', 92, true);
 
 
 --
--- Name: CostCenter_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: CostCenter_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."CostCenter_id_seq"', 48, true);
 
 
 --
--- Name: Currency_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Currency_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Currency_id_seq"', 29, true);
 
 
 --
--- Name: Department_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Department_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Department_id_seq"', 35, true);
 
 
 --
--- Name: DocumentSeries_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: DocumentSeries_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."DocumentSeries_id_seq"', 4, true);
 
 
 --
--- Name: DynamicFields_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: DynamicFields_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."DynamicFields_id_seq"', 1, true);
 
 
 --
--- Name: ExchangeRatesBNR_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ExchangeRatesBNR_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ExchangeRatesBNR_id_seq"', 10509, true);
 
 
 --
--- Name: ExchangeRates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ExchangeRates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ExchangeRates_id_seq"', 672, true);
 
 
 --
--- Name: ForgotPass_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ForgotPass_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ForgotPass_id_seq"', 7, true);
 
 
 --
--- Name: Groups_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Groups_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Groups_id_seq"', 5, true);
 
 
 --
--- Name: InvoiceDetail_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."InvoiceDetail_id_seq"', 2, true);
 
 
 --
--- Name: InvoiceStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: InvoiceStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."InvoiceStatus_id_seq"', 3, true);
 
 
 --
--- Name: InvoiceType_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: InvoiceType_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."InvoiceType_id_seq"', 4, true);
 
 
 --
--- Name: Invoice_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Invoice_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Invoice_id_seq"', 48, true);
 
 
 --
--- Name: Item_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Item_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Item_id_seq"', 9, true);
 
 
 --
--- Name: Location_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Location_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Location_id_seq"', 3, true);
 
 
 --
--- Name: MeasuringUnit_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: MeasuringUnit_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."MeasuringUnit_id_seq"', 32, true);
 
 
 --
--- Name: PartnersBanksExtraRates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: PartnersBanksExtraRates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."PartnersBanksExtraRates_id_seq"', 9, true);
 
 
 --
--- Name: Partners_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Partners_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Partners_id_seq"', 16, true);
 
 
 --
--- Name: PaymentType_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: PaymentType_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."PaymentType_id_seq"', 10, true);
 
 
 --
--- Name: Persons_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Persons_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Persons_id_seq"', 7, true);
 
 
 --
--- Name: Role_User_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Role_User_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Role_User_id_seq"', 25, true);
 
 
 --
--- Name: Role_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Role_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Role_id_seq"', 4, true);
 
 
 --
--- Name: TransactionType_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: TransactionType_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."TransactionType_id_seq"', 2, true);
 
 
 --
--- Name: User_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: User_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."User_id_seq"', 7, true);
 
 
 --
--- Name: VatQuota_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: VatQuota_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."VatQuota_id_seq"', 4, true);
 
 
 --
--- Name: WorkFlowContractTasks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."WorkFlowContractTasks_id_seq"', 127, true);
 
 
 --
--- Name: WorkFlowRejectActions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRejectActions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."WorkFlowRejectActions_id_seq"', 1, false);
 
 
 --
--- Name: WorkFlowRules_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRules_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."WorkFlowRules_id_seq"', 18, true);
 
 
 --
--- Name: WorkFlowTaskSettingsUsers_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettingsUsers_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."WorkFlowTaskSettingsUsers_id_seq"', 24, true);
 
 
 --
--- Name: WorkFlowTaskSettings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."WorkFlowTaskSettings_id_seq"', 7, true);
 
 
 --
--- Name: WorkFlowXContracts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: WorkFlowXContracts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."WorkFlowXContracts_id_seq"', 74, true);
 
 
 --
--- Name: WorkFlow_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: WorkFlow_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."WorkFlow_id_seq"', 7, true);
 
 
 --
--- Name: Address Address_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Address Address_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Address"
@@ -7179,7 +7179,7 @@ ALTER TABLE ONLY public."Address"
 
 
 --
--- Name: AlertsHistory AlertsHistory_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: AlertsHistory AlertsHistory_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."AlertsHistory"
@@ -7187,7 +7187,7 @@ ALTER TABLE ONLY public."AlertsHistory"
 
 
 --
--- Name: Alerts Alerts_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Alerts Alerts_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Alerts"
@@ -7195,7 +7195,7 @@ ALTER TABLE ONLY public."Alerts"
 
 
 --
--- Name: Bank Bank_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Bank Bank_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Bank"
@@ -7203,7 +7203,7 @@ ALTER TABLE ONLY public."Bank"
 
 
 --
--- Name: Banks Banks_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Banks Banks_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Banks"
@@ -7211,7 +7211,7 @@ ALTER TABLE ONLY public."Banks"
 
 
 --
--- Name: BillingFrequency BillingFrequency_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: BillingFrequency BillingFrequency_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."BillingFrequency"
@@ -7219,7 +7219,7 @@ ALTER TABLE ONLY public."BillingFrequency"
 
 
 --
--- Name: Cashflow Cashflow_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Cashflow Cashflow_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Cashflow"
@@ -7227,7 +7227,7 @@ ALTER TABLE ONLY public."Cashflow"
 
 
 --
--- Name: Category Category_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Category Category_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Category"
@@ -7235,7 +7235,7 @@ ALTER TABLE ONLY public."Category"
 
 
 --
--- Name: ContractAlertSchedule ContractAlertSchedule_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractAlertSchedule ContractAlertSchedule_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractAlertSchedule"
@@ -7243,7 +7243,7 @@ ALTER TABLE ONLY public."ContractAlertSchedule"
 
 
 --
--- Name: ContractAttachments ContractAttachments_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractAttachments ContractAttachments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractAttachments"
@@ -7251,7 +7251,7 @@ ALTER TABLE ONLY public."ContractAttachments"
 
 
 --
--- Name: ContractContent ContractContent_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractContent ContractContent_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractContent"
@@ -7259,7 +7259,7 @@ ALTER TABLE ONLY public."ContractContent"
 
 
 --
--- Name: ContractDynamicFields ContractDynamicFields_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractDynamicFields ContractDynamicFields_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractDynamicFields"
@@ -7267,7 +7267,7 @@ ALTER TABLE ONLY public."ContractDynamicFields"
 
 
 --
--- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
@@ -7275,7 +7275,7 @@ ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -7283,7 +7283,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractItems ContractItems_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractItems ContractItems_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractItems"
@@ -7291,7 +7291,7 @@ ALTER TABLE ONLY public."ContractItems"
 
 
 --
--- Name: ContractStatus ContractStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractStatus ContractStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractStatus"
@@ -7299,7 +7299,7 @@ ALTER TABLE ONLY public."ContractStatus"
 
 
 --
--- Name: ContractTasksDueDates ContractTasksDueDates_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasksDueDates ContractTasksDueDates_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasksDueDates"
@@ -7307,7 +7307,7 @@ ALTER TABLE ONLY public."ContractTasksDueDates"
 
 
 --
--- Name: ContractTasksPriority ContractTasksPriority_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasksPriority ContractTasksPriority_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasksPriority"
@@ -7315,7 +7315,7 @@ ALTER TABLE ONLY public."ContractTasksPriority"
 
 
 --
--- Name: ContractTasksReminders ContractTasksReminders_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasksReminders ContractTasksReminders_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasksReminders"
@@ -7323,7 +7323,7 @@ ALTER TABLE ONLY public."ContractTasksReminders"
 
 
 --
--- Name: ContractTasksStatus ContractTasksStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasksStatus ContractTasksStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasksStatus"
@@ -7331,7 +7331,7 @@ ALTER TABLE ONLY public."ContractTasksStatus"
 
 
 --
--- Name: ContractTasks ContractTasks_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasks ContractTasks_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasks"
@@ -7339,7 +7339,7 @@ ALTER TABLE ONLY public."ContractTasks"
 
 
 --
--- Name: ContractTemplates ContractTemplates_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTemplates ContractTemplates_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTemplates"
@@ -7347,7 +7347,7 @@ ALTER TABLE ONLY public."ContractTemplates"
 
 
 --
--- Name: ContractType ContractType_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractType ContractType_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractType"
@@ -7355,7 +7355,7 @@ ALTER TABLE ONLY public."ContractType"
 
 
 --
--- Name: ContractWFStatus ContractWFStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractWFStatus ContractWFStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractWFStatus"
@@ -7363,7 +7363,7 @@ ALTER TABLE ONLY public."ContractWFStatus"
 
 
 --
--- Name: ContractsAudit ContractsAudit_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractsAudit ContractsAudit_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractsAudit"
@@ -7371,7 +7371,7 @@ ALTER TABLE ONLY public."ContractsAudit"
 
 
 --
--- Name: Contracts Contracts_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7379,7 +7379,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: CostCenter CostCenter_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: CostCenter CostCenter_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."CostCenter"
@@ -7387,7 +7387,7 @@ ALTER TABLE ONLY public."CostCenter"
 
 
 --
--- Name: Currency Currency_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Currency Currency_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Currency"
@@ -7395,7 +7395,7 @@ ALTER TABLE ONLY public."Currency"
 
 
 --
--- Name: Department Department_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Department Department_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Department"
@@ -7403,7 +7403,7 @@ ALTER TABLE ONLY public."Department"
 
 
 --
--- Name: DocumentSeries DocumentSeries_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: DocumentSeries DocumentSeries_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."DocumentSeries"
@@ -7411,7 +7411,7 @@ ALTER TABLE ONLY public."DocumentSeries"
 
 
 --
--- Name: DynamicFields DynamicFields_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: DynamicFields DynamicFields_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."DynamicFields"
@@ -7419,7 +7419,7 @@ ALTER TABLE ONLY public."DynamicFields"
 
 
 --
--- Name: ExchangeRatesBNR ExchangeRatesBNR_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ExchangeRatesBNR ExchangeRatesBNR_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ExchangeRatesBNR"
@@ -7427,7 +7427,7 @@ ALTER TABLE ONLY public."ExchangeRatesBNR"
 
 
 --
--- Name: ExchangeRates ExchangeRates_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ExchangeRates ExchangeRates_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ExchangeRates"
@@ -7435,7 +7435,7 @@ ALTER TABLE ONLY public."ExchangeRates"
 
 
 --
--- Name: ForgotPass ForgotPass_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ForgotPass ForgotPass_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ForgotPass"
@@ -7443,7 +7443,7 @@ ALTER TABLE ONLY public."ForgotPass"
 
 
 --
--- Name: Groups Groups_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Groups Groups_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Groups"
@@ -7451,7 +7451,7 @@ ALTER TABLE ONLY public."Groups"
 
 
 --
--- Name: InvoiceDetail InvoiceDetail_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail InvoiceDetail_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceDetail"
@@ -7459,7 +7459,7 @@ ALTER TABLE ONLY public."InvoiceDetail"
 
 
 --
--- Name: InvoiceStatus InvoiceStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: InvoiceStatus InvoiceStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceStatus"
@@ -7467,7 +7467,7 @@ ALTER TABLE ONLY public."InvoiceStatus"
 
 
 --
--- Name: InvoiceType InvoiceType_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: InvoiceType InvoiceType_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceType"
@@ -7475,7 +7475,7 @@ ALTER TABLE ONLY public."InvoiceType"
 
 
 --
--- Name: Invoice Invoice_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
@@ -7483,7 +7483,7 @@ ALTER TABLE ONLY public."Invoice"
 
 
 --
--- Name: Item Item_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Item Item_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Item"
@@ -7491,7 +7491,7 @@ ALTER TABLE ONLY public."Item"
 
 
 --
--- Name: Location Location_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Location Location_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Location"
@@ -7499,7 +7499,7 @@ ALTER TABLE ONLY public."Location"
 
 
 --
--- Name: MeasuringUnit MeasuringUnit_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: MeasuringUnit MeasuringUnit_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."MeasuringUnit"
@@ -7507,7 +7507,7 @@ ALTER TABLE ONLY public."MeasuringUnit"
 
 
 --
--- Name: PartnersBanksExtraRates PartnersBanksExtraRates_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: PartnersBanksExtraRates PartnersBanksExtraRates_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."PartnersBanksExtraRates"
@@ -7515,7 +7515,7 @@ ALTER TABLE ONLY public."PartnersBanksExtraRates"
 
 
 --
--- Name: Partners Partners_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Partners Partners_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Partners"
@@ -7523,7 +7523,7 @@ ALTER TABLE ONLY public."Partners"
 
 
 --
--- Name: PaymentType PaymentType_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: PaymentType PaymentType_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."PaymentType"
@@ -7531,7 +7531,7 @@ ALTER TABLE ONLY public."PaymentType"
 
 
 --
--- Name: Persons Persons_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Persons Persons_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Persons"
@@ -7539,7 +7539,7 @@ ALTER TABLE ONLY public."Persons"
 
 
 --
--- Name: Role_User Role_User_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Role_User Role_User_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Role_User"
@@ -7547,7 +7547,7 @@ ALTER TABLE ONLY public."Role_User"
 
 
 --
--- Name: Role Role_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Role Role_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Role"
@@ -7555,7 +7555,7 @@ ALTER TABLE ONLY public."Role"
 
 
 --
--- Name: TransactionType TransactionType_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: TransactionType TransactionType_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."TransactionType"
@@ -7563,7 +7563,7 @@ ALTER TABLE ONLY public."TransactionType"
 
 
 --
--- Name: User User_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: User User_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."User"
@@ -7571,7 +7571,7 @@ ALTER TABLE ONLY public."User"
 
 
 --
--- Name: VatQuota VatQuota_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: VatQuota VatQuota_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."VatQuota"
@@ -7579,7 +7579,7 @@ ALTER TABLE ONLY public."VatQuota"
 
 
 --
--- Name: WorkFlowContractTasks WorkFlowContractTasks_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks WorkFlowContractTasks_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowContractTasks"
@@ -7587,7 +7587,7 @@ ALTER TABLE ONLY public."WorkFlowContractTasks"
 
 
 --
--- Name: WorkFlowRejectActions WorkFlowRejectActions_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRejectActions WorkFlowRejectActions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowRejectActions"
@@ -7595,7 +7595,7 @@ ALTER TABLE ONLY public."WorkFlowRejectActions"
 
 
 --
--- Name: WorkFlowRules WorkFlowRules_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRules WorkFlowRules_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowRules"
@@ -7603,7 +7603,7 @@ ALTER TABLE ONLY public."WorkFlowRules"
 
 
 --
--- Name: WorkFlowTaskSettingsUsers WorkFlowTaskSettingsUsers_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettingsUsers WorkFlowTaskSettingsUsers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettingsUsers"
@@ -7611,7 +7611,7 @@ ALTER TABLE ONLY public."WorkFlowTaskSettingsUsers"
 
 
 --
--- Name: WorkFlowTaskSettings WorkFlowTaskSettings_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings WorkFlowTaskSettings_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettings"
@@ -7619,7 +7619,7 @@ ALTER TABLE ONLY public."WorkFlowTaskSettings"
 
 
 --
--- Name: WorkFlowXContracts WorkFlowXContracts_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowXContracts WorkFlowXContracts_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowXContracts"
@@ -7627,7 +7627,7 @@ ALTER TABLE ONLY public."WorkFlowXContracts"
 
 
 --
--- Name: WorkFlow WorkFlow_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlow WorkFlow_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlow"
@@ -7635,7 +7635,7 @@ ALTER TABLE ONLY public."WorkFlow"
 
 
 --
--- Name: _prisma_migrations _prisma_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: _prisma_migrations _prisma_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public._prisma_migrations
@@ -7643,259 +7643,259 @@ ALTER TABLE ONLY public._prisma_migrations
 
 
 --
--- Name: Bank_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Bank_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Bank_name_key" ON public."Bank" USING btree (name);
 
 
 --
--- Name: BillingFrequency_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: BillingFrequency_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "BillingFrequency_name_key" ON public."BillingFrequency" USING btree (name);
 
 
 --
--- Name: Cashflow_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Cashflow_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Cashflow_name_key" ON public."Cashflow" USING btree (name);
 
 
 --
--- Name: Category_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Category_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Category_name_key" ON public."Category" USING btree (name);
 
 
 --
--- Name: ContractContent_contractId_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: ContractContent_contractId_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "ContractContent_contractId_key" ON public."ContractContent" USING btree ("contractId");
 
 
 --
--- Name: ContractStatus_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: ContractStatus_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "ContractStatus_name_key" ON public."ContractStatus" USING btree (name);
 
 
 --
--- Name: ContractTasksDueDates_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: ContractTasksDueDates_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "ContractTasksDueDates_name_key" ON public."ContractTasksDueDates" USING btree (name);
 
 
 --
--- Name: ContractTasksPriority_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: ContractTasksPriority_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "ContractTasksPriority_name_key" ON public."ContractTasksPriority" USING btree (name);
 
 
 --
--- Name: ContractTasksReminders_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: ContractTasksReminders_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "ContractTasksReminders_name_key" ON public."ContractTasksReminders" USING btree (name);
 
 
 --
--- Name: ContractTasksStatus_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: ContractTasksStatus_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "ContractTasksStatus_name_key" ON public."ContractTasksStatus" USING btree (name);
 
 
 --
--- Name: ContractWFStatus_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: ContractWFStatus_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "ContractWFStatus_name_key" ON public."ContractWFStatus" USING btree (name);
 
 
 --
--- Name: CostCenter_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: CostCenter_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "CostCenter_name_key" ON public."CostCenter" USING btree (name);
 
 
 --
--- Name: Currency_code_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Currency_code_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Currency_code_key" ON public."Currency" USING btree (code);
 
 
 --
--- Name: Currency_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Currency_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Currency_name_key" ON public."Currency" USING btree (name);
 
 
 --
--- Name: Department_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Department_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Department_name_key" ON public."Department" USING btree (name);
 
 
 --
--- Name: DocumentSeries_series_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: DocumentSeries_series_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "DocumentSeries_series_key" ON public."DocumentSeries" USING btree (series);
 
 
 --
--- Name: DynamicFields_fieldname_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: DynamicFields_fieldname_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "DynamicFields_fieldname_key" ON public."DynamicFields" USING btree (fieldname);
 
 
 --
--- Name: DynamicFields_fieldorder_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: DynamicFields_fieldorder_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "DynamicFields_fieldorder_key" ON public."DynamicFields" USING btree (fieldorder);
 
 
 --
--- Name: ForgotPass_uuid_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: ForgotPass_uuid_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "ForgotPass_uuid_key" ON public."ForgotPass" USING btree (uuid);
 
 
 --
--- Name: InvoiceStatus_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: InvoiceStatus_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "InvoiceStatus_name_key" ON public."InvoiceStatus" USING btree (name);
 
 
 --
--- Name: InvoiceType_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: InvoiceType_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "InvoiceType_name_key" ON public."InvoiceType" USING btree (name);
 
 
 --
--- Name: Item_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Item_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Item_name_key" ON public."Item" USING btree (name);
 
 
 --
--- Name: Location_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Location_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Location_name_key" ON public."Location" USING btree (name);
 
 
 --
--- Name: Partners_commercial_reg_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Partners_commercial_reg_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Partners_commercial_reg_key" ON public."Partners" USING btree (commercial_reg);
 
 
 --
--- Name: Partners_fiscal_code_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Partners_fiscal_code_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Partners_fiscal_code_key" ON public."Partners" USING btree (fiscal_code);
 
 
 --
--- Name: Partners_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Partners_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Partners_name_key" ON public."Partners" USING btree (name);
 
 
 --
--- Name: PaymentType_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: PaymentType_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "PaymentType_name_key" ON public."PaymentType" USING btree (name);
 
 
 --
--- Name: Persons_email_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Persons_email_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Persons_email_key" ON public."Persons" USING btree (email);
 
 
 --
--- Name: Persons_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Persons_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Persons_name_key" ON public."Persons" USING btree (name);
 
 
 --
--- Name: TransactionType_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: TransactionType_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "TransactionType_name_key" ON public."TransactionType" USING btree (name);
 
 
 --
--- Name: User_email_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: User_email_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "User_email_key" ON public."User" USING btree (email);
 
 
 --
--- Name: User_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: User_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "User_name_key" ON public."User" USING btree (name);
 
 
 --
--- Name: _GroupsToPartners_AB_unique; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: _GroupsToPartners_AB_unique; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "_GroupsToPartners_AB_unique" ON public."_GroupsToPartners" USING btree ("A", "B");
 
 
 --
--- Name: _GroupsToPartners_B_index; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: _GroupsToPartners_B_index; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX "_GroupsToPartners_B_index" ON public."_GroupsToPartners" USING btree ("B");
 
 
 --
--- Name: _GroupsToUser_AB_unique; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: _GroupsToUser_AB_unique; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "_GroupsToUser_AB_unique" ON public."_GroupsToUser" USING btree ("A", "B");
 
 
 --
--- Name: _GroupsToUser_B_index; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: _GroupsToUser_B_index; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX "_GroupsToUser_B_index" ON public."_GroupsToUser" USING btree ("B");
 
 
 --
--- Name: Address Address_partnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Address Address_partnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Address"
@@ -7903,7 +7903,7 @@ ALTER TABLE ONLY public."Address"
 
 
 --
--- Name: Banks Banks_partnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Banks Banks_partnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Banks"
@@ -7911,7 +7911,7 @@ ALTER TABLE ONLY public."Banks"
 
 
 --
--- Name: ContractAttachments ContractAttachments_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractAttachments ContractAttachments_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractAttachments"
@@ -7919,7 +7919,7 @@ ALTER TABLE ONLY public."ContractAttachments"
 
 
 --
--- Name: ContractContent ContractContent_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractContent ContractContent_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractContent"
@@ -7927,7 +7927,7 @@ ALTER TABLE ONLY public."ContractContent"
 
 
 --
--- Name: ContractDynamicFields ContractDynamicFields_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractDynamicFields ContractDynamicFields_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractDynamicFields"
@@ -7935,7 +7935,7 @@ ALTER TABLE ONLY public."ContractDynamicFields"
 
 
 --
--- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_contractfinancialItemId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_contractfinancialItemId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
@@ -7943,7 +7943,7 @@ ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
 
 
 --
--- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_currencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_currencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
@@ -7951,7 +7951,7 @@ ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
 
 
 --
--- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_itemid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_itemid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
@@ -7959,7 +7959,7 @@ ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
 
 
 --
--- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_measuringUnitid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_measuringUnitid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
@@ -7967,7 +7967,7 @@ ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_contractItemId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_contractItemId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -7975,7 +7975,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_currencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_currencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -7983,7 +7983,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_goodexecutionLetterBankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_goodexecutionLetterBankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -7991,7 +7991,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_goodexecutionLetterCurrencyId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_goodexecutionLetterCurrencyId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -7999,7 +7999,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_guaranteeLetterBankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_guaranteeLetterBankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -8007,7 +8007,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_guaranteeLetterCurrencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_guaranteeLetterCurrencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -8015,7 +8015,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_measuringUnitid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_measuringUnitid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -8023,7 +8023,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_paymentTypeid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_paymentTypeid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -8031,7 +8031,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_vatId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_vatId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -8039,7 +8039,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractItems ContractItems_billingFrequencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractItems ContractItems_billingFrequencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractItems"
@@ -8047,7 +8047,7 @@ ALTER TABLE ONLY public."ContractItems"
 
 
 --
--- Name: ContractItems ContractItems_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractItems ContractItems_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractItems"
@@ -8055,7 +8055,7 @@ ALTER TABLE ONLY public."ContractItems"
 
 
 --
--- Name: ContractItems ContractItems_currencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractItems ContractItems_currencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractItems"
@@ -8063,7 +8063,7 @@ ALTER TABLE ONLY public."ContractItems"
 
 
 --
--- Name: ContractItems ContractItems_itemid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractItems ContractItems_itemid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractItems"
@@ -8071,7 +8071,7 @@ ALTER TABLE ONLY public."ContractItems"
 
 
 --
--- Name: ContractTasks ContractTasks_assignedId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasks ContractTasks_assignedId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasks"
@@ -8079,7 +8079,7 @@ ALTER TABLE ONLY public."ContractTasks"
 
 
 --
--- Name: ContractTasks ContractTasks_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasks ContractTasks_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasks"
@@ -8087,7 +8087,7 @@ ALTER TABLE ONLY public."ContractTasks"
 
 
 --
--- Name: ContractTasks ContractTasks_requestorId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasks ContractTasks_requestorId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasks"
@@ -8095,7 +8095,7 @@ ALTER TABLE ONLY public."ContractTasks"
 
 
 --
--- Name: ContractTasks ContractTasks_statusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasks ContractTasks_statusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasks"
@@ -8103,7 +8103,7 @@ ALTER TABLE ONLY public."ContractTasks"
 
 
 --
--- Name: ContractTasks ContractTasks_statusWFId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasks ContractTasks_statusWFId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasks"
@@ -8111,7 +8111,7 @@ ALTER TABLE ONLY public."ContractTasks"
 
 
 --
--- Name: ContractTasks ContractTasks_taskPriorityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasks ContractTasks_taskPriorityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasks"
@@ -8119,7 +8119,7 @@ ALTER TABLE ONLY public."ContractTasks"
 
 
 --
--- Name: ContractTemplates ContractTemplates_contractTypeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTemplates ContractTemplates_contractTypeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTemplates"
@@ -8127,7 +8127,7 @@ ALTER TABLE ONLY public."ContractTemplates"
 
 
 --
--- Name: Contracts Contracts_cashflowId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_cashflowId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -8135,7 +8135,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_categoryId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_categoryId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -8143,7 +8143,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_costcenterId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_costcenterId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -8151,7 +8151,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_departmentId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_departmentId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -8159,7 +8159,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_entityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_entityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -8167,7 +8167,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_entityaddressId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_entityaddressId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -8175,7 +8175,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_entitybankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_entitybankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -8183,7 +8183,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_entitypersonsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_entitypersonsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -8191,7 +8191,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_locationId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_locationId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -8199,7 +8199,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_partneraddressId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_partneraddressId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -8207,7 +8207,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_partnerbankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_partnerbankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -8215,7 +8215,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_partnerpersonsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_partnerpersonsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -8223,7 +8223,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_partnersId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_partnersId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -8231,7 +8231,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_paymentTypeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_paymentTypeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -8239,7 +8239,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_statusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_statusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -8247,7 +8247,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_statusWFId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_statusWFId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -8255,7 +8255,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_typeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_typeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -8263,7 +8263,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -8271,7 +8271,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: ForgotPass ForgotPass_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ForgotPass ForgotPass_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ForgotPass"
@@ -8279,7 +8279,7 @@ ALTER TABLE ONLY public."ForgotPass"
 
 
 --
--- Name: InvoiceDetail InvoiceDetail_entityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail InvoiceDetail_entityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceDetail"
@@ -8287,7 +8287,7 @@ ALTER TABLE ONLY public."InvoiceDetail"
 
 
 --
--- Name: InvoiceDetail InvoiceDetail_invoiceId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail InvoiceDetail_invoiceId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceDetail"
@@ -8295,7 +8295,7 @@ ALTER TABLE ONLY public."InvoiceDetail"
 
 
 --
--- Name: InvoiceDetail InvoiceDetail_itemId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail InvoiceDetail_itemId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceDetail"
@@ -8303,7 +8303,7 @@ ALTER TABLE ONLY public."InvoiceDetail"
 
 
 --
--- Name: InvoiceDetail InvoiceDetail_measuringUnitid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail InvoiceDetail_measuringUnitid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceDetail"
@@ -8311,7 +8311,7 @@ ALTER TABLE ONLY public."InvoiceDetail"
 
 
 --
--- Name: InvoiceDetail InvoiceDetail_vatId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail InvoiceDetail_vatId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceDetail"
@@ -8319,7 +8319,7 @@ ALTER TABLE ONLY public."InvoiceDetail"
 
 
 --
--- Name: Invoice Invoice_currencyId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_currencyId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
@@ -8327,7 +8327,7 @@ ALTER TABLE ONLY public."Invoice"
 
 
 --
--- Name: Invoice Invoice_entityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_entityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
@@ -8335,7 +8335,7 @@ ALTER TABLE ONLY public."Invoice"
 
 
 --
--- Name: Invoice Invoice_entitybankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_entitybankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
@@ -8343,7 +8343,7 @@ ALTER TABLE ONLY public."Invoice"
 
 
 --
--- Name: Invoice Invoice_partnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_partnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
@@ -8351,7 +8351,7 @@ ALTER TABLE ONLY public."Invoice"
 
 
 --
--- Name: Invoice Invoice_partneraddressId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_partneraddressId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
@@ -8359,7 +8359,7 @@ ALTER TABLE ONLY public."Invoice"
 
 
 --
--- Name: Invoice Invoice_seriesId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_seriesId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
@@ -8367,7 +8367,7 @@ ALTER TABLE ONLY public."Invoice"
 
 
 --
--- Name: Invoice Invoice_statusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_statusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
@@ -8375,7 +8375,7 @@ ALTER TABLE ONLY public."Invoice"
 
 
 --
--- Name: Invoice Invoice_transactionTypeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_transactionTypeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
@@ -8383,7 +8383,7 @@ ALTER TABLE ONLY public."Invoice"
 
 
 --
--- Name: Invoice Invoice_typeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_typeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
@@ -8391,7 +8391,7 @@ ALTER TABLE ONLY public."Invoice"
 
 
 --
--- Name: Invoice Invoice_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
@@ -8399,7 +8399,7 @@ ALTER TABLE ONLY public."Invoice"
 
 
 --
--- Name: Item Item_classificationId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Item Item_classificationId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Item"
@@ -8407,7 +8407,7 @@ ALTER TABLE ONLY public."Item"
 
 
 --
--- Name: Item Item_measuringUnitid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Item Item_measuringUnitid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Item"
@@ -8415,7 +8415,7 @@ ALTER TABLE ONLY public."Item"
 
 
 --
--- Name: Item Item_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Item Item_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Item"
@@ -8423,7 +8423,7 @@ ALTER TABLE ONLY public."Item"
 
 
 --
--- Name: Item Item_vatId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Item Item_vatId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Item"
@@ -8431,7 +8431,7 @@ ALTER TABLE ONLY public."Item"
 
 
 --
--- Name: PartnersBanksExtraRates PartnersBanksExtraRates_currencyId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: PartnersBanksExtraRates PartnersBanksExtraRates_currencyId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."PartnersBanksExtraRates"
@@ -8439,7 +8439,7 @@ ALTER TABLE ONLY public."PartnersBanksExtraRates"
 
 
 --
--- Name: PartnersBanksExtraRates PartnersBanksExtraRates_partnersId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: PartnersBanksExtraRates PartnersBanksExtraRates_partnersId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."PartnersBanksExtraRates"
@@ -8447,7 +8447,7 @@ ALTER TABLE ONLY public."PartnersBanksExtraRates"
 
 
 --
--- Name: Persons Persons_partnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Persons Persons_partnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Persons"
@@ -8455,7 +8455,7 @@ ALTER TABLE ONLY public."Persons"
 
 
 --
--- Name: Role_User Role_User_roleId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Role_User Role_User_roleId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Role_User"
@@ -8463,7 +8463,7 @@ ALTER TABLE ONLY public."Role_User"
 
 
 --
--- Name: Role_User Role_User_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Role_User Role_User_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Role_User"
@@ -8471,7 +8471,7 @@ ALTER TABLE ONLY public."Role_User"
 
 
 --
--- Name: WorkFlowContractTasks WorkFlowContractTasks_assignedId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks WorkFlowContractTasks_assignedId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowContractTasks"
@@ -8479,7 +8479,7 @@ ALTER TABLE ONLY public."WorkFlowContractTasks"
 
 
 --
--- Name: WorkFlowContractTasks WorkFlowContractTasks_requestorId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks WorkFlowContractTasks_requestorId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowContractTasks"
@@ -8487,7 +8487,7 @@ ALTER TABLE ONLY public."WorkFlowContractTasks"
 
 
 --
--- Name: WorkFlowContractTasks WorkFlowContractTasks_statusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks WorkFlowContractTasks_statusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowContractTasks"
@@ -8495,7 +8495,7 @@ ALTER TABLE ONLY public."WorkFlowContractTasks"
 
 
 --
--- Name: WorkFlowContractTasks WorkFlowContractTasks_taskPriorityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks WorkFlowContractTasks_taskPriorityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowContractTasks"
@@ -8503,7 +8503,7 @@ ALTER TABLE ONLY public."WorkFlowContractTasks"
 
 
 --
--- Name: WorkFlowContractTasks WorkFlowContractTasks_workflowTaskSettingsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks WorkFlowContractTasks_workflowTaskSettingsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowContractTasks"
@@ -8511,7 +8511,7 @@ ALTER TABLE ONLY public."WorkFlowContractTasks"
 
 
 --
--- Name: WorkFlowRejectActions WorkFlowRejectActions_workflowId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRejectActions WorkFlowRejectActions_workflowId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowRejectActions"
@@ -8519,7 +8519,7 @@ ALTER TABLE ONLY public."WorkFlowRejectActions"
 
 
 --
--- Name: WorkFlowRules WorkFlowRules_workflowId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRules WorkFlowRules_workflowId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowRules"
@@ -8527,7 +8527,7 @@ ALTER TABLE ONLY public."WorkFlowRules"
 
 
 --
--- Name: WorkFlowTaskSettingsUsers WorkFlowTaskSettingsUsers_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettingsUsers WorkFlowTaskSettingsUsers_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettingsUsers"
@@ -8535,7 +8535,7 @@ ALTER TABLE ONLY public."WorkFlowTaskSettingsUsers"
 
 
 --
--- Name: WorkFlowTaskSettingsUsers WorkFlowTaskSettingsUsers_workflowTaskSettingsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettingsUsers WorkFlowTaskSettingsUsers_workflowTaskSettingsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettingsUsers"
@@ -8543,7 +8543,7 @@ ALTER TABLE ONLY public."WorkFlowTaskSettingsUsers"
 
 
 --
--- Name: WorkFlowTaskSettings WorkFlowTaskSettings_taskDueDateId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings WorkFlowTaskSettings_taskDueDateId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettings"
@@ -8551,7 +8551,7 @@ ALTER TABLE ONLY public."WorkFlowTaskSettings"
 
 
 --
--- Name: WorkFlowTaskSettings WorkFlowTaskSettings_taskPriorityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings WorkFlowTaskSettings_taskPriorityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettings"
@@ -8559,7 +8559,7 @@ ALTER TABLE ONLY public."WorkFlowTaskSettings"
 
 
 --
--- Name: WorkFlowTaskSettings WorkFlowTaskSettings_taskReminderId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings WorkFlowTaskSettings_taskReminderId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettings"
@@ -8567,7 +8567,7 @@ ALTER TABLE ONLY public."WorkFlowTaskSettings"
 
 
 --
--- Name: WorkFlowTaskSettings WorkFlowTaskSettings_workflowId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings WorkFlowTaskSettings_workflowId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettings"
@@ -8575,7 +8575,7 @@ ALTER TABLE ONLY public."WorkFlowTaskSettings"
 
 
 --
--- Name: WorkFlowXContracts WorkFlowXContracts_ctrstatusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowXContracts WorkFlowXContracts_ctrstatusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowXContracts"
@@ -8583,7 +8583,7 @@ ALTER TABLE ONLY public."WorkFlowXContracts"
 
 
 --
--- Name: WorkFlowXContracts WorkFlowXContracts_wfstatusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowXContracts WorkFlowXContracts_wfstatusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowXContracts"
@@ -8591,7 +8591,7 @@ ALTER TABLE ONLY public."WorkFlowXContracts"
 
 
 --
--- Name: WorkFlowXContracts WorkFlowXContracts_workflowTaskSettingsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowXContracts WorkFlowXContracts_workflowTaskSettingsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowXContracts"
@@ -8599,7 +8599,7 @@ ALTER TABLE ONLY public."WorkFlowXContracts"
 
 
 --
--- Name: _GroupsToPartners _GroupsToPartners_A_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: _GroupsToPartners _GroupsToPartners_A_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."_GroupsToPartners"
@@ -8607,7 +8607,7 @@ ALTER TABLE ONLY public."_GroupsToPartners"
 
 
 --
--- Name: _GroupsToPartners _GroupsToPartners_B_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: _GroupsToPartners _GroupsToPartners_B_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."_GroupsToPartners"
@@ -8615,7 +8615,7 @@ ALTER TABLE ONLY public."_GroupsToPartners"
 
 
 --
--- Name: _GroupsToUser _GroupsToUser_A_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: _GroupsToUser _GroupsToUser_A_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."_GroupsToUser"
@@ -8623,7 +8623,7 @@ ALTER TABLE ONLY public."_GroupsToUser"
 
 
 --
--- Name: _GroupsToUser _GroupsToUser_B_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: _GroupsToUser _GroupsToUser_B_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."_GroupsToUser"
@@ -8631,7 +8631,7 @@ ALTER TABLE ONLY public."_GroupsToUser"
 
 
 --
--- Name: SCHEMA public; Type: ACL; Schema: -; Owner: sysadmin
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
 
 REVOKE USAGE ON SCHEMA public FROM PUBLIC;

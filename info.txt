@@ -4,6 +4,21 @@ npx nest g module auth
 
 todo
 
+
+--postgress intall new:
+/Library/PostgreSQL/16
+data:
+/Library/PostgreSQL/16/data
+pass: 123456
+user: postgres
+port: 5433
+host: localhost
+operating account username: postgres 
+restore db: psql -U razvan -d Contracts -f backup_20240610_100000.sql -p 5433
+i added razvan role - superuser - from pgadmin
+
+
+
 http://localhost:3000/swagger#/
 
 .adugat user(context) in toate tabelele

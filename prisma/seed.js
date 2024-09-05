@@ -1,426 +1,441 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
+  const contractType = [
+    { name: 'Contracte de Vanzare-Cumparare' },
+    { name: 'Contracte de inchiriere' },
+    { name: 'Contracte de servicii' },
+    { name: 'Contracte de parteneriat' },
+    { name: 'Contracte de colaborare' },
+    { name: 'Contracte de constructie' },
+    { name: 'Contracte de licentiere' },
+    { name: 'Contracte de franciză' },
+    { name: 'Contracte de imprumut' },
+    { name: 'Contracte de agent' },
+    { name: 'Contracte de dezvoltare Software' },
+    { name: 'Contracte de asigurare' },
+    { name: 'Contracte imobiliare' },
+    { name: 'Contracte de mentenanta' },
+    { name: 'Contracte abonament' },
+    { name: 'Contract de schimb' },
+    { name: 'Contract de report' },
+    { name: 'Contract de antrepriză' },
+    { name: 'Contract de asociere în participație' },
+    { name: 'Contract de transport' },
+    { name: 'Contract de mandat' },
+    { name: 'Contract de comision' },
+    { name: 'Contract de consignație' },
+    { name: 'Contract de agenție' },
+    { name: 'Contract de intermediere' },
+    { name: 'Contract de depozit' },
+    { name: 'Contract de cont curent' },
+    { name: 'Contract de joc și pariu' },
+    { name: 'Contract de donație' },
+    { name: 'Contract de fiducie' },
+    { name: 'Contract de leasing' },
+    { name: 'Contract de factoring' },
+  ];
 
-    const contractType = [
-        { name: "Contracte de Vanzare-Cumparare" },
-        { name: "Contracte de inchiriere" },
-        { name: "Contracte de servicii" },
-        { name: "Contracte de parteneriat" },
-        { name: "Contracte de colaborare" },
-        { name: "Contracte de constructie" },
-        { name: "Contracte de licentiere" },
-        { name: "Contracte de franciză" },
-        { name: "Contracte de imprumut" },
-        { name: "Contracte de agent" },
-        { name: "Contracte de dezvoltare Software" },
-        { name: "Contracte de asigurare" },
-        { name: "Contracte imobiliare" },
-        { name: "Contracte de mentenanta" },
-        { name: "Contracte abonament" },
-        { name: "Contract de schimb" },
-        { name: "Contract de report" },
-        { name: "Contract de antrepriză" },
-        { name: "Contract de asociere în participație" },
-        { name: "Contract de transport" },
-        { name: "Contract de mandat" },
-        { name: "Contract de comision" },
-        { name: "Contract de consignație" },
-        { name: "Contract de agenție" },
-        { name: "Contract de intermediere" },
-        { name: "Contract de depozit" },
-        { name: "Contract de cont curent" },
-        { name: "Contract de joc și pariu" },
-        { name: "Contract de donație" },
-        { name: "Contract de fiducie" },
-        { name: "Contract de leasing" },
-        { name: "Contract de factoring" }
-    ];
+  const contractStatus = [
+    { name: 'In lucru' },
+    { name: 'Activ' },
+    { name: 'Finalizat' },
+    { name: 'Reziliat' },
+    { name: 'Anulat' },
+  ];
 
+  const invoiceStatus = [
+    { name: 'In lucru' },
+    { name: 'Validat' },
+    { name: 'Anulat' },
+  ];
 
-    const contractStatus = [
-        { name: 'In lucru' },
-        { name: 'Activ' },
-        { name: 'Finalizat' },
-        { name: 'Reziliat' },
-        { name: 'Anulat' },
-    ]
+  const contractWFStatus = [
+    { name: 'In lucru' },
+    { name: 'Asteapta aprobarea' },
+    { name: 'Aprobat' },
+    { name: 'Respins' },
+  ];
 
-    const invoiceStatus = [
-        { name: 'In lucru' },
-        { name: 'Validat' },
-        { name: 'Anulat' }
-    ]
+  for (const statuses of contractWFStatus) {
+    await prisma.ContractWFStatus.create({
+      data: statuses,
+    });
+  }
 
+  for (const statuses of invoiceStatus) {
+    await prisma.invoiceStatus.create({
+      data: statuses,
+    });
+  }
 
-    const contractWFStatus = [
-        { name: "In lucru" },
-        { name: "Asteapta aprobarea" },
-        { name: "Aprobat" },
-        { name: "Respins" }
-    ]
+  const cashflowLines = [
+    { name: 'Incasari operationale' },
+    { name: 'Incasari financiare' },
+    { name: 'Plati operationale' },
+    { name: 'Plati investitionale' },
+    { name: 'Plati financiare' },
+    { name: 'Tranzactii InterCompany' },
+    { name: 'Salarii' },
+    { name: 'Furnizori activitate curenta' },
+    { name: 'Utilitati' },
+    { name: 'Auto combustibili si reparatii' },
+    { name: 'Paza' },
+    { name: 'Publicitate si sponsorizare' },
+    { name: 'Deplasari + diurne' },
+    { name: 'Marfa MUDR' },
+    { name: 'Restituiri clienti' },
+    { name: 'Investitii in curs' },
+    { name: 'Investitii finalizate' },
+    { name: 'Asigurari/ leasing , comisioane banci' },
+    { name: 'Restituire credite si dobanzi' },
+    { name: 'Impozit pe profit' },
+    { name: 'Impozite locale' },
+    { name: 'TVA de plata  ' },
+    { name: 'Taxa salarii' },
+    { name: 'Tranzactii intercompany' },
+    { name: 'Transfer bancar(credit)' },
+    { name: 'Transfer bancar(debit)' },
+    { name: 'Plati Deconturi' },
+    { name: 'Investitii Proprii' },
+    { name: 'Compensari/Girari/Retururi' },
+  ];
 
-    for (const statuses of contractWFStatus) {
-        await prisma.ContractWFStatus.create({
-            data: statuses,
-        });
-    }
+  const costcenters = [
+    { name: 'Abonamente RATB' },
+    { name: 'Achizitii carti de specialitate' },
+    { name: 'Achizitii de specialitate' },
+    { name: 'Achizitii produse auto' },
+    { name: 'Administratia pietelor' },
+    { name: 'Administratie' },
+    { name: 'Alpinisti utilitari' },
+    { name: 'Alte cheltuieli' },
+    { name: 'Alte cheltuieli si evenimente' },
+    {
+      name: 'Alte facilitati - masa personal, utilitati, servicii, abonamente RATB',
+    },
+    { name: 'Alte facilitati personal alte persoane' },
+    { name: 'Alte obiective' },
+    { name: 'Alte taxe (Reg. comert, mediu, urbanism, avize)' },
+    { name: 'Altele' },
+    { name: 'Amenajare incinta' },
+    { name: 'Andimed - medicina muncii' },
+    { name: 'Anunturi piblicitare, taxe postale si alte taxe' },
+    { name: 'Anunturi publicitare, taxe postale' },
+    { name: 'Apa' },
+    { name: 'Apa menajera' },
+    { name: 'Apartamente' },
+    { name: 'Apele Romane' },
+    { name: 'Ascensorul Schindler - servicii mentenanta' },
+    { name: 'Asigurari auto casco si RCA' },
+    { name: 'Asigurari cladiri si de viata' },
+    { name: 'Autofinantare' },
+    { name: 'Autorizatie/Licenta utilizare muzica' },
+    { name: 'Bonuri de masa' },
+    { name: 'Bonuri de masa alte persoane' },
+    { name: 'Bugetul Managerului General' },
+    { name: 'Carburant Auto' },
+    { name: 'Carburant auto personal Tesa' },
+    { name: 'Cheltuieli administrare si intretinere' },
+    { name: 'Cheltuieli Comunicare' },
+    { name: 'Cheltuieli comunicare' },
+    { name: 'Cheltuieli cu personalul' },
+    { name: 'Cheltuieli financiare' },
+    { name: 'Cheltuieli imagine' },
+    { name: 'Cheltuieli linie CFR / taxa drumuri/ taxa poduri' },
+    { name: 'Cheltuieli Neprevazute' },
+    { name: 'Cheltuieli neprevazute' },
+    { name: 'Cheltuieli personal alte obiective fara profit' },
+    { name: 'Cheltuieli personal Tesa' },
+    { name: 'Cheltuieli sp. SNCFR ' },
+    { name: 'Cheltuieli transport' },
+    { name: 'Cheltuieli utilitati' },
+  ];
 
-    for (const statuses of invoiceStatus) {
-        await prisma.invoiceStatus.create({
-            data: statuses,
-        });
-    }
+  const Currency = [
+    { code: 'RON', name: 'LEU' },
+    { code: 'EUR', name: 'Euro' },
+    { code: 'USD', name: 'Dolarul SUA' },
+    { code: 'CHF', name: 'Francul elveţian' },
+    { code: 'GBP', name: 'Lira sterlină' },
+    { code: 'BGN', name: 'Leva bulgarească' },
+    { code: 'RUB', name: 'Rubla rusească' },
+    { code: 'ZAR', name: 'Randul sud-african' },
+    { code: 'BRL', name: 'Realul brazilian' },
+    { code: 'CNY', name: 'Renminbi-ul chinezesc' },
+    { code: 'INR', name: 'Rupia indiană' },
+    { code: 'MXN', name: 'Peso-ul mexican' },
+    { code: 'NZD', name: 'Dolarul neo-zeelandez' },
+    { code: 'RSD', name: 'Dinarul sârbesc' },
+    { code: 'UAH', name: 'Hryvna ucraineană' },
+    { code: 'TRY', name: 'Noua lira turcească' },
+    { code: 'AUD', name: 'Dolarul australian' },
+    { code: 'CAD', name: 'Dolarul canadian' },
+    { code: 'CZK', name: 'Coroana cehă' },
+    { code: 'DKK', name: 'Coroana daneză' },
+    { code: 'EGP', name: 'Lira egipteană' },
+    { code: 'HUF', name: 'Forinți maghiari' },
+    { code: 'JPY', name: 'Yeni japonezi' },
+    { code: 'MDL', name: 'Leul moldovenesc' },
+    { code: 'NOK', name: 'Coroana norvegiană' },
+    { code: 'PLN', name: 'Zlotul polonez' },
+    { code: 'SEK', name: 'Coroana suedeză' },
+    { code: 'AED', name: 'Dirhamul Emiratelor Arabe' },
+    { code: 'THB', name: 'Bahtul thailandez' },
+  ];
 
+  const Banks = [
+    { name: 'Alpha Bank' },
+    { name: 'BRCI' },
+    { name: 'Banca FEROVIARA' },
+    { name: 'Intesa Sanpaolo' },
+    { name: 'BCR' },
+    { name: 'BCR Banca pentru Locuinţe' },
+    { name: 'Eximbank' },
+    { name: 'Banca Românească' },
+    { name: 'Banca Transilvania' },
+    { name: 'Leumi' },
+    { name: 'BRD' },
+    { name: 'CEC Bank' },
+    { name: 'Crédit Agricole' },
+    { name: 'Credit Europe' },
+    { name: 'Garanti Bank' },
+    { name: 'Idea Bank' },
+    { name: 'Libra Bank' },
+    { name: 'Vista Bank' },
+    { name: 'OTP Bank' },
+    { name: 'Patria Bank' },
+    { name: 'First Bank' },
+    { name: 'Porsche Bank' },
+    { name: 'ProCredit Bank' },
+    { name: 'Raiffeisen' },
+    { name: 'Aedificium Banca pentru Locuinte' },
+    { name: 'UniCredit' },
+    { name: 'Alior Bank' },
+    { name: 'BLOM Bank France' },
+    { name: 'BNP Paribas' },
+    { name: 'Citibank' },
+    { name: 'ING' },
+    { name: 'TBI ' },
+  ];
 
-    const cashflowLines = [
-        { name: 'Incasari operationale' },
-        { name: 'Incasari financiare' },
-        { name: 'Plati operationale' },
-        { name: 'Plati investitionale' },
-        { name: 'Plati financiare' },
-        { name: 'Tranzactii InterCompany' },
-        { name: 'Salarii' },
-        { name: 'Furnizori activitate curenta' },
-        { name: 'Utilitati' },
-        { name: 'Auto combustibili si reparatii' },
-        { name: 'Paza' },
-        { name: 'Publicitate si sponsorizare' },
-        { name: 'Deplasari + diurne' },
-        { name: 'Marfa MUDR' },
-        { name: 'Restituiri clienti' },
-        { name: 'Investitii in curs' },
-        { name: 'Investitii finalizate' },
-        { name: 'Asigurari/ leasing , comisioane banci' },
-        { name: 'Restituire credite si dobanzi' },
-        { name: 'Impozit pe profit' },
-        { name: 'Impozite locale' },
-        { name: 'TVA de plata  ' },
-        { name: 'Taxa salarii' },
-        { name: 'Tranzactii intercompany' },
-        { name: 'Transfer bancar(credit)' },
-        { name: 'Transfer bancar(debit)' },
-        { name: 'Plati Deconturi' },
-        { name: 'Investitii Proprii' },
-        { name: 'Compensari/Girari/Retururi' }]
+  const VatQuota = [
+    {
+      VatCode: 'TVA19',
+      VATDescription: 'Cota normala(19%)',
+      VATPercent: 19,
+      VATType: 1,
+      AccVATPercent: 19,
+    },
+    {
+      VatCode: 'TVA9',
+      VATDescription: 'Cota normala(9%)',
+      VATPercent: 9,
+      VATType: 1,
+      AccVATPercent: 9,
+    },
+    {
+      VatCode: 'TVA5',
+      VATDescription: 'Cota normala(5%)',
+      VATPercent: 5,
+      VATType: 1,
+      AccVATPercent: 5,
+    },
+    {
+      VatCode: 'FARA',
+      VATDescription: 'Fara TVA',
+      VATPercent: 0,
+      VATType: 0,
+      AccVATPercent: 0,
+    },
+  ];
 
-    const costcenters = [
-        { name: 'Abonamente RATB' },
-        { name: 'Achizitii carti de specialitate' },
-        { name: 'Achizitii de specialitate' },
-        { name: 'Achizitii produse auto' },
-        { name: 'Administratia pietelor' },
-        { name: 'Administratie' },
-        { name: 'Alpinisti utilitari' },
-        { name: 'Alte cheltuieli' },
-        { name: 'Alte cheltuieli si evenimente' },
-        { name: 'Alte facilitati - masa personal, utilitati, servicii, abonamente RATB' },
-        { name: 'Alte facilitati personal alte persoane' },
-        { name: 'Alte obiective' },
-        { name: 'Alte taxe (Reg. comert, mediu, urbanism, avize)' },
-        { name: 'Altele' },
-        { name: 'Amenajare incinta' },
-        { name: 'Andimed - medicina muncii' },
-        { name: 'Anunturi piblicitare, taxe postale si alte taxe' },
-        { name: 'Anunturi publicitare, taxe postale' },
-        { name: 'Apa' },
-        { name: 'Apa menajera' },
-        { name: 'Apartamente' },
-        { name: 'Apele Romane' },
-        { name: 'Ascensorul Schindler - servicii mentenanta' },
-        { name: 'Asigurari auto casco si RCA' },
-        { name: 'Asigurari cladiri si de viata' },
-        { name: 'Autofinantare' },
-        { name: 'Autorizatie/Licenta utilizare muzica' },
-        { name: 'Bonuri de masa' },
-        { name: 'Bonuri de masa alte persoane' },
-        { name: 'Bugetul Managerului General' },
-        { name: 'Carburant Auto' },
-        { name: 'Carburant auto personal Tesa' },
-        { name: 'Cheltuieli administrare si intretinere' },
-        { name: 'Cheltuieli Comunicare' },
-        { name: 'Cheltuieli comunicare' },
-        { name: 'Cheltuieli cu personalul' },
-        { name: 'Cheltuieli financiare' },
-        { name: 'Cheltuieli imagine' },
-        { name: 'Cheltuieli linie CFR / taxa drumuri/ taxa poduri' },
-        { name: 'Cheltuieli Neprevazute' },
-        { name: 'Cheltuieli neprevazute' },
-        { name: 'Cheltuieli personal alte obiective fara profit' },
-        { name: 'Cheltuieli personal Tesa' },
-        { name: 'Cheltuieli sp. SNCFR ' },
-        { name: 'Cheltuieli transport' },
-        { name: 'Cheltuieli utilitati' }]
+  for (const vat of VatQuota) {
+    await prisma.vatQuota.create({
+      data: vat,
+    });
+  }
 
-    const Currency = [
-        { code: "RON", name: "LEU" },
-        { code: "EUR", name: "Euro" },
-        { code: "USD", name: "Dolarul SUA" },
-        { code: "CHF", name: "Francul elveţian" },
-        { code: "GBP", name: "Lira sterlină" },
-        { code: "BGN", name: "Leva bulgarească" },
-        { code: "RUB", name: "Rubla rusească" },
-        { code: "ZAR", name: "Randul sud-african" },
-        { code: "BRL", name: "Realul brazilian" },
-        { code: "CNY", name: "Renminbi-ul chinezesc" },
-        { code: "INR", name: "Rupia indiană" },
-        { code: "MXN", name: "Peso-ul mexican" },
-        { code: "NZD", name: "Dolarul neo-zeelandez" },
-        { code: "RSD", name: "Dinarul sârbesc" },
-        { code: "UAH", name: "Hryvna ucraineană" },
-        { code: "TRY", name: "Noua lira turcească" },
-        { code: "AUD", name: "Dolarul australian" },
-        { code: "CAD", name: "Dolarul canadian" },
-        { code: "CZK", name: "Coroana cehă" },
-        { code: "DKK", name: "Coroana daneză" },
-        { code: "EGP", name: "Lira egipteană" },
-        { code: "HUF", name: "Forinți maghiari" },
-        { code: "JPY", name: "Yeni japonezi" },
-        { code: "MDL", name: "Leul moldovenesc" },
-        { code: "NOK", name: "Coroana norvegiană" },
-        { code: "PLN", name: "Zlotul polonez" },
-        { code: "SEK", name: "Coroana suedeză" },
-        { code: "AED", name: "Dirhamul Emiratelor Arabe" },
-        { code: "THB", name: "Bahtul thailandez" }
-    ]
+  for (const type of contractType) {
+    await prisma.contractType.create({
+      data: type,
+    });
+  }
 
+  for (const status of contractStatus) {
+    await prisma.contractStatus.create({
+      data: status,
+    });
+  }
 
-    const Banks = [
-        { name: "Alpha Bank" },
-        { name: "BRCI" },
-        { name: "Banca FEROVIARA" },
-        { name: "Intesa Sanpaolo" },
-        { name: "BCR" },
-        { name: "BCR Banca pentru Locuinţe" },
-        { name: "Eximbank" },
-        { name: "Banca Românească" },
-        { name: "Banca Transilvania" },
-        { name: "Leumi" },
-        { name: "BRD" },
-        { name: "CEC Bank" },
-        { name: "Crédit Agricole" },
-        { name: "Credit Europe" },
-        { name: "Garanti Bank" },
-        { name: "Idea Bank" },
-        { name: "Libra Bank" },
-        { name: "Vista Bank" },
-        { name: "OTP Bank" },
-        { name: "Patria Bank" },
-        { name: "First Bank" },
-        { name: "Porsche Bank" },
-        { name: "ProCredit Bank" },
-        { name: "Raiffeisen" },
-        { name: "Aedificium Banca pentru Locuinte" },
-        { name: "UniCredit" },
-        { name: "Alior Bank" },
-        { name: "BLOM Bank France" },
-        { name: "BNP Paribas" },
-        { name: "Citibank" },
-        { name: "ING" },
-        { name: "TBI " }]
+  for (const cf of cashflowLines) {
+    await prisma.cashflow.create({
+      data: cf,
+    });
+  }
 
-    const VatQuota = [
-        { VatCode: "TVA19", VATDescription: "Cota normala(19%)", VATPercent: "19", VATType: "1", AccVATPercent: "19" },
-        { VatCode: "TVA9", VATDescription: "Cota normala(9%)", VATPercent: "9", VATType: "1", AccVATPercent: "9" },
-        { VatCode: "TVA5", VATDescription: "Cota normala(5%)", VATPercent: "5", VATType: "1", AccVATPercent: "5" },
-        { VatCode: "FARA", VATDescription: "Fara TVA", VATPercent: "0", VATType: "0", AccVATPercent: "0" }
-    ]
+  for (const cc of costcenters) {
+    await prisma.costCenter.create({
+      data: cc,
+    });
+  }
 
-    for (const vat of VatQuota) {
-        await prisma.vatQuota.create({
-            data: vat,
-        });
-    }
+  for (const currency of Currency) {
+    await prisma.currency.create({
+      data: currency,
+    });
+  }
 
-    for (const type of contractType) {
-        await prisma.contractType.create({
-            data: type,
-        });
-    }
+  for (const bank of Banks) {
+    await prisma.bank.create({
+      data: bank,
+    });
+  }
 
-    for (const status of contractStatus) {
-        await prisma.contractStatus.create({
-            data: status,
-        });
-    }
+  const Frequency = [
+    { name: 'Zilnic' },
+    { name: 'Săptămânal' },
+    { name: 'Lunar' },
+    { name: 'Trimestrial' },
+    { name: 'Semestrial' },
+    { name: 'Anual' },
+    { name: 'Personalizat' },
+  ];
 
-    for (const cf of cashflowLines) {
-        await prisma.cashflow.create({
-            data: cf,
-        });
-    }
+  const MeasuringUnit = [
+    { name: 'Lună (lună)' },
+    { name: 'Oră (h)' },
+    { name: 'Zi (zi)' },
+    { name: 'An (an)' },
+    { name: 'Metru (m)' },
+    { name: 'Metru pătrat (m²)' },
+    { name: 'Centimetru (cm)' },
+    { name: 'Centimetru pătrat (cm²)' },
+    { name: 'Kilometru (km)' },
+    { name: 'Milimetru (mm)' },
+    { name: 'Milă (mi)' },
+    { name: 'Gram (g)' },
+    { name: 'Kilogram (kg)' },
+    { name: 'Tona metrică (t)' },
+    { name: 'Miligram (mg)' },
+    { name: 'Centigram (cg)' },
+    { name: 'Uncie (oz)' },
+    { name: 'Mililitru (ml)' },
+    { name: 'Centilitru (cl)' },
+    { name: 'Secundă (s)' },
+    { name: 'Minut (min)' },
+    { name: 'Săptămână (săptămână)' },
+    { name: 'Centimetru cub (cm³ sau cc)' },
+    { name: 'Metru cub (m³)' },
+    { name: 'Mililitru (ml)' },
+    { name: 'Hectolitră (hl)' },
+    { name: 'Calorie (cal)' },
+    { name: 'Kilocalorie (kcal)' },
+    { name: 'Watt-ora (Wh)' },
+    { name: 'Kilowatt-ora (kWh)' },
+    { name: 'Hectare (ha)' },
+  ];
 
-    for (const cc of costcenters) {
-        await prisma.costCenter.create({
-            data: cc,
-        });
-    }
+  // de adaugat si useri - admin admin
 
-    for (const currency of Currency) {
-        await prisma.currency.create({
-            data: currency,
-        });
-    }
+  // function for generating uuid
+  prisma.$executeRaw(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
 
-    for (const bank of Banks) {
-        await prisma.bank.create({
-            data: bank,
-        });
-    }
+  const ContractTasksStatus = [
+    { id: 1, name: 'In lucru' },
+    { id: 2, name: 'Finalizat' },
+    { id: 3, name: 'Respins' },
+    { id: 4, name: 'Anulat' },
+  ];
 
+  for (const status of ContractTasksStatus) {
+    await prisma.contractTasksStatus.create({
+      data: status,
+    });
+  }
 
+  for (const measuringunit of MeasuringUnit) {
+    await prisma.measuringUnit.create({
+      data: measuringunit,
+    });
+  }
 
-    const Frequency = [
-        { name: "Zilnic" },
-        { name: "Săptămânal" },
-        { name: "Lunar" },
-        { name: "Trimestrial" },
-        { name: "Semestrial" },
-        { name: "Anual" },
-        { name: "Personalizat" }
-    ]
+  for (const frequency of Frequency) {
+    await prisma.billingFrequency.create({
+      data: frequency,
+    });
+  }
 
-    const MeasuringUnit = [
-        { name: "Lună (lună)" },
-        { name: "Oră (h)" },
-        { name: "Zi (zi)" },
-        { name: "An (an)" },
-        { name: "Metru (m)" },
-        { name: "Metru pătrat (m²)" },
-        { name: "Centimetru (cm)" },
-        { name: "Centimetru pătrat (cm²)" },
-        { name: "Kilometru (km)" },
-        { name: "Milimetru (mm)" },
-        { name: "Milă (mi)" },
-        { name: "Gram (g)" },
-        { name: "Kilogram (kg)" },
-        { name: "Tona metrică (t)" },
-        { name: "Miligram (mg)" },
-        { name: "Centigram (cg)" },
-        { name: "Uncie (oz)" },
-        { name: "Mililitru (ml)" },
-        { name: "Centilitru (cl)" },
-        { name: "Secundă (s)" },
-        { name: "Minut (min)" },
-        { name: "Săptămână (săptămână)" },
-        { name: "Centimetru cub (cm³ sau cc)" },
-        { name: "Metru cub (m³)" },
-        { name: "Mililitru (ml)" },
-        { name: "Hectolitră (hl)" },
-        { name: "Calorie (cal)" },
-        { name: "Kilocalorie (kcal)" },
-        { name: "Watt-ora (Wh)" },
-        { name: "Kilowatt-ora (kWh)" },
-        { name: "Hectare (ha)" }]
+  const PaymentType = [
+    { name: 'Numerar' },
+    { name: 'Ordin de Plată' },
+    { name: 'Cec' },
+    { name: 'Bilet la ordin' },
+    { name: 'Transfer Bancar' },
+    { name: 'Virament Bancar' },
+    { name: 'Portofel Digital(PayPal, Venmo...)' },
+    { name: 'Bitcoin și Criptomonede' },
+    { name: 'Card de Debit' },
+    { name: 'Card de Credit' },
+  ];
 
-    // de adaugat si useri - admin admin
+  for (const type of PaymentType) {
+    await prisma.PaymentType.create({
+      data: type,
+    });
+  }
 
+  const reminders = [
+    { name: 'La data limită', days: 0 },
+    { name: '1 zi inainte de data limită', days: 1 },
+    { name: '2 zile inainte de data limită', days: 2 },
+    { name: '3 zile inainte de data limită', days: 3 },
+    { name: '4 zile inainte de data limită', days: 4 },
+    { name: '5 zile inainte de data limită', days: 5 },
+  ];
 
-    // function for generating uuid
-    prisma.$executeRaw(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`)
+  for (const reminder of reminders) {
+    await prisma.contractTasksReminders.create({
+      data: reminder,
+    });
+  }
 
-    const ContractTasksStatus = [
-        { id: 1, name: "In lucru" },
-        { id: 2, name: "Finalizat" },
-        { id: 3, name: "Respins" },
-        { id: 4, name: "Anulat" }
-    ]
+  const duedates = [
+    { name: 'In ziua generarii task-ului', days: 0 },
+    { name: 'La o zi dupa start flux', days: 1 },
+    { name: 'La 2 zile dupa start flux', days: 2 },
+    { name: 'La 3 zile dupa start flux', days: 3 },
+    { name: 'La 4 zile dupa start flux', days: 4 },
+    { name: 'La 5 zile dupa start flux', days: 5 },
+  ];
 
+  for (const duedate of duedates) {
+    await prisma.contractTasksDueDates.create({
+      data: duedate,
+    });
+  }
 
-    for (const status of ContractTasksStatus) {
-        await prisma.contractTasksStatus.create({
-            data: status,
-        });
-    }
-
-
-    for (const measuringunit of MeasuringUnit) {
-        await prisma.measuringUnit.create({
-            data: measuringunit,
-        });
-    }
-
-
-    for (const frequency of Frequency) {
-        await prisma.billingFrequency.create({
-            data: frequency,
-        });
-    }
-
-
-    const PaymentType = [
-        { name: "Numerar" },
-        { name: "Ordin de Plată" },
-        { name: "Cec" },
-        { name: "Bilet la ordin" },
-        { name: "Transfer Bancar" },
-        { name: "Virament Bancar" },
-        { name: "Portofel Digital(PayPal, Venmo...)" },
-        { name: "Bitcoin și Criptomonede" },
-        { name: "Card de Debit" },
-        { name: "Card de Credit" }]
-
-    for (const type of PaymentType) {
-        await prisma.PaymentType.create({
-            data: type,
-        });
-    }
-
-
-    const reminders = [
-        { name: 'La data limită', days: 0 },
-        { name: '1 zi inainte de data limită', days: 1 },
-        { name: '2 zile inainte de data limită', days: 2 },
-        { name: '3 zile inainte de data limită', days: 3 },
-        { name: '4 zile inainte de data limită', days: 4 },
-        { name: '5 zile inainte de data limită', days: 5 }
-    ];
-
-    for (const reminder of reminders) {
-        await prisma.contractTasksReminders.create({
-            data: reminder,
-        });
-    }
-
-    const duedates = [
-        { name: 'In ziua generarii task-ului', days: 0 },
-        { name: 'La o zi dupa start flux', days: 1 },
-        { name: 'La 2 zile dupa start flux', days: 2 },
-        { name: 'La 3 zile dupa start flux', days: 3 },
-        { name: 'La 4 zile dupa start flux', days: 4 },
-        { name: 'La 5 zile dupa start flux', days: 5 },
-    ];
-
-    for (const duedate of duedates) {
-        await prisma.contractTasksDueDates.create({
-            data: duedate,
-        });
-    }
-
-
-    const result = await prisma.$executeRaw`
+  const result = await prisma.$executeRaw`
     INSERT INTO public."User"
     (id, "name", email, "password", "createdAt", picture, status, "updatedAt")
     VALUES(1, 'Administrator', 'razvan.mustata@gmail.com', 'a', CURRENT_TIMESTAMP, '', true, '2024-01-01');
-    `
+    `;
 
+  const priorities = [
+    { name: 'Normală' },
+    { name: 'Foarte Importantă' },
+    { name: 'Importanță Maximă' },
+  ];
 
-    const priorities = [
-        { name: 'Normală' },
-        { name: 'Foarte Importantă' },
-        { name: 'Importanță Maximă' }
-    ];
+  for (const priority of priorities) {
+    await prisma.ContractTasksPriority.create({
+      data: priority,
+    });
+  }
 
-    for (const priority of priorities) {
-        await prisma.ContractTasksPriority.create({
-            data: priority,
-        });
-    }
-
-
-    prisma.$executeRaw(`
+  prisma.$executeRaw(`
     --FUNCTION: public.remove_duplicates_from_task()
 
     --DROP FUNCTION IF EXISTS public.remove_duplicates_from_task();
@@ -453,7 +468,7 @@ OWNER TO sysadmin;
     --SELECT remove_duplicates_from_task()
 `);
 
-    prisma.$executeRaw(`-- FUNCTION: public.cttobegeneratedsecv()
+  prisma.$executeRaw(`-- FUNCTION: public.cttobegeneratedsecv()
 
 -- DROP FUNCTION IF EXISTS public.cttobegeneratedsecv();
 
@@ -510,8 +525,7 @@ ALTER FUNCTION public.cttobegeneratedsecv()
 
  `);
 
-
-    prisma.$executeRaw(`
+  prisma.$executeRaw(`
     CREATE OR REPLACE FUNCTION contractTaskToBeGenerated(
     )
     RETURNS TABLE(taskName text, taskNotes text, contractId integer, statusId integer, requestorId integer,
@@ -557,7 +571,7 @@ where wfx."ctrstatusId" <>2;
 --select * from public.contractTaskToBeGenerated()
 `);
 
-    prisma.$executeRaw(`
+  prisma.$executeRaw(`
 CREATE OR REPLACE FUNCTION remove_duplicates_from_table2()
 RETURNS SETOF text AS
 $$
@@ -583,7 +597,7 @@ LANGUAGE plpgsql;
 
 `);
 
-    prisma.$executeRaw(`
+  prisma.$executeRaw(`
    
 CREATE OR REPLACE FUNCTION public.active_wf_rulesok(
 	)
@@ -691,7 +705,7 @@ $BODY$;
 
 `);
 
-    prisma.$executeRaw(`-- FUNCTION: public.contracttasktobegeneratedsecv3(integer)
+  prisma.$executeRaw(`-- FUNCTION: public.contracttasktobegeneratedsecv3(integer)
 
 -- DROP FUNCTION IF EXISTS public.contracttasktobegeneratedsecv3(integer);
 
@@ -757,7 +771,7 @@ ALTER FUNCTION public.contracttasktobegeneratedsecv3(integer)
 --SELECT * FROM contracttasktobegeneratedsecv3(1);
 `);
 
-    prisma.$executeRaw(`
+  prisma.$executeRaw(`
 CREATE OR REPLACE FUNCTION public.contracttasktobegeneratedSecvent()
  RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, approvedbyall boolean, approvaltypeinparallel boolean, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer)
  LANGUAGE plpgsql
@@ -800,7 +814,7 @@ END;
 $function$
 ;`);
 
-    prisma.$executeRaw(`
+  prisma.$executeRaw(`
 -- FUNCTION: public.contracttasktobegeneratedok()
 
 -- DROP FUNCTION IF EXISTS public.contracttasktobegeneratedok();
@@ -849,10 +863,9 @@ $BODY$;
 ALTER FUNCTION public.contracttasktobegeneratedok()
     OWNER TO sysadmin;
 
---select * from public.contracttasktobegeneratedok() `
-    );
+--select * from public.contracttasktobegeneratedok() `);
 
-    prisma.$executeRaw(`
+  prisma.$executeRaw(`
             INSERT INTO public."Alerts"
             ( "name", "isActive", subject, "text", internal_emails, nrofdays, param, "isActivePartner", "isActivePerson")
             VALUES
@@ -860,10 +873,9 @@ ALTER FUNCTION public.contracttasktobegeneratedok()
             'Va informam faptul ca urmeaza sa expire contractul cu numarul @@NumarContract din data de @@DataContract la partenerul @@Partener. 
             Acest contract este in vigoare in compania @@Entitate si reprezinta @@ScurtaDescriere.',
             'office@companie.ro',30, 'Data Final Contract', false, false);
-            `
-    )
+            `);
 
-    prisma.$executeRaw(`
+  prisma.$executeRaw(`
          CREATE OR REPLACE FUNCTION public.getauditcontract(contractid integer)
          RETURNS TABLE(contract_id integer, tip_modificare text, data_modificare timestamp without time zone,
          contract_number text, nume_partener text, nume_entitate text, stare text, start_date timestamp without time zone,
@@ -904,10 +916,9 @@ ALTER FUNCTION public.contracttasktobegeneratedok()
     where c.id = contractid;
         end;
         $function$;
-        `
-    )
+        `);
 
-    prisma.$executeRaw(`
+  prisma.$executeRaw(`
        CREATE OR REPLACE FUNCTION get_contract_details()
     RETURNS TABLE (
         TipContract TEXT,
@@ -1014,10 +1025,9 @@ ALTER FUNCTION public.contracttasktobegeneratedok()
 
 
     --SELECT * FROM get_contract_details();
-        `
-    )
+        `);
 
-    prisma.$executeRaw(`
+  prisma.$executeRaw(`
 
     --select * from public.calculate_cashflow_func()
 
@@ -1082,10 +1092,9 @@ ALTER FUNCTION public.contracttasktobegeneratedok()
 
     ALTER FUNCTION public.get_contract_details()
         OWNER TO sysadmin;
-    `
-    )
+    `);
 
-    prisma.$executeRaw(`
+  prisma.$executeRaw(`
         CREATE OR REPLACE FUNCTION public.report_cashflow(
         )
         RETURNS TABLE(
@@ -1179,107 +1188,106 @@ ALTER FUNCTION public.contracttasktobegeneratedok()
 
 
         --select * from public.report_cashflow()
-        `
-    )
+        `);
 
-    await prisma.alerts.createMany({
-        data: [
-            {
-                name: "Contract Inchis inainte de termen",
-                isActive: true,
-                subject: "Contract Inchis inainte de termen",
-                text: "Va informam faptul ca a fost inchis contractul cu numarul @@NumarContract din data de @@DataContract la partenerul @@Partener. Acest contract a fost in vigoare in compania @@Entitate si reprezinta @@ScurtaDescriere.",
-                internal_emails: "office@companie.ro",
-                nrofdays: 0,
-                param: "Inchis la data",
-                isActivePartner: false,
-                isActivePerson: false
-            },
-            {
-                name: "Expirare Contract",
-                isActive: true,
-                subject: "Expirare Contract",
-                text: "Va informam faptul ca urmeaza sa expire contractul cu numarul @@NumarContract din data de @@DataContract la partenerul @@Partener. Acest contract este in vigoare in compania @@Entitate si reprezinta @@ScurtaDescriere.",
-                internal_emails: "office@companie.ro",
-                nrofdays: 30,
-                param: "Data Final",
-                isActivePartner: false,
-                isActivePerson: false
-            },
-            {
-                name: "Reminder",
-                isActive: true,
-                subject: "Reminder",
-                text: "Va informam faptul ca aveti de finalizat task-ul",
-                internal_emails: "office@companie.ro",
-                nrofdays: 1,
-                param: "Data Reminder",
-                isActivePartner: false,
-                isActivePerson: false
-            },
-        ]
+  await prisma.alerts.createMany({
+    data: [
+      {
+        name: 'Contract Inchis inainte de termen',
+        isActive: true,
+        subject: 'Contract Inchis inainte de termen',
+        text: 'Va informam faptul ca a fost inchis contractul cu numarul @@NumarContract din data de @@DataContract la partenerul @@Partener. Acest contract a fost in vigoare in compania @@Entitate si reprezinta @@ScurtaDescriere.',
+        internal_emails: 'office@companie.ro',
+        nrofdays: 0,
+        param: 'Inchis la data',
+        isActivePartner: false,
+        isActivePerson: false,
+      },
+      {
+        name: 'Expirare Contract',
+        isActive: true,
+        subject: 'Expirare Contract',
+        text: 'Va informam faptul ca urmeaza sa expire contractul cu numarul @@NumarContract din data de @@DataContract la partenerul @@Partener. Acest contract este in vigoare in compania @@Entitate si reprezinta @@ScurtaDescriere.',
+        internal_emails: 'office@companie.ro',
+        nrofdays: 30,
+        param: 'Data Final',
+        isActivePartner: false,
+        isActivePerson: false,
+      },
+      {
+        name: 'Reminder',
+        isActive: true,
+        subject: 'Reminder',
+        text: 'Va informam faptul ca aveti de finalizat task-ul',
+        internal_emails: 'office@companie.ro',
+        nrofdays: 1,
+        param: 'Data Reminder',
+        isActivePartner: false,
+        isActivePerson: false,
+      },
+    ],
+  });
+
+  const roleName = [
+    { roleName: 'Administrator' },
+    { roleName: 'Reader' },
+    { roleName: 'Requestor' },
+    { roleName: 'Editor' },
+  ];
+
+  for (const roles of roleName) {
+    await prisma.role.create({
+      data: roles,
     });
+  }
 
-
-    const roleName = [
-        { roleName: "Administrator" },
-        { roleName: "Reader" },
-        { roleName: "Requestor" },
-        { roleName: "Editor" }]
-
-    for (const roles of roleName) {
-        await prisma.role.create({
-            data: roles,
-        });
-    }
-
-    console.log('Seed completed');
+  console.log('Seed completed');
 }
 main()
-    .then(async () => {
-        await prisma.$disconnect()
-    })
-    .catch(async (e) => {
-        console.error(e)
-        await prisma.$disconnect()
-        process.exit(1)
-    })
+  .then(async () => {
+    await prisma.$disconnect();
+  })
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });
 
-// Placeholdere Flux 
-// Numar Contract: ContractNumber; 
-// Data semnarii: SignDate; 
-// Incepand cu data: StartDate; 
-// Termene de finalizare: FinalDate; 
-// Scurta descriere: ShortDescription; 
-// Tip Contract: Type; 
+// Placeholdere Flux
+// Numar Contract: ContractNumber;
+// Data semnarii: SignDate;
+// Incepand cu data: StartDate;
+// Termene de finalizare: FinalDate;
+// Scurta descriere: ShortDescription;
+// Tip Contract: Type;
 
-// Nume Partener: PartnerName; 
+// Nume Partener: PartnerName;
 // Reg Comertului Partener: PartnerComercialReg
-// Cod Fiscal Partener: PartnerFiscalCode; 
-// Adresa Partener: PartnerAddress; 
-// Banca Partener: PartnerBank; 
-// Filiala Banca Partener: PartnerBranch; 
-// Iban Partener: PartnerIban; 
-// Persoana Partener: PartnerPerson; 
-// Email Partener: PartnerEmail; 
-// Telefon Partener: PartnerPhone; 
-// Rol Persoana Partener: PartnerRole; 
+// Cod Fiscal Partener: PartnerFiscalCode;
+// Adresa Partener: PartnerAddress;
+// Banca Partener: PartnerBank;
+// Filiala Banca Partener: PartnerBranch;
+// Iban Partener: PartnerIban;
+// Persoana Partener: PartnerPerson;
+// Email Partener: PartnerEmail;
+// Telefon Partener: PartnerPhone;
+// Rol Persoana Partener: PartnerRole;
 
-// Nume Entitate: EntityName; 
-// Reg Comertului Entitate: EntityFiscalCode; 
-// Cod Fiscal Entitate: EntityComercialReg; 
-// Adresa Entitate: EntityAddress; 
-// Iban Entitate: EntityIban; 
-// Valuta Cont Iban Entitate: EntityCurrency; 
-// Persoana Entitate: EntityPerson; 
-// Email Entitate: EntityEmail; 
-// Telefon Entitate: EntityPhone; 
-// Rol Persoana Entitate: EntityRole; 
+// Nume Entitate: EntityName;
+// Reg Comertului Entitate: EntityFiscalCode;
+// Cod Fiscal Entitate: EntityComercialReg;
+// Adresa Entitate: EntityAddress;
+// Iban Entitate: EntityIban;
+// Valuta Cont Iban Entitate: EntityCurrency;
+// Persoana Entitate: EntityPerson;
+// Email Entitate: EntityEmail;
+// Telefon Entitate: EntityPhone;
+// Rol Persoana Entitate: EntityRole;
 
 // Obiect de contract: Item;
 // Pretul contractului: TotalContractValue;
 // Valuta contractului: Currency;
-// Recurenta: Frequency 
+// Recurenta: Frequency
 // Tip Plata: PaymentType;
 // Unitate de masura: MeasuringUnit;
 // Note Plata: PaymentRemarks;

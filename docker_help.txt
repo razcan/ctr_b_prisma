@@ -1,0 +1,22 @@
+Create a Dockerfile
+.dockerignore File
+Build the Docker Image : docker build -t my-react-app .
+Run the Docker Container : docker run -p 3000:80 my-react-app
+Identify the Running Container : docker ps
+Access the Container's Shell : docker exec -it <container_name_or_id> /bin/sh
+
+docker-compose up --build
+
+
+apt-get update
+apt-get install mc
+sudo apt install net-tools   (netstat)
+
+docker run -d -p 80:80 -p 443:443 -p 8080:8080 -p 3000:3000 your-image-name
+apt-get update -y
+apt-get install -y iputils-ping
+
+docker exec -it contracts-backend-1  /bin/sh
+docker exec -it contracts-frontend-1  /bin/sh
+docker exec -it contracts-postgres  /bin/sh 
+

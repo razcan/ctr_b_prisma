@@ -1,3 +1,5 @@
+
+
 export class CreateInvoiceDto {
   partnerId?: number | null;
   entityId?: number | null;
