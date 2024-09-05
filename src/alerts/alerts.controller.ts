@@ -132,7 +132,7 @@ export class AlertsController {
   //   }
 
   // @Cron('0 */30 9-11 * * *')
-  // @Cron('0 */30 9-11 * * *')
+  // @Cron('0 */1 9-15 * * *')
   getExchangeForEUR(): any {
     BNR.getRates(async (err, rates) => {
       // console.log(err || rates);
@@ -199,14 +199,18 @@ export class AlertsController {
     });
 
     // The promise way
-    // BNR.getRates().then(console.log)
+    BNR.getRates().then(console.log);
 
-    // let result = BNR.convert(1, "EUR", "RON", function (err, amount, output) {
-    //     if (err) { return console.error(err); }
-    //     console.log(`Result: ${amount}`);
-    //     console.log(`${output.input.amount} ${output.input.currency} is ${output.output.amount} ${output.output.currency}`);
-    // });
-    // return result;
+    let result = BNR.convert(1, 'EUR', 'RON', function (err, amount, output) {
+      if (err) {
+        return console.error(err);
+      }
+      console.log(`Result: ${amount}`);
+      console.log(
+        `${output.input.amount} ${output.input.currency} is ${output.output.amount} ${output.output.currency}`,
+      );
+    });
+    return result;
   }
 
   @Get('')

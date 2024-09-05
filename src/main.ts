@@ -9,12 +9,12 @@ async function bootstrap() {
   });
 
   app.enableCors({
-    // origin: [
-    //   'http://localhost:5500',
-    //   'http://localhost:3000/swagger'
-    //   //the ip address of the frontend server
-    // ],
-    origin: '*', // Allow all origins
+    origin: [
+      'http://localhost:5500',
+      'http://localhost:3000/swagger',
+      //the ip address of the frontend server
+    ],
+    // origin: '*', // Allow all origins
     methods: ['GET', 'POST', 'DELETE', 'PATCH'],
     credentials: true,
   });
