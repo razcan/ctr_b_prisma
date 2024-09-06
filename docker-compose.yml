@@ -1,48 +1,67 @@
 #version: '2.29.2'
+networks:
+  my-network:
+    driver: bridge
+
 services:
   backend:
     # image: thomas-oliver/nestjs-dockerized
+    networks:
+      - my-network
     build:
+      context: ./backend
       dockerfile: Dockerfile
-      context: .
     depends_on:
       - postgres
     command: >
-      sh -c "npx prisma migrate dev --name init  
-      && npx prisma studio --port 5555 
-      && /usr/src/app/prisma/node seed.js
-      && npm start dev"
+      sh -c "
+      npm start dev"
     environment:
       DATABASE_URL: postgres://user:password@postgres:5432/db
       NODE_ENV: development
-      PORT: 3000
+      #PORT: 3000
     ports:
-      - '3000:3000'
-      - '5555:5555'
+      - "5555:5555"
+      - "3000:3000"
+
+      #      && npx prisma studio --port 5555
+      #npx prisma migrate dev --name init &&
+  frontend:
+    networks:
+      - my-network
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.next
+    depends_on:
+      - postgres
+      - backend
+    environment:
+      DATABASE_URL: postgres://user:password@postgres:5432/db
+      NODE_ENV: development
+      PORT: 3001
+      #Backend_BASE_URL: http://backend:3000
+    ports:
+      - "3001:3001"
+      - "5500:5500"
+    volumes:
+      - .:/app
+    command: >
+      sh -c "npm install && npm run dev"
 
   postgres:
     image: postgres:15
     container_name: postgres
     ports:
-      - '35000:5432'
+      - "35000:5432"
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: db
-
-  next-app:
-    build:
-      dockerfile: Dockerfile.next # Specify a separate Dockerfile for your Next.js app
-      context: .
-    depends_on:
-      - postgres
-    environment:
-      DATABASE_URL: postgres://user:password@postgres:5432/db
-      NODE_ENV: development
-      PORT: 3001
-    ports:
-      - '3001:3001'
+    networks:
+      - my-network
     volumes:
-      - .:/app
-    command: >
-      sh -c "npm install && npm run dev"
+      - postgres_data:/var/lib/postgresql/data
+      - ./backup:/docker-entrypoint-initdb.d
+
+volumes:
+  postgres_data:
