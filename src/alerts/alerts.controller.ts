@@ -24,6 +24,8 @@ import fetch from 'node-fetch';
 import { AlertsHistory } from 'src/alertsHistory/entities/alertsHistory.entity';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
 export interface CurrencyInterface {
   date: string;
@@ -211,6 +213,28 @@ export class AlertsController {
       );
     });
     return result;
+  }
+
+  execPromise = promisify(exec);
+
+  @Post('runPython')
+  async runPython() {
+    try {
+      // Execute the Python script
+      const { stdout, stderr } = await this.execPromise(
+        'python3 python-scripts/create_pdf_invoice.py',
+      );
+
+      if (stderr) {
+        console.error(`Error: ${stderr}`);
+        throw new Error(stderr);
+      }
+
+      return stdout;
+    } catch (error) {
+      console.error(`Execution failed: ${error.message}`);
+      throw error;
+    }
   }
 
   @Get('')
