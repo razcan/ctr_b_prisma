@@ -1,45 +1,24 @@
 import { PrismaService } from 'src/prisma.service';
 import bcrypt from 'bcrypt';
-import { join } from 'path';
+
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Header,
-  HttpStatus,
-  Headers,
-  Delete,
-  UploadedFile,
-  UploadedFiles,
-  HttpException,
-  HttpCode,
-  Request,
-  UseGuards,
-  UsePipes,
-  ValidationPipe,
-  Res,
-  UseInterceptors,
-  InternalServerErrorException,
-  Req,
+  Controller, Get, Post, Body, Patch, Param, Header, HttpStatus, Headers,
+  Delete, UploadedFile, UploadedFiles, HttpException, HttpCode, Request,
+  UseGuards, UsePipes, ValidationPipe, Res, UseInterceptors, InternalServerErrorException
 } from '@nestjs/common';
 import { NomenclaturesService } from './nomenclatures.service';
-import {
-  ContractFinancialDetail,
-  ContractFinancialDetailSchedule,
-  Contracts,
-  Prisma,
-} from '@prisma/client';
+import { ContractFinancialDetail, ContractFinancialDetailSchedule, Contracts, Prisma } from '@prisma/client';
 
 import { Injectable } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { ParseFilePipeBuilder } from '@nestjs/common';
+import {
+  ParseFilePipeBuilder,
+} from '@nestjs/common';
 import type { Response } from 'express';
-import { Express } from 'express';
+import { Express } from 'express'
 import { createReadStream } from 'fs';
 import { AuthService } from '../auth/auth.service';
+
 
 import { AuthGuard } from '../auth/auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -51,6 +30,7 @@ import { MailerService } from 'src/alerts/mailer.service';
 import { Entity } from 'src/entity/entities/entity.entity';
 import _ from 'lodash';
 
+
 @ApiTags('Nomenclatures')
 @Controller('nomenclatures')
 export class NomenclaturesController {
@@ -59,7 +39,8 @@ export class NomenclaturesController {
     private prisma: PrismaService,
     private readonly authService: AuthService,
     private mailerService: MailerService,
-  ) {}
+  ) { }
+
 
   async hashPassword(password: string): Promise<any> {
     const saltRounds = 99;
@@ -67,10 +48,7 @@ export class NomenclaturesController {
     return hashedPassword;
   }
 
-  async verifyPassword(
-    password: string,
-    hashedPassword: string,
-  ): Promise<boolean> {
+  async verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
     // Verify the password
     const isMatch = await bcrypt.compare(password, hashedPassword);
 
@@ -78,39 +56,50 @@ export class NomenclaturesController {
   }
 
   @Post('checkuser')
-  async checkuser(@Body() data: any): Promise<any> {
+  async checkuser(
+    @Body() data: any,
+  ): Promise<any> {
+
     const user = await this.prisma.user.findUnique({
       where: {
-        email: data.email,
-      },
-    });
+        email: data.email
+      }
 
-    let response = 'NA';
+    })
+
+    let response = "NA";
     if (user !== null && Object.keys(user).length > 0) {
-      response = 'Exist';
-    } else {
-      response = 'Not exist';
+      response = 'Exist'
     }
+    else {
+      response = 'Not exist'
+    };
 
     return response;
+
   }
 
+
+
   @Post('forgotpass')
-  async forgotpass(@Body() data: any): Promise<any> {
+  async forgotpass(
+    @Body() data: any,
+  ): Promise<any> {
+
     const user = await this.prisma.user.findUnique({
       where: {
-        email: data.email,
-      },
-    });
+        email: data.email
+      }
+    })
 
     const uuid = uuidv4();
 
     interface add_forgot_pass {
-      email: string;
-      actual_password: string;
-      old_password: string;
-      uuid: string;
-      userId: number;
+      email: string,
+      actual_password: string,
+      old_password: string,
+      uuid: string,
+      userId: number,
     }
 
     const add: add_forgot_pass = {
@@ -119,28 +108,28 @@ export class NomenclaturesController {
       old_password: user.password,
       uuid: uuid,
       userId: user.id,
-    };
+    }
 
     const user_forgot = await this.prisma.forgotPass.create({
-      data: add,
-    });
+      data: add
+    })
 
     const to = user.email;
     const bcc = '';
     const subject = 'Recuperare parola aplicatie ContractsHub';
-    const url = `http://localhost:5500/auth/forgottenpassword/rp?uuid=${uuid}`;
+    const url = `http://localhost:5500/auth/forgottenpassword/rp?uuid=${uuid}`
 
     const text = `Va rugam sa accesati linkul de mai jos pentru a va modifica parola: ${url}`;
 
     const html = `Va rugam sa accesati linkul de mai jos pentru a va modifica parola: ${url}`;
     const attachments = [];
 
-    this.mailerService
-      .sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
+    this.mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
       .then(() => console.log('Email sent successfully.'))
-      .catch((error) => console.error('Error sending email:', error));
+      .catch(error => console.error('Error sending email:', error));
 
     return user_forgot;
+
   }
 
   // @Get('forgotpass/:uuid')
@@ -155,35 +144,38 @@ export class NomenclaturesController {
   //   return rp;
   // }
 
+
   @Post('forgotpass/:uuid')
   async postforgotpass(
     @Body() data: any,
     @Param('uuid') uuid: any,
   ): Promise<any> {
+
     // console.log(data.password)
     const hashedPassword = bcrypt.hash(data.password, 2);
 
     const rp = await this.prisma.forgotPass.update({
       where: {
-        uuid: uuid,
+        uuid: uuid
       },
       data: {
-        actual_password: await hashedPassword,
-      },
-    });
+        actual_password: await hashedPassword
+      }
+    })
 
     // console.log(rp)
 
     await this.prisma.user.update({
       where: {
-        id: rp.userId,
+        id: rp.userId
       },
       data: {
-        password: await hashedPassword,
-      },
-    });
+        password: await hashedPassword
+      }
+    })
     return rp;
   }
+
 
   @Patch('user/:id')
   @UseInterceptors(FilesInterceptor('avatar'))
@@ -193,92 +185,87 @@ export class NomenclaturesController {
     @UploadedFiles() avatar: Express.Multer.File,
   ): Promise<any> {
     try {
-      const existing_roles = data.roles;
+
+
+      const existing_roles = data.roles
       const arr = existing_roles.split(',');
 
       const user = await this.prisma.user.findUnique({
-        where: { id: parseInt(id) },
-        include: {
+        where: { id: parseInt(id) }
+        ,
+        include:
+        {
           roles: true,
           User_Groups: true,
         }, // Include the current roles of the user
       });
 
-      const exist_roles = [];
+      const exist_roles = []
       for (let i = 0; i < user.roles.length; i++) {
-        exist_roles.push(user.roles[i].roleId);
+        exist_roles.push(user.roles[i].roleId)
       }
 
       const newSetRolles: number[] = arr.map((str) => parseInt(str, 10));
-      const toBeDeleted: number[] = exist_roles.filter(
-        (element) => !newSetRolles.includes(element),
-      );
+      const toBeDeleted: number[] = exist_roles.filter((element) => !newSetRolles.includes(element));
 
       const updatedUser = await this.prisma.role_User.deleteMany({
         where: {
           roleId: {
-            in: toBeDeleted,
+            in: (toBeDeleted)
           },
-          userId: parseInt(id),
+          userId: parseInt(id)
         },
       });
 
-      const toBeInserted: number[] = newSetRolles.filter(
-        (element) => !exist_roles.includes(element),
-      );
+      const toBeInserted: number[] = newSetRolles.filter((element) => !exist_roles.includes(element));
       const roleUserPromises = toBeInserted.map(async (roleId) => {
         const newRoleUser = await this.prisma.role_User.create({
           data: {
             user: { connect: { id: parseInt(id) } },
-            role: { connect: { id: roleId } },
-          },
+            role: { connect: { id: roleId } }
+          }
         });
-      });
+      })
 
-      const exist_groups: number[] = [];
+      const exist_groups: number[] = []
       for (let i = 0; i < user.User_Groups.length; i++) {
-        exist_groups.push(user.User_Groups[i].id);
+        exist_groups.push(user.User_Groups[i].id)
       }
 
       const resultArray: number[] = data.User_Groups.split(',').map(Number);
 
-      const GroupstoBeConnected: number[] = resultArray.filter(
-        (element) => !exist_groups.includes(element),
-      );
-      const GroupstoBeDisconnected: number[] = exist_groups.filter(
-        (element) => !resultArray.includes(element),
-      );
+      const GroupstoBeConnected: number[] = resultArray.filter((element) => !exist_groups.includes(element));
+      const GroupstoBeDisconnected: number[] = exist_groups.filter((element) => !resultArray.includes(element));
+
 
       const roleGroupsPromisesC = GroupstoBeConnected.map(async (id_group) => {
         const connectUserGroup = await this.prisma.user.update({
           where: { id: parseInt(id) },
           data: {
             User_Groups: {
-              connect: { id: id_group },
-            },
-          },
+              connect: { id: id_group }
+            }
+          }
         });
-      });
-      const roleGroupsPromisesD = GroupstoBeDisconnected.map(
-        async (id_group) => {
-          const disconnectUserGroup = await this.prisma.user.update({
-            where: { id: parseInt(id) },
-            data: {
-              User_Groups: {
-                disconnect: { id: id_group },
-              },
-            },
-          });
-        },
-      );
+      })
+      const roleGroupsPromisesD = GroupstoBeDisconnected.map(async (id_group) => {
+        const disconnectUserGroup = await this.prisma.user.update({
+          where: { id: parseInt(id) },
+          data: {
+            User_Groups: {
+              disconnect: { id: id_group }
+            }
+          }
+        });
+      })
 
-      data.status = data.status === 'true' ? true : false;
+      data.status = (data.status === "true") ? true : false;
       data.picture = avatar[0] ? avatar[0].filename : user.picture;
       const hashedPassword = bcrypt.hash(data.password, 2);
 
       const result = await this.prisma.user.update({
         where: {
-          id: parseInt(id),
+          id: parseInt(id)
         },
         data: {
           name: data.name,
@@ -286,13 +273,17 @@ export class NomenclaturesController {
           password: await hashedPassword,
           status: data.status,
           picture: data.picture,
-        },
+        }
+
       });
+
     } catch (error) {
-      console.error('Error updating user roles:', error);
-      throw new Error('Failed to update user roles.');
+      console.error("Error updating user roles:", error);
+      throw new Error("Failed to update user roles.");
     }
   }
+
+
 
   @Post('users')
   @UseInterceptors(FilesInterceptor('avatar'))
@@ -300,11 +291,14 @@ export class NomenclaturesController {
     @Body() data: any,
     @UploadedFiles() avatar: Express.Multer.File,
   ): Promise<any> {
+
     try {
-      data.status = data.status === 'true' ? true : false;
-      data.picture = avatar[0] ? avatar[0].filename : 'default.jpeg';
+
+      data.status = (data.status === "true") ? true : false;
+      data.picture = avatar[0] ? avatar[0].filename : 'default.jpeg'
 
       try {
+
         const jsonData = JSON.parse(data.roles);
         const jsonUser_Groups = JSON.parse(data.User_Groups);
         const hashedPassword = bcrypt.hash(data.password, 2);
@@ -317,42 +311,31 @@ export class NomenclaturesController {
             status: data.status,
             picture: data.picture,
             roles: jsonData,
-            User_Groups: jsonUser_Groups,
-          },
+            User_Groups: jsonUser_Groups
+          }
+
         });
       } catch (error) {
         // If an error occurs during the execution of the await function, it will be caught here
-        console.error('Error occurred during password hashing:', error);
+        console.error("Error occurred during password hashing:", error);
       }
 
-      const status = 'User was created!';
+      const status = "User was created!"
       return status;
     } catch (error) {
-      console.error('Error occurred during password hashing:', error);
-      throw new InternalServerErrorException(
-        'Error occurred during password hashing',
-      );
+      console.error("Error occurred during password hashing:", error);
+      throw new InternalServerErrorException("Error occurred during password hashing");
     }
   }
 
+
   @Get('download/:filename')
-  downloadFile(
-    @Param('filename') filename: string,
-    @Res() res: Response,
-    @Req() req: Request,
-  ) {
-    // console.log(filename, 'request ');
-
-    const uploadPath = join(__dirname, '..', 'Uploads'); // Creates a path relative to the current file
-    // console.log(uploadPath, 'uploadPath');
-    const path_final = uploadPath.replace('dist/', '');
-    // console.log(path_final);
-    const folderPath = path_final;
-    // '/Users/razvanmustata/Projects/contracts/backend/Uploads';
-
+  downloadFile(@Param('filename') filename: string, @Res() res: Response) {
+    const folderPath = '/Users/razvanmustata/Projects/contracts/backend/Uploads'
     const fileStream = createReadStream(`${folderPath}/${filename}`);
     fileStream.pipe(res);
   }
+
 
   @Get('exchangerates')
   async GetExchageRates() {
@@ -360,40 +343,44 @@ export class NomenclaturesController {
       where: {
         name: {
           not: {
-            contains: 'RON',
-          },
-        },
-      },
-    });
+            contains: "RON"
+          }
+        }
+      }
+    })
     return exchangeRates;
   }
 
   @Get('exchangerates/:date')
   async GetExchageRatesbyDate(@Param('date') date: any): Promise<any> {
-    const exchangeRates = await this.prisma.exchangeRates.findMany({
-      where: {
-        date: date,
-        name: {
-          not: {
-            contains: 'RON',
-          },
-        },
-      },
-    });
+    const exchangeRates = await this.prisma.exchangeRates.findMany(
+      {
+        where: {
+          date: date,
+          name: {
+            not: {
+              contains: "RON"
+            }
+          }
+        }
+      }
+    )
     return exchangeRates;
   }
 
+
   @Get('exchangerates/:date/:currencycode')
-  async GetExchageRatesbyDateCurrency(
-    @Param('date') date: any,
-    @Param('currencycode') currencycode: any,
+  async GetExchageRatesbyDateCurrency(@Param('date') date: any,
+    @Param('currencycode') currencycode: any
   ): Promise<any> {
-    const exchangeRates = await this.prisma.exchangeRates.findMany({
-      where: {
-        date: date,
-        name: currencycode,
-      },
-    });
+    const exchangeRates = await this.prisma.exchangeRates.findMany(
+      {
+        where: {
+          date: date,
+          name: currencycode
+        }
+      }
+    )
     return exchangeRates;
   }
 
@@ -401,19 +388,24 @@ export class NomenclaturesController {
   async GetExchageRatesFiltered(
     @Param('start') start: any,
     @Param('end') end: any,
-    @Param('currencycode') currencycode: any,
+    @Param('currencycode') currencycode: any
   ): Promise<any> {
-    const exchangeRates = await this.prisma.exchangeRates.findMany({
-      where: {
-        date: {
-          gte: start,
-          lte: end,
-        },
-        name: currencycode,
-      },
-    });
+
+    const exchangeRates = await this.prisma.exchangeRates.findMany(
+      {
+        where: {
+          date: {
+            gte: start,
+            lte: end,
+          },
+          name: currencycode
+        }
+      }
+    )
     return exchangeRates;
   }
+
+
 
   @UseGuards(AuthGuard)
   // @Roles('Administrator', 'Editor') // Set multiple roles here
@@ -421,10 +413,12 @@ export class NomenclaturesController {
   @UseGuards(RolesGuard)
   @Get('users')
   async getUsers(@Body() data: any, @Headers() headers): Promise<any> {
-    const entity: string[] = [headers.entity];
 
-    const intArray: number[] = entity.map((str) => parseInt(str, 10));
+    const entity: string[] = [headers.entity]
+
+    const intArray: number[] = entity.map(str => parseInt(str, 10));
     const users = await this.prisma.user.findMany({
+
       select: {
         id: true,
         name: true,
@@ -437,12 +431,12 @@ export class NomenclaturesController {
             entity: {
               where: {
                 id: {
-                  in: intArray,
+                  in: intArray
                 },
-              },
-            },
-          },
-        },
+              }
+            }
+          }
+        }
       },
     });
     return users;
@@ -452,32 +446,31 @@ export class NomenclaturesController {
   // @Roles('Editor', 'Administrator')
   // @UseGuards(RolesGuard)
   @Get('userentity/:userid')
-  async getUserEntity(
-    @Body() data: any,
-    @Param('userid') userid: any,
-  ): Promise<any> {
+  async getUserEntity(@Body() data: any, @Param('userid') userid: any): Promise<any> {
+
+
     const users = await this.prisma.user.findUnique({
       include: {
         User_Groups: {
           include: {
-            entity: true,
-          },
-        },
+            entity: true
+          }
+        }
       },
       where: {
-        id: parseInt(userid),
-      },
+        id: parseInt(userid)
+      }
     });
 
     // Initialize an empty Set to store unique entity names
     const uniqueEntities = new Set();
 
     // Iterate through the User_Groups array
-    users.User_Groups.forEach((group) => {
+    users.User_Groups.forEach(group => {
       // Check if the entity array exists in the group
       if (group.entity) {
         // Iterate through each entity in the entity array
-        group.entity.forEach((entity) => {
+        group.entity.forEach(entity => {
           // Add the entity name to the Set (Set automatically handles duplicates)
           uniqueEntities.add(entity);
         });
@@ -489,7 +482,10 @@ export class NomenclaturesController {
     const uniqueEntities2 = _.uniqBy(distinctEntities, 'id');
 
     return uniqueEntities2;
+
   }
+
+
 
   @UseGuards(AuthGuard)
   // @Roles('Administrator', 'Editor') // Set multiple roles here
@@ -497,10 +493,12 @@ export class NomenclaturesController {
   @UseGuards(RolesGuard)
   @Get('susers')
   async getSimplifyUsers(@Body() data: any, @Headers() headers): Promise<any> {
-    const entity: string[] = [headers.entity];
 
-    const intArray: number[] = entity.map((str) => parseInt(str, 10));
+    const entity: string[] = [headers.entity]
+
+    const intArray: number[] = entity.map(str => parseInt(str, 10));
     const users = await this.prisma.user.findMany({
+
       select: {
         id: true,
         name: true,
@@ -515,17 +513,14 @@ export class NomenclaturesController {
   // @Roles('Administrator', 'Editor')
   // @UseGuards(RolesGuard)
   @Get('susers/:userId')
-  async getSimplifyUsersById(
-    @Param('userId') userId: any,
-    @Body() data: any,
-    @Headers() headers,
-  ): Promise<any> {
-    const entity: string[] = [headers.entity];
+  async getSimplifyUsersById(@Param('userId') userId: any, @Body() data: any, @Headers() headers): Promise<any> {
 
-    const intArray: number[] = entity.map((str) => parseInt(str, 10));
+    const entity: string[] = [headers.entity]
+
+    const intArray: number[] = entity.map(str => parseInt(str, 10));
     const users = await this.prisma.user.findUnique({
       where: {
-        id: parseInt(userId),
+        id: parseInt(userId)
       },
       select: {
         id: true,
@@ -537,11 +532,12 @@ export class NomenclaturesController {
     return users;
   }
 
+
   @Get('user/:id')
   async getUser3(@Param('id') id: any) {
     const users = await this.prisma.user.findUnique({
       where: {
-        id: parseInt(id),
+        id: parseInt(id)
       },
       select: {
         id: true,
@@ -549,42 +545,45 @@ export class NomenclaturesController {
         email: true,
         status: true,
         picture: true,
-        User_Groups: {
+        User_Groups:
+        {
           select: {
             createdAt: true,
             description: true,
             id: true,
             name: true,
             updateadAt: true,
-            entity: true,
-          },
+            entity: true
+          }
         },
         roles: {
           // include : role
           select: {
             // id: true,
             // userId: true
-            role: true,
+            role: true
           },
         },
       },
     });
-    return users;
+    return users
   }
 
   @Delete('user/:id')
   async deleteUser(@Param('id') id: any) {
+
     const roles = await this.prisma.role_User.deleteMany({
       where: {
         userId: parseInt(id),
       },
-    });
+    })
+
 
     const user = await this.prisma.user.delete({
       where: {
         id: parseInt(id),
       },
-    });
+    })
     return user;
   }
 
@@ -605,41 +604,41 @@ export class NomenclaturesController {
   //   return totalSalesByCategory;
   // }
 
+
+
   @Post('documentseries')
-  async createDocumentSeries(
-    @Body() data: Prisma.DocumentSeriesCreateInput,
-  ): Promise<any> {
+  async createDocumentSeries(@Body() data: Prisma.DocumentSeriesCreateInput): Promise<any> {
     const result = this.prisma.documentSeries.create({
       data,
     });
     return result;
   }
 
+
+
   @Get('documentseries')
-  async getAllDocumentSeries(
-    @Body() data: Prisma.DocumentSeriesCreateInput,
-  ): Promise<any> {
-    const result = this.prisma.documentSeries.findMany({});
+  async getAllDocumentSeries(@Body() data: Prisma.DocumentSeriesCreateInput): Promise<any> {
+    const result = this.prisma.documentSeries.findMany({
+    });
     return result;
   }
+
 
   @Get('documentseries/:id')
   async getDocumentSeriesById(@Param('id') id: any): Promise<any> {
     const result = this.prisma.documentSeries.findUnique({
       where: {
-        id: parseInt(id),
+        id: parseInt(id)
       },
     });
     return result;
   }
 
   @Get('documentseriesbytype/:documentTypeId')
-  async getDocSeriesByDocTypeId(
-    @Param('documentTypeId') documentTypeId: any,
-  ): Promise<any> {
+  async getDocSeriesByDocTypeId(@Param('documentTypeId') documentTypeId: any): Promise<any> {
     const result = this.prisma.documentSeries.findMany({
       where: {
-        documentTypeId: parseInt(documentTypeId),
+        documentTypeId: parseInt(documentTypeId)
       },
     });
     return result;
@@ -648,52 +647,56 @@ export class NomenclaturesController {
   @Get('documentseriesbytypeandseries/:documentTypeId/:id')
   async getDocSeriesByDocTypeIdandSerieId(
     @Param('documentTypeId') documentTypeId: any,
-    @Param('id') id: any,
+    @Param('id') id: any
   ): Promise<any> {
     const result = this.prisma.documentSeries.findMany({
       where: {
         documentTypeId: parseInt(documentTypeId),
-        id: parseInt(id),
+        id: parseInt(id)
       },
     });
     return result;
   }
+
 
   @Patch('documentseriesbytypeandseries/:documentTypeId/:id')
   async patchDocSeriesByDocTypeIdandSerieId(
     @Param('documentTypeId') documentTypeId: any,
     @Param('id') id: any,
-    @Body() data: Prisma.DocumentSeriesCreateInput,
-  ): Promise<any> {
+    @Body() data: Prisma.DocumentSeriesCreateInput): Promise<any> {
+
     const result = this.prisma.documentSeries.updateMany({
       data: {
-        last_number: data.last_number + 1,
+        last_number: data.last_number + 1
       },
       where: {
         documentTypeId: parseInt(documentTypeId),
-        id: parseInt(id),
+        id: parseInt(id)
       },
     });
     return result;
   }
+
+
 
   @Patch('documentseries/:id')
   async editDocumentSeriesById(
     @Param('id') id: any,
-    @Body() data: Prisma.DocumentSeriesCreateInput,
-  ): Promise<any> {
+    @Body() data: Prisma.DocumentSeriesCreateInput): Promise<any> {
     const result = this.prisma.documentSeries.update({
       where: {
-        id: parseInt(id),
+        id: parseInt(id)
       },
-      data: data,
+      data: data
     });
     return result;
   }
 
+
+
   @Get('roles')
   async getUserRoles() {
-    const roles = await this.prisma.role.findMany();
+    const roles = await this.prisma.role.findMany()
     return roles;
   }
 
@@ -706,9 +709,7 @@ export class NomenclaturesController {
   }
 
   @Post('dynamicfield')
-  async createDynamicfield(
-    @Body() data: Prisma.DynamicFieldsCreateInput,
-  ): Promise<any> {
+  async createDynamicfield(@Body() data: Prisma.DynamicFieldsCreateInput): Promise<any> {
     const result = this.prisma.dynamicFields.create({
       data,
     });
@@ -716,9 +717,7 @@ export class NomenclaturesController {
   }
 
   @Get('dynamicfield')
-  async getDynamicfield(
-    @Body() data: Prisma.DynamicFieldsCreateInput,
-  ): Promise<any> {
+  async getDynamicfield(@Body() data: Prisma.DynamicFieldsCreateInput): Promise<any> {
     const result = this.prisma.dynamicFields.findMany({
       orderBy: {
         fieldorder: 'asc', // 'asc' for ascending order, 'desc' for descending order
@@ -727,51 +726,61 @@ export class NomenclaturesController {
     return result;
   }
 
+
+
   @Get('groups')
   async getAllGroups(@Body() data: Prisma.GroupsCreateInput): Promise<any> {
-    const result = this.prisma.groups.findMany({});
+    const result = this.prisma.groups.findMany({
+    });
     return result;
   }
+
 
   @Get('groups/:id')
   async getGroupById(@Param('id') id: any): Promise<any> {
     const result = this.prisma.groups.findUnique({
       where: {
-        id: parseInt(id),
+        id: parseInt(id)
       },
       include: {
-        entity: true,
-      },
+        entity: true
+      }
     });
     return result;
   }
 
+
+
   @Get('billingfrequency')
   async getbillingfrequency() {
-    const billingfrequency = await this.prisma.billingFrequency.findMany();
+    const billingfrequency = await this.prisma.billingFrequency.findMany()
     return billingfrequency;
   }
 
   @Get('paymenttype')
   async getpaymenttype() {
-    const paymenttype = await this.prisma.paymentType.findMany();
+    const paymenttype = await this.prisma.paymentType.findMany()
     return paymenttype;
   }
 
   @Get('measuringunit')
   async getmeasuringunit() {
-    const measuringunit = await this.prisma.measuringUnit.findMany();
+    const measuringunit = await this.prisma.measuringUnit.findMany()
     return measuringunit;
   }
 
+
   @Get('vatquota')
   async vatquota() {
-    const vatquota = await this.prisma.vatQuota.findMany();
+    const vatquota = await this.prisma.vatQuota.findMany()
     return vatquota;
   }
 
   @Post('partners')
-  async createPartner(@Body() data: Prisma.PartnersCreateInput): Promise<any> {
+  async createPartner(
+    @Body() data: Prisma.PartnersCreateInput,
+  ): Promise<any> {
+
     const result = this.prisma.partners.create({
       data,
     });
@@ -779,47 +788,54 @@ export class NomenclaturesController {
     return result;
   }
 
+
   @Post('partnerlogo/:partnerId')
   @UseInterceptors(FilesInterceptor('logo'))
   async createPartnerLogo(
     @UploadedFiles() logo: Express.Multer.File,
-    @Param('partnerId') partnerId: any,
+    @Param('partnerId') partnerId: any
   ): Promise<any> {
-    const picture = logo[0] ? logo[0].filename : 'default.jpeg';
+
+    const picture = logo[0] ? logo[0].filename : 'default.jpeg'
 
     const result = this.prisma.partners.update({
       where: {
-        id: parseInt(partnerId),
+        id: parseInt(partnerId)
       },
       data: {
-        picture: picture,
-      },
+        picture: picture
+      }
     });
     return result;
   }
 
   @Delete('partnerlogo/:partnerId')
-  async deletePartnerLogo(@Param('partnerId') partnerId: any): Promise<any> {
+  async deletePartnerLogo(
+    @Param('partnerId') partnerId: any
+  ): Promise<any> {
+
     const result = this.prisma.partners.update({
       where: {
-        id: parseInt(partnerId),
+        id: parseInt(partnerId)
       },
       data: {
-        picture: null,
-      },
+        picture: null
+      }
     });
     return result;
   }
+
 
   @Get('extrarates/:partnerid')
   async getExtraRates(@Param('partnerid') partnerid: any): Promise<any> {
     const result = this.prisma.partnersBanksExtraRates.findMany({
       where: {
-        partnersId: parseInt(partnerid),
+        partnersId: parseInt(partnerid)
       },
       include: {
-        currency: true,
-      },
+        currency: true
+      }
+
     });
     return result;
   }
@@ -828,140 +844,158 @@ export class NomenclaturesController {
   async deleteExtraRates(@Param('id') id: any): Promise<any> {
     const result = this.prisma.partnersBanksExtraRates.delete({
       where: {
-        id: parseInt(id),
-      },
+        id: parseInt(id)
+      }
     });
     return result;
   }
 
   @Patch('extrarates/:id')
-  async updateExtraRates(
-    @Body() data: any,
-    @Param('id') id: any,
-  ): Promise<any> {
+  async updateExtraRates(@Body() data: any, @Param('id') id: any): Promise<any> {
     const result = this.prisma.partnersBanksExtraRates.update({
       where: {
-        id: parseInt(id),
+        id: parseInt(id)
       },
-      data: data,
+      data: data
+
     });
     return result;
   }
+
 
   @Post('extrarates')
   async addExtraRates(@Body() data: any): Promise<any> {
     const result = this.prisma.partnersBanksExtraRates.createMany({
-      data: data,
+      data: data
     });
     return result;
   }
 
+
+
   @Get('contracttype')
   async getAllContractTypes() {
-    const contracttype = await this.prisma.contractType.findMany();
+    const contracttype = await this.prisma.contractType.findMany()
     return contracttype;
   }
 
   @Get('contractstatus')
   async getAllContractStatuses() {
-    const contractstatus = await this.prisma.contractStatus.findMany();
+    const contractstatus = await this.prisma.contractStatus.findMany()
     return contractstatus;
   }
 
   @Get('invoicestatus')
   async getAllInvoiceStatuses() {
-    const invoicestatus = await this.prisma.invoiceStatus.findMany();
+    const invoicestatus = await this.prisma.invoiceStatus.findMany()
     return invoicestatus;
   }
 
   @Get('contractwfstatus')
   async getAllContractWFStatuses() {
-    const contractwfstatus = await this.prisma.contractWFStatus.findMany();
+    const contractwfstatus = await this.prisma.contractWFStatus.findMany()
     return contractwfstatus;
   }
 
+
   @Get('partners')
   async getAllPartners() {
-    const partner = await this.prisma.partners.findMany({
-      where: {
-        type: {
-          in: ['Furnizor', 'Client'],
+    const partner = await this.prisma.partners.findMany(
+      {
+        where: {
+          type: {
+            in: ['Furnizor', 'Client']
+          }
         },
-      },
-    });
+      }
+    )
     return partner;
   }
 
   @Get('entity')
   async getAllEntities() {
-    const partner = await this.prisma.partners.findMany({
-      where: {
-        type: {
-          in: ['Entitate'],
+    const partner = await this.prisma.partners.findMany(
+      {
+        where: {
+          type: {
+            in: ['Entitate']
+          }
         },
-      },
-    });
+      }
+    )
     return partner;
   }
 
   @Get('allparties')
   async getAllParties() {
-    const partner = await this.prisma.partners.findMany({});
+    const partner = await this.prisma.partners.findMany(
+      {}
+    )
     return partner;
   }
 
   @Get('taskStatus')
   async getAllTaskStatus() {
-    const status = await this.prisma.contractTasksStatus.findMany({});
+    const status = await this.prisma.contractTasksStatus.findMany(
+      {}
+    )
     return status;
   }
+
 
   //returns only partners of type entity
   @Get('partnersdetails/:id')
   async getAllPartnersDetails(@Param('id') id: any) {
-    const partner = await this.prisma.partners.findMany({
-      include: {
-        Persons: true,
-        Address: true,
-        Banks: true,
-      },
-      where: {
-        id: parseInt(id),
-        type: {
-          in: ['Furnizor', 'Client'],
+
+    const partner = await this.prisma.partners.findMany(
+      {
+        include: {
+          Persons: true,
+          Address: true,
+          Banks: true
         },
-      },
-    });
+        where: {
+          id: parseInt(id),
+          type: {
+            in: ['Furnizor', 'Client']
+          }
+        },
+      }
+    )
     return partner;
   }
 
   //returns only partners of type entity
   @Get('entitydetails/:id')
   async getAllEntityDetails(@Param('id') id: any) {
-    const partner = await this.prisma.partners.findMany({
-      include: {
-        Persons: true,
-        Address: true,
-        Banks: true,
-      },
-      where: {
-        id: parseInt(id),
-        type: 'Entitate',
-      },
-    });
+    const partner = await this.prisma.partners.findMany(
+      {
+        include: {
+          Persons: true,
+          Address: true,
+          Banks: true
+        },
+        where: {
+          id: parseInt(id),
+          type: "Entitate"
+        },
+      }
+    )
     return partner;
   }
 
+
   @Get('partners/:id')
   async getPartnerById(@Param('id') id: any) {
-    const partner = await this.prisma.partners.findUnique({
-      include: {
-        Persons: true,
-      },
-      where: {
-        id: parseInt(id),
-      },
-    });
+    const partner = await this.prisma.partners.findUnique(
+      {
+        include: {
+          Persons: true,
+        },
+        where: {
+          id: parseInt(id),
+        },
+      })
     return partner;
   }
 
@@ -971,45 +1005,45 @@ export class NomenclaturesController {
       where: {
         id: parseInt(id),
       },
-    });
+    })
     return partner;
   }
 
   @Patch('partners/:id')
-  async UpdatePartner(
-    @Body() data: Prisma.PartnersCreateInput,
-    @Param('id') id: any,
-  ): Promise<any> {
+  async UpdatePartner(@Body() data: Prisma.PartnersCreateInput, @Param('id') id: any): Promise<any> {
     const partner = await this.prisma.partners.update({
       where: {
         id: parseInt(id),
       },
       data: data,
-    });
+    })
     return partner;
   }
 
   //audit partner
   @Get('auditPartner')
   async getPartnerAudit(@Param('partnerid') partnerid: any) {
-    const partner = '%rr%';
+
+    const partner = '%rr%'
     const result = await this.prisma.$queryRaw(
-      Prisma.sql`SELECT * FROM partners_audit WHERE name like ${partner}`,
-    );
+      Prisma.sql`SELECT * FROM partners_audit WHERE name like ${partner}`
+    )
     return result;
   }
 
   //execute a procedure CALL my_procedure(123, 'Hello');
   @Get('executeAuditPartner/:id')
   async getExecutePartnerAudit(@Param('id') id: any) {
+
     let contractid: number = parseInt(id, 10);
     const result = await this.prisma.$queryRaw(
       // Prisma.sql`SELECT delete()`
-      Prisma.sql`select * from public.GetAuditContract2(${contractid}::int4)`,
+      Prisma.sql`select * from public.GetAuditContract2(${contractid}::int4)`
       //Prisma.sql`select * from public."ContractsAudit"`
-    );
+    )
     return result;
   }
+
 
   // @Get('alerts')
   // async getAlerts() {
@@ -1028,10 +1062,9 @@ export class NomenclaturesController {
   //   return alert;
   // }
 
+
   @Post('contracttemplates')
-  async createContractTemplate(
-    @Body() data: Prisma.ContractTemplatesCreateInput,
-  ): Promise<any> {
+  async createContractTemplate(@Body() data: Prisma.ContractTemplatesCreateInput): Promise<any> {
     const result = this.prisma.contractTemplates.create({
       data,
     });
@@ -1041,38 +1074,38 @@ export class NomenclaturesController {
   @Patch('contracttemplates/:id')
   async updateContractTemplate(
     @Param('id') id: any,
-    @Body() data: Prisma.ContractTemplatesUpdateInput,
-  ): Promise<any> {
-    const result = this.prisma.contractTemplates.update({
-      where: {
-        id: parseInt(id),
-      },
-      data,
-    });
+    @Body() data: Prisma.ContractTemplatesUpdateInput): Promise<any> {
+    const result = this.prisma.contractTemplates.update(
+      {
+        where: {
+          id: parseInt(id)
+        },
+        data,
+      }
+    );
     return result;
   }
 
   @Delete('contracttemplates/:id')
   async deleteContractTemplate(
     @Param('id') id: any,
-    @Body() data: Prisma.ContractTemplatesWhereInput,
-  ): Promise<any> {
-    const result = this.prisma.contractTemplates.delete({
-      where: {
-        id: parseInt(id),
-      },
-    });
+    @Body() data: Prisma.ContractTemplatesWhereInput): Promise<any> {
+    const result = this.prisma.contractTemplates.delete(
+      {
+        where: {
+          id: parseInt(id)
+        },
+      }
+    );
     return result;
   }
 
   @Get('contracttemplates')
-  async getContractTemplate(
-    @Body() data: Prisma.ContractTemplatesFindManyArgs,
-  ): Promise<any> {
+  async getContractTemplate(@Body() data: Prisma.ContractTemplatesFindManyArgs): Promise<any> {
     const result = this.prisma.contractTemplates.findMany({
       include: {
-        contractType: true,
-      },
+        contractType: true
+      }
     });
     return result;
   }
@@ -1081,11 +1114,11 @@ export class NomenclaturesController {
   async getContractTemplateById(@Param('id') id: any) {
     const result = this.prisma.contractTemplates.findUnique({
       where: {
-        id: id,
+        id: id
       },
       include: {
-        contractType: true,
-      },
+        contractType: true
+      }
     });
     return result;
   }
@@ -1104,7 +1137,7 @@ export class NomenclaturesController {
       where: {
         partnerId: parseInt(partnerid),
       },
-    });
+    })
     return persons;
   }
 
@@ -1114,18 +1147,17 @@ export class NomenclaturesController {
   }
 
   @Patch('persons/:personid')
-  async getUpdatePersonsByPersonId(
-    @Body() data: Prisma.PersonsCreateInput,
-    @Param('personid') personid: any,
-  ): Promise<any> {
+  async getUpdatePersonsByPersonId(@Body() data: Prisma.PersonsCreateInput, @Param('personid') personid: any): Promise<any> {
     const persons = await this.prisma.persons.update({
       where: {
         id: parseInt(personid),
       },
       data: data,
-    });
+    })
     return persons;
   }
+
+
 
   @Delete('persons/:personid')
   async deletePersonId(@Param('personid') personid: any) {
@@ -1133,7 +1165,7 @@ export class NomenclaturesController {
       where: {
         id: parseInt(personid),
       },
-    });
+    })
     return persons;
   }
 
@@ -1147,15 +1179,19 @@ export class NomenclaturesController {
 
   @Get('allbanks')
   async getallBanks() {
-    const banks = await this.prisma.bank.findMany({});
+    const banks = await this.prisma.bank.findMany({
+    })
     return banks;
   }
 
   @Get('allcurrencies')
   async getallCurrencies() {
-    const currencies = await this.prisma.currency.findMany({});
+    const currencies = await this.prisma.currency.findMany({
+    })
     return currencies;
   }
+
+
 
   @Get('address/:partnerid')
   async getAddressByPartnerId(@Param('partnerid') partnerid: any) {
@@ -1163,7 +1199,7 @@ export class NomenclaturesController {
       where: {
         partnerId: parseInt(partnerid),
       },
-    });
+    })
     return address;
   }
 
@@ -1173,21 +1209,18 @@ export class NomenclaturesController {
       where: {
         id: parseInt(addressid),
       },
-    });
+    })
     return address;
   }
 
   @Patch('address/:addressid')
-  async getUpdateAddressByAddressId(
-    @Body() data: Prisma.AddressCreateInput,
-    @Param('addressid') addressid: any,
-  ): Promise<any> {
+  async getUpdateAddressByAddressId(@Body() data: Prisma.AddressCreateInput, @Param('addressid') addressid: any): Promise<any> {
     const adress = await this.prisma.address.update({
       where: {
         id: parseInt(addressid),
       },
       data: data,
-    });
+    })
     return adress;
   }
 
@@ -1205,7 +1238,7 @@ export class NomenclaturesController {
       where: {
         partnerId: parseInt(partnerid),
       },
-    });
+    })
     return banks;
   }
 
@@ -1215,23 +1248,20 @@ export class NomenclaturesController {
       where: {
         partnerId: parseInt(partnerid),
         isDefault: true,
-        status: true,
+        status: true
       },
-    });
+    })
     return banks;
   }
 
   @Patch('bank/:bankid')
-  async getUpdateBank(
-    @Body() data: Prisma.BanksCreateInput,
-    @Param('bankid') bankid: any,
-  ): Promise<any> {
+  async getUpdateBank(@Body() data: Prisma.BanksCreateInput, @Param('bankid') bankid: any): Promise<any> {
     const bank = await this.prisma.banks.update({
       where: {
         id: parseInt(bankid),
       },
       data: data,
-    });
+    })
     return bank;
   }
 
@@ -1241,7 +1271,7 @@ export class NomenclaturesController {
       where: {
         id: parseInt(bankid),
       },
-    });
+    })
     return bank;
   }
 
@@ -1255,7 +1285,7 @@ export class NomenclaturesController {
 
   @Get('location')
   async getAllLocation(@Body() data: Prisma.LocationCreateInput): Promise<any> {
-    const result = await this.prisma.location.findMany();
+    const result = await this.prisma.location.findMany()
     return result;
   }
 
@@ -1265,7 +1295,7 @@ export class NomenclaturesController {
       where: {
         id: parseInt(id),
       },
-    });
+    })
     return location;
   }
 

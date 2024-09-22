@@ -6,7 +6,7 @@ import {
   HttpStatus,
   Post,
   Request,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
@@ -15,10 +15,11 @@ import { AuthService } from './auth.service';
 import moment from 'moment-timezone';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
@@ -27,13 +28,13 @@ export class AuthController {
       type: 'object',
       properties: {
         username: { type: 'string' },
-        password: { type: 'string' },
+        password: { type: 'string' }
       },
-      required: ['username', 'password'],
-    },
+      required: ['username', 'password']
+    }
   })
   @ApiResponse({ status: 200, description: 'Successful login' })
-  async signIn(@Body() data: any) {
+  signIn(@Body() data: any) {
     return this.authService.signIn(data.username, data.password);
   }
 
@@ -49,6 +50,7 @@ export class AuthController {
   //     // console.log(req.user.exp)
   //     const currentDate: Date = new Date
 
+
   //     // Assuming `date` is your date object
   //     const date = new Date(); // or any other valid date object
 
@@ -63,6 +65,7 @@ export class AuthController {
 
   //     const date1 = new Date(formattedDate);
 
+
   //     console.log("controller auth", localDate);
 
   //     // const formattedHour = format(expirationDate, 'HH:mm:ss', { timeZone: localTimezone });
@@ -75,8 +78,10 @@ export class AuthController {
   //       console.log(`cerificatul este valid pana la ora ${date1}`)
   //     }
 
+
   //     // console.log(formattedHour)
   //     // return req.user;
 
   //   }
+
 }
