@@ -222,6 +222,7 @@ model Contracts {
   isPurchasing          Boolean?                @default(false)
   ContractDynamicFields ContractDynamicFields[]
   ContractTasks         ContractTasks[]
+  
 }
 
 model ContractsAudit {

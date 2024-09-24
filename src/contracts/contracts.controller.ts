@@ -1186,6 +1186,17 @@ export class ContractsController {
     return result;
   }
 
+  @Get('itemSymplified')
+  async getItemSymplified(@Body() data: Prisma.ItemCreateInput): Promise<any> {
+    const result = await this.prisma.item.findMany({
+      include: {
+        measuringUnit: true,
+        vat: true,
+      },
+    });
+    return result;
+  }
+
   @Patch('item/:id')
   async updateItem(@Param('id') id: any, @Body() data: any): Promise<any> {
     const result = await this.prisma.item.update({

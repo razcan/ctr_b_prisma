@@ -851,8 +851,10 @@
     debug "4.3.4"
     strip-ansi "6.0.1"
 
-"@prisma/debug@5.19.0":
-  version "5.19.0"
+"@prisma/debug@5.19.1":
+  version "5.19.1"
+  resolved "https://registry.npmjs.org/@prisma/debug/-/debug-5.19.1.tgz"
+  integrity sha512-lAG6A6QnG2AskAukIEucYJZxxcSqKsMK74ZFVfCTOM/7UiyJQi48v6TQ47d6qKG3LbMslqOvnTX25dj/qvclGg==
 
 "@prisma/engine-core@3.15.2":
   version "3.15.2"
@@ -872,21 +874,25 @@
     strip-ansi "6.0.1"
     undici "5.1.1"
 
-"@prisma/engines-version@5.19.0-31.5fe21811a6ba0b952a3bc71400666511fe3b902f":
-  version "5.19.0-31.5fe21811a6ba0b952a3bc71400666511fe3b902f"
+"@prisma/engines-version@5.19.1-2.69d742ee20b815d88e17e54db4a2a7a3b30324e3":
+  version "5.19.1-2.69d742ee20b815d88e17e54db4a2a7a3b30324e3"
+  resolved "https://registry.npmjs.org/@prisma/engines-version/-/engines-version-5.19.1-2.69d742ee20b815d88e17e54db4a2a7a3b30324e3.tgz"
+  integrity sha512-xR6rt+z5LnNqTP5BBc+8+ySgf4WNMimOKXRn6xfNRDSpHvbOEmd7+qAOmzCrddEc4Cp8nFC0txU14dstjH7FXA==
 
 "@prisma/engines@3.15.1-1.461d6a05159055555eb7dfb337c9fb271cbd4d7e":
   version "3.15.1-1.461d6a05159055555eb7dfb337c9fb271cbd4d7e"
   resolved "https://registry.npmjs.org/@prisma/engines/-/engines-3.15.1-1.461d6a05159055555eb7dfb337c9fb271cbd4d7e.tgz"
   integrity sha512-NHlojO1DFTsSi3FtEleL9QWXeSF/UjhCW0fgpi7bumnNZ4wj/eQ+BJJ5n2pgoOliTOGv9nX2qXvmHap7rJMNmg==
 
-"@prisma/engines@5.19.0":
-  version "5.19.0"
+"@prisma/engines@5.19.1":
+  version "5.19.1"
+  resolved "https://registry.npmjs.org/@prisma/engines/-/engines-5.19.1.tgz"
+  integrity sha512-kR/PoxZDrfUmbbXqqb8SlBBgCjvGaJYMCOe189PEYzq9rKqitQ2fvT/VJ8PDSe8tTNxhc2KzsCfCAL+Iwm/7Cg==
   dependencies:
-    "@prisma/debug" "5.19.0"
-    "@prisma/engines-version" "5.19.0-31.5fe21811a6ba0b952a3bc71400666511fe3b902f"
-    "@prisma/fetch-engine" "5.19.0"
-    "@prisma/get-platform" "5.19.0"
+    "@prisma/debug" "5.19.1"
+    "@prisma/engines-version" "5.19.1-2.69d742ee20b815d88e17e54db4a2a7a3b30324e3"
+    "@prisma/fetch-engine" "5.19.1"
+    "@prisma/get-platform" "5.19.1"
 
 "@prisma/fetch-engine@3.15.1-1.461d6a05159055555eb7dfb337c9fb271cbd4d7e":
   version "3.15.1-1.461d6a05159055555eb7dfb337c9fb271cbd4d7e"
@@ -911,12 +917,14 @@
     temp-dir "2.0.0"
     tempy "1.0.1"
 
-"@prisma/fetch-engine@5.19.0":
-  version "5.19.0"
+"@prisma/fetch-engine@5.19.1":
+  version "5.19.1"
+  resolved "https://registry.npmjs.org/@prisma/fetch-engine/-/fetch-engine-5.19.1.tgz"
+  integrity sha512-pCq74rtlOVJfn4pLmdJj+eI4P7w2dugOnnTXpRilP/6n5b2aZiA4ulJlE0ddCbTPkfHmOL9BfaRgA8o+1rfdHw==
   dependencies:
-    "@prisma/debug" "5.19.0"
-    "@prisma/engines-version" "5.19.0-31.5fe21811a6ba0b952a3bc71400666511fe3b902f"
-    "@prisma/get-platform" "5.19.0"
+    "@prisma/debug" "5.19.1"
+    "@prisma/engines-version" "5.19.1-2.69d742ee20b815d88e17e54db4a2a7a3b30324e3"
+    "@prisma/get-platform" "5.19.1"
 
 "@prisma/generator-helper@^3.2.1", "@prisma/generator-helper@3.15.2":
   version "3.15.2"
@@ -935,10 +943,12 @@
   dependencies:
     "@prisma/debug" "3.14.0"
 
-"@prisma/get-platform@5.19.0":
-  version "5.19.0"
+"@prisma/get-platform@5.19.1":
+  version "5.19.1"
+  resolved "https://registry.npmjs.org/@prisma/get-platform/-/get-platform-5.19.1.tgz"
+  integrity sha512-sCeoJ+7yt0UjnR+AXZL7vXlg5eNxaFOwC23h0KvW1YIXUoa7+W2ZcAUhoEQBmJTW4GrFqCuZ8YSP0mkDa4k3Zg==
   dependencies:
-    "@prisma/debug" "5.19.0"
+    "@prisma/debug" "5.19.1"
 
 "@prisma/sdk@^3.2.1":
   version "3.15.2"
@@ -5208,10 +5218,12 @@ prettysize@^2.0.0:
   resolved "https://registry.npmjs.org/prettysize/-/prettysize-2.0.0.tgz"
   integrity sha512-VVtxR7sOh0VsG8o06Ttq5TrI1aiZKmC+ClSn4eBPaNf4SHr5lzbYW+kYGX3HocBL/MfpVrRfFZ9V3vCbLaiplg==
 
-prisma@*, prisma@^5.19.0:
-  version "5.19.0"
+prisma@*, prisma@^5.19.1:
+  version "5.19.1"
+  resolved "https://registry.npmjs.org/prisma/-/prisma-5.19.1.tgz"
+  integrity sha512-c5K9MiDaa+VAAyh1OiYk76PXOme9s3E992D7kvvIOhCrNsBQfy2mP2QAQtX0WNj140IgG++12kwZpYB9iIydNQ==
   dependencies:
-    "@prisma/engines" "5.19.0"
+    "@prisma/engines" "5.19.1"
   optionalDependencies:
     fsevents "2.3.3"
 
