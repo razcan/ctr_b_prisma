@@ -172,33 +172,37 @@ export class InvoiceService {
     const details = [];
     data.InvoiceDetails.map((inv_detail: any) => details.push(inv_detail));
 
-    const existingContent = await this.prisma.invoice.findUnique({
-      where: {
-        id: parseInt(id),
-      },
-    });
-    console.log(existingContent);
-
-    if (existingContent) {
-      const updatedHeader = await this.prisma.invoice.update({
-        where: { id: parseInt(id) },
-        data: header,
+    try {
+      const existingContent = await this.prisma.invoice.findUnique({
+        where: {
+          id: parseInt(id),
+        },
       });
 
-      const deleteExistingDetails = await this.prisma.invoiceDetail.deleteMany({
-        where: { invoiceId: parseInt(id) },
-      });
+      if (existingContent) {
+        const updatedHeader = await this.prisma.invoice.update({
+          where: { id: parseInt(id) },
+          data: header,
+        });
 
-      const resultDetails = await this.prisma.invoiceDetail.createMany({
-        data: details,
-      });
+        const deleteExistingDetails =
+          await this.prisma.invoiceDetail.deleteMany({
+            where: { invoiceId: parseInt(id) },
+          });
 
-      return resultDetails;
-    } else {
-      const newHeaderContent = await this.prisma.invoice.create({
-        data: header,
-      });
-      return newHeaderContent;
+        const resultDetails = await this.prisma.invoiceDetail.createMany({
+          data: details,
+        });
+
+        return resultDetails;
+      } else {
+        const newHeaderContent = await this.prisma.invoice.create({
+          data: header,
+        });
+        return newHeaderContent;
+      }
+    } catch (error) {
+      console.error('Error updating Invoice:', error);
     }
   }
 }
