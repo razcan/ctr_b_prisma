@@ -51,13 +51,11 @@ export class InvoiceController {
     return this.invoiceService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateInvoiceDto: UpdateInvoiceDto) {
-    return this.invoiceService.update(+id, updateInvoiceDto);
-  }
+  // async updateContent(@Body() data: any, @Param('id') id: any): Promise<any> {
+  //
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.invoiceService.remove(+id);
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() data) {
+    return this.invoiceService.update(+id, data);
   }
 }

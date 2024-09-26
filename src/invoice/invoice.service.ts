@@ -2,7 +2,7 @@ import { Body, Injectable, Param } from '@nestjs/common';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { UpdateInvoiceDto } from './dto/update-invoice.dto';
 import { PrismaService } from 'src/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Invoice, Prisma } from '@prisma/client';
 import { Address } from 'src/address/entities';
 
 @Injectable()
@@ -34,8 +34,40 @@ export class InvoiceService {
   }
 
   async create(@Body() data: any) {
-    const header = data[0];
-    const details = data[1];
+    // const header = data[0];
+    // const details = data[1];
+
+    const header: Prisma.InvoiceUncheckedCreateInput = {
+      // id: data.id,
+      updateadAt: data.updateadAt,
+      createdAt: data.createdAt,
+      partnerId: data.partnerId,
+      entityId: data.entityId,
+      number: data.number,
+      date: data.date,
+      duedate: data.duedate,
+      totalAmount: data.totalAmount,
+      vatAmount: data.vatAmount,
+      totalPayment: data.totalPayment,
+      typeId: data.typeId,
+      transactionTypeId: data.transactionTypeId,
+      statusId: data.statusId,
+      entitybankId: data.entitybankId,
+      partneraddressId: data.partneraddressId,
+      currencyRate: data.currencyRate,
+      userId: data.userId,
+      currencyId: data.currencyId,
+      remarks: data.remarks,
+      seriesId: data.seriesId,
+      serialNumber: data.serialNumber,
+      eqvTotalAmount: data.eqvTotalAmount,
+      eqvVatAmount: data.eqvVatAmount,
+      eqvTotalPayment: data.eqvTotalPayment,
+      vatOnReceipt: data.vatOnReceipt,
+    };
+
+    const details = [];
+    data.InvoiceDetails.map((inv_detail: any) => details.push(inv_detail));
 
     // console.log(details);
 
@@ -51,14 +83,10 @@ export class InvoiceService {
         details[i].invoiceId = (await result).id;
         // console.log((await result).id, 'inv id');
       }
-      //console.log(details, 'ici');
 
       const resultDetails = await this.prisma.invoiceDetail.createMany({
         data: details,
       });
-
-      //console.log(resultDetails);
-
       this.patchDocSeriesByDocTypeIdandSerieId(header.typeId, header.seriesId);
 
       return result;
@@ -66,22 +94,6 @@ export class InvoiceService {
       console.error('Error creating Invoice:', error);
     }
   }
-
-  // async create(createInvoiceDto: CreateInvoiceDto) {
-  //   const { details, ...invoiceData } = createInvoiceDto;
-
-  //   return this.prisma.invoice.create({
-  //     data: {
-  //       ...invoiceData,
-  //       details: {
-  //         create: details,
-  //       },
-  //     },
-  //     include: {
-  //       details: true,
-  //     },
-  //   });
-  // }
 
   async findAll() {
     const result = await this.prisma.invoice.findMany({
@@ -125,50 +137,68 @@ export class InvoiceService {
     return result;
   }
 
-  update(id: number, updateInvoiceDto: UpdateInvoiceDto) {
-    return `This action updates a #${id} invoice`;
-  }
+  async update(id: any, @Body() data: any) {
+    // console.log(data.InvoiceDetails);
 
-  remove(id: number) {
-    return `This action removes a #${id} invoice`;
+    const header: Prisma.InvoiceUncheckedCreateInput = {
+      // id: data.id,
+      updateadAt: data.updateadAt,
+      createdAt: data.createdAt,
+      partnerId: data.partnerId,
+      entityId: data.entityId,
+      number: data.number,
+      date: data.date,
+      duedate: data.duedate,
+      totalAmount: data.totalAmount,
+      vatAmount: data.vatAmount,
+      totalPayment: data.totalPayment,
+      typeId: data.typeId,
+      transactionTypeId: data.transactionTypeId,
+      statusId: data.statusId,
+      entitybankId: data.entitybankId,
+      partneraddressId: data.partneraddressId,
+      currencyRate: data.currencyRate,
+      userId: data.userId,
+      currencyId: data.currencyId,
+      remarks: data.remarks,
+      seriesId: data.seriesId,
+      serialNumber: data.serialNumber,
+      eqvTotalAmount: data.eqvTotalAmount,
+      eqvVatAmount: data.eqvVatAmount,
+      eqvTotalPayment: data.eqvTotalPayment,
+      vatOnReceipt: data.vatOnReceipt,
+    };
+
+    const details = [];
+    data.InvoiceDetails.map((inv_detail: any) => details.push(inv_detail));
+
+    const existingContent = await this.prisma.invoice.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    console.log(existingContent);
+
+    if (existingContent) {
+      const updatedHeader = await this.prisma.invoice.update({
+        where: { id: parseInt(id) },
+        data: header,
+      });
+
+      const deleteExistingDetails = await this.prisma.invoiceDetail.deleteMany({
+        where: { invoiceId: parseInt(id) },
+      });
+
+      const resultDetails = await this.prisma.invoiceDetail.createMany({
+        data: details,
+      });
+
+      return resultDetails;
+    } else {
+      const newHeaderContent = await this.prisma.invoice.create({
+        data: header,
+      });
+      return newHeaderContent;
+    }
   }
 }
-
-// const contracts = await this.prisma.contracts.findUnique({
-//   include: {
-//     costcenter: true,
-//     entity: true,
-//     partner: true,
-//     PartnerPerson: true,
-//     EntityPerson: true,
-
-//     EntityBank: true,
-//     PartnerBank: true,
-
-//     EntityAddress: true,
-//     PartnerAddress: true,
-//     location: true,
-//     departament: true,
-//     Category: true,
-//     cashflow: true,
-//     type: true,
-//     status: true,
-//   },
-//   where: {
-//     id: parseInt(id),
-//   },
-// });
-
-// const content = await this.prisma.contracts.findMany({
-//   where: {
-//     parentId: parseInt(id),
-//   },
-//   include: {
-//     entity: true,
-//     partner: true,
-//     EntityAddress: true,
-//     PartnerAddress: true,
-//     type: true,
-//     status: true,
-//   },
-// });

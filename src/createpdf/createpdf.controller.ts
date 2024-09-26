@@ -65,11 +65,9 @@ export class CreatepdfController {
     return `${year}-${month}-${day}`;
   }
 
-  @Post('file3')
+  @Post('invoice')
   async findAll3(@Body() all_data: any[], @Res() res: Response) {
     const data = all_data[0];
-
-    console.log(all_data[0], 'data0', all_data[1], 'data1');
 
     // Create a new PDF document
     const pdfDoc = await PDFDocument.create();
@@ -92,7 +90,7 @@ export class CreatepdfController {
     // Calculate total number of pages
     const totalPages = Math.ceil(all_data[1].length / itemsPerPage);
 
-    console.log(totalPages, 'totalPages');
+    //console.log(totalPages, 'totalPages');
 
     let currentIndex = 0;
 
@@ -210,9 +208,13 @@ export class CreatepdfController {
     const pdfBytes = await pdfDoc.save();
 
     // Specify the filename and path where the PDF will be saved
-    const filename = `invoice_${data.number}_${this.getFormatDate(
-      data.date,
-    )}_${new Date()}.pdf`;
+    // const filename = `invoice_${data.number}_${this.getFormatDate(
+    //   data.date,
+    // )}_${new Date()}.pdf`;
+
+    const filename = `invoice_${this.getFormatDate(data.date)}_${
+      data.number
+    }.pdf`;
 
     // const filepath = path.join(__dirname, 'invoices', filename);
 
@@ -229,7 +231,7 @@ export class CreatepdfController {
     fs.writeFileSync(filepath, pdfBytes);
 
     // Respond with the file location
-    console.log('filepath', filepath);
+    // console.log('filepath', filepath);
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
