@@ -58,4 +58,9 @@ export class InvoiceController {
   update(@Param('id') id: string, @Body() data) {
     return this.invoiceService.update(+id, data);
   }
+
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.invoiceService.delete(+id);
+  }
 }

@@ -137,6 +137,25 @@ export class InvoiceService {
     return result;
   }
 
+  async delete(id: number) {
+    try {
+      const resultdetail = await this.prisma.invoiceDetail.deleteMany({
+        where: {
+          invoiceId: id,
+        },
+      });
+
+      const result = await this.prisma.invoice.delete({
+        where: {
+          id: id,
+        },
+      });
+      return 'The invoice was deleted!';
+    } catch (error) {
+      console.error('Error deleting Invoice:', error);
+    }
+  }
+
   async update(id: any, @Body() data: any) {
     // console.log(data.InvoiceDetails);
 
