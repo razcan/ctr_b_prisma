@@ -56,84 +56,84 @@ export class AlertsController {
     return contracts;
   }
 
+  async fetchExchangeRates(): Promise<CurrencyInterface[] | null> {
+    try {
+      const response = await fetch('https://www.bnr.ro/nbrfxrates.xml');
+      const data = await response.text();
+
+      // Parse XML data
+      const result = await new Promise<any>((resolve, reject) => {
+        parseString(data, (err, result) => {
+          if (err) {
+            console.error('Error parsing XML:', err);
+            reject(err);
+          }
+          resolve(result);
+        });
+      });
+
+      // Access XML elements and attributes
+      const rates = result.DataSet.Body[0].Cube[0].Rate;
+      const atdate = result.DataSet.Body[0].Cube[0].$.date;
+      const currencyResult: CurrencyInterface[] = [];
+      rates.forEach((rate: any) => {
+        const currency = rate.$.currency;
+        let multiplier = rate.$.multiplier;
+        if (!multiplier) {
+          multiplier = 1;
+        }
+        const value = rate._;
+        const toAdd: CurrencyInterface = {
+          date: atdate,
+          amount: parseFloat(value),
+          name: currency,
+          multiplier: '1',
+        };
+        currencyResult.push(toAdd);
+      });
+      console.log(currencyResult);
+
+      const dateObject = new Date();
+      const dateOnlyString = dateObject.toISOString().split('T')[0];
+
+      const ins = await this.prisma.exchangeRatesBNR.findFirst({
+        where: {
+          date: dateOnlyString,
+        },
+      });
+
+      if (ins && ins.date !== undefined && ins.amount !== null) {
+        // Property exists and has a non-null value
+        console.log('we already have the foreign exchanges');
+      } else {
+        // Property does not exist or has a null value
+        for (let i = 0; i < currencyResult.length; i++) {
+          await this.prisma.exchangeRatesBNR.create({
+            data: {
+              date: currencyResult[i].date,
+              amount: currencyResult[i].amount,
+              name: currencyResult[i].name,
+              multiplier: currencyResult[i].multiplier,
+            },
+          });
+        }
+      }
+
+      return currencyResult;
+    } catch (error) {
+      console.error('Error fetching XML:', error);
+      return null;
+    }
+  }
+
   // @Cron(CronExpression.EVERY_30_SECONDS)
-  //   async fetchExchangeRates(): Promise<CurrencyInterface[] | null> {
-  //     try {
-  //       const response = await fetch('https://www.bnr.ro/nbrfxrates.xml');
-  //       const data = await response.text();
+  @Get('bnr')
+  async exampleUsage() {
+    const exchangeRates = await this.fetchExchangeRates();
+    return exchangeRates;
+  }
 
-  //       // Parse XML data
-  //       const result = await new Promise<any>((resolve, reject) => {
-  //         parseString(data, (err, result) => {
-  //           if (err) {
-  //             console.error('Error parsing XML:', err);
-  //             reject(err);
-  //           }
-  //           resolve(result);
-  //         });
-  //       });
-
-  //       // Access XML elements and attributes
-  //       const rates = result.DataSet.Body[0].Cube[0].Rate;
-  //       const atdate = result.DataSet.Body[0].Cube[0].$.date;
-  //       const currencyResult: CurrencyInterface[] = [];
-  //       rates.forEach((rate: any) => {
-  //         const currency = rate.$.currency;
-  //         let multiplier = rate.$.multiplier;
-  //         if (!multiplier) {
-  //           multiplier = 1;
-  //         }
-  //         const value = rate._;
-  //         const toAdd: CurrencyInterface = {
-  //           date: atdate,
-  //           amount: parseFloat(value),
-  //           name: currency,
-  //           multiplier: parseString(multiplier),
-  //         };
-  //         currencyResult.push(toAdd);
-  //       });
-  //       console.log(currencyResult);
-
-  //       const dateObject = new Date();
-  //       const dateOnlyString = dateObject.toISOString().split('T')[0];
-
-  //       const ins = await this.prisma.exchangeRatesBNR.findFirst({
-  //         where: {
-  //           date: dateOnlyString,
-  //         },
-  //       });
-
-  //       if (ins && ins.date !== undefined && ins.amount !== null) {
-  //         // Property exists and has a non-null value
-  //         console.log('we already have the foreign exchanges');
-  //       } else {
-  //         // Property does not exist or has a null value
-  //         for (let i = 0; i < currencyResult.length; i++) {
-  //           await this.prisma.exchangeRatesBNR.create({
-  //             data: {
-  //               date: currencyResult[i].date,
-  //               amount: currencyResult[i].amount,
-  //               name: currencyResult[i].name,
-  //               multiplier: currencyResult[i].multiplier,
-  //             },
-  //           });
-  //         }
-  //       }
-
-  //       return currencyResult;
-  //     } catch (error) {
-  //       console.error('Error fetching XML:', error);
-  //       return null;
-  //     }
-  //   }
-
-  //   @Get('bnr')
-  //   async exampleUsage() {
-  //     const exchangeRates = await this.fetchExchangeRates();
-  //     return exchangeRates;
-  //   }
-
-  // @Cron('0 */30 9-11 * * *')
+  @Cron('0 */30 9-11 * * *')
   // @Cron('0 */1 9-15 * * *')
   getExchangeForEUR(): any {
     BNR.getRates(async (err, rates) => {
