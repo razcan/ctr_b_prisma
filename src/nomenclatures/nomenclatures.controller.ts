@@ -633,6 +633,12 @@ export class NomenclaturesController {
     return result;
   }
 
+  @Get('invoiceType')
+  async getInvoiceType(): Promise<any> {
+    const result = this.prisma.invoiceType.findMany({});
+    return result;
+  }
+
   @Get('documentseriesbytypeandseries/:documentTypeId/:id')
   async getDocSeriesByDocTypeIdandSerieId(
     @Param('documentTypeId') documentTypeId: any,
