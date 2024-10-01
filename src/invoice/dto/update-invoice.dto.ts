@@ -18,4 +18,5 @@ eqvTotalAmount?: number;
 eqvVatAmount?: number;
 eqvTotalPayment?: number;
 vatOnReceipt?: boolean;
+parentId?: number;
 }

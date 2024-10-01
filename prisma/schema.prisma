@@ -1,7 +1,9 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 // Apply migrations to your database to ensure schema consistency:
 // npx prisma migrate dev --name init
+
 // Clean up the old generated DTO files to ensure no outdated files remain:
 // rm -rf src/dto/*
 
@@ -14,6 +16,20 @@
 // si de adaugat in package.json   "type": "module",
 //erori https://www.prisma.io/docs/orm/reference/error-reference#error-codes
 
+//generator nestjsDto {
+//  provider                        = "prisma-generator-nestjs-dto"
+//  output                          = "../src"
+//  outputToNestJsResourceStructure = "true"
+//  // exportRelationModifierClasses   = "true"
+//  // reExport                        = "true"
+//}
+
+
+//generator client {
+//  provider      = "prisma-client-js"
+//  binaryTargets = ["native", "darwin", "debian-openssl-3.0.x"]
+//}
+
 generator nestjsDto {
   provider                        = "prisma-generator-nestjs-dto"
   output                          = "../src"
@@ -22,10 +38,8 @@ generator nestjsDto {
   // reExport                        = "true"
 }
 
-
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "darwin", "debian-openssl-3.0.x"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -832,6 +846,7 @@ model Invoice {
   eqvVatAmount      Float
   eqvTotalPayment   Float
   vatOnReceipt      Boolean
+  parentId          Int?           @default(0)
 }
 
 model InvoiceDetail {
