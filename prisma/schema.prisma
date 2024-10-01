@@ -832,7 +832,6 @@ model Invoice {
   eqvVatAmount      Float
   eqvTotalPayment   Float
   vatOnReceipt      Boolean
-  parentId          @default(null)
 }
 
 model InvoiceDetail {
