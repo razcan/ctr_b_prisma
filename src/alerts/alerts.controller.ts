@@ -55,6 +55,7 @@ export class AlertsController {
     });
     return contracts;
   }
+  //ccc//
 
   async fetchExchangeRates(): Promise<CurrencyInterface[] | null> {
     try {
