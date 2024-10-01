@@ -653,6 +653,21 @@ export class NomenclaturesController {
     return result;
   }
 
+  @Get('documentseriesbyInvTypeEntityId/:invTypeId/:entityId')
+  async documentseriesbyInvTypeEntityId(
+    @Param('invTypeId') invTypeId: any,
+    @Param('entityId') entityId: any,
+  ): Promise<any> {
+    const result = this.prisma.documentSeries.findFirst({
+      where: {
+        documentTypeId: parseInt(invTypeId),
+        entityId: parseInt(entityId),
+        isActive: true,
+      },
+    });
+    return result;
+  }
+
   @Patch('documentseriesbytypeandseries/:documentTypeId/:id')
   async patchDocSeriesByDocTypeIdandSerieId(
     @Param('documentTypeId') documentTypeId: any,

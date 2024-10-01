@@ -20,7 +20,7 @@ export class InvoiceService {
       },
     });
 
-    const result = this.prisma.documentSeries.updateMany({
+    const result = this.prisma.documentSeries.update({
       data: {
         last_number: actual_nr.last_number + 1,
       },
@@ -87,6 +87,7 @@ export class InvoiceService {
       const resultDetails = await this.prisma.invoiceDetail.createMany({
         data: details,
       });
+
       this.patchDocSeriesByDocTypeIdandSerieId(header.typeId, header.seriesId);
 
       return result;
