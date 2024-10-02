@@ -941,6 +941,22 @@ export class NomenclaturesController {
     return partner;
   }
 
+  @Get('entitybyId/:entityId')
+  async getentitybyId(@Param('entityId') entityId: any) {
+    const partner = await this.prisma.partners.findUnique({
+      include: {
+        Address: true,
+      },
+      where: {
+        type: {
+          in: ['Entitate'],
+        },
+        id: parseInt(entityId),
+      },
+    });
+    return partner;
+  }
+
   @Get('allparties')
   async getAllParties() {
     const partner = await this.prisma.partners.findMany({});

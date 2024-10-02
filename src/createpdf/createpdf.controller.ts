@@ -11,6 +11,7 @@ import {
 import { CreatepdfService } from './createpdf.service';
 import { CreateCreatepdfDto } from './dto/create-createpdf.dto';
 import { UpdateCreatepdfDto } from './dto/update-createpdf.dto';
+import fontkit from '@pdf-lib/fontkit'; // Import fontkit
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -28,6 +29,8 @@ export class CreatepdfController {
   @Post('file')
   async createPDF(@Body() createCreatepdfDto: CreateCreatepdfDto) {
     const pdfDoc = await PDFDocument.create();
+    pdfDoc.registerFontkit(fontkit);
+
     const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
 
     const page = pdfDoc.addPage();
@@ -65,12 +68,30 @@ export class CreatepdfController {
     return `${year}-${month}-${day}`;
   }
 
+  // Format the number with commas as thousand separators
+  formatNumber(number: number) {
+    const formattedNumber = new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2, // Ensure two decimal places
+      maximumFractionDigits: 2, // Prevent extra decimal places
+    }).format(number);
+    return formattedNumber;
+  }
+
   @Post('invoice')
   async findAll3(@Body() all_data: any[], @Res() res: Response) {
     const data = all_data[0];
+    // console.log(all_data[0], all_data[1], 'data');
 
     // Create a new PDF document
     const pdfDoc = await PDFDocument.create();
+    pdfDoc.registerFontkit(fontkit);
+
+    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold); // Load a bold font
+    const regularFont = await pdfDoc.embedFont(StandardFonts.Helvetica); // Load a regular font
+    const romanianFont = fs.readFileSync(
+      '/Users/razvanmustata/Projects/contracts/backend/src/createpdf/fonts/Roboto/Roboto-Black.ttf',
+    ); // Load your font file
+    const customFont = await pdfDoc.embedFont(romanianFont);
 
     // Add a page to the document
     // const page = pdfDoc.addPage([600, 400]);
@@ -104,102 +125,223 @@ export class CreatepdfController {
 
       // Set up fonts
       const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+      const font_size = 12;
+      const x_size = 150;
 
-      // Draw text
+      // Build the dynamic path based on the provided image name
+      const imagePath = path.join(
+        __dirname,
+        '..',
+        'Uploads',
+        data.entity_picture,
+      );
+      const finalPath = imagePath.replace('dist/', '');
+
+      const imageBytes = fs.readFileSync(
+        finalPath,
+        // '/Users/razvanmustata/Projects/contracts/backend/Uploads/logo-1717750739986-367764145.jpeg',
+      ); // Load your image file
+
+      // Embed the image in the PDF document
+      // const pngImage = await pdfDoc.embedPng(imageBytes); // Use `embedPng` for PNG images
+      const jpegImage = await pdfDoc.embedJpg(imageBytes); // Use `embedJpg` for JPG images
+
+      // Get the dimensions of the image
+      const imageDims = jpegImage.scale(0.3); // Scale the image (optional)
+
+      // Draw the image on the page at the specified location (x, y)
+      page.drawImage(jpegImage, {
+        x: 20,
+        y: 740,
+        width: 100, // Fixed width
+        height: 50, // Fixed height
+      });
+
       page.drawText('Factura Fiscala', {
-        x: 400,
+        x: x_size,
         y: 820,
         size: 16,
-        font,
-        color: rgb(0, 0, 0),
+        font: customFont,
+        color: rgb(0.6, 0.6, 0.6),
       });
-      page.drawText(`Total de plata: ${data.totalPayment}`, {
-        x: 400,
+
+      //entity
+      page.drawText(`${data.entity_name}`, {
+        x: x_size,
         y: 780,
-        size: 12,
-        font,
+        size: font_size,
+        font: customFont,
+      });
+      page.drawText(`CIF: ${data.entity_fiscal_reg}`, {
+        x: x_size,
+        y: 770,
+        size: font_size,
+        font: customFont,
+      });
+      page.drawText(`Reg. Com.: ${data.entity_commercial_reg}`, {
+        x: x_size,
+        y: 760,
+        size: font_size,
+        font: customFont,
+      });
+      page.drawText(`Adresa: ${data.entity_address}`, {
+        x: x_size,
+        y: 750,
+        size: font_size,
+        font: customFont,
+      });
+      //entity
+
+      page.drawText(`Numar: ${data.serialNumber}`, {
+        x: 440,
+        y: 780,
+        size: font_size,
+        font: customFont,
       });
       page.drawText(`Data: ${this.getFormatDate(data.date)}`, {
-        x: 400,
-        y: 760,
-        size: 12,
-        font,
+        x: 440,
+        y: 770,
+        size: font_size,
+        font: customFont,
       });
-      page.drawText(`Numar: ${data.number}`, {
-        x: 400,
-        y: 740,
-        size: 12,
-        font,
+      page.drawText(`Scadenta: ${this.getFormatDate(data.duedate)}`, {
+        x: 440,
+        y: 760,
+        size: font_size,
+        font: customFont,
       });
 
-      // // Draw table details
-      page.drawText('#', { x: 10, y: 700, size: 10, font });
-      page.drawText('Articol', { x: 20, y: 700, size: 10, font });
-      page.drawText('UM', { x: 400, y: 700, size: 10, font });
-      page.drawText('Cantitate', { x: 440, y: 700, size: 10, font });
-      page.drawText('Pret', { x: 500, y: 700, size: 10, font });
-      page.drawText('Valoare', { x: 520, y: 700, size: 10, font });
+      page.drawText(`Moneda: ${this.getFormatDate(data.duedate)}`, {
+        x: 440,
+        y: 750,
+        size: font_size,
+        font: customFont,
+      });
 
       page.drawLine({
-        start: { x: 10, y: 690 },
-        end: { x: 590, y: 690 },
-        thickness: 2,
-        color: rgb(0.42, 0.102, 0.58),
-        opacity: 0.75,
+        start: { x: 10, y: 720 },
+        end: { x: 590, y: 720 },
+        thickness: 1,
+        color: rgb(0, 0, 0),
+        opacity: 0.2,
+      });
+
+      page.drawText(`Client: ${data.partner_name}`, {
+        x: 10,
+        y: 700,
+        size: font_size,
+        font: customFont,
+      });
+
+      page.drawText(`Adresa: ${data.partner_address}`, {
+        x: 10,
+        y: 690,
+        size: font_size,
+        font: customFont,
+      });
+
+      page.drawText(`Cif: ${data.partner_fiscal_reg}`, {
+        x: 10,
+        y: 680,
+        size: font_size,
+        font: customFont,
+      });
+      page.drawText(`Reg. Com.: ${data.partner_commercial_reg}`, {
+        x: 10,
+        y: 670,
+        size: font_size,
+        font: customFont,
+      });
+
+      const yy_size = 640;
+      // // Draw table details
+      page.drawText('#', { x: 10, y: yy_size, size: 10, font });
+      page.drawText('Articol', { x: 24, y: yy_size, size: 10, font });
+      page.drawText('UM', { x: 260, y: yy_size, size: 10, font });
+      page.drawText('Cantitate', { x: 320, y: yy_size, size: 10, font });
+      page.drawText('Pret', { x: 380, y: yy_size, size: 10, font });
+      page.drawText('TVA', { x: 440, y: yy_size, size: 10, font });
+      page.drawText('Total', { x: 500, y: yy_size, size: 10, font });
+
+      page.drawLine({
+        start: { x: 10, y: 630 },
+        end: { x: 590, y: 630 },
+        thickness: 1,
+        color: rgb(0, 0, 0),
+        opacity: 0.2,
       });
 
       let y_details = 0;
       // // Draw table content
       all_data[1].forEach((item: any, index: number) => {
-        const y = 670 - index * 20;
-        page.drawText((1 + index).toString(), { x: 10, y, size: 10, font });
-        page.drawText(item.itemId.name, { x: 20, y, size: 10, font });
-        page.drawText(item.itemId.measuringUnit.name, {
-          x: 400,
+        const y = 610 - index * 20;
+        page.drawText((1 + index).toString() + '. ', {
+          x: 10,
           y,
-          size: 10,
-          font,
+          size: font_size,
+          font: customFont,
         });
-        page.drawText(item.qtty.toString(), {
+
+        page.drawText(item.itemId.name, {
+          x: 24,
+          y,
+          size: font_size,
+          font: customFont,
+        });
+
+        page.drawText(item.itemId.measuringUnit.name, {
+          x: 260,
+          y,
+          size: font_size,
+          font: customFont,
+        });
+        page.drawText(this.formatNumber(item.qtty).toString(), {
+          x: 320,
+          y,
+          size: font_size,
+          font: customFont,
+        });
+        page.drawText(this.formatNumber(item.price).toString(), {
+          x: 380,
+          y,
+          size: font_size,
+          font: customFont,
+        });
+        page.drawText(this.formatNumber(item.vatAmount).toString(), {
           x: 440,
           y,
-          size: 10,
-          font,
+          size: font_size,
+          font: customFont,
         });
-        page.drawText(item.price.toString(), {
+        page.drawText(this.formatNumber(item.totalValue).toString(), {
           x: 500,
           y,
-          size: 10,
-          font,
+          size: font_size,
+          font: customFont,
         });
-        page.drawText(item.lineValue.toString(), {
-          x: 520,
-          y,
-          size: 10,
-          font,
-        });
-        y_details = y - 40;
+        y_details = y - 60;
       });
 
-      page.drawText(`Total valoare: ${data.totalAmount}`, {
-        x: 400,
+      const x_val = 400;
+      page.drawText(`Total valoare: ${this.formatNumber(data.totalAmount)}`, {
+        x: x_val,
         y: y_details,
         size: 12,
-        font,
+        font: customFont,
         color: rgb(0.42, 0.102, 0.58),
       });
-      page.drawText(`Total TVA: ${data.vatAmount}`, {
-        x: 400,
+      page.drawText(`Total TVA: ${this.formatNumber(data.vatAmount)}`, {
+        x: x_val,
         y: y_details - 20,
         size: 12,
-        font,
+        font: customFont,
         color: rgb(0.42, 0.102, 0.58),
       });
-      page.drawText(`Total : ${data.totalPayment}`, {
-        x: 400,
+      page.drawText(`Total : ${this.formatNumber(data.totalPayment)}`, {
+        x: x_val,
         y: y_details - 40,
         size: 12,
-        font,
+        font: customFont,
         color: rgb(0.42, 0.102, 0.58),
       });
     }
