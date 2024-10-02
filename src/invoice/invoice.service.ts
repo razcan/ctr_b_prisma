@@ -64,6 +64,7 @@ export class InvoiceService {
       eqvVatAmount: data.eqvVatAmount,
       eqvTotalPayment: data.eqvTotalPayment,
       vatOnReceipt: data.vatOnReceipt,
+      parentId: data.parentId,
     };
 
     const details = [];
