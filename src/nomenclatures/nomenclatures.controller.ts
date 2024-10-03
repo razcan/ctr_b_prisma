@@ -633,6 +633,20 @@ export class NomenclaturesController {
     return result;
   }
 
+  @Get('documentseriesByTypeIdEntityId/:documentTypeId/:entityId')
+  async documentseriesByTypeIdEntityId(
+    @Param('documentTypeId') documentTypeId: any,
+    @Param('entityId') entityId: any,
+  ): Promise<any> {
+    const result = this.prisma.documentSeries.findMany({
+      where: {
+        documentTypeId: parseInt(documentTypeId),
+        entityId: parseInt(entityId),
+      },
+    });
+    return result;
+  }
+
   @Get('invoiceType')
   async getInvoiceType(): Promise<any> {
     const result = this.prisma.invoiceType.findMany({});

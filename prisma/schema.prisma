@@ -2,6 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 // Apply migrations to your database to ensure schema consistency:
+
 // npx prisma migrate dev --name init
 
 // Clean up the old generated DTO files to ensure no outdated files remain:
@@ -11,6 +12,7 @@
 // npx prisma generate
 
 //  npx prisma studio   
+
 // https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding
 //node seed.js
 // si de adaugat in package.json   "type": "module",
@@ -847,6 +849,8 @@ model Invoice {
   eqvTotalPayment   Float
   vatOnReceipt      Boolean
   parentId          Int?           @default(0)
+
+  @@unique([entityId, seriesId, number])
 }
 
 model InvoiceDetail {
