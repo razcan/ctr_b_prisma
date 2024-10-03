@@ -555,6 +555,8 @@ export class ContractsController {
 
     const Receipts2 = rec.map((item) => parseFloat(item.billingvalue));
 
+    console.log(rec, Receipts2, 'Incasari');
+
     const pay: any[] = [];
 
     for (let i = month; i <= maxMonth; i++) {
@@ -573,6 +575,8 @@ export class ContractsController {
     final.push(Payments2);
     final.push(month);
     final.push(maxMonth);
+
+    console.log(final, 'final');
 
     return final;
   }
