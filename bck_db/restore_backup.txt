@@ -1,0 +1,4 @@
+
+1. delete the actual db
+2. create a Contracts db
+3. restore the backup db :psql -U razvan -d Contracts -f backup_20240610_100000.sql -p 5433

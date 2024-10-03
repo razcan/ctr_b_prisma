@@ -128,35 +128,54 @@ export class CreatepdfController {
       const font_size = 12;
       const x_size = 150;
 
-      // Build the dynamic path based on the provided image name
-      const imagePath = path.join(
-        __dirname,
-        '..',
-        'Uploads',
-        data.entity_picture,
-      );
-      const finalPath = imagePath.replace('dist/', '');
+      // console.log(data.entity_picture, 'sss');
+      // console.log(typeof data.entity_picture, 'tip');
+      const entityPicture = data.entity_picture;
 
-      const imageBytes = fs.readFileSync(
-        finalPath,
-        // '/Users/razvanmustata/Projects/contracts/backend/Uploads/logo-1717750739986-367764145.jpeg',
-      ); // Load your image file
+      console.log(entityPicture, 'valoare', typeof entityPicture);
 
-      // Embed the image in the PDF document
-      // const pngImage = await pdfDoc.embedPng(imageBytes); // Use `embedPng` for PNG images
-      const jpegImage = await pdfDoc.embedJpg(imageBytes); // Use `embedJpg` for JPG images
+      if (
+        entityPicture === null ||
+        entityPicture === undefined ||
+        entityPicture === 'null'
+      ) {
+        // This block will execute if entityPicture is null, undefined, or the string 'null'
+        console.log('entityPicture is null, undefined, or the string "null"');
+      } else if (entityPicture !== '') {
+        // This block will execute if entityPicture is NOT an empty string
+        console.log('entityPicture is not an empty string');
 
-      // Get the dimensions of the image
-      const imageDims = jpegImage.scale(0.3); // Scale the image (optional)
+        // Build the dynamic path based on the provided image name
+        const imagePath = path.join(
+          __dirname,
+          '..',
+          'Uploads',
+          data.entity_picture,
+        );
+        const finalPath = imagePath.replace('dist/', '');
 
-      // Draw the image on the page at the specified location (x, y)
-      page.drawImage(jpegImage, {
-        x: 20,
-        y: 740,
-        width: 100, // Fixed width
-        height: 50, // Fixed height
-      });
+        const imageBytes = fs.readFileSync(
+          finalPath,
+          // '/Users/razvanmustata/Projects/contracts/backend/Uploads/logo-1717750739986-367764145.jpeg',
+        ); // Load your image file
 
+        // Embed the image in the PDF document
+        // const pngImage = await pdfDoc.embedPng(imageBytes); // Use `embedPng` for PNG images
+        const jpegImage = await pdfDoc.embedJpg(imageBytes); // Use `embedJpg` for JPG images
+
+        // Get the dimensions of the image
+        const imageDims = jpegImage.scale(0.3); // Scale the image (optional)
+
+        // Draw the image on the page at the specified location (x, y)
+        page.drawImage(jpegImage, {
+          x: 20,
+          y: 740,
+          width: 100, // Fixed width
+          height: 50, // Fixed height
+        });
+      }
+
+ 
       page.drawText('Factura Fiscala', {
         x: x_size,
         y: 820,
