@@ -288,7 +288,7 @@ export class AlertsController {
 
   //sa se modifice starea ctr automat cand acestea expira si sa se trimita alerta
 
-  // @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_10_SECONDS)
   PopulateAlertContractsCronId2() {
     const allcontracts = this.findAllContracts();
 
@@ -337,7 +337,7 @@ export class AlertsController {
     });
   }
 
-  // @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_10_MINUTES)
   PopulateAlertContractsCronId1() {
     const allcontracts = this.findAllContracts();
 
@@ -659,7 +659,7 @@ export class AlertsController {
   }
 
   // @Cron(CronExpression.EVERY_10_HOURS)
-  // @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   // @Cron(CronExpression.EVERY_5_SECONDS)
   async handleCron() {
     const allcontracts = await this.findAllContracts();
@@ -801,7 +801,7 @@ export class AlertsController {
   }
 
   // expirare contracte
-  // @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   // @Cron(CronExpression.EVERY_DAY_AT_10AM)
   async handleCronExpired() {
     const allcontracts = await this.findAllContracts();
@@ -950,7 +950,7 @@ export class AlertsController {
   }
 
   //reminder contract task alerts
-  // @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   // @Cron(CronExpression.EVERY_DAY_AT_10AM)
   async handleCronTaskReminder() {
     const res = await this.prisma.contractTasks.findMany({

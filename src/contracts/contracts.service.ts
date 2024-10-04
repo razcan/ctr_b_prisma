@@ -12,123 +12,127 @@ export class ContractsService {
   constructor(private prisma: PrismaService) {}
 
   // @Cron(CronExpression.EVERY_5_SECONDS)
-  // async Parser(): Promise<any> {
+  async Parser(): Promise<any> {
+    const all_wf = await this.prisma.workFlowRules.findMany({
+      where: {
+        workflow: {
+          status: true,
+        },
+      },
+      include: {
+        workflow: true,
+      },
+    });
 
-  //   const all_wf = await this.prisma.workFlowRules.findMany({
-  //     where: {
-  //       workflow: {
-  //         status: true
-  //       }
-  //     },
-  //     include: {
-  //       workflow: true
-  //     }
-  //   });
+    const resultwf = [];
 
-  //   const resultwf = [];
+    all_wf.map((wf) => {
+      const add = wf.workflowId;
+      resultwf.push(add);
+    });
 
-  //   all_wf.map((wf) => {
-  //     const add = wf.workflowId
-  //     resultwf.push(add)
-  //   })
+    const uniqueWf = [...new Set(resultwf)];
+    //un array cu wf-urile unice active
+    // console.log(uniqueWf)
 
-  //   const uniqueWf = [...new Set(resultwf)];
-  //   //un array cu wf-urile unice active
-  //   // console.log(uniqueWf)
+    function getDistinctElements(array: any[]): any[] {
+      return array.filter((element, index, self) => {
+        return (
+          index ===
+          self.findIndex(
+            (t) =>
+              t[0] === element[0] && t[1] === element[1] && t[2] === element[2],
+          )
+        );
+      });
+    }
 
-  //   function getDistinctElements(array: any[]): any[] {
-  //     return array.filter((element, index, self) => {
-  //       return index === self.findIndex((t) => (
-  //         t[0] === element[0] && t[1] === element[1] && t[2] === element[2]
-  //       ));
-  //     });
-  //   }
+    interface rule {
+      workflowId?: number;
+      departments?: number[];
+      categories?: number[];
+      cashflows?: number[];
+      costcenters?: number[];
+    }
 
-  //   interface rule {
-  //     workflowId?: number,
-  //     departments?: number[],
-  //     categories?: number[],
-  //     cashflows?: number[],
-  //     costcenters?: number[]
-  //   }
+    const x = [];
 
-  //   const x = [];
+    uniqueWf.map((wfid) => {
+      x.push(wfid);
+    });
 
-  //   uniqueWf.map(
-  //     (wfid) => {
-  //       x.push(wfid)
-  //     }
-  //   )
+    const xxx: any[] = [];
+    for (let i = 0; i < x.length; i++) {
+      const all_categ_data_filters = await this.prisma.workFlowRules.findMany({
+        where: {
+          workflowId: x[i],
+          ruleFilterSource: 'categories',
+        },
+      });
 
-  //   const xxx: any[] = []
-  //   for (let i = 0; i < x.length; i++) {
+      const all_cc_data_filters = await this.prisma.workFlowRules.findMany({
+        where: {
+          workflowId: x[i],
+          ruleFilterSource: 'costcenters',
+        },
+      });
 
-  //     const all_categ_data_filters = await this.prisma.workFlowRules.findMany({
-  //       where: {
-  //         workflowId: x[i],
-  //         ruleFilterSource: "categories"
-  //       }
-  //     })
+      const all_cf_data_filters = await this.prisma.workFlowRules.findMany({
+        where: {
+          workflowId: x[i],
+          ruleFilterSource: 'cashflows',
+        },
+      });
 
-  //     const all_cc_data_filters = await this.prisma.workFlowRules.findMany({
-  //       where: {
-  //         workflowId: x[i],
-  //         ruleFilterSource: "costcenters"
-  //       }
-  //     })
+      const all_dep_data_filters = await this.prisma.workFlowRules.findMany({
+        where: {
+          workflowId: x[i],
+          ruleFilterSource: 'departments',
+        },
+      });
 
-  //     const all_cf_data_filters = await this.prisma.workFlowRules.findMany({
-  //       where: {
-  //         workflowId: x[i],
-  //         ruleFilterSource: "cashflows"
-  //       }
-  //     })
+      const all_categories = [];
+      all_categ_data_filters.map((dep) => {
+        const add = dep.ruleFilterValue;
+        all_categories.push(x[i], 'categories', add);
+      });
+      const all_unique_categ_data_filters = [...new Set(all_categories)];
 
-  //     const all_dep_data_filters = await this.prisma.workFlowRules.findMany({
-  //       where: {
-  //         workflowId: x[i],
-  //         ruleFilterSource: "departments"
-  //       }
-  //     })
+      const all_costcenter = [];
+      all_cc_data_filters.map((dep) => {
+        const add = dep.ruleFilterValue;
+        all_costcenter.push(x[i], 'costcenters', add);
+      });
+      const all_unique_cc_data_filters = [...new Set(all_costcenter)];
 
-  //     const all_categories = [];
-  //     all_categ_data_filters.map((dep) => {
-  //       const add = dep.ruleFilterValue
-  //       all_categories.push(x[i], "categories", add)
-  //     })
-  //     const all_unique_categ_data_filters = [...new Set(all_categories)];
+      const all_cashflow = [];
+      all_cf_data_filters.map((dep) => {
+        const add = dep.ruleFilterValue;
+        all_cashflow.push(x[i], 'cashflows', add);
+      });
+      const all_unique_cf_data_filters = [...new Set(all_cashflow)];
 
-  //     const all_costcenter = [];
-  //     all_cc_data_filters.map((dep) => {
-  //       const add = dep.ruleFilterValue
-  //       all_costcenter.push(x[i], "costcenters", add)
-  //     })
-  //     const all_unique_cc_data_filters = [...new Set(all_costcenter)];
+      const all_departments = [];
+      all_dep_data_filters.map((dep) => {
+        const add = dep.ruleFilterValue;
+        all_departments.push(x[i], 'departments', add);
+      });
+      const all_unique_dep_data_filters = [...new Set(all_departments)];
 
-  //     const all_cashflow = [];
-  //     all_cf_data_filters.map((dep) => {
-  //       const add = dep.ruleFilterValue
-  //       all_cashflow.push(x[i], "cashflows", add)
-  //     })
-  //     const all_unique_cf_data_filters = [...new Set(all_cashflow)];
+      xxx.push(
+        ...xxx,
+        all_unique_categ_data_filters,
+        all_unique_cc_data_filters,
+        all_unique_cf_data_filters,
+        all_unique_dep_data_filters,
+      );
+    }
 
-  //     const all_departments = [];
-  //     all_dep_data_filters.map((dep) => {
-  //       const add = dep.ruleFilterValue
-  //       all_departments.push(x[i], "departments", add)
-  //     })
-  //     const all_unique_dep_data_filters = [...new Set(all_departments)];
+    const distinctElements = getDistinctElements(xxx);
+    console.log(distinctElements);
 
-  //     xxx.push(...xxx, all_unique_categ_data_filters, all_unique_cc_data_filters, all_unique_cf_data_filters, all_unique_dep_data_filters)
-
-  //   }
-
-  //   const distinctElements = getDistinctElements(xxx);
-  //   console.log(distinctElements);
-
-  //   return distinctElements;
-
-  // }
+    return distinctElements;
+  }
 
   async findContractsAvailableWf(
     departmentId?: any[],
@@ -190,128 +194,129 @@ export class ContractsService {
     });
   }
 
-  // @Cron(CronExpression.EVERY_MINUTE)
-  // // @Cron(CronExpression.EVERY_10_MINUTES)
-  // async wfactiverules() {
+  @Cron(CronExpression.EVERY_MINUTE)
+  // @Cron(CronExpression.EVERY_10_MINUTES)
+  async wfactiverules() {
+    const result1: Array<{
+      workflowid?: number;
+      costcenters?: string[];
+      departments?: string[];
+      cashflows?: string[];
+      categories?: string[];
+    }> = await this.prisma.$queryRaw(
+      Prisma.sql`SELECT * FROM public.active_wf_rulesok99()`,
+    );
 
-  //   const result1: Array<{
-  //     workflowid?: number,
-  //     costcenters?: string[],
-  //     departments?: string[],
-  //     cashflows?: string[],
-  //     categories?: string[],
+    // await this.findContractsAvailableWf(departmentIdValue, categoryIdValue, cashflowIdValue, costcenterIdValue);
 
-  //   }> = await this.prisma.$queryRaw(
-  //     Prisma.sql`SELECT * FROM public.active_wf_rulesok99()`
-  //   )
+    // const test = await this.findContractsAvailableWf([1, 2], [1, 3], [1, 4], [1, 2, 4]);
 
-  //   // await this.findContractsAvailableWf(departmentIdValue, categoryIdValue, cashflowIdValue, costcenterIdValue);
+    //alerta in cazul in care un ctr intra pe mai multe fluxuri ?
+    //p2 pregatire/inserare taskuri utilizatori workflowcontracttasks
+    //update contract status in  id =2 - asteapta aprobarea si inserat in WorkFlowXContracts cu status id 2
+    //contract task status = In curs = id =1
+    //trebuie lista separata pt wf sau se poate folosi lista de la taskuri ? putem fol aceeasi lista.
 
-  //   // const test = await this.findContractsAvailableWf([1, 2], [1, 3], [1, 4], [1, 2, 4]);
+    const final_res = result1.map((res) => {
+      if (res.costcenters.length === 0) {
+        res = { ...res, costcenters: undefined };
+      }
+      if (res.departments.length === 0) {
+        res = { ...res, departments: undefined };
+      }
+      if (res.cashflows.length === 0) {
+        res = { ...res, cashflows: undefined };
+      }
+      if (res.categories.length === 0) {
+        res = { ...res, categories: undefined };
+      }
+      return res;
+    });
 
-  //   //alerta in cazul in care un ctr intra pe mai multe fluxuri ?
-  //   //p2 pregatire/inserare taskuri utilizatori workflowcontracttasks
-  //   //update contract status in  id =2 - asteapta aprobarea si inserat in WorkFlowXContracts cu status id 2
-  //   //contract task status = In curs = id =1
-  //   //trebuie lista separata pt wf sau se poate folosi lista de la taskuri ? putem fol aceeasi lista.
+    const contracts_fin = [];
+    let externalArray = [];
 
-  //   const final_res = result1.map(res => {
-  //     if (res.costcenters.length === 0) {
-  //       res = { ...res, costcenters: undefined };
-  //     }
-  //     if (res.departments.length === 0) {
-  //       res = { ...res, departments: undefined };
-  //     }
-  //     if (res.cashflows.length === 0) {
-  //       res = { ...res, cashflows: undefined };
-  //     }
-  //     if (res.categories.length === 0) {
-  //       res = { ...res, categories: undefined };
-  //     }
-  //     return res;
-  //   });
+    const promises = final_res.map(async (rule, index) => {
+      const x = await this.findContractsAvailableWf(
+        rule.departments,
+        rule.categories,
+        rule.cashflows,
+        rule.costcenters,
+      );
+      // console.log(x, "contracte")
+      const adds = x.map(async (contract) => ({
+        contractId: contract.id,
+        ctrstatusId: 2,
+        wfstatusId: 1,
+        workflowTaskSettingsId: 0,
+        // index,
+        workflowid: rule.workflowid,
+      }));
+      return adds;
+    });
 
-  //   const contracts_fin = [];
-  //   let externalArray = [];
+    Promise.all(promises)
+      .then(async (contractArrays) => {
+        const contracts_fin = contractArrays.flat();
+        const mappedResults = contracts_fin.map(async (contract) => {
+          const result = await this.prisma.workFlowTaskSettings.findFirst({
+            select: {
+              id: true,
+            },
+            where: {
+              workflowId: (await contract).workflowid,
+            },
+          });
+          (await contract).workflowTaskSettingsId = result.id;
 
-  //   const promises = final_res.map(async (rule, index) => {
-  //     const x = await this.findContractsAvailableWf(rule.departments, rule.categories, rule.cashflows, rule.costcenters);
-  //     // console.log(x, "contracte")
-  //     const adds = x.map(async contract => ({
-  //       contractId: contract.id,
-  //       ctrstatusId: 2,
-  //       wfstatusId: 1,
-  //       workflowTaskSettingsId: 0,
-  //       // index,
-  //       workflowid: rule.workflowid
-  //     }));
-  //     return adds;
-  //   });
+          return contract;
+        });
 
-  //   Promise.all(promises)
-  //     .then(async contractArrays => {
-  //       const contracts_fin = contractArrays.flat();
-  //       const mappedResults = contracts_fin.map(async (contract) => {
-  //         const result = await this.prisma.workFlowTaskSettings.findFirst({
-  //           select: {
-  //             id: true
-  //           },
-  //           where: {
-  //             workflowId: (await contract).workflowid
-  //           },
-  //         });
-  //         (await contract).workflowTaskSettingsId = result.id
+        // If you need to wait for all the mapped results to resolve:
+        const finalResults = await Promise.all(mappedResults);
+        externalArray = finalResults;
+        // console.log(externalArray, "externalArray inside")
+        return finalResults;
+      })
+      .then(async (fin) => {
+        // console.log("externalArray outside", externalArray)
+        const uniqueValues = Array.from(new Set(externalArray));
+        // console.log(uniqueValues, "uniqueValues", uniqueValues.length);
+        // console.log(externalArray.length, "dim array")
+        for (let i = 0; i < uniqueValues.length; i++) {
+          //daca  exista combinatia(contractId,workflowTaskSettingsId), nu se face insert
+          const y = await this.prisma.workFlowXContracts.findFirst({
+            where: {
+              contractId: uniqueValues[i].contractId,
+              workflowTaskSettingsId: uniqueValues[i].workflowTaskSettingsId,
+            },
+          });
+          if (y) {
+            // console.log("exista");
+          } else {
+            //daca nu exista combinatia(contractId,workflowTaskSettingsId), se face insert
+            // console.log("nu exista, se face insert");
+            const x = await this.prisma.workFlowXContracts.create({
+              data: {
+                contractId: uniqueValues[i].contractId,
+                wfstatusId: uniqueValues[i].wfstatusId,
+                ctrstatusId: uniqueValues[i].ctrstatusId,
+                workflowTaskSettingsId: uniqueValues[i].workflowTaskSettingsId,
+              },
+            });
+            const result1 = await this.prisma.$queryRaw(
+              Prisma.sql`SELECT remove_duplicates_from_table2()`,
+            );
+            // return result1;
+          }
+        }
+      })
+      .catch((error) => {
+        console.error('Error occurred:', error);
+      });
 
-  //         return contract;
-  //       });
-
-  //       // If you need to wait for all the mapped results to resolve:
-  //       const finalResults = await Promise.all(mappedResults);
-  //       externalArray = finalResults;
-  //       // console.log(externalArray, "externalArray inside")
-  //       return finalResults;
-  //     }).then(async fin => {
-  //       // console.log("externalArray outside", externalArray)
-  //       const uniqueValues = Array.from(new Set(externalArray));
-  //       // console.log(uniqueValues, "uniqueValues", uniqueValues.length);
-  //       // console.log(externalArray.length, "dim array")
-  //       for (let i = 0; i < uniqueValues.length; i++) {
-  //         //daca  exista combinatia(contractId,workflowTaskSettingsId), nu se face insert
-  //         const y = await this.prisma.workFlowXContracts.findFirst({
-  //           where: {
-  //             contractId: uniqueValues[i].contractId,
-  //             workflowTaskSettingsId: uniqueValues[i].workflowTaskSettingsId
-  //           }
-  //         })
-  //         if (y) {
-  //           // console.log("exista");
-  //         }
-  //         else {
-  //           //daca nu exista combinatia(contractId,workflowTaskSettingsId), se face insert
-  //           // console.log("nu exista, se face insert");
-  //           const x = await this.prisma.workFlowXContracts.create({
-  //             data:
-  //             {
-  //               contractId: uniqueValues[i].contractId,
-  //               wfstatusId: uniqueValues[i].wfstatusId,
-  //               ctrstatusId: uniqueValues[i].ctrstatusId,
-  //               workflowTaskSettingsId: uniqueValues[i].workflowTaskSettingsId,
-  //             }
-  //           })
-  //           const result1 = await this.prisma.$queryRaw(
-  //             Prisma.sql`SELECT remove_duplicates_from_table2()`
-  //           )
-  //           // return result1;
-
-  //         }
-  //       }
-  //     })
-  //     .catch(error => {
-  //       console.error('Error occurred:', error);
-  //     });
-
-  //   return contracts_fin;
-  // }
+    return contracts_fin;
+  }
 
   async getSimplifyUsersById(userId: any): Promise<any> {
     const users = await this.prisma.user.findUnique({
@@ -579,341 +584,362 @@ export class ContractsService {
     return replacedString;
   }
 
-  // async nextTasks(contractId: number) {
-  //   const nextTasks: [any] = await this.prisma.$queryRaw(
-  //     Prisma.sql`select * from public.contracttasktobegeneratedsecv(${contractId}::int4)`
-  //   )
-  //   // return nextTasks;
-  // }
+  async nextTasks(contractId: number) {
+    const nextTasks: [any] = await this.prisma.$queryRaw(
+      Prisma.sql`select * from public.contracttasktobegeneratedsecv(${contractId}::int4)`,
+    );
+    // return nextTasks;
+  }
 
-  // @Cron(CronExpression.EVERY_5_SECONDS)
-  // // @Cron(CronExpression.EVERY_10_MINUTES)
-  // // @Cron(CronExpression.EVERY_10_HOURS)
-  // async generateSecventialContractTasks() {
-
-  //   //se iau toate ctr active(ctr in stare Activ si statusWf Asteapta aprobarea) pt fluxuri Active
-  //   const result: any[] = await this.prisma.$queryRaw(Prisma.sql`SELECT * FROM cttobegeneratedsecv();`);
-  //   // console.log(result)
-  //   const res_array = [];
-
-  //   await Promise.all(result.map(async (task) => {
-
-  //     //se ia urmatorul task(supa order number) care nu este in stare Aprobat
-  //     const nextTask = await this.prisma.$queryRaw(
-  //       Prisma.sql`select * from public.contracttasktobegeneratedsecv3(${task.contractid}::int4)`
-  //     )
-  //     res_array.push(nextTask)
-  //   }));
-
-  //   const flattenedArray = res_array.flat();
-
-  //   const distinctArray = [...new Set(flattenedArray)];
-
-  //   const uniqueContractIds = new Set();
-
-  //   // Filter the array to keep only distinct elements based on contractid
-  //   const distinctElements = distinctArray.filter((obj) => {
-  //     if (uniqueContractIds.has(obj.contractid)) {
-  //       return false; // Duplicate, skip
-  //     }
-  //     uniqueContractIds.add(obj.contractid);
-  //     return true; // Unique, keep
-  //   });
-
-  //   // for (let i = 0; i < distinctElements.length; i++) {
-  //   //   console.log(distinctElements[i].contractid, "distinctElements")
-  //   // }
-
-  //   distinctElements.map(async (task) => {
-
-  //     const textReplaced = await this.replacePlaceholders(task.contractid, task.tasknotes)
-
-  //     const uuid = uuidv4();
-
-  //     const nextTask = {
-  //       contractId: task.contractid,
-  //       statusId: 2, //Asteapta aprobarea
-  //       requestorId: task.requestorid,
-  //       assignedId: task.assignedid,
-  //       workflowTaskSettingsId: task.workflowtasksettingsid,
-  //       approvalOrderNumber: task.approvalordernumber,
-  //       duedates: task.calculatedduedate,
-  //       name: task.taskname,
-  //       reminders: task.calculatedreminderdate,
-  //       taskPriorityId: task.priorityid,
-  //       text: task.tasknotes,
-  //       uuid: uuid
-  //     }
-
-  //     const ctrTask = {
-  //       taskName: task.taskname,
-  //       contractId: task.contractid,
-  //       statusId: 4,//Anulat
-  //       statusWFId: 2, //Asteapta aprobarea
-  //       requestorId: task.requestorid,
-  //       assignedId: task.assignedid,
-  //       due: task.calculatedduedate,
-  //       notes: textReplaced,
-  //       uuid: uuid,
-  //       type: 'approval_task',
-  //       taskPriorityId: task.priorityid,
-  //       rejected_reason: '',
-  //     }
-
-  //     const check = await this.prisma.workFlowContractTasks.findFirst({
-  //       where: {
-  //         contractId: task.contractid,
-  //         approvalOrderNumber: task.approvalordernumber,
-  //         workflowTaskSettingsId: task.workflowTaskSettingsId
-  //       }
-  //     })
-
-  //     // console.log(check.contractId, task.contractid, "aiciiiii")
-
-  //     if (!check) {
-
-  //       const rez = await this.prisma.workFlowContractTasks.create({
-  //         data: nextTask
-  //       });
-
-  //       const rezCtrTask = await this.prisma.contractTasks.create({
-  //         data: ctrTask
-  //       });
-
-  //       // console.log(rez, rezCtrTask)
-  //       const mailerService = new MailerService();
-
-  //       const user_assigned_email = await this.getSimplifyUsersById(task.assignedid)
-  //       const link = `http://localhost:3000/uikit/workflowstask/${nextTask.uuid}`
-  //       const inputDate = new Date(task.calculatedduedate);
-  //       const options: Intl.DateTimeFormatOptions = {
-  //         year: 'numeric',
-  //         month: 'long',
-  //         day: 'numeric'
-  //       };
-  //       const localDate = inputDate.toLocaleDateString('ro-RO', options);
-
-  //       // const to = user_assigned_email.email;
-  //       const to = 'razvan.mustata@gmail.com';
-
-  //       const approve_link = `http://localhost:3000/contracts/approveTask/${nextTask.uuid}`
-  //       const reject_link = `http://localhost:3000/contracts/rejectTask/${nextTask.uuid}`
-  //       // const bcc = user_assigned_email.email;
-  //       const bcc = 'razvan.mustata@nirogroup.ro';
-  //       const subject = task.taskname;
-  //       const text = task.tasknotes;
-  //       const html = `<!DOCTYPE html>
-  //       <html lang="en">
-  //       <head>
-  //       <meta charset="UTF-8">
-  //       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  //       <title>Email Template</title>
-  //       <style>
-  //           /* Button styles */
-  //           .button {
-  //               display: inline-block;
-  //               padding: 10px 20px;
-  //               background-color: #007bff;
-  //               color: #ffffff;
-  //               text-decoration: none;
-  //               border-radius: 5px;
-  //           }
-  //           /* Button hover effect */
-  //           .button:hover {
-  //               background-color: #0056b3;
-  //           }
-  //             .button_approve {
-  //                     display: inline-block;
-  //                     padding: 10px 20px;
-  //                     background-color: #007bff;
-  //                     color: #ffffff;
-  //                     text-decoration: none;
-  //                     border-radius: 5px;
-  //                 }
-  //             .button_reject {
-  //                     display: inline-block;
-  //                     padding: 10px 20px;
-  //                     background-color: #FF0000;
-  //                     color: #ffffff;
-  //                     text-decoration: none;
-  //                     border-radius: 5px;
-  //                 }
-  //       </style>
-  //       </head>
-  //       <body>
-
-  //         <p>${textReplaced}</p>
-
-  //           <p> Acest task trebuie aprobat pana la data: <b>${localDate}</b> </p>
-  //           <p> Acest task are prioritatea:  <b>${task.priorityname}</b></p>
-
-  //           <table border="0" cellpadding="0" cellspacing="0">
-  //               <tr>
-  //                   <td>
-  //                       <a href=${approve_link} class="button_approve">Aproba</a>
-  //                   </td>
-  //                   <td style="padding-left: 10px;">
-  //                       <a href=${reject_link} class="button_reject">Respinge</a>
-  //                   </td>
-  //               </tr>
-  //           </table>
-  //       </body>
-  //       </html>`
-
-  //       const attachments = [];
-  //       const allEmails = 'to: ' + to + ' bcc:' + bcc;
-
-  //       // console.log(to.toString(), bcc.toString(), subject, text, html, attachments)
-  //       mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
-  //         .then(() => console.log('Email sent successfully.'))
-  //         .catch(error => console.error('Error sending email:', error));
-  //     }
-
-  //   })
-  // }
-
+  @Cron(CronExpression.EVERY_5_SECONDS)
   // @Cron(CronExpression.EVERY_10_MINUTES)
   // @Cron(CronExpression.EVERY_10_HOURS)
-  // @Cron(CronExpression.EVERY_5_SECONDS)
-  // async generateParalelContractTasks() {
+  async generateSecventialContractTasks() {
+    //se iau toate ctr active(ctr in stare Activ si statusWf Asteapta aprobarea) pt fluxuri Active
+    const result: any[] = await this.prisma.$queryRaw(
+      Prisma.sql`SELECT * FROM cttobegeneratedsecv();`,
+    );
+    // console.log(result)
+    const res_array = [];
 
-  //   //get all contracts with satateId=1
-  //   const result: [any] = await this.prisma.$queryRaw(
-  //     Prisma.sql`select * from public.contractTaskToBeGeneratedok()`
-  //   )
-  //   const mailerService = new MailerService();
+    await Promise.all(
+      result.map(async (task) => {
+        //se ia urmatorul task(supa order number) care nu este in stare Aprobat
+        const nextTask = await this.prisma.$queryRaw(
+          Prisma.sql`select * from public.contracttasktobegeneratedsecv3(${task.contractid}::int4)`,
+        );
+        res_array.push(nextTask);
+      }),
+    );
 
-  //   result.map(async (task) => {
+    const flattenedArray = res_array.flat();
 
-  //     //replace placeholders
-  //     const textReplaced = await this.replacePlaceholders(task.contractid, task.tasknotes)
+    const distinctArray = [...new Set(flattenedArray)];
 
-  //     const data = {
-  //       contractId: task.contractid,
-  //       statusId: task.statusid,
-  //       requestorId: task.requestorid,
-  //       assignedId: task.assignedid,
-  //       workflowTaskSettingsId: task.workflowtasksettingsid,
-  //       approvalOrderNumber: task.approvalordernumber,
-  //       duedates: task.calculatedduedate,
-  //       name: task.taskname,
-  //       reminders: task.calculatedreminderdate,
-  //       taskPriorityId: task.priorityid,
-  //       text: textReplaced,
-  //       uuid: task.uuid
-  //     }
+    const uniqueContractIds = new Set();
 
-  //     if (task.approvaltypeinparallel) {
+    // Filter the array to keep only distinct elements based on contractid
+    const distinctElements = distinctArray.filter((obj) => {
+      if (uniqueContractIds.has(obj.contractid)) {
+        return false; // Duplicate, skip
+      }
+      uniqueContractIds.add(obj.contractid);
+      return true; // Unique, keep
+    });
 
-  //       // update contract status
-  //       const ctr_status = await this.prisma.contracts.update({
-  //         where: {
-  //           id: task.contractid
-  //         },
-  //         data: {
-  //           statusId: 2
-  //           //Asteapta aprobarea
-  //         }
-  //       })
+    // for (let i = 0; i < distinctElements.length; i++) {
+    //   console.log(distinctElements[i].contractid, "distinctElements")
+    // }
 
-  //       const result = await this.prisma.workFlowContractTasks.create({
-  //         data,
-  //       });
-  //     }
+    distinctElements.map(async (task) => {
+      const textReplaced = await this.replacePlaceholders(
+        task.contractid,
+        task.tasknotes,
+      );
 
-  //     //send notification emails
-  //     const user_assigned_email = await this.getSimplifyUsersById(task.assignedid)
-  //     const link = `http://localhost:3000/uikit/workflowstask/${task.uuid}`
-  //     const inputDate = new Date(task.calculatedduedate);
-  //     const options: Intl.DateTimeFormatOptions = {
-  //       year: 'numeric',
-  //       month: 'long',
-  //       day: 'numeric'
-  //     };
-  //     const localDate = inputDate.toLocaleDateString('ro-RO', options);
+      const uuid = uuidv4();
 
-  //     // const to = user_assigned_email.email;
-  //     const to = 'razvan.mustata@gmail.com';
+      const nextTask = {
+        contractId: task.contractid,
+        statusId: 2, //Asteapta aprobarea
+        requestorId: task.requestorid,
+        assignedId: task.assignedid,
+        workflowTaskSettingsId: task.workflowtasksettingsid,
+        approvalOrderNumber: task.approvalordernumber,
+        duedates: task.calculatedduedate,
+        name: task.taskname,
+        reminders: task.calculatedreminderdate,
+        taskPriorityId: task.priorityid,
+        text: task.tasknotes,
+        uuid: uuid,
+      };
 
-  //     const approve_link = `http://localhost:3000/contracts/approveTask/${task.uuid}`
-  //     const reject_link = `http://localhost:3000/contracts/rejectTask/${task.uuid}`
-  //     // const bcc = user_assigned_email.email;
-  //     const bcc = 'razvan.mustata@nirogroup.ro';
-  //     const subject = task.taskname;
-  //     const text = task.tasknotes;
-  //     const html = `<!DOCTYPE html>
-  //       <html lang="en">
-  //       <head>
-  //       <meta charset="UTF-8">
-  //       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  //       <title>Email Template</title>
-  //       <style>
-  //           /* Button styles */
-  //           .button {
-  //               display: inline-block;
-  //               padding: 10px 20px;
-  //               background-color: #007bff;
-  //               color: #ffffff;
-  //               text-decoration: none;
-  //               border-radius: 5px;
-  //           }
-  //           /* Button hover effect */
-  //           .button:hover {
-  //               background-color: #0056b3;
-  //           }
-  //             .button_approve {
-  //                     display: inline-block;
-  //                     padding: 10px 20px;
-  //                     background-color: #007bff;
-  //                     color: #ffffff;
-  //                     text-decoration: none;
-  //                     border-radius: 5px;
-  //                 }
-  //             .button_reject {
-  //                     display: inline-block;
-  //                     padding: 10px 20px;
-  //                     background-color: #FF0000;
-  //                     color: #ffffff;
-  //                     text-decoration: none;
-  //                     border-radius: 5px;
-  //                 }
-  //       </style>
-  //       </head>
-  //       <body>
+      const ctrTask = {
+        taskName: task.taskname,
+        contractId: task.contractid,
+        statusId: 4, //Anulat
+        statusWFId: 2, //Asteapta aprobarea
+        requestorId: task.requestorid,
+        assignedId: task.assignedid,
+        due: task.calculatedduedate,
+        notes: textReplaced,
+        uuid: uuid,
+        type: 'approval_task',
+        taskPriorityId: task.priorityid,
+        rejected_reason: '',
+      };
 
-  //         <p>Va rugam sa luati decizia daca aprobati contractul.</p>
-  //           <p>${textReplaced}</p>
+      const check = await this.prisma.workFlowContractTasks.findFirst({
+        where: {
+          contractId: task.contractid,
+          approvalOrderNumber: task.approvalordernumber,
+          workflowTaskSettingsId: task.workflowTaskSettingsId,
+        },
+      });
 
-  //           <p> Acest task trebuie aprobat pana la data: <b>${localDate}</b> </p>
-  //           <p> Acest task are prioritatea:  <b>${task.priorityname}</b></p>
+      // console.log(check.contractId, task.contractid, "aiciiiii")
 
-  //           <table border="0" cellpadding="0" cellspacing="0">
-  //               <tr>
-  //                   <td>
-  //                       <a href=${approve_link} class="button_approve">Aproba</a>
-  //                   </td>
-  //                   <td style="padding-left: 10px;">
-  //                       <a href=${reject_link} class="button_reject">Respinge</a>
-  //                   </td>
-  //               </tr>
-  //           </table>
-  //       </body>
-  //       </html>`
+      if (!check) {
+        const rez = await this.prisma.workFlowContractTasks.create({
+          data: nextTask,
+        });
 
-  //     const attachments = [];
-  //     const allEmails = 'to: ' + to + ' bcc:' + bcc;
+        const rezCtrTask = await this.prisma.contractTasks.create({
+          data: ctrTask,
+        });
 
-  //     // console.log(to.toString(), bcc.toString(), subject, text, html, attachments)
-  //     mailerService.sendMail(to.toString(), bcc.toString(), subject, text, html, attachments)
-  //       .then(() => console.log('Email sent successfully.'))
-  //       .catch(error => console.error('Error sending email:', error));
+        // console.log(rez, rezCtrTask)
+        const mailerService = new MailerService();
 
-  //     // console.log(result);
-  //   })
+        const user_assigned_email = await this.getSimplifyUsersById(
+          task.assignedid,
+        );
+        const link = `http://localhost:3000/uikit/workflowstask/${nextTask.uuid}`;
+        const inputDate = new Date(task.calculatedduedate);
+        const options: Intl.DateTimeFormatOptions = {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        };
+        const localDate = inputDate.toLocaleDateString('ro-RO', options);
 
-  //   //trebuie modificata starea ctr si a statusului dupa insert in tabela de x astfel incat sa nu se mai genereze inca odata.
-  //   //trebuie apelat endpoint pentru schimbare text fiecare task pe ctrid
-  //   // cand se populeaza tabela de x trebuie modificata starea ctr.
+        // const to = user_assigned_email.email;
+        const to = 'razvan.mustata@gmail.com';
 
-  // }
+        const approve_link = `http://localhost:3000/contracts/approveTask/${nextTask.uuid}`;
+        const reject_link = `http://localhost:3000/contracts/rejectTask/${nextTask.uuid}`;
+        // const bcc = user_assigned_email.email;
+        const bcc = 'razvan.mustata@nirogroup.ro';
+        const subject = task.taskname;
+        const text = task.tasknotes;
+        const html = `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Email Template</title>
+        <style>
+            /* Button styles */
+            .button {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #007bff;
+                color: #ffffff;
+                text-decoration: none;
+                border-radius: 5px;
+            }
+            /* Button hover effect */
+            .button:hover {
+                background-color: #0056b3;
+            }
+              .button_approve {
+                      display: inline-block;
+                      padding: 10px 20px;
+                      background-color: #007bff;
+                      color: #ffffff;
+                      text-decoration: none;
+                      border-radius: 5px;
+                  }
+              .button_reject {
+                      display: inline-block;
+                      padding: 10px 20px;
+                      background-color: #FF0000;
+                      color: #ffffff;
+                      text-decoration: none;
+                      border-radius: 5px;
+                  }
+        </style>
+        </head>
+        <body>
+
+          <p>${textReplaced}</p>
+
+            <p> Acest task trebuie aprobat pana la data: <b>${localDate}</b> </p>
+            <p> Acest task are prioritatea:  <b>${task.priorityname}</b></p>
+
+            <table border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td>
+                        <a href=${approve_link} class="button_approve">Aproba</a>
+                    </td>
+                    <td style="padding-left: 10px;">
+                        <a href=${reject_link} class="button_reject">Respinge</a>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        </html>`;
+
+        const attachments = [];
+        const allEmails = 'to: ' + to + ' bcc:' + bcc;
+
+        // console.log(to.toString(), bcc.toString(), subject, text, html, attachments)
+        mailerService
+          .sendMail(
+            to.toString(),
+            bcc.toString(),
+            subject,
+            text,
+            html,
+            attachments,
+          )
+          .then(() => console.log('Email sent successfully.'))
+          .catch((error) => console.error('Error sending email:', error));
+      }
+    });
+  }
+
+  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_10_HOURS)
+  @Cron(CronExpression.EVERY_5_SECONDS)
+  async generateParalelContractTasks() {
+    //get all contracts with satateId=1
+    const result: [any] = await this.prisma.$queryRaw(
+      Prisma.sql`select * from public.contractTaskToBeGeneratedok()`,
+    );
+    const mailerService = new MailerService();
+
+    result.map(async (task) => {
+      //replace placeholders
+      const textReplaced = await this.replacePlaceholders(
+        task.contractid,
+        task.tasknotes,
+      );
+
+      const data = {
+        contractId: task.contractid,
+        statusId: task.statusid,
+        requestorId: task.requestorid,
+        assignedId: task.assignedid,
+        workflowTaskSettingsId: task.workflowtasksettingsid,
+        approvalOrderNumber: task.approvalordernumber,
+        duedates: task.calculatedduedate,
+        name: task.taskname,
+        reminders: task.calculatedreminderdate,
+        taskPriorityId: task.priorityid,
+        text: textReplaced,
+        uuid: task.uuid,
+      };
+
+      if (task.approvaltypeinparallel) {
+        // update contract status
+        const ctr_status = await this.prisma.contracts.update({
+          where: {
+            id: task.contractid,
+          },
+          data: {
+            statusId: 2,
+            //Asteapta aprobarea
+          },
+        });
+
+        const result = await this.prisma.workFlowContractTasks.create({
+          data,
+        });
+      }
+
+      //send notification emails
+      const user_assigned_email = await this.getSimplifyUsersById(
+        task.assignedid,
+      );
+      const link = `http://localhost:3000/uikit/workflowstask/${task.uuid}`;
+      const inputDate = new Date(task.calculatedduedate);
+      const options: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      };
+      const localDate = inputDate.toLocaleDateString('ro-RO', options);
+
+      // const to = user_assigned_email.email;
+      const to = 'razvan.mustata@gmail.com';
+
+      const approve_link = `http://localhost:3000/contracts/approveTask/${task.uuid}`;
+      const reject_link = `http://localhost:3000/contracts/rejectTask/${task.uuid}`;
+      // const bcc = user_assigned_email.email;
+      const bcc = 'razvan.mustata@nirogroup.ro';
+      const subject = task.taskname;
+      const text = task.tasknotes;
+      const html = `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Email Template</title>
+        <style>
+            /* Button styles */
+            .button {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #007bff;
+                color: #ffffff;
+                text-decoration: none;
+                border-radius: 5px;
+            }
+            /* Button hover effect */
+            .button:hover {
+                background-color: #0056b3;
+            }
+              .button_approve {
+                      display: inline-block;
+                      padding: 10px 20px;
+                      background-color: #007bff;
+                      color: #ffffff;
+                      text-decoration: none;
+                      border-radius: 5px;
+                  }
+              .button_reject {
+                      display: inline-block;
+                      padding: 10px 20px;
+                      background-color: #FF0000;
+                      color: #ffffff;
+                      text-decoration: none;
+                      border-radius: 5px;
+                  }
+        </style>
+        </head>
+        <body>
+
+          <p>Va rugam sa luati decizia daca aprobati contractul.</p>
+            <p>${textReplaced}</p>
+
+            <p> Acest task trebuie aprobat pana la data: <b>${localDate}</b> </p>
+            <p> Acest task are prioritatea:  <b>${task.priorityname}</b></p>
+
+            <table border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td>
+                        <a href=${approve_link} class="button_approve">Aproba</a>
+                    </td>
+                    <td style="padding-left: 10px;">
+                        <a href=${reject_link} class="button_reject">Respinge</a>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        </html>`;
+
+      const attachments = [];
+      const allEmails = 'to: ' + to + ' bcc:' + bcc;
+
+      // console.log(to.toString(), bcc.toString(), subject, text, html, attachments)
+      mailerService
+        .sendMail(
+          to.toString(),
+          bcc.toString(),
+          subject,
+          text,
+          html,
+          attachments,
+        )
+        .then(() => console.log('Email sent successfully.'))
+        .catch((error) => console.error('Error sending email:', error));
+
+      // console.log(result);
+    });
+
+    //trebuie modificata starea ctr si a statusului dupa insert in tabela de x astfel incat sa nu se mai genereze inca odata.
+    //trebuie apelat endpoint pentru schimbare text fiecare task pe ctrid
+    // cand se populeaza tabela de x trebuie modificata starea ctr.
+  }
 }
