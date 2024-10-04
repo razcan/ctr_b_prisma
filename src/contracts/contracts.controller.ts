@@ -529,42 +529,115 @@ export class ContractsController {
       tip: string;
       billingvalue: string;
       month_number: number;
+      year_number: number;
     }[] = await this.prisma.$queryRaw(
       Prisma.sql`select * from public.calculate_cashflow_func()`,
     );
 
     const start_date = new Date();
     let month = 1 + start_date.getMonth();
+    let year = start_date.getFullYear();
+    let year2 = year + 1;
+
+    // Add 6 months to the current date
+    let finalDate: Date = new Date(start_date);
+    finalDate.setMonth(start_date.getMonth() + 6);
+    let month_final = finalDate.getMonth();
+    let year_final = finalDate.getFullYear();
+
+    console.log(month, year, 'start');
+    console.log(month_final, year_final, 'final');
 
     const Receipts = result3.filter((item) => item.tip === 'I');
 
     const Payments = result3.filter((item) => item.tip === 'P');
 
     const rec: any[] = [];
+    const pay: any[] = [];
     // const maxMonth = Math.max(...Receipts.map(item => item.month_number));
-    const maxMonth = month + 5;
+    let maxMonth = month + 5;
+    if (maxMonth > 12) {
+      maxMonth = maxMonth - 12;
+    }
 
-    for (let i = month; i <= maxMonth; i++) {
-      const found = Receipts.find((item) => item.month_number == i);
+    //new
+    const receipts_ordered = [];
+    const payments_ordered = [];
+    // console.log(year, 'year');
+
+    const ReceiptsFirstYear = result3.filter(
+      (item) => item.year_number == year && item.tip == 'I',
+    );
+
+    const ReceiptsSecondYear = result3.filter(
+      (item) => item.year_number == year2 && item.tip == 'I',
+    );
+
+    for (let i = month; i <= 12; i++) {
+      const found = ReceiptsFirstYear.find((item) => item.month_number == i);
       if (found) {
         rec.push(found);
       } else {
-        rec.push({ tip: 'I', billingvalue: 0, month_number: i });
+        rec.push({
+          tip: 'I',
+          billingvalue: 0,
+          month_number: i,
+          year_final: year,
+        });
       }
     }
 
+    for (let i = 1; i <= month_final; i++) {
+      const found = ReceiptsSecondYear.find((item) => item.month_number == i);
+      if (found) {
+        rec.push(found);
+      } else {
+        rec.push({
+          tip: 'I',
+          billingvalue: 0,
+          month_number: i,
+          year_final: year_final,
+        });
+      }
+    }
+
+    console.log(rec, 'rec');
+
     const Receipts2 = rec.map((item) => parseFloat(item.billingvalue));
 
-    console.log(rec, Receipts2, 'Incasari');
+    const PaymentsFirstYear = result3.filter(
+      (item) => item.year_number == year && item.tip == 'P',
+    );
 
-    const pay: any[] = [];
+    const PaymentsSecondYear = result3.filter(
+      (item) => item.year_number == year2 && item.tip == 'P',
+    );
 
-    for (let i = month; i <= maxMonth; i++) {
-      const found = Payments.find((item) => item.month_number == i);
+    for (let i = month; i <= 12; i++) {
+      const found = PaymentsFirstYear.find((item) => item.month_number == i);
       if (found) {
         pay.push(found);
       } else {
-        pay.push({ tip: 'P', billingvalue: 0, month_number: i });
+        pay.push({
+          tip: 'P',
+          billingvalue: 0,
+          month_number: i,
+          year_final: year,
+        });
+      }
+    }
+
+    for (let i = 1; i <= month_final; i++) {
+      const found = PaymentsSecondYear.find((item) => item.month_number == i);
+      if (found) {
+        pay.push(found);
+      } else {
+        pay.push({
+          tip: 'P',
+          billingvalue: 0,
+          month_number: i,
+          year_final: year_final,
+        });
       }
     }
 
@@ -576,7 +649,7 @@ export class ContractsController {
     final.push(month);
     final.push(maxMonth);
 
-    console.log(final, 'final');
+    // console.log(final, 'final');
 
     return final;
   }
