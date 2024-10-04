@@ -603,6 +603,24 @@ export class NomenclaturesController {
     return result;
   }
 
+  @Get('additionalActType')
+  async getAllAAType(
+    @Body() data: Prisma.additionalActTypeCreateArgs,
+  ): Promise<any> {
+    const result = this.prisma.additionalActType.findMany({});
+    return result;
+  }
+
+  @Get('additionalActType/:id')
+  async getAllAATypebyId(@Param('id') id: any): Promise<any> {
+    const result = this.prisma.additionalActType.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    return result;
+  }
+
   @Get('documentseries')
   async getAllDocumentSeries(
     @Body() data: Prisma.DocumentSeriesCreateInput,

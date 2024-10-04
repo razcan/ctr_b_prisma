@@ -9,7 +9,8 @@ import { MailerService } from '../alerts/mailer.service'
 
 @Module({
   controllers: [NomenclaturesController],
-  providers: [NomenclaturesService, PrismaService, JwtService, AuthService, UsersService, MailerService],
+  providers: [NomenclaturesService, PrismaService, JwtService, 
+    AuthService, UsersService, MailerService],
   exports: [NomenclaturesService]
 })
 export class NomenclaturesModule { }

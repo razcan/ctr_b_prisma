@@ -545,8 +545,8 @@ export class ContractsController {
     let month_final = finalDate.getMonth();
     let year_final = finalDate.getFullYear();
 
-    console.log(month, year, 'start');
-    console.log(month_final, year_final, 'final');
+    // console.log(month, year, 'start');
+    // console.log(month_final, year_final, 'final');
 
     const Receipts = result3.filter((item) => item.tip === 'I');
 
@@ -601,7 +601,6 @@ export class ContractsController {
       }
     }
 
-    console.log(rec, 'rec');
 
     const Receipts2 = rec.map((item) => parseFloat(item.billingvalue));
 
@@ -2299,30 +2298,30 @@ export class ContractsController {
 
         const text = `
         Contractul de mai jos, a fost aprobat.
-        Numar Contract: <b>${ctr_number}</b>,
-        Data de inceput: <b>${ctr_start}</b>,
-        Data de sfarsit: <b>${ctr_end}</b>,
-        Partener: <b>${ctr_partener}</b>,
-        Entitatea: <b>${ctr_entity}</b>,
-        Scurta descriere: <b>${ctr_remarks}</b>,
-        Obiect de contract: <b>${ctr_item_name}</b>,
-        Departament: <b>${ctr_departament_name}</b>,
-        Categorie: <b>${ctr_category_name}</b>,
-        Tip Contract: <b>${ctr_type}</b>
+        Numar Contract: ${ctr_number},
+        Data de inceput: ${ctr_start},
+        Data de sfarsit: ${ctr_end},
+        Partener: ${ctr_partener},
+        Entitatea: ${ctr_entity},
+        Scurta descriere: ${ctr_remarks},
+        Obiect de contract: ${ctr_item_name},
+        Departament: ${ctr_departament_name},
+        Categorie: ${ctr_category_name},
+        Tip Contract: ${ctr_type}
         `;
 
         const html = `
-        Contractul de mai jos, a fost aprobat. 
-        Numar Contract: <b>${ctr_number}</b>,
-        Data de inceput: <b>${ctr_start}</b>,
-        Data de sfarsit: <b>${ctr_end}</b>,
-        Partener: <b>${ctr_partener}</b>,
-        Entitatea: <b>${ctr_entity}</b>,
-        Scurta descriere: <b>${ctr_remarks}</b>,
-        Obiect de contract: <b>${ctr_item_name}</b>,
-        Departament: <b>${ctr_departament_name}</b>,
-        Categorie: <b>${ctr_category_name}</b>,
-        Tip Contract: <b>${ctr_type}</b>
+        Contractul de mai jos, a fost aprobat.
+        Numar Contract: ${ctr_number},
+        Data de inceput: ${ctr_start},
+        Data de sfarsit: ${ctr_end},
+        Partener: ${ctr_partener},
+        Entitatea: ${ctr_entity},
+        Scurta descriere: ${ctr_remarks},
+        Obiect de contract: ${ctr_item_name},
+        Departament: ${ctr_departament_name},
+        Categorie: ${ctr_category_name},
+        Tip Contract: ${ctr_type}
         `;
 
         const attachments = [];
@@ -2523,31 +2522,31 @@ export class ContractsController {
         const subject = 'Contractul nu a fost aprobat!';
 
         const text = `
-        Contractul de mai jos, nu a fost aprobat.
-        Numar Contract: <b>${ctr_number}</b>,
-        Data de inceput: <b>${ctr_start}</b>,
-        Data de sfarsit: <b>${ctr_end}</b>,
-        Partener: <b>${ctr_partener}</b>,
-        Entitatea: <b>${ctr_entity}</b>,
-        Scurta descriere: <b>${ctr_remarks}</b>,
-        Obiect de contract: <b>${ctr_item_name}</b>,
-        Departament: <b>${ctr_departament_name}</b>,
-        Categorie: <b>${ctr_category_name}</b>,
-        Tip Contract: <b>${ctr_type}</b>
+            Contractul de mai jos, a fost aprobat.
+        Numar Contract: ${ctr_number},
+        Data de inceput: ${ctr_start},
+        Data de sfarsit: ${ctr_end},
+        Partener: ${ctr_partener},
+        Entitatea: ${ctr_entity},
+        Scurta descriere: ${ctr_remarks},
+        Obiect de contract: ${ctr_item_name},
+        Departament: ${ctr_departament_name},
+        Categorie: ${ctr_category_name},
+        Tip Contract: ${ctr_type}
         `;
 
         const html = `
-        Contractul de mai jos, nu a fost aprobat. 
-        Numar Contract: <b>${ctr_number}</b>,
-        Data de inceput: <b>${ctr_start}</b>,
-        Data de sfarsit: <b>${ctr_end}</b>,
-        Partener: <b>${ctr_partener}</b>,
-        Entitatea: <b>${ctr_entity}</b>,
-        Scurta descriere: <b>${ctr_remarks}</b>,
-        Obiect de contract: <b>${ctr_item_name}</b>,
-        Departament: <b>${ctr_departament_name}</b>,
-        Categorie: <b>${ctr_category_name}</b>,
-        Tip Contract: <b>${ctr_type}</b>
+        Contractul de mai jos, a fost aprobat.
+        Numar Contract: ${ctr_number},
+        Data de inceput: ${ctr_start},
+        Data de sfarsit: ${ctr_end},
+        Partener: ${ctr_partener},
+        Entitatea: ${ctr_entity},
+        Scurta descriere: ${ctr_remarks},
+        Obiect de contract: ${ctr_item_name},
+        Departament: ${ctr_departament_name},
+        Categorie: ${ctr_category_name},
+        Tip Contract: ${ctr_type}
         `;
 
         const attachments = [];

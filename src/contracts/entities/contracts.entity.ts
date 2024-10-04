@@ -18,6 +18,7 @@ import {PaymentType} from '../../paymentType/entities/paymentType.entity'
 import {User} from '../../user/entities/user.entity'
 import {ContractDynamicFields} from '../../contractDynamicFields/entities/contractDynamicFields.entity'
 import {ContractTasks} from '../../contractTasks/entities/contractTasks.entity'
+import {AdditionalActType} from '../../additionalActType/entities/additionalActType.entity'
 
 
 export class Contracts {
@@ -72,4 +73,6 @@ userId: number  | null;
 isPurchasing: boolean  | null;
 ContractDynamicFields?: ContractDynamicFields[] ;
 ContractTasks?: ContractTasks[] ;
+additionalActType?: AdditionalActType  | null;
+additionalTypeId: number  | null;
 }
