@@ -686,134 +686,134 @@ export class ContractsController {
     return hash.digest('hex');
   }
 
-  // @Patch('updatecontractItems/:id/:ctrId/:contractfinancialItemId')
-  // async updatecontractItems(
-  //   @Param('id') id: string,
-  //   @Param('ctrId') ctrId: string,
-  //   @Param('contractfinancialItemId') contractfinancialItemId: string,
-  //   @Body() data: any,
-  // ): Promise<any> {
-  //   // console.log(id, ctrId, contractfinancialItemId)
+  @Patch('updatecontractItems/:id/:ctrId/:contractfinancialItemId')
+  async updatecontractItems(
+    @Param('id') id: string,
+    @Param('ctrId') ctrId: string,
+    @Param('contractfinancialItemId') contractfinancialItemId: string,
+    @Body() data: any,
+  ): Promise<any> {
+    // console.log(id, ctrId, contractfinancialItemId)
 
-  //   const result = await this.prisma.contractItems.update({
-  //     where: { id: parseInt(id) },
-  //     data: data[0],
-  //   });
+    const result = await this.prisma.contractItems.update({
+      where: { id: parseInt(id) },
+      data: data[0],
+    });
 
-  //   const finDetail: any = data[1];
-  //   // const finCtrFinDetail: Prisma.ContractFinancialDetailUncheckedUpdateInput = finDetail
-  //   const finCtrFinDetail: UpdateContractFinancialDetailDto = finDetail;
+    const finDetail: any = data[1];
+    // const finCtrFinDetail: Prisma.ContractFinancialDetailUncheckedUpdateInput = finDetail
+    const finCtrFinDetail: any = finDetail;
 
-  //   console.log(finCtrFinDetail, 'finCtrFinDetail');
+    // console.log(finCtrFinDetail, 'finCtrFinDetail');
 
-  //   const result2 = this.prisma.contractFinancialDetail.upsert({
-  //     where: { id: parseInt(contractfinancialItemId) },
-  //     update: {
-  //       itemid: finCtrFinDetail.itemid,
-  //       price: finCtrFinDetail.price,
-  //       currencyid: finCtrFinDetail.currencyid,
-  //       currencyPercent: finCtrFinDetail.currencyPercent,
-  //       billingDay: finCtrFinDetail.billingDay,
-  //       billingQtty: finCtrFinDetail.billingQtty,
-  //       billingFrequencyid: finCtrFinDetail.billingFrequencyid,
-  //       measuringUnitid: finCtrFinDetail.measuringUnitid,
-  //       paymentTypeid: finCtrFinDetail.paymentTypeid,
-  //       billingPenaltyPercent: finCtrFinDetail.billingPenaltyPercent,
-  //       billingDueDays: finCtrFinDetail.billingDueDays,
-  //       remarks: finCtrFinDetail.remarks,
-  //       guaranteeLetter: finCtrFinDetail.guaranteeLetter,
-  //       guaranteeLetterCurrencyid: finCtrFinDetail.guaranteeLetterCurrencyid,
-  //       guaranteeLetterDate: finCtrFinDetail.guaranteeLetterDate,
-  //       guaranteeLetterValue: finCtrFinDetail.guaranteeLetterValue,
-  //       guaranteeLetterInfo: finCtrFinDetail.guaranteeLetterInfo,
-  //       guaranteeLetterBankId: finCtrFinDetail.guaranteeLetterBankId,
-  //       goodexecutionLetter: finCtrFinDetail.goodexecutionLetter,
-  //       goodexecutionLetterCurrencyId:
-  //         finCtrFinDetail.goodexecutionLetterCurrencyId,
-  //       goodexecutionLetterDate: finCtrFinDetail.goodexecutionLetterDate,
-  //       goodexecutionLetterValue: finCtrFinDetail.goodexecutionLetterValue,
-  //       goodexecutionLetterInfo: finCtrFinDetail.goodexecutionLetterInfo,
-  //       goodexecutionLetterBankId: finCtrFinDetail.goodexecutionLetterBankId,
-  //       active: finCtrFinDetail.active,
-  //       currencyValue: finCtrFinDetail.currencyValue,
-  //       advancePercent: finCtrFinDetail.advancePercent,
-  //       vatId: finCtrFinDetail.vatId,
-  //       contractItemId: finCtrFinDetail.contractItemId,
-  //     },
-  //     create: {
-  //       itemid: finCtrFinDetail.itemid,
-  //       price: finCtrFinDetail.price,
-  //       currencyid: finCtrFinDetail.currencyid,
-  //       currencyPercent: finCtrFinDetail.currencyPercent,
-  //       billingDay: finCtrFinDetail.billingDay,
-  //       billingQtty: finCtrFinDetail.billingQtty,
-  //       billingFrequencyid: finCtrFinDetail.billingFrequencyid,
-  //       measuringUnitid: finCtrFinDetail.measuringUnitid,
-  //       paymentTypeid: finCtrFinDetail.paymentTypeid,
-  //       billingPenaltyPercent: finCtrFinDetail.billingPenaltyPercent,
-  //       billingDueDays: finCtrFinDetail.billingDueDays,
-  //       remarks: finCtrFinDetail.remarks,
-  //       guaranteeLetter: finCtrFinDetail.guaranteeLetter,
-  //       guaranteeLetterCurrencyid: finCtrFinDetail.guaranteeLetterCurrencyid,
-  //       guaranteeLetterDate: finCtrFinDetail.guaranteeLetterDate,
-  //       guaranteeLetterValue: finCtrFinDetail.guaranteeLetterValue,
-  //       guaranteeLetterInfo: finCtrFinDetail.guaranteeLetterInfo,
-  //       guaranteeLetterBankId: finCtrFinDetail.guaranteeLetterBankId,
-  //       goodexecutionLetter: finCtrFinDetail.goodexecutionLetter,
-  //       goodexecutionLetterCurrencyId:
-  //         finCtrFinDetail.goodexecutionLetterCurrencyId,
-  //       goodexecutionLetterDate: finCtrFinDetail.goodexecutionLetterDate,
-  //       goodexecutionLetterValue: finCtrFinDetail.goodexecutionLetterValue,
-  //       goodexecutionLetterInfo: finCtrFinDetail.goodexecutionLetterInfo,
-  //       goodexecutionLetterBankId: finCtrFinDetail.goodexecutionLetterBankId,
-  //       active: finCtrFinDetail.active,
-  //       currencyValue: finCtrFinDetail.currencyValue,
-  //       advancePercent: finCtrFinDetail.advancePercent,
-  //       vatId: finCtrFinDetail.vatId,
-  //       contractItemId: finCtrFinDetail.contractItemId,
-  //     },
-  //   });
-  //   console.log(await result2);
+    const result2 = this.prisma.contractFinancialDetail.upsert({
+      where: { id: parseInt(contractfinancialItemId) },
+      update: {
+        itemid: finCtrFinDetail.itemid,
+        price: finCtrFinDetail.price,
+        currencyid: finCtrFinDetail.currencyid,
+        currencyPercent: finCtrFinDetail.currencyPercent,
+        billingDay: finCtrFinDetail.billingDay,
+        billingQtty: finCtrFinDetail.billingQtty,
+        billingFrequencyid: finCtrFinDetail.billingFrequencyid,
+        measuringUnitid: finCtrFinDetail.measuringUnitid,
+        paymentTypeid: finCtrFinDetail.paymentTypeid,
+        billingPenaltyPercent: finCtrFinDetail.billingPenaltyPercent,
+        billingDueDays: finCtrFinDetail.billingDueDays,
+        remarks: finCtrFinDetail.remarks,
+        guaranteeLetter: finCtrFinDetail.guaranteeLetter,
+        guaranteeLetterCurrencyid: finCtrFinDetail.guaranteeLetterCurrencyid,
+        guaranteeLetterDate: finCtrFinDetail.guaranteeLetterDate,
+        guaranteeLetterValue: finCtrFinDetail.guaranteeLetterValue,
+        guaranteeLetterInfo: finCtrFinDetail.guaranteeLetterInfo,
+        guaranteeLetterBankId: finCtrFinDetail.guaranteeLetterBankId,
+        goodexecutionLetter: finCtrFinDetail.goodexecutionLetter,
+        goodexecutionLetterCurrencyId:
+          finCtrFinDetail.goodexecutionLetterCurrencyId,
+        goodexecutionLetterDate: finCtrFinDetail.goodexecutionLetterDate,
+        goodexecutionLetterValue: finCtrFinDetail.goodexecutionLetterValue,
+        goodexecutionLetterInfo: finCtrFinDetail.goodexecutionLetterInfo,
+        goodexecutionLetterBankId: finCtrFinDetail.goodexecutionLetterBankId,
+        active: finCtrFinDetail.active,
+        currencyValue: finCtrFinDetail.currencyValue,
+        advancePercent: finCtrFinDetail.advancePercent,
+        vatId: finCtrFinDetail.vatId,
+        contractItemId: finCtrFinDetail.contractItemId,
+      },
+      create: {
+        itemid: finCtrFinDetail.itemid,
+        price: finCtrFinDetail.price,
+        currencyid: finCtrFinDetail.currencyid,
+        currencyPercent: finCtrFinDetail.currencyPercent,
+        billingDay: finCtrFinDetail.billingDay,
+        billingQtty: finCtrFinDetail.billingQtty,
+        billingFrequencyid: finCtrFinDetail.billingFrequencyid,
+        measuringUnitid: finCtrFinDetail.measuringUnitid,
+        paymentTypeid: finCtrFinDetail.paymentTypeid,
+        billingPenaltyPercent: finCtrFinDetail.billingPenaltyPercent,
+        billingDueDays: finCtrFinDetail.billingDueDays,
+        remarks: finCtrFinDetail.remarks,
+        guaranteeLetter: finCtrFinDetail.guaranteeLetter,
+        guaranteeLetterCurrencyid: finCtrFinDetail.guaranteeLetterCurrencyid,
+        guaranteeLetterDate: finCtrFinDetail.guaranteeLetterDate,
+        guaranteeLetterValue: finCtrFinDetail.guaranteeLetterValue,
+        guaranteeLetterInfo: finCtrFinDetail.guaranteeLetterInfo,
+        guaranteeLetterBankId: finCtrFinDetail.guaranteeLetterBankId,
+        goodexecutionLetter: finCtrFinDetail.goodexecutionLetter,
+        goodexecutionLetterCurrencyId:
+          finCtrFinDetail.goodexecutionLetterCurrencyId,
+        goodexecutionLetterDate: finCtrFinDetail.goodexecutionLetterDate,
+        goodexecutionLetterValue: finCtrFinDetail.goodexecutionLetterValue,
+        goodexecutionLetterInfo: finCtrFinDetail.goodexecutionLetterInfo,
+        goodexecutionLetterBankId: finCtrFinDetail.goodexecutionLetterBankId,
+        active: finCtrFinDetail.active,
+        currencyValue: finCtrFinDetail.currencyValue,
+        advancePercent: finCtrFinDetail.advancePercent,
+        vatId: finCtrFinDetail.vatId,
+        contractItemId: finCtrFinDetail.contractItemId,
+      },
+    });
+    // console.log(await result2);
 
-  //   let schBill = data[2];
-  //   let x = parseInt(id);
+    let schBill = data[2];
+    let x = parseInt(id);
 
-  //   const resultId = await this.prisma.contractFinancialDetail.findFirst({
-  //     where: { contractItemId: parseInt(id) },
-  //   });
+    const resultId = await this.prisma.contractFinancialDetail.findFirst({
+      where: { contractItemId: parseInt(id) },
+    });
 
-  //   const result4 = await this.prisma.contractFinancialDetailSchedule.findMany({
-  //     where: { contractfinancialItemId: resultId.id },
-  //   });
+    const result4 = await this.prisma.contractFinancialDetailSchedule.findMany({
+      where: { contractfinancialItemId: resultId.id },
+    });
 
-  //   const objString: any = JSON.stringify(result4);
+    const objString: any = JSON.stringify(result4);
 
-  //   const hash1 = this.generateArrayHash(objString);
+    const hash1 = this.generateArrayHash(objString);
 
-  //   const objStringschBill: any = JSON.stringify(schBill);
+    const objStringschBill: any = JSON.stringify(schBill);
 
-  //   const hash2 = this.generateArrayHash(objStringschBill);
+    const hash2 = this.generateArrayHash(objStringschBill);
 
-  //   // console.log("hash1: ", hash1)
-  //   // console.log("hash2: ", hash2)
+    // console.log("hash1: ", hash1)
+    // console.log("hash2: ", hash2)
 
-  //   if (hash1 !== hash2) {
-  //     for (let i = 0; i < schBill.length; i++) {
-  //       schBill[i].contractfinancialItemId = resultId.id;
-  //     }
+    if (hash1 !== hash2) {
+      for (let i = 0; i < schBill.length; i++) {
+        schBill[i].contractfinancialItemId = resultId.id;
+      }
 
-  //     const result5 =
-  //       await this.prisma.contractFinancialDetailSchedule.deleteMany({
-  //         where: { contractfinancialItemId: resultId.id },
-  //       });
+      const result5 =
+        await this.prisma.contractFinancialDetailSchedule.deleteMany({
+          where: { contractfinancialItemId: resultId.id },
+        });
 
-  //     const result3 = this.prisma.contractFinancialDetailSchedule.createMany({
-  //       data: schBill,
-  //     });
+      const result3 = this.prisma.contractFinancialDetailSchedule.createMany({
+        data: schBill,
+      });
 
-  //     return result3;
-  //   }
-  // }
+      return result3;
+    }
+  }
 
   @Get('contractItems/:id')
   async getcontractItems(
