@@ -601,7 +601,6 @@ export class ContractsController {
       }
     }
 
-
     const Receipts2 = rec.map((item) => parseFloat(item.billingvalue));
 
     const PaymentsFirstYear = result3.filter(
@@ -1259,6 +1258,12 @@ export class ContractsController {
         vat: true,
       },
     });
+    return result;
+  }
+
+  @Get('itemwC')
+  async getJustItem(@Body() data: Prisma.ItemCreateInput): Promise<any> {
+    const result = await this.prisma.item.findMany({});
     return result;
   }
 
