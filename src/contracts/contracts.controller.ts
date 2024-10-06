@@ -794,9 +794,6 @@ export class ContractsController {
 
     const hash2 = this.generateArrayHash(objStringschBill);
 
-    // console.log("hash1: ", hash1)
-    // console.log("hash2: ", hash2)
-
     if (hash1 !== hash2) {
       for (let i = 0; i < schBill.length; i++) {
         schBill[i].contractfinancialItemId = resultId.id;

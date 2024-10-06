@@ -7,6 +7,9 @@ import {Groups} from '../../groups/entities/groups.entity'
 import {InvoiceDetail} from '../../invoiceDetail/entities/invoiceDetail.entity'
 import {Invoice} from '../../invoice/entities/invoice.entity'
 import {PartnersBanksExtraRates} from '../../partnersBanksExtraRates/entities/partnersBanksExtraRates.entity'
+import {Transactions} from '../../transactions/entities/transactions.entity'
+import {TransactionDetail} from '../../transactionDetail/entities/transactionDetail.entity'
+import {TransactionDetailEvents} from '../../transactionDetailEvents/entities/transactionDetailEvents.entity'
 
 
 export class Partners {
@@ -34,4 +37,10 @@ partnerInvoice?: Invoice[] ;
 entityInvoice?: Invoice[] ;
 PartnerBanksExtraRates?: PartnersBanksExtraRates[] ;
 picture: string  | null;
+TransactionsPartner?: Transactions[] ;
+TransactionsEntity?: Transactions[] ;
+TransactionDetailEntity?: TransactionDetail[] ;
+TransactionDetailPartner?: TransactionDetail[] ;
+TransactionDetailEventsEntity?: TransactionDetailEvents[] ;
+TransactionDetailEventsPartner?: TransactionDetailEvents[] ;
 }

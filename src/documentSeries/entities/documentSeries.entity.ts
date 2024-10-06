@@ -1,5 +1,6 @@
 
 import {Invoice} from '../../invoice/entities/invoice.entity'
+import {Transactions} from '../../transactions/entities/transactions.entity'
 
 
 export class DocumentSeries {
@@ -15,4 +16,5 @@ final_number: number ;
 last_number: number ;
 isActive: boolean ;
 Invoice?: Invoice[] ;
+Transactions?: Transactions[] ;
 }

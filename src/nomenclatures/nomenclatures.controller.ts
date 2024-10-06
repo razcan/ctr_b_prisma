@@ -933,6 +933,30 @@ export class NomenclaturesController {
     return invoiceType;
   }
 
+  @Get('getReceiptsTypeFiltered')
+  async getReceiptsTypeFiltered() {
+    const invoiceType = await this.prisma.invoiceType.findMany({
+      where: {
+        id: {
+          in: [6, 8, 10, 12],
+        },
+      },
+    });
+    return invoiceType;
+  }
+
+  @Get('getPaymentsTypeFiltered')
+  async getPaymentsTypeFiltered() {
+    const invoiceType = await this.prisma.invoiceType.findMany({
+      where: {
+        id: {
+          in: [5, 7, 9, 11],
+        },
+      },
+    });
+    return invoiceType;
+  }
+
   @Get('invoicestatus/:id')
   async getInvoiceStatus(@Param('id') id: any) {
     const invoicestatus = await this.prisma.invoiceStatus.findFirst({

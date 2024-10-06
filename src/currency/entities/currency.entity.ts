@@ -4,6 +4,9 @@ import {ContractFinancialDetailSchedule} from '../../contractFinancialDetailSche
 import {ContractFinancialDetail} from '../../contractFinancialDetail/entities/contractFinancialDetail.entity'
 import {Invoice} from '../../invoice/entities/invoice.entity'
 import {PartnersBanksExtraRates} from '../../partnersBanksExtraRates/entities/partnersBanksExtraRates.entity'
+import {Transactions} from '../../transactions/entities/transactions.entity'
+import {TransactionDetail} from '../../transactionDetail/entities/transactionDetail.entity'
+import {TransactionDetailEvents} from '../../transactionDetailEvents/entities/transactionDetailEvents.entity'
 
 
 export class Currency {
@@ -17,4 +20,7 @@ guarantee?: ContractFinancialDetail[] ;
 goodexecution?: ContractFinancialDetail[] ;
 Invoice?: Invoice[] ;
 PartnersBanksExtraRates?: PartnersBanksExtraRates[] ;
+Transactions?: Transactions[] ;
+TransactionDetail?: TransactionDetail[] ;
+TransactionDetailEvents?: TransactionDetailEvents[] ;
 }

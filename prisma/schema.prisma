@@ -124,6 +124,8 @@ model PaymentType {
   name                    String                    @unique
   contractId              Contracts[]
   ContractFinancialDetail ContractFinancialDetail[]
+
+  Transactions Transactions[]
 }
 
 model ContractStatus {
@@ -347,6 +349,12 @@ model Currency {
   goodexecution                   ContractFinancialDetail[]         @relation("goodexecution")
   Invoice                         Invoice[]
   PartnersBanksExtraRates         PartnersBanksExtraRates[]
+
+  Transactions Transactions[]
+
+  TransactionDetail TransactionDetail[]
+
+  TransactionDetailEvents TransactionDetailEvents[]
 }
 
 model Bank {
@@ -657,6 +665,12 @@ model Partners {
   entityInvoice          Invoice[]                 @relation("entity")
   PartnerBanksExtraRates PartnersBanksExtraRates[] @relation("partner")
   picture                String?
+  TransactionsPartner    Transactions[] @relation("partner")
+  TransactionsEntity     Transactions[] @relation("entity")
+  TransactionDetailEntity  TransactionDetail[] @relation("entity")
+  TransactionDetailPartner TransactionDetail[] @relation("partner")
+  TransactionDetailEventsEntity TransactionDetailEvents[] @relation("entity")
+  TransactionDetailEventsPartner TransactionDetailEvents[] @relation("partner")
 }
 
 model PartnersBanksExtraRates {
@@ -723,6 +737,9 @@ model Banks {
   Contracts  Contracts[] @relation("partner")
   Enity      Contracts[] @relation("entity")
   Invoice    Invoice[]
+
+  TransactionsEntity Transactions[] @relation("entity")
+  TransactionsPartner Transactions[] @relation("partner")
 }
 
 
@@ -746,6 +763,8 @@ model User {
   ForgotPass                ForgotPass[]
   Invoice                   Invoice[]
   Item                      Item[]
+
+  Transactions Transactions[]
 }
 
 model ForgotPass {
@@ -800,6 +819,8 @@ model InvoiceStatus {
   createdAt  DateTime  @default(now())
   name       String    @unique
   Invoice    Invoice[]
+
+  Transactions Transactions[]
 }
 
 model InvoiceType {
@@ -816,6 +837,8 @@ model TransactionType {
   createdAt  DateTime  @default(now())
   name       String    @unique
   Invoice    Invoice[]
+
+  Transactions Transactions[]
 }
 
 model Invoice {
@@ -859,6 +882,8 @@ model Invoice {
   parentId          Int?           @default(0)
 
   @@unique([entityId, seriesId, number])
+  TransactionDetail TransactionDetail[]
+  TransactionDetailEvents TransactionDetailEvents[]
 }
 
 model InvoiceDetail {
@@ -896,6 +921,8 @@ model DocumentSeries {
   last_number     Int
   isActive        Boolean
   Invoice         Invoice[]
+
+  Transactions Transactions[]
 }
 
 model ExchangeRatesBNR {
@@ -907,3 +934,83 @@ model ExchangeRatesBNR {
   name       String
   multiplier String?
 }
+
+model Transactions {
+  id                Int      @id @default(autoincrement())
+  updateadAt        DateTime @updatedAt
+  createdAt         DateTime @default(now())
+  partner           Partners?        @relation("partner", fields: [partnerId], references: [id])
+  partnerId         Int?
+  entity            Partners?        @relation("entity", fields: [entityId], references: [id])
+  entityId          Int?
+  number            String
+  series            DocumentSeries?  @relation(fields: [seriesId], references: [id])
+  seriesId          Int?
+  date              DateTime
+  currency          Currency?        @relation(fields: [currencyId], references: [id])
+  currencyId        Int?
+  paymentValue      Float
+  exchangeRate      Float
+  eqvTotalPayment   Float
+  type              PaymentType?     @relation(fields: [typeId], references: [id])
+  typeId            Int?
+  entityBank        Banks?           @relation("entity", fields: [entitybankId], references: [id])
+  entitybankId      Int?
+  PartnerBank       Banks?           @relation("partner", fields: [partnerbankId], references: [id])
+  partnerbankId     Int?
+  cash              Float?
+  card              Float?
+  meal              Float?
+  remarks           String?
+  user              User             @relation(fields: [userId], references: [id])
+  userId            Int
+  status            InvoiceStatus?   @relation(fields: [statusId], references: [id])
+  statusId          Int?
+  transaction       TransactionType? @relation(fields: [transactionTypeId], references: [id])
+  transactionTypeId Int?
+
+  TransactionDetail TransactionDetail[]
+}
+
+model TransactionDetail {
+  id         Int      @id @default(autoincrement())
+  updateadAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  transactions            Transactions?  @relation(fields: [transactionId], references: [id])
+  transactionId          Int?
+  invoice         Invoice        @relation(fields: [invoiceId], references: [id])
+  invoiceId       Int 
+  entity            Partners?        @relation("entity", fields: [entityId], references: [id])
+  entityId          Int?
+  partner           Partners?        @relation("partner", fields: [partnerId], references: [id])
+  partnerId         Int?
+  partPaymentValue            Float
+  currency          Currency?        @relation(fields: [currencyId], references: [id])
+  currencyId        Int?
+  exchangeRate      Float
+  eqvTotalPayment   Float
+  TransactionDetailEvents TransactionDetailEvents[]
+}
+
+model TransactionDetailEvents {
+  id                            Int      @id @default(autoincrement())
+  updateadAt                    DateTime @updatedAt
+  createdAt                     DateTime @default(now())
+  transactionDetail            TransactionDetail?  @relation(fields: [transactionDetailId], references: [id])
+  transactionDetailId          Int?
+  invoice                      Invoice        @relation(fields: [invoiceId], references: [id])
+  invoiceId                    Int 
+  entity                       Partners?        @relation("entity", fields: [entityId], references: [id])
+  entityId                     Int?
+  partner                      Partners?        @relation("partner", fields: [partnerId], references: [id])
+  partnerId                    Int?
+  partPaymentValue             Float
+  eqvTotalPayment              Float
+  restAmount                   Float
+  payFromDate                  DateTime
+  payToDate                    DateTime
+  currency                     Currency?        @relation(fields: [currencyId], references: [id])
+  currencyId                   Int?
+}
+
+

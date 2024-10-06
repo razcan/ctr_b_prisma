@@ -139,6 +139,26 @@ export class InvoiceService {
     return result;
   }
 
+  async findAllbyPartnerId(entityId: number, partnerId: number) {
+    // console.log(partnerId, 'partnerId');
+    const result = await this.prisma.invoice.findMany({
+      where: {
+        partnerId: partnerId,
+        entityId: entityId,
+        statusId: 2, //Validat
+      },
+      include: {
+        partner: true,
+        type: true,
+        status: true,
+        entity: true,
+        currency: true,
+        series: true,
+      },
+    });
+    return result;
+  }
+
   async delete(id: number) {
     try {
       const resultdetail = await this.prisma.invoiceDetail.deleteMany({

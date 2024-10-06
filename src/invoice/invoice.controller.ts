@@ -46,6 +46,14 @@ export class InvoiceController {
     return this.invoiceService.findAll();
   }
 
+  @Get('findAllbyPartnerId/:entityId/:partnerId')
+  async findAllbyPartnerId(
+    @Param('entityId') entityId: string,
+    @Param('partnerId') partnerId: string,
+  ) {
+    return this.invoiceService.findAllbyPartnerId(+entityId, +partnerId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.invoiceService.findOne(+id);

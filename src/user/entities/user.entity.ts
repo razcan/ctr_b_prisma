@@ -8,6 +8,7 @@ import {WorkFlowContractTasks} from '../../workFlowContractTasks/entities/workFl
 import {ForgotPass} from '../../forgotPass/entities/forgotPass.entity'
 import {Invoice} from '../../invoice/entities/invoice.entity'
 import {Item} from '../../item/entities/item.entity'
+import {Transactions} from '../../transactions/entities/transactions.entity'
 
 
 export class User {
@@ -30,4 +31,5 @@ WorkFlowRequestorTasks?: WorkFlowContractTasks[] ;
 ForgotPass?: ForgotPass[] ;
 Invoice?: Invoice[] ;
 Item?: Item[] ;
+Transactions?: Transactions[] ;
 }

@@ -9,6 +9,8 @@ import {User} from '../../user/entities/user.entity'
 import {Currency} from '../../currency/entities/currency.entity'
 import {InvoiceDetail} from '../../invoiceDetail/entities/invoiceDetail.entity'
 import {DocumentSeries} from '../../documentSeries/entities/documentSeries.entity'
+import {TransactionDetail} from '../../transactionDetail/entities/transactionDetail.entity'
+import {TransactionDetailEvents} from '../../transactionDetailEvents/entities/transactionDetailEvents.entity'
 
 
 export class Invoice {
@@ -50,4 +52,6 @@ eqvVatAmount: number ;
 eqvTotalPayment: number ;
 vatOnReceipt: boolean ;
 parentId: number  | null;
+TransactionDetail?: TransactionDetail[] ;
+TransactionDetailEvents?: TransactionDetailEvents[] ;
 }
