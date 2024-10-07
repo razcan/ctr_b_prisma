@@ -1308,14 +1308,31 @@ export class NomenclaturesController {
     return result;
   }
 
-  @Get('bank/:partnerid')
-  async getBanksByPartnerId(@Param('partnerid') partnerid: any) {
-    const banks = await this.prisma.banks.findMany({
-      where: {
-        partnerId: parseInt(partnerid),
-      },
-    });
-    return banks;
+  // @Get('bank/:partnerid?')
+  // async getBanksByPartnerId(@Param('partnerid') partnerid: any) {
+  //   const banks = await this.prisma.banks.findMany({
+  //     where: {
+  //       partnerId: parseInt(partnerid),
+  //     },
+  //   });
+  //   return banks;
+  // }
+
+  @Get('bank/:partnerid?') // The "?" makes the parameter optional
+  async getBanksByPartnerId(@Param('partnerid') partnerid?: string) {
+    // If the partnerid is provided, convert it to an integer and query the database
+    if (partnerid) {
+      const banks = await this.prisma.banks.findMany({
+        where: {
+          partnerId: parseInt(partnerid),
+        },
+      });
+      return banks;
+    }
+
+    // If no partnerid is provided, return all banks or handle it as needed
+    const allBanks = await this.prisma.banks.findMany();
+    return allBanks;
   }
 
   @Get('entitybank/:partnerid')

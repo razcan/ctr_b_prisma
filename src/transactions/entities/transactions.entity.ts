@@ -1,12 +1,10 @@
 
 import {Partners} from '../../partners/entities/partners.entity'
-import {DocumentSeries} from '../../documentSeries/entities/documentSeries.entity'
 import {Currency} from '../../currency/entities/currency.entity'
 import {PaymentType} from '../../paymentType/entities/paymentType.entity'
 import {Banks} from '../../banks/entities/banks.entity'
 import {User} from '../../user/entities/user.entity'
 import {InvoiceStatus} from '../../invoiceStatus/entities/invoiceStatus.entity'
-import {TransactionType} from '../../transactionType/entities/transactionType.entity'
 import {TransactionDetail} from '../../transactionDetail/entities/transactionDetail.entity'
 
 
@@ -19,8 +17,6 @@ partnerId: number  | null;
 entity?: Partners  | null;
 entityId: number  | null;
 number: string ;
-series?: DocumentSeries  | null;
-seriesId: number  | null;
 date: Date ;
 currency?: Currency  | null;
 currencyId: number  | null;
@@ -41,7 +37,5 @@ user?: User ;
 userId: number ;
 status?: InvoiceStatus  | null;
 statusId: number  | null;
-transaction?: TransactionType  | null;
-transactionTypeId: number  | null;
 TransactionDetail?: TransactionDetail[] ;
 }

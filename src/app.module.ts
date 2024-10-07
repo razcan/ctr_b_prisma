@@ -12,6 +12,7 @@ import { AuthService } from './auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from './user/user.service';
 import { InvoiceModule } from './invoice/invoice.module';
+import { TransactionModule } from './transactions/transaction.module';
 import { CreatepdfModule } from './createpdf/createpdf.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
@@ -36,6 +37,7 @@ import { DevtoolsModule } from '@nestjs/devtools-integration';
     AuthModule,
     InvoiceModule,
     CreatepdfModule,
+    TransactionModule
   ],
   controllers: [AppController],
   providers: [

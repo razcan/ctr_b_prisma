@@ -837,8 +837,6 @@ model TransactionType {
   createdAt  DateTime  @default(now())
   name       String    @unique
   Invoice    Invoice[]
-
-  Transactions Transactions[]
 }
 
 model Invoice {
@@ -921,8 +919,6 @@ model DocumentSeries {
   last_number     Int
   isActive        Boolean
   Invoice         Invoice[]
-
-  Transactions Transactions[]
 }
 
 model ExchangeRatesBNR {
@@ -944,8 +940,6 @@ model Transactions {
   entity            Partners?        @relation("entity", fields: [entityId], references: [id])
   entityId          Int?
   number            String
-  series            DocumentSeries?  @relation(fields: [seriesId], references: [id])
-  seriesId          Int?
   date              DateTime
   currency          Currency?        @relation(fields: [currencyId], references: [id])
   currencyId        Int?
@@ -966,8 +960,6 @@ model Transactions {
   userId            Int
   status            InvoiceStatus?   @relation(fields: [statusId], references: [id])
   statusId          Int?
-  transaction       TransactionType? @relation(fields: [transactionTypeId], references: [id])
-  transactionTypeId Int?
 
   TransactionDetail TransactionDetail[]
 }
