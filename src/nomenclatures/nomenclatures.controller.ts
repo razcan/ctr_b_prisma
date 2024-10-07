@@ -935,13 +935,7 @@ export class NomenclaturesController {
 
   @Get('getReceiptsTypeFiltered')
   async getReceiptsTypeFiltered() {
-    const invoiceType = await this.prisma.invoiceType.findMany({
-      where: {
-        id: {
-          in: [6, 8, 10, 12],
-        },
-      },
-    });
+    const invoiceType = await this.prisma.paymentType.findMany({});
     return invoiceType;
   }
 
