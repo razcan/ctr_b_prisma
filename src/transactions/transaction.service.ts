@@ -41,7 +41,10 @@ export class TransactionService {
     const details = [];
     data.toAddDetails.map((inv_detail: any) => details.push(inv_detail));
 
-    // // console.log(details);
+    const events = [];
+    data.events.map((event: any) => events.push(event));
+
+    // console.log(events);
 
     try {
       const result = await this.prisma.transactions.create({
@@ -50,13 +53,33 @@ export class TransactionService {
 
       //console.log(details.length, 'marime');
       for (let i = 0; i < details.length; i++) {
-        details[i].transactionId = (await result).id;
+        details[i].transactionId = result.id;
         // console.log((await result).id, 'inv id');
       }
 
-      const resultDetails = await this.prisma.transactionDetail.createMany({
-        data: details,
-      });
+      console.log(details);
+
+      //parcurgere lista si facut insert pt fiecare val, luat id si bagat in event
+      for (let z = 0; z < details.length; z++) {
+        const resultDetails = await this.prisma.transactionDetail.create({
+          data: details[z],
+        });
+
+        const eventsDetails = await this.prisma.transactionDetailEvents.create({
+          data: {
+            transactionDetailId: resultDetails.id,
+            invoiceId: parseInt(events[z].invoiceId),
+            entityId: parseInt(events[z].entityId),
+            partnerId: parseInt(events[z].partnerId),
+            partPaymentValue: parseFloat(events[z].partPaymentValue),
+            eqvTotalPayment: 0,
+            restAmount: 0,
+            payFromDate: new Date('1900-01-01'),
+            payToDate: new Date(),
+            currencyId: parseInt(events[z].currencyId),
+          },
+        });
+      }
 
       //   this.patchDocSeriesByDocTypeIdandSerieId(header.typeId, header.seriesId);
 
