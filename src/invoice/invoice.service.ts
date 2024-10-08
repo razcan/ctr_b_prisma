@@ -65,6 +65,7 @@ export class InvoiceService {
       eqvTotalPayment: data.eqvTotalPayment,
       vatOnReceipt: data.vatOnReceipt,
       parentId: data.parentId,
+      restPayment: data.restPayment,
     };
 
     const details = [];
@@ -146,6 +147,11 @@ export class InvoiceService {
         partnerId: partnerId,
         entityId: entityId,
         statusId: 2, //Validat
+        restPayment: {
+          not: {
+            in: [0], //only invoices with restPayment - unpayed
+          },
+        },
       },
       include: {
         partner: true,
