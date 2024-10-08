@@ -13,7 +13,7 @@ export class TransactionService {
   ): Promise<any> {}
 
   async create(@Body() data: any) {
-    console.log(data);
+    // console.log(data);
 
     const header: Prisma.TransactionsUncheckedCreateInput = {
       partnerId: data.partnerId,
@@ -57,13 +57,40 @@ export class TransactionService {
         // console.log((await result).id, 'inv id');
       }
 
-      console.log(details);
-
-      //parcurgere lista si facut insert pt fiecare val, luat id si bagat in event
       for (let z = 0; z < details.length; z++) {
         const resultDetails = await this.prisma.transactionDetail.create({
           data: details[z],
         });
+
+        //we find the invoice , make a sum from all payments details , and after, we upate the restPayment at invoice level
+        const findInvoice = await this.prisma.invoice.findUnique({
+          where: {
+            id: details[z].invoiceId,
+          },
+        });
+
+        const findPayments = await this.prisma.transactionDetail.findMany({
+          where: {
+            invoiceId: details[z].invoiceId,
+          },
+        });
+
+        const sum_payments = findPayments.reduce(
+          (total, invoice) => total + (invoice.eqvTotalPayment || 0),
+          0,
+        );
+
+        if (findInvoice.eqvTotalPayment - sum_payments) {
+          const restPayment = findInvoice.eqvTotalPayment - sum_payments;
+          findInvoice.restPayment = restPayment;
+
+          const updateInvoice = await this.prisma.invoice.update({
+            where: {
+              id: details[z].invoiceId,
+            },
+            data: findInvoice,
+          });
+        }
 
         const eventsDetails = await this.prisma.transactionDetailEvents.create({
           data: {
