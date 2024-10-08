@@ -34,7 +34,6 @@ export class TransactionController {
 
   @Post()
   create(@Body() transaction: any) {
-    console.log(transaction, 'transaction');
     return this.transactionService.create(transaction);
   }
 

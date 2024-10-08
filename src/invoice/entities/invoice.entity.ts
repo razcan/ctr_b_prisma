@@ -50,6 +50,7 @@ serialNumber: string ;
 eqvTotalAmount: number ;
 eqvVatAmount: number ;
 eqvTotalPayment: number ;
+restPayment: number ;
 vatOnReceipt: boolean ;
 parentId: number  | null;
 TransactionDetail?: TransactionDetail[] ;

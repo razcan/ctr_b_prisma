@@ -876,6 +876,7 @@ model Invoice {
   eqvTotalAmount    Float
   eqvVatAmount      Float
   eqvTotalPayment   Float
+  restPayment       Float          @default(-1)
   vatOnReceipt      Boolean
   parentId          Int?           @default(0)
 
@@ -952,6 +953,7 @@ model Transactions {
   entitybankId      Int?
   PartnerBank       Banks?           @relation("partner", fields: [partnerbankId], references: [id])
   partnerbankId     Int?
+  bank              Float?
   cash              Float?
   card              Float?
   meal              Float?
@@ -962,21 +964,22 @@ model Transactions {
   statusId          Int?
 
   TransactionDetail TransactionDetail[]
+  @@unique([entityId, number])
 }
 
 model TransactionDetail {
-  id         Int      @id @default(autoincrement())
-  updateadAt DateTime @updatedAt
-  createdAt  DateTime @default(now())
-  transactions            Transactions?  @relation(fields: [transactionId], references: [id])
-  transactionId          Int?
-  invoice         Invoice        @relation(fields: [invoiceId], references: [id])
-  invoiceId       Int 
+  id                Int      @id @default(autoincrement())
+  updateadAt        DateTime @updatedAt
+  createdAt         DateTime @default(now())
+  transactions      Transactions?  @relation(fields: [transactionId], references: [id])
+  transactionId     Int?
+  invoice           Invoice        @relation(fields: [invoiceId], references: [id])
+  invoiceId         Int 
   entity            Partners?        @relation("entity", fields: [entityId], references: [id])
   entityId          Int?
   partner           Partners?        @relation("partner", fields: [partnerId], references: [id])
   partnerId         Int?
-  partPaymentValue            Float
+  partPaymentValue  Float
   currency          Currency?        @relation(fields: [currencyId], references: [id])
   currencyId        Int?
   exchangeRate      Float

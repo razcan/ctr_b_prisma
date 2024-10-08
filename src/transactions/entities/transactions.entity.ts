@@ -29,6 +29,7 @@ entityBank?: Banks  | null;
 entitybankId: number  | null;
 PartnerBank?: Banks  | null;
 partnerbankId: number  | null;
+bank: number  | null;
 cash: number  | null;
 card: number  | null;
 meal: number  | null;
