@@ -1,8 +1,6 @@
 import { Body, Injectable, Param } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { Invoice, Prisma } from '@prisma/client';
-import { Address } from 'src/address/entities';
-
+import { Prisma } from '@prisma/client';
 @Injectable()
 export class TransactionService {
   constructor(private prisma: PrismaService) {}
@@ -114,7 +112,7 @@ export class TransactionService {
     } catch (e) {
       if (e.code) {
         throw e.code;
-        // console.log(e);
+        // in order to get an error, i need to set this throw in all endpoints
       } else {
         console.error('An unexpected error occurred: ', e);
       }

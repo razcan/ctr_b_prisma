@@ -15,8 +15,6 @@ export interface PrismaError {
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
-    // console.log(exception, 'exception este aici');
-
     const prismaErrors: PrismaError[] = [
       {
         code: 'P1000',
@@ -205,12 +203,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     ];
     const error = prismaErrors.find((error) => error.code === exception);
 
-    // console.log(error, 'eroare prisma');
-
-    // Send the response
     if (error) {
-      // console.log(error);
-
       const ctx = host.switchToHttp();
       const response = ctx.getResponse<Response>();
 
