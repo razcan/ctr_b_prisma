@@ -111,8 +111,15 @@ export class TransactionService {
       //   this.patchDocSeriesByDocTypeIdandSerieId(header.typeId, header.seriesId);
 
       return result;
-    } catch (error) {
-      console.error('Error creating Invoice:', error);
+    } catch (e) {
+      if (e.code) {
+        throw e.code;
+        // this.prisma.checkError(e.code);
+      } else {
+        console.error('An unexpected error occurred: ', e);
+      }
     }
   }
+
+  async update(@Body() transaction: any, @Param('id') id: string) {}
 }

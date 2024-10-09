@@ -1,25 +1,22 @@
 import {
-  Injectable,
-  OnModuleInit,
-  INestApplication,
-  Param,
+  Catch,
+  ExceptionFilter,
+  ArgumentsHost,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { Response } from 'express';
 
 export interface PrismaError {
   code: string;
   message: string;
 }
 
-@Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit {
-  async onModuleInit() {
-    await this.$connect();
-  }
+@Catch()
+export class HttpExceptionFilter implements ExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost) {
+    // console.log(exception, 'exception este aici');
 
-  async checkError(code: string): Promise<PrismaError> {
     const prismaErrors: PrismaError[] = [
       {
         code: 'P1000',
@@ -212,41 +209,48 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
           'A number used in the query does not fit into a 64-bit signed integer.',
       },
     ];
-    const error = prismaErrors.find((error) => error.code === code);
+    const error = prismaErrors.find((error) => error.code === exception);
 
+    // console.log(error, 'eroare prisma');
+
+    // Send the response
     if (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.FORBIDDEN,
-          error: 'This is a custom message',
-        },
-        HttpStatus.FORBIDDEN,
-        {
-          cause: error,
-        },
-      );
+      // console.log(error);
+
+      const ctx = host.switchToHttp();
+      const response = ctx.getResponse<Response>();
+
+      response.status(HttpStatus.BAD_REQUEST).send({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: error.message,
+        errorCode: error.code,
+      });
+    } else {
+      const ctx = host.switchToHttp();
+      const response = ctx.getResponse<Response>();
+
+      let status = HttpStatus.INTERNAL_SERVER_ERROR;
+      let message = 'An internal server error occurred';
+
+      // Check if the exception is a known Prisma error
+      if (exception instanceof Error) {
+        const errorMessage = exception.message;
+        if (errorMessage.includes('Unique constraint failed')) {
+          status = HttpStatus.CONFLICT; // HTTP 409
+          message = 'Unique constraint violation';
+        } else if (errorMessage.includes('Foreign key constraint failed')) {
+          status = HttpStatus.BAD_REQUEST; // HTTP 400
+          message = 'Foreign key constraint violation';
+        } else if (errorMessage.includes('Invalid data provided')) {
+          status = HttpStatus.BAD_REQUEST; // HTTP 400
+          message = 'Invalid data provided';
+        }
+      }
+
+      response.status(status).json({
+        statusCode: status,
+        message,
+      });
     }
-
-    return error;
-
-    // if (error) {
-    //   throw new HttpException(
-    //     {
-    //       statusCode: HttpStatus.BAD_REQUEST,
-    //       message: error.message,
-    //       code: error.code,
-    //     },
-    //     HttpStatus.BAD_REQUEST,
-    //   );
-    // } else {
-    //   throw new HttpException(
-    //     {
-    //       statusCode: HttpStatus.BAD_REQUEST,
-    //       message: 'Unknown error code',
-    //       code: 'UNKNOWN',
-    //     },
-    //     HttpStatus.BAD_REQUEST,
-    //   );
-    // }
   }
 }

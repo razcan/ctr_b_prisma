@@ -37,6 +37,11 @@ export class TransactionController {
     return this.transactionService.create(transaction);
   }
 
+  @Patch(':id')
+  update(@Body() transaction: any, @Param('id') id: string) {
+    return this.transactionService.update(+id, transaction);
+  }
+
   //   @Get(':id')
   //   findOne(@Param('id') id: string) {
   //     return this.transactionService.findOne(+id);

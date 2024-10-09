@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { HttpExceptionFilter } from './filters/http-exception.filter';
 require('dotenv').config();
 
 async function bootstrap() {
@@ -8,6 +9,8 @@ async function bootstrap() {
     snapshot: true,
   });
 
+  app.useGlobalFilters(new HttpExceptionFilter());
+  
   app.enableCors({
     origin: [
       'http://localhost:5500',

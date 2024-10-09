@@ -17,6 +17,8 @@ import { CreatepdfModule } from './createpdf/createpdf.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './filters/http-exception.filter';
 
 @Module({
   imports: [
@@ -37,7 +39,7 @@ import { DevtoolsModule } from '@nestjs/devtools-integration';
     AuthModule,
     InvoiceModule,
     CreatepdfModule,
-    TransactionModule
+    TransactionModule,
   ],
   controllers: [AppController],
   providers: [
@@ -47,6 +49,10 @@ import { DevtoolsModule } from '@nestjs/devtools-integration';
     AuthService,
     JwtService,
     UsersService,
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
   ],
 })
 export class AppModule {}
