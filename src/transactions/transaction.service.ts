@@ -114,7 +114,7 @@ export class TransactionService {
     } catch (e) {
       if (e.code) {
         throw e.code;
-        // this.prisma.checkError(e.code);
+        // console.log(e);
       } else {
         console.error('An unexpected error occurred: ', e);
       }
