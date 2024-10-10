@@ -920,6 +920,8 @@ model DocumentSeries {
   last_number     Int
   isActive        Boolean
   Invoice         Invoice[]
+
+  Transactions Transactions[]
 }
 
 model ExchangeRatesBNR {
@@ -940,7 +942,7 @@ model Transactions {
   partnerId         Int?
   entity            Partners?        @relation("entity", fields: [entityId], references: [id])
   entityId          Int?
-  number            String
+  number            Int
   date              DateTime
   currency          Currency?        @relation(fields: [currencyId], references: [id])
   currencyId        Int?
@@ -962,6 +964,8 @@ model Transactions {
   userId            Int
   status            InvoiceStatus?   @relation(fields: [statusId], references: [id])
   statusId          Int?
+  series            DocumentSeries?  @relation(fields: [seriesId], references: [id])
+  seriesId          Int?
 
   TransactionDetail TransactionDetail[]
   @@unique([entityId, number])

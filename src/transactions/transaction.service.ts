@@ -8,10 +8,32 @@ export class TransactionService {
   async patchDocSeriesByDocTypeIdandSerieId(
     @Param('documentTypeId') documentTypeId: any,
     @Param('id') id: any,
-  ): Promise<any> {}
+  ): Promise<any> {
+    try {
+      const actual_nr = await this.prisma.documentSeries.findFirst({
+        where: {
+          documentTypeId: parseInt(documentTypeId),
+          id: parseInt(id),
+        },
+      });
+      const result = this.prisma.documentSeries.update({
+        data: {
+          last_number: actual_nr.last_number + 1,
+        },
+        where: {
+          documentTypeId: parseInt(documentTypeId),
+          id: parseInt(id),
+        },
+      });
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
 
   async create(@Body() data: any) {
-    // console.log(data);
+    console.log(data);
 
     const header: Prisma.TransactionsUncheckedCreateInput = {
       partnerId: data.partnerId,
@@ -32,6 +54,7 @@ export class TransactionService {
       remarks: data.remarks,
       userId: data.userId,
       statusId: data.statusId,
+      seriesId: data.seriesId,
     };
 
     // const details = data[1];
@@ -48,6 +71,8 @@ export class TransactionService {
       const result = await this.prisma.transactions.create({
         data: header,
       });
+
+      //   this.patchDocSeriesByDocTypeIdandSerieId(header.typeId, header.seriesId);
 
       //console.log(details.length, 'marime');
       for (let i = 0; i < details.length; i++) {

@@ -5,7 +5,7 @@
 
 
 export class UpdateTransactionsDto {
-  number?: string;
+  number?: number;
 date?: Date;
 paymentValue?: number;
 exchangeRate?: number;
