@@ -42,8 +42,30 @@ export class TransactionController {
     return this.transactionService.update(+id, transaction);
   }
 
-  //   @Get(':id')
-  //   findOne(@Param('id') id: string) {
-  //     return this.transactionService.findOne(+id);
-  //   }
+  @Get('findAll/:entityId')
+  async findAll(@Param('entityId') entityId: string) {
+    return await this.transactionService.findMany(+entityId);
+  }
+
+  // @Get('findAllbyPartnerId/:entityId/:partnerId')
+  // async findAllbyPartnerId(
+  //   @Param('entityId') entityId: string,
+  //   @Param('partnerId') partnerId: string,
+  // ) {
+  //   return this.invoiceService.findAllbyPartnerId(+entityId, +partnerId);
+  // }
+
+  // @Get('findFiltered/:entityId/:partnerId/:currencyId')
+  // async findFiltered(
+  //   @Param('entityId') entityId: string,
+  //   @Param('partnerId') partnerId: string,
+  //   @Param('currencyId') currencyId: string,
+  // ) {
+  //   return this.invoiceService.findFiltered(+entityId, +partnerId, +currencyId);
+  // }
+
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.invoiceService.findOne(+id);
+  // }
 }
