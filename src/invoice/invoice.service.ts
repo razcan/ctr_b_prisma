@@ -165,6 +165,32 @@ export class InvoiceService {
     return result;
   }
 
+  async findFiltered(entityId: number, partnerId: number, currencyId: number) {
+    // console.log(partnerId, 'partnerId');
+    const result = await this.prisma.invoice.findMany({
+      where: {
+        partnerId: partnerId,
+        entityId: entityId,
+        statusId: 2, //Validat
+        currencyId: currencyId,
+        restPayment: {
+          not: {
+            in: [0], //only invoices with restPayment - unpayed
+          },
+        },
+      },
+      include: {
+        partner: true,
+        type: true,
+        status: true,
+        entity: true,
+        currency: true,
+        series: true,
+      },
+    });
+    return result;
+  }
+
   async delete(id: number) {
     try {
       const resultdetail = await this.prisma.invoiceDetail.deleteMany({

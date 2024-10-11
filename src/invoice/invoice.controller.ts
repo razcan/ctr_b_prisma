@@ -54,6 +54,15 @@ export class InvoiceController {
     return this.invoiceService.findAllbyPartnerId(+entityId, +partnerId);
   }
 
+  @Get('findFiltered/:entityId/:partnerId/:currencyId')
+  async findFiltered(
+    @Param('entityId') entityId: string,
+    @Param('partnerId') partnerId: string,
+    @Param('currencyId') currencyId: string,
+  ) {
+    return this.invoiceService.findFiltered(+entityId, +partnerId, +currencyId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.invoiceService.findOne(+id);
