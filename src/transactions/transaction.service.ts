@@ -66,13 +66,18 @@ export class TransactionService {
         status: true,
         entity: true,
         currency: true,
+        TransactionDetail: {
+          include: {
+            invoice: true,
+          },
+        },
       },
     });
     return result;
   }
 
   async create(@Body() data: any) {
-    console.log(data);
+   // console.log(data);
 
     const header: Prisma.TransactionsUncheckedCreateInput = {
       partnerId: data.partnerId,
