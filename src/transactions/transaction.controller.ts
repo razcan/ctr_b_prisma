@@ -47,6 +47,11 @@ export class TransactionController {
     return await this.transactionService.findMany(+entityId);
   }
 
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.transactionService.findOne(+id);
+  }
+
   // @Get('findAllbyPartnerId/:entityId/:partnerId')
   // async findAllbyPartnerId(
   //   @Param('entityId') entityId: string,
@@ -62,10 +67,5 @@ export class TransactionController {
   //   @Param('currencyId') currencyId: string,
   // ) {
   //   return this.invoiceService.findFiltered(+entityId, +partnerId, +currencyId);
-  // }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.invoiceService.findOne(+id);
   // }
 }

@@ -32,6 +32,29 @@ export class TransactionService {
     }
   }
 
+  async findOne(id: number) {
+    const result = await this.prisma.transactions.findMany({
+      where: {
+        id: id,
+      },
+      include: {
+        partner: true,
+        type: true,
+        status: true,
+        entity: true,
+        currency: true,
+        entityBank: true,
+        TransactionDetail: {
+          include: {
+            invoice: true,
+          },
+        },
+        series: true,
+      },
+    });
+    return result;
+  }
+
   async findMany(@Param('entityId') entityId: any) {
     const result = this.prisma.transactions.findMany({
       where: {
