@@ -222,16 +222,22 @@ export class HttpExceptionFilter implements ExceptionFilter {
       // Check if the exception is a known Prisma error
       if (exception instanceof Error) {
         const errorMessage = exception.message;
-        if (errorMessage.includes('Unique constraint failed')) {
-          status = HttpStatus.CONFLICT; // HTTP 409
-          message = 'Unique constraint violation';
-        } else if (errorMessage.includes('Foreign key constraint failed')) {
-          status = HttpStatus.BAD_REQUEST; // HTTP 400
-          message = 'Foreign key constraint violation';
-        } else if (errorMessage.includes('Invalid data provided')) {
-          status = HttpStatus.BAD_REQUEST; // HTTP 400
-          message = 'Invalid data provided';
+
+        if (errorMessage) {
+          status = HttpStatus.BAD_REQUEST; // HTTP 409
+          message = errorMessage;
         }
+
+        // if (errorMessage.includes('Unique constraint failed')) {
+        //   status = HttpStatus.CONFLICT; // HTTP 409
+        //   message = 'Unique constraint violation';
+        // } else if (errorMessage.includes('Foreign key constraint failed')) {
+        //   status = HttpStatus.BAD_REQUEST; // HTTP 400
+        //   message = 'Foreign key constraint violation';
+        // } else if (errorMessage.includes('Invalid data provided')) {
+        //   status = HttpStatus.BAD_REQUEST; // HTTP 400
+        //   message = 'Invalid data provided';
+        // }
       }
 
       response.status(status).json({
@@ -240,4 +246,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
       });
     }
   }
+
+  returnErrorsByCode(code: String) {}
 }

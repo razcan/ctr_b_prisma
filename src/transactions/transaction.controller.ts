@@ -38,7 +38,7 @@ export class TransactionController {
   }
 
   @Patch(':id')
-  update(@Body() transaction: any, @Param('id') id: string) {
+  update(@Body() transaction: any, @Param('id') id: number) {
     return this.transactionService.update(+id, transaction);
   }
 
@@ -50,6 +50,11 @@ export class TransactionController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.transactionService.findOne(+id);
+  }
+
+  @Delete(':id')
+  deleteOne(@Param('id') id: string) {
+    return this.transactionService.deleteOne(+id);
   }
 
   // @Get('findAllbyPartnerId/:entityId/:partnerId')

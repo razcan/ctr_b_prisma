@@ -977,7 +977,7 @@ model TransactionDetail {
   createdAt         DateTime @default(now())
   transactions      Transactions?  @relation(fields: [transactionId], references: [id])
   transactionId     Int?
-  invoice           Invoice        @relation(fields: [invoiceId], references: [id])
+  invoice           Invoice?        @relation(fields: [invoiceId], references: [id])
   invoiceId         Int 
   entity            Partners?        @relation("entity", fields: [entityId], references: [id])
   entityId          Int?

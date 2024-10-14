@@ -19,6 +19,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
+import { PrismaErrorService } from './filters/prisma-error.service';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { HttpExceptionFilter } from './filters/http-exception.filter';
     AuthService,
     JwtService,
     UsersService,
+    PrismaErrorService,
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
