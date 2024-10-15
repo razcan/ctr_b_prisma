@@ -36,7 +36,7 @@ export class AuthService {
         user_groups.push(roles.User_Groups[i].entity);
       }
 
-      // console.log(user_groups)
+      // console.log(user_groups);
 
       const user_groups_final = [];
       for (let i = 0; i < user_groups.length; i++) {
@@ -61,13 +61,22 @@ export class AuthService {
     };
 
     const hashedPassword = bcrypt.hash(password, 2);
-    // console.log("hashedPassword", await hashedPassword)
+    // console.log('hashedPassword', await hashedPassword);
 
     const pass = await this.usersService.findUserPass(username);
-    // console.log("pass", pass)
+    // console.log('pass', pass);
 
     if (pass) {
       const isMatch = await bcrypt.compare(password, pass);
+
+      // console.log('isMatch', isMatch);
+
+      if (!isMatch) {
+        throw new UnauthorizedException('You are not authorized!', {
+          cause: new Error(),
+          description: 'You are not authorized!',
+        });
+      }
 
       if (isMatch) {
         const current_user = await this.usersService.findUser(username);
