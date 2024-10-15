@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.1
--- Dumped by pg_dump version 16.2
+-- Dumped from database version 16.4
+-- Dumped by pg_dump version 16.4 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -17,16 +17,16 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: public; Type: SCHEMA; Schema: -; Owner: sysadmin
+-- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
 --
 
 -- *not* creating schema, since initdb creates it
 
 
-ALTER SCHEMA public OWNER TO sysadmin;
+ALTER SCHEMA public OWNER TO postgres;
 
 --
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: sysadmin
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
 --
 
 COMMENT ON SCHEMA public IS '';
@@ -47,7 +47,7 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 
 
 --
--- Name: active_wf_rulesok(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: active_wf_rulesok(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.active_wf_rulesok() RETURNS TABLE(workflowid integer, costcenters integer[], departments integer[], cashflows integer[], categories integer[])
@@ -149,10 +149,10 @@ END;
 $$;
 
 
-ALTER FUNCTION public.active_wf_rulesok() OWNER TO sysadmin;
+ALTER FUNCTION public.active_wf_rulesok() OWNER TO postgres;
 
 --
--- Name: active_wf_rulesok99(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: active_wf_rulesok99(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.active_wf_rulesok99() RETURNS TABLE(workflowid integer, costcenters integer[], departments integer[], cashflows integer[], categories integer[])
@@ -253,13 +253,13 @@ END;
 $$;
 
 
-ALTER FUNCTION public.active_wf_rulesok99() OWNER TO sysadmin;
+ALTER FUNCTION public.active_wf_rulesok99() OWNER TO postgres;
 
 --
--- Name: calculate_cashflow_func(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: calculate_cashflow_func(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.calculate_cashflow_func() RETURNS TABLE(tip text, billingvalue numeric, month_number numeric)
+CREATE FUNCTION public.calculate_cashflow_func() RETURNS TABLE(tip text, billingvalue numeric, month_number numeric, year_number numeric)
     LANGUAGE plpgsql ROWS 10000
     AS $$
     BEGIN
@@ -267,6 +267,7 @@ CREATE FUNCTION public.calculate_cashflow_func() RETURNS TABLE(tip text, billing
         SELECT x.tip,
                SUM(x.billingValue) AS billingValue,
                EXTRACT(MONTH FROM x."date") AS month_number
+			   , EXTRACT(YEAR FROM x."date") AS year_number
         FROM (
             SELECT 'P' AS tip,
                    cfdb.date,
@@ -284,7 +285,7 @@ CREATE FUNCTION public.calculate_cashflow_func() RETURNS TABLE(tip text, billing
             AND cfd.active IS TRUE
             AND cfdb.active IS TRUE
             AND c."isPurchasing" IS TRUE
-            AND cfdb."date" BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '6 months'
+            AND cfdb."date" BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 months'
 
             UNION ALL
 
@@ -304,19 +305,20 @@ CREATE FUNCTION public.calculate_cashflow_func() RETURNS TABLE(tip text, billing
             AND cfd.active IS TRUE
             AND cfdb.active IS TRUE
             AND c."isPurchasing" IS FALSE
-            AND cfdb."date" BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '6 months'
+            AND cfdb."date" BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 months'
         ) x
-        GROUP BY x.tip, EXTRACT(MONTH FROM x."date")
+        GROUP BY x.tip, EXTRACT(MONTH FROM x."date"), EXTRACT(YEAR FROM x."date")
         ORDER BY 1;
 
     END;
-    $$;
+    
+$$;
 
 
-ALTER FUNCTION public.calculate_cashflow_func() OWNER TO sysadmin;
+ALTER FUNCTION public.calculate_cashflow_func() OWNER TO postgres;
 
 --
--- Name: contracttasktobegenerated(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: contracttasktobegenerated(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.contracttasktobegenerated() RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, approvedbyall boolean, approvaltypeinparallel boolean, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean)
@@ -353,10 +355,10 @@ select wfts."taskName", wfts."taskNotes", wfx."contractId",
     $$;
 
 
-ALTER FUNCTION public.contracttasktobegenerated() OWNER TO sysadmin;
+ALTER FUNCTION public.contracttasktobegenerated() OWNER TO postgres;
 
 --
--- Name: contracttasktobegeneratedok(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: contracttasktobegeneratedok(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.contracttasktobegeneratedok() RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer)
@@ -394,10 +396,10 @@ CREATE FUNCTION public.contracttasktobegeneratedok() RETURNS TABLE(taskname text
         $$;
 
 
-ALTER FUNCTION public.contracttasktobegeneratedok() OWNER TO sysadmin;
+ALTER FUNCTION public.contracttasktobegeneratedok() OWNER TO postgres;
 
 --
--- Name: contracttasktobegeneratedsecv(integer); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: contracttasktobegeneratedsecv(integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.contracttasktobegeneratedsecv(contractid_param integer) RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, approvedbyall boolean, approvaltypeinparallel boolean, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer)
@@ -451,10 +453,10 @@ END;
 $$;
 
 
-ALTER FUNCTION public.contracttasktobegeneratedsecv(contractid_param integer) OWNER TO sysadmin;
+ALTER FUNCTION public.contracttasktobegeneratedsecv(contractid_param integer) OWNER TO postgres;
 
 --
--- Name: contracttasktobegeneratedsecv3(integer); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: contracttasktobegeneratedsecv3(integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.contracttasktobegeneratedsecv3(contractid_param integer) RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, workflowtasksettingsid integer, uuid integer, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer)
@@ -508,10 +510,10 @@ END;
 $$;
 
 
-ALTER FUNCTION public.contracttasktobegeneratedsecv3(contractid_param integer) OWNER TO sysadmin;
+ALTER FUNCTION public.contracttasktobegeneratedsecv3(contractid_param integer) OWNER TO postgres;
 
 --
--- Name: contracttasktobegeneratedsecv5(integer); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: contracttasktobegeneratedsecv5(integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.contracttasktobegeneratedsecv5(contractid_param integer) RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer)
@@ -563,10 +565,10 @@ END;
 $$;
 
 
-ALTER FUNCTION public.contracttasktobegeneratedsecv5(contractid_param integer) OWNER TO sysadmin;
+ALTER FUNCTION public.contracttasktobegeneratedsecv5(contractid_param integer) OWNER TO postgres;
 
 --
--- Name: contracttasktobegeneratedsecvent(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: contracttasktobegeneratedsecvent(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.contracttasktobegeneratedsecvent() RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, approvedbyall boolean, approvaltypeinparallel boolean, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer)
@@ -606,10 +608,10 @@ CREATE FUNCTION public.contracttasktobegeneratedsecvent() RETURNS TABLE(taskname
         $$;
 
 
-ALTER FUNCTION public.contracttasktobegeneratedsecvent() OWNER TO sysadmin;
+ALTER FUNCTION public.contracttasktobegeneratedsecvent() OWNER TO postgres;
 
 --
--- Name: cttobegeneratedsecv(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: cttobegeneratedsecv(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.cttobegeneratedsecv() RETURNS TABLE(taskname text, tasknotes text, contractid integer, statusid integer, requestorid integer, assignedid integer, workflowtasksettingsid integer, uuid uuid, approvalordernumber integer, workflowid integer, priorityname text, priorityid integer, remindername text, reminderdays integer, duedate text, duedatedays integer, calculatedduedate timestamp without time zone, calculatedreminderdate timestamp without time zone, tasksendnotifications boolean, tasksendreminders boolean, taskstatusid integer)
@@ -662,10 +664,10 @@ CREATE FUNCTION public.cttobegeneratedsecv() RETURNS TABLE(taskname text, taskno
         $$;
 
 
-ALTER FUNCTION public.cttobegeneratedsecv() OWNER TO sysadmin;
+ALTER FUNCTION public.cttobegeneratedsecv() OWNER TO postgres;
 
 --
--- Name: get_contract_details(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: get_contract_details(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.get_contract_details() RETURNS TABLE(tipcontract text, number text, start_date date, end_date date, sign_date date, completion_date date, remarks text, partner_name text, entity_name text, automatic_renewal text, status_name text, cashflow_name text, category_name text, contract_type_name text, department_name text, cost_center_name text, partner_person_name text, partner_person_role text, partner_person_email text, entity_person_name text, entity_person_role text, entity_person_email text, partner_address text, entity_address text, partner_bank text, partner_currency text, partner_iban text, entity_bank text, entity_currency text, entity_iban text)
@@ -741,10 +743,10 @@ CREATE FUNCTION public.get_contract_details() RETURNS TABLE(tipcontract text, nu
     $$;
 
 
-ALTER FUNCTION public.get_contract_details() OWNER TO sysadmin;
+ALTER FUNCTION public.get_contract_details() OWNER TO postgres;
 
 --
--- Name: get_workflow_data(); Type: PROCEDURE; Schema: public; Owner: sysadmin
+-- Name: get_workflow_data(); Type: PROCEDURE; Schema: public; Owner: postgres
 --
 
 CREATE PROCEDURE public.get_workflow_data()
@@ -842,10 +844,10 @@ END;
 $$;
 
 
-ALTER PROCEDURE public.get_workflow_data() OWNER TO sysadmin;
+ALTER PROCEDURE public.get_workflow_data() OWNER TO postgres;
 
 --
--- Name: getauditcontract(integer); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: getauditcontract(integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.getauditcontract(contractid integer) RETURNS TABLE(contract_id integer, tip_modificare text, data_modificare timestamp without time zone, contract_number text, nume_partener text, nume_entitate text, stare text, start_date timestamp without time zone, end_date timestamp without time zone, sign_date timestamp without time zone, completion_date timestamp without time zone, nume_categorie text, departament text, cashflow text, tip_contract text, centru_cost text, utilizator text)
@@ -890,10 +892,10 @@ CREATE FUNCTION public.getauditcontract(contractid integer) RETURNS TABLE(contra
         $$;
 
 
-ALTER FUNCTION public.getauditcontract(contractid integer) OWNER TO sysadmin;
+ALTER FUNCTION public.getauditcontract(contractid integer) OWNER TO postgres;
 
 --
--- Name: getauditcontract2(integer); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: getauditcontract2(integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.getauditcontract2(contractid integer) RETURNS TABLE(contract_id integer, tip_modificare text, data_modificare timestamp without time zone, contract_number text, nume_partener text, nume_entitate text, stare text, starewf text, start_date timestamp without time zone, end_date timestamp without time zone, sign_date timestamp without time zone, completion_date timestamp without time zone, nume_categorie text, departament text, cashflow text, tip_contract text, centru_cost text, locatie text, utilizator text)
@@ -938,10 +940,10 @@ CREATE FUNCTION public.getauditcontract2(contractid integer) RETURNS TABLE(contr
         $$;
 
 
-ALTER FUNCTION public.getauditcontract2(contractid integer) OWNER TO sysadmin;
+ALTER FUNCTION public.getauditcontract2(contractid integer) OWNER TO postgres;
 
 --
--- Name: remove_duplicates_from_table2(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: remove_duplicates_from_table2(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.remove_duplicates_from_table2() RETURNS SETOF text
@@ -965,10 +967,10 @@ CREATE FUNCTION public.remove_duplicates_from_table2() RETURNS SETOF text
         $$;
 
 
-ALTER FUNCTION public.remove_duplicates_from_table2() OWNER TO sysadmin;
+ALTER FUNCTION public.remove_duplicates_from_table2() OWNER TO postgres;
 
 --
--- Name: remove_duplicates_from_task(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: remove_duplicates_from_task(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.remove_duplicates_from_task() RETURNS void
@@ -990,10 +992,10 @@ CREATE FUNCTION public.remove_duplicates_from_task() RETURNS void
         $$;
 
 
-ALTER FUNCTION public.remove_duplicates_from_task() OWNER TO sysadmin;
+ALTER FUNCTION public.remove_duplicates_from_task() OWNER TO postgres;
 
 --
--- Name: report_cashflow(); Type: FUNCTION; Schema: public; Owner: sysadmin
+-- Name: report_cashflow(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.report_cashflow() RETURNS TABLE(contractid integer, tiptranzactie text, partener text, entitate text, numarcontract text, start date, final date, descrierecontract text, cashflow text, data date, procentplusbnr double precision, procentpenalitate double precision, nrzilescadente integer, articol text, cantitate double precision, pretunitarinvaluta double precision, valoareinvaluta double precision, valuta text, cursvalutar double precision, valoareron numeric, platitincasat text, facturat text)
@@ -1066,14 +1068,14 @@ CREATE FUNCTION public.report_cashflow() RETURNS TABLE(contractid integer, tiptr
         $$;
 
 
-ALTER FUNCTION public.report_cashflow() OWNER TO sysadmin;
+ALTER FUNCTION public.report_cashflow() OWNER TO postgres;
 
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
 --
--- Name: Address; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Address; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Address" (
@@ -1096,10 +1098,10 @@ CREATE TABLE public."Address" (
 );
 
 
-ALTER TABLE public."Address" OWNER TO sysadmin;
+ALTER TABLE public."Address" OWNER TO postgres;
 
 --
--- Name: Address_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Address_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Address_id_seq"
@@ -1111,17 +1113,17 @@ CREATE SEQUENCE public."Address_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Address_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Address_id_seq" OWNER TO postgres;
 
 --
--- Name: Address_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Address_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Address_id_seq" OWNED BY public."Address".id;
 
 
 --
--- Name: Alerts; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Alerts; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Alerts" (
@@ -1140,10 +1142,10 @@ CREATE TABLE public."Alerts" (
 );
 
 
-ALTER TABLE public."Alerts" OWNER TO sysadmin;
+ALTER TABLE public."Alerts" OWNER TO postgres;
 
 --
--- Name: AlertsHistory; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: AlertsHistory; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."AlertsHistory" (
@@ -1160,10 +1162,10 @@ CREATE TABLE public."AlertsHistory" (
 );
 
 
-ALTER TABLE public."AlertsHistory" OWNER TO sysadmin;
+ALTER TABLE public."AlertsHistory" OWNER TO postgres;
 
 --
--- Name: AlertsHistory_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: AlertsHistory_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."AlertsHistory_id_seq"
@@ -1175,17 +1177,17 @@ CREATE SEQUENCE public."AlertsHistory_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."AlertsHistory_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."AlertsHistory_id_seq" OWNER TO postgres;
 
 --
--- Name: AlertsHistory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: AlertsHistory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."AlertsHistory_id_seq" OWNED BY public."AlertsHistory".id;
 
 
 --
--- Name: Alerts_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Alerts_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Alerts_id_seq"
@@ -1197,17 +1199,17 @@ CREATE SEQUENCE public."Alerts_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Alerts_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Alerts_id_seq" OWNER TO postgres;
 
 --
--- Name: Alerts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Alerts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Alerts_id_seq" OWNED BY public."Alerts".id;
 
 
 --
--- Name: Bank; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Bank; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Bank" (
@@ -1216,10 +1218,10 @@ CREATE TABLE public."Bank" (
 );
 
 
-ALTER TABLE public."Bank" OWNER TO sysadmin;
+ALTER TABLE public."Bank" OWNER TO postgres;
 
 --
--- Name: Bank_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Bank_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Bank_id_seq"
@@ -1231,17 +1233,17 @@ CREATE SEQUENCE public."Bank_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Bank_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Bank_id_seq" OWNER TO postgres;
 
 --
--- Name: Bank_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Bank_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Bank_id_seq" OWNED BY public."Bank".id;
 
 
 --
--- Name: Banks; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Banks; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Banks" (
@@ -1253,14 +1255,15 @@ CREATE TABLE public."Banks" (
     branch text,
     currency text,
     iban text,
-    status boolean
+    status boolean,
+    "isDefault" boolean
 );
 
 
-ALTER TABLE public."Banks" OWNER TO sysadmin;
+ALTER TABLE public."Banks" OWNER TO postgres;
 
 --
--- Name: Banks_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Banks_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Banks_id_seq"
@@ -1272,17 +1275,17 @@ CREATE SEQUENCE public."Banks_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Banks_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Banks_id_seq" OWNER TO postgres;
 
 --
--- Name: Banks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Banks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Banks_id_seq" OWNED BY public."Banks".id;
 
 
 --
--- Name: BillingFrequency; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: BillingFrequency; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."BillingFrequency" (
@@ -1291,10 +1294,10 @@ CREATE TABLE public."BillingFrequency" (
 );
 
 
-ALTER TABLE public."BillingFrequency" OWNER TO sysadmin;
+ALTER TABLE public."BillingFrequency" OWNER TO postgres;
 
 --
--- Name: BillingFrequency_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: BillingFrequency_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."BillingFrequency_id_seq"
@@ -1306,17 +1309,17 @@ CREATE SEQUENCE public."BillingFrequency_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."BillingFrequency_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."BillingFrequency_id_seq" OWNER TO postgres;
 
 --
--- Name: BillingFrequency_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: BillingFrequency_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."BillingFrequency_id_seq" OWNED BY public."BillingFrequency".id;
 
 
 --
--- Name: Cashflow; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Cashflow; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Cashflow" (
@@ -1325,10 +1328,10 @@ CREATE TABLE public."Cashflow" (
 );
 
 
-ALTER TABLE public."Cashflow" OWNER TO sysadmin;
+ALTER TABLE public."Cashflow" OWNER TO postgres;
 
 --
--- Name: Cashflow_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Cashflow_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Cashflow_id_seq"
@@ -1340,17 +1343,17 @@ CREATE SEQUENCE public."Cashflow_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Cashflow_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Cashflow_id_seq" OWNER TO postgres;
 
 --
--- Name: Cashflow_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Cashflow_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Cashflow_id_seq" OWNED BY public."Cashflow".id;
 
 
 --
--- Name: Category; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Category; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Category" (
@@ -1359,10 +1362,10 @@ CREATE TABLE public."Category" (
 );
 
 
-ALTER TABLE public."Category" OWNER TO sysadmin;
+ALTER TABLE public."Category" OWNER TO postgres;
 
 --
--- Name: Category_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Category_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Category_id_seq"
@@ -1374,17 +1377,17 @@ CREATE SEQUENCE public."Category_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Category_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Category_id_seq" OWNER TO postgres;
 
 --
--- Name: Category_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Category_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Category_id_seq" OWNED BY public."Category".id;
 
 
 --
--- Name: ContractAlertSchedule; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractAlertSchedule; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractAlertSchedule" (
@@ -1402,10 +1405,10 @@ CREATE TABLE public."ContractAlertSchedule" (
 );
 
 
-ALTER TABLE public."ContractAlertSchedule" OWNER TO sysadmin;
+ALTER TABLE public."ContractAlertSchedule" OWNER TO postgres;
 
 --
--- Name: ContractAlertSchedule_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractAlertSchedule_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractAlertSchedule_id_seq"
@@ -1417,17 +1420,17 @@ CREATE SEQUENCE public."ContractAlertSchedule_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractAlertSchedule_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractAlertSchedule_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractAlertSchedule_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractAlertSchedule_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractAlertSchedule_id_seq" OWNED BY public."ContractAlertSchedule".id;
 
 
 --
--- Name: ContractAttachments; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractAttachments; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractAttachments" (
@@ -1446,10 +1449,10 @@ CREATE TABLE public."ContractAttachments" (
 );
 
 
-ALTER TABLE public."ContractAttachments" OWNER TO sysadmin;
+ALTER TABLE public."ContractAttachments" OWNER TO postgres;
 
 --
--- Name: ContractAttachments_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractAttachments_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractAttachments_id_seq"
@@ -1461,17 +1464,17 @@ CREATE SEQUENCE public."ContractAttachments_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractAttachments_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractAttachments_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractAttachments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractAttachments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractAttachments_id_seq" OWNED BY public."ContractAttachments".id;
 
 
 --
--- Name: ContractContent; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractContent; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractContent" (
@@ -1483,10 +1486,10 @@ CREATE TABLE public."ContractContent" (
 );
 
 
-ALTER TABLE public."ContractContent" OWNER TO sysadmin;
+ALTER TABLE public."ContractContent" OWNER TO postgres;
 
 --
--- Name: ContractContent_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractContent_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractContent_id_seq"
@@ -1498,17 +1501,17 @@ CREATE SEQUENCE public."ContractContent_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractContent_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractContent_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractContent_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractContent_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractContent_id_seq" OWNED BY public."ContractContent".id;
 
 
 --
--- Name: ContractDynamicFields; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractDynamicFields; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractDynamicFields" (
@@ -1529,10 +1532,10 @@ CREATE TABLE public."ContractDynamicFields" (
 );
 
 
-ALTER TABLE public."ContractDynamicFields" OWNER TO sysadmin;
+ALTER TABLE public."ContractDynamicFields" OWNER TO postgres;
 
 --
--- Name: ContractDynamicFields_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractDynamicFields_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractDynamicFields_id_seq"
@@ -1544,17 +1547,17 @@ CREATE SEQUENCE public."ContractDynamicFields_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractDynamicFields_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractDynamicFields_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractDynamicFields_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractDynamicFields_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractDynamicFields_id_seq" OWNED BY public."ContractDynamicFields".id;
 
 
 --
--- Name: ContractFinancialDetail; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractFinancialDetail" (
@@ -1593,10 +1596,10 @@ CREATE TABLE public."ContractFinancialDetail" (
 );
 
 
-ALTER TABLE public."ContractFinancialDetail" OWNER TO sysadmin;
+ALTER TABLE public."ContractFinancialDetail" OWNER TO postgres;
 
 --
--- Name: ContractFinancialDetailSchedule; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractFinancialDetailSchedule" (
@@ -1617,10 +1620,10 @@ CREATE TABLE public."ContractFinancialDetailSchedule" (
 );
 
 
-ALTER TABLE public."ContractFinancialDetailSchedule" OWNER TO sysadmin;
+ALTER TABLE public."ContractFinancialDetailSchedule" OWNER TO postgres;
 
 --
--- Name: ContractFinancialDetailSchedule_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractFinancialDetailSchedule_id_seq"
@@ -1632,17 +1635,17 @@ CREATE SEQUENCE public."ContractFinancialDetailSchedule_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractFinancialDetailSchedule_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractFinancialDetailSchedule_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractFinancialDetailSchedule_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractFinancialDetailSchedule_id_seq" OWNED BY public."ContractFinancialDetailSchedule".id;
 
 
 --
--- Name: ContractFinancialDetail_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractFinancialDetail_id_seq"
@@ -1654,17 +1657,17 @@ CREATE SEQUENCE public."ContractFinancialDetail_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractFinancialDetail_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractFinancialDetail_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractFinancialDetail_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractFinancialDetail_id_seq" OWNED BY public."ContractFinancialDetail".id;
 
 
 --
--- Name: ContractItems; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractItems; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractItems" (
@@ -1680,10 +1683,10 @@ CREATE TABLE public."ContractItems" (
 );
 
 
-ALTER TABLE public."ContractItems" OWNER TO sysadmin;
+ALTER TABLE public."ContractItems" OWNER TO postgres;
 
 --
--- Name: ContractItems_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractItems_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractItems_id_seq"
@@ -1695,17 +1698,17 @@ CREATE SEQUENCE public."ContractItems_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractItems_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractItems_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractItems_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractItems_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractItems_id_seq" OWNED BY public."ContractItems".id;
 
 
 --
--- Name: ContractStatus; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractStatus; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractStatus" (
@@ -1714,10 +1717,10 @@ CREATE TABLE public."ContractStatus" (
 );
 
 
-ALTER TABLE public."ContractStatus" OWNER TO sysadmin;
+ALTER TABLE public."ContractStatus" OWNER TO postgres;
 
 --
--- Name: ContractStatus_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractStatus_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractStatus_id_seq"
@@ -1729,17 +1732,17 @@ CREATE SEQUENCE public."ContractStatus_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractStatus_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractStatus_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractStatus_id_seq" OWNED BY public."ContractStatus".id;
 
 
 --
--- Name: ContractTasks; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractTasks; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractTasks" (
@@ -1761,10 +1764,10 @@ CREATE TABLE public."ContractTasks" (
 );
 
 
-ALTER TABLE public."ContractTasks" OWNER TO sysadmin;
+ALTER TABLE public."ContractTasks" OWNER TO postgres;
 
 --
--- Name: ContractTasksDueDates; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractTasksDueDates; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractTasksDueDates" (
@@ -1774,10 +1777,10 @@ CREATE TABLE public."ContractTasksDueDates" (
 );
 
 
-ALTER TABLE public."ContractTasksDueDates" OWNER TO sysadmin;
+ALTER TABLE public."ContractTasksDueDates" OWNER TO postgres;
 
 --
--- Name: ContractTasksDueDates_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractTasksDueDates_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractTasksDueDates_id_seq"
@@ -1789,17 +1792,17 @@ CREATE SEQUENCE public."ContractTasksDueDates_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractTasksDueDates_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractTasksDueDates_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractTasksDueDates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractTasksDueDates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractTasksDueDates_id_seq" OWNED BY public."ContractTasksDueDates".id;
 
 
 --
--- Name: ContractTasksPriority; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractTasksPriority; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractTasksPriority" (
@@ -1808,10 +1811,10 @@ CREATE TABLE public."ContractTasksPriority" (
 );
 
 
-ALTER TABLE public."ContractTasksPriority" OWNER TO sysadmin;
+ALTER TABLE public."ContractTasksPriority" OWNER TO postgres;
 
 --
--- Name: ContractTasksPriority_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractTasksPriority_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractTasksPriority_id_seq"
@@ -1823,17 +1826,17 @@ CREATE SEQUENCE public."ContractTasksPriority_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractTasksPriority_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractTasksPriority_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractTasksPriority_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractTasksPriority_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractTasksPriority_id_seq" OWNED BY public."ContractTasksPriority".id;
 
 
 --
--- Name: ContractTasksReminders; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractTasksReminders; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractTasksReminders" (
@@ -1843,10 +1846,10 @@ CREATE TABLE public."ContractTasksReminders" (
 );
 
 
-ALTER TABLE public."ContractTasksReminders" OWNER TO sysadmin;
+ALTER TABLE public."ContractTasksReminders" OWNER TO postgres;
 
 --
--- Name: ContractTasksReminders_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractTasksReminders_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractTasksReminders_id_seq"
@@ -1858,17 +1861,17 @@ CREATE SEQUENCE public."ContractTasksReminders_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractTasksReminders_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractTasksReminders_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractTasksReminders_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractTasksReminders_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractTasksReminders_id_seq" OWNED BY public."ContractTasksReminders".id;
 
 
 --
--- Name: ContractTasksStatus; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractTasksStatus; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractTasksStatus" (
@@ -1878,10 +1881,10 @@ CREATE TABLE public."ContractTasksStatus" (
 );
 
 
-ALTER TABLE public."ContractTasksStatus" OWNER TO sysadmin;
+ALTER TABLE public."ContractTasksStatus" OWNER TO postgres;
 
 --
--- Name: ContractTasksStatus_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractTasksStatus_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractTasksStatus_id_seq"
@@ -1893,17 +1896,17 @@ CREATE SEQUENCE public."ContractTasksStatus_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractTasksStatus_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractTasksStatus_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractTasksStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractTasksStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractTasksStatus_id_seq" OWNED BY public."ContractTasksStatus".id;
 
 
 --
--- Name: ContractTasks_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractTasks_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractTasks_id_seq"
@@ -1915,17 +1918,17 @@ CREATE SEQUENCE public."ContractTasks_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractTasks_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractTasks_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractTasks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractTasks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractTasks_id_seq" OWNED BY public."ContractTasks".id;
 
 
 --
--- Name: ContractTemplates; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractTemplates; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractTemplates" (
@@ -1940,10 +1943,10 @@ CREATE TABLE public."ContractTemplates" (
 );
 
 
-ALTER TABLE public."ContractTemplates" OWNER TO sysadmin;
+ALTER TABLE public."ContractTemplates" OWNER TO postgres;
 
 --
--- Name: ContractTemplates_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractTemplates_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractTemplates_id_seq"
@@ -1955,17 +1958,17 @@ CREATE SEQUENCE public."ContractTemplates_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractTemplates_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractTemplates_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractTemplates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractTemplates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractTemplates_id_seq" OWNED BY public."ContractTemplates".id;
 
 
 --
--- Name: ContractType; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractType; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractType" (
@@ -1974,10 +1977,10 @@ CREATE TABLE public."ContractType" (
 );
 
 
-ALTER TABLE public."ContractType" OWNER TO sysadmin;
+ALTER TABLE public."ContractType" OWNER TO postgres;
 
 --
--- Name: ContractType_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractType_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractType_id_seq"
@@ -1989,17 +1992,17 @@ CREATE SEQUENCE public."ContractType_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractType_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractType_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractType_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractType_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractType_id_seq" OWNED BY public."ContractType".id;
 
 
 --
--- Name: ContractWFStatus; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractWFStatus; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractWFStatus" (
@@ -2009,10 +2012,10 @@ CREATE TABLE public."ContractWFStatus" (
 );
 
 
-ALTER TABLE public."ContractWFStatus" OWNER TO sysadmin;
+ALTER TABLE public."ContractWFStatus" OWNER TO postgres;
 
 --
--- Name: ContractWFStatus_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractWFStatus_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractWFStatus_id_seq"
@@ -2024,17 +2027,17 @@ CREATE SEQUENCE public."ContractWFStatus_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractWFStatus_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractWFStatus_id_seq" OWNER TO postgres;
 
 --
--- Name: ContractWFStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractWFStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractWFStatus_id_seq" OWNED BY public."ContractWFStatus".id;
 
 
 --
--- Name: Contracts; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Contracts; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Contracts" (
@@ -2065,14 +2068,15 @@ CREATE TABLE public."Contracts" (
     "userId" integer,
     "isPurchasing" boolean DEFAULT false,
     "locationId" integer,
-    "statusWFId" integer DEFAULT 1
+    "statusWFId" integer DEFAULT 1,
+    "additionalTypeId" integer
 );
 
 
-ALTER TABLE public."Contracts" OWNER TO sysadmin;
+ALTER TABLE public."Contracts" OWNER TO postgres;
 
 --
--- Name: ContractsAudit; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ContractsAudit; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ContractsAudit" (
@@ -2112,10 +2116,10 @@ CREATE TABLE public."ContractsAudit" (
 );
 
 
-ALTER TABLE public."ContractsAudit" OWNER TO sysadmin;
+ALTER TABLE public."ContractsAudit" OWNER TO postgres;
 
 --
--- Name: ContractsAudit_auditid_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ContractsAudit_auditid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ContractsAudit_auditid_seq"
@@ -2127,17 +2131,17 @@ CREATE SEQUENCE public."ContractsAudit_auditid_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ContractsAudit_auditid_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ContractsAudit_auditid_seq" OWNER TO postgres;
 
 --
--- Name: ContractsAudit_auditid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ContractsAudit_auditid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ContractsAudit_auditid_seq" OWNED BY public."ContractsAudit".auditid;
 
 
 --
--- Name: Contracts_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Contracts_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Contracts_id_seq"
@@ -2149,17 +2153,17 @@ CREATE SEQUENCE public."Contracts_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Contracts_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Contracts_id_seq" OWNER TO postgres;
 
 --
--- Name: Contracts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Contracts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Contracts_id_seq" OWNED BY public."Contracts".id;
 
 
 --
--- Name: CostCenter; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: CostCenter; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."CostCenter" (
@@ -2168,10 +2172,10 @@ CREATE TABLE public."CostCenter" (
 );
 
 
-ALTER TABLE public."CostCenter" OWNER TO sysadmin;
+ALTER TABLE public."CostCenter" OWNER TO postgres;
 
 --
--- Name: CostCenter_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: CostCenter_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."CostCenter_id_seq"
@@ -2183,17 +2187,17 @@ CREATE SEQUENCE public."CostCenter_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."CostCenter_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."CostCenter_id_seq" OWNER TO postgres;
 
 --
--- Name: CostCenter_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: CostCenter_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."CostCenter_id_seq" OWNED BY public."CostCenter".id;
 
 
 --
--- Name: Currency; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Currency; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Currency" (
@@ -2203,10 +2207,10 @@ CREATE TABLE public."Currency" (
 );
 
 
-ALTER TABLE public."Currency" OWNER TO sysadmin;
+ALTER TABLE public."Currency" OWNER TO postgres;
 
 --
--- Name: Currency_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Currency_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Currency_id_seq"
@@ -2218,17 +2222,17 @@ CREATE SEQUENCE public."Currency_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Currency_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Currency_id_seq" OWNER TO postgres;
 
 --
--- Name: Currency_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Currency_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Currency_id_seq" OWNED BY public."Currency".id;
 
 
 --
--- Name: Department; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Department; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Department" (
@@ -2237,10 +2241,10 @@ CREATE TABLE public."Department" (
 );
 
 
-ALTER TABLE public."Department" OWNER TO sysadmin;
+ALTER TABLE public."Department" OWNER TO postgres;
 
 --
--- Name: Department_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Department_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Department_id_seq"
@@ -2252,17 +2256,60 @@ CREATE SEQUENCE public."Department_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Department_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Department_id_seq" OWNER TO postgres;
 
 --
--- Name: Department_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Department_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Department_id_seq" OWNED BY public."Department".id;
 
 
 --
--- Name: DynamicFields; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: DocumentSeries; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."DocumentSeries" (
+    id integer NOT NULL,
+    "updateadAt" timestamp(3) without time zone NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "entityId" integer NOT NULL,
+    "updatedByUserId" integer NOT NULL,
+    "documentTypeId" integer NOT NULL,
+    series text NOT NULL,
+    start_number integer NOT NULL,
+    final_number integer NOT NULL,
+    last_number integer NOT NULL,
+    "isActive" boolean NOT NULL
+);
+
+
+ALTER TABLE public."DocumentSeries" OWNER TO postgres;
+
+--
+-- Name: DocumentSeries_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."DocumentSeries_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."DocumentSeries_id_seq" OWNER TO postgres;
+
+--
+-- Name: DocumentSeries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."DocumentSeries_id_seq" OWNED BY public."DocumentSeries".id;
+
+
+--
+-- Name: DynamicFields; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."DynamicFields" (
@@ -2276,10 +2323,10 @@ CREATE TABLE public."DynamicFields" (
 );
 
 
-ALTER TABLE public."DynamicFields" OWNER TO sysadmin;
+ALTER TABLE public."DynamicFields" OWNER TO postgres;
 
 --
--- Name: DynamicFields_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: DynamicFields_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."DynamicFields_id_seq"
@@ -2291,17 +2338,17 @@ CREATE SEQUENCE public."DynamicFields_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."DynamicFields_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."DynamicFields_id_seq" OWNER TO postgres;
 
 --
--- Name: DynamicFields_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: DynamicFields_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."DynamicFields_id_seq" OWNED BY public."DynamicFields".id;
 
 
 --
--- Name: ExchangeRates; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ExchangeRates; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ExchangeRates" (
@@ -2315,10 +2362,49 @@ CREATE TABLE public."ExchangeRates" (
 );
 
 
-ALTER TABLE public."ExchangeRates" OWNER TO sysadmin;
+ALTER TABLE public."ExchangeRates" OWNER TO postgres;
 
 --
--- Name: ExchangeRates_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ExchangeRatesBNR; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."ExchangeRatesBNR" (
+    id integer NOT NULL,
+    "updateadAt" timestamp(3) without time zone NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date text NOT NULL,
+    amount double precision NOT NULL,
+    name text NOT NULL,
+    multiplier text
+);
+
+
+ALTER TABLE public."ExchangeRatesBNR" OWNER TO postgres;
+
+--
+-- Name: ExchangeRatesBNR_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."ExchangeRatesBNR_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."ExchangeRatesBNR_id_seq" OWNER TO postgres;
+
+--
+-- Name: ExchangeRatesBNR_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."ExchangeRatesBNR_id_seq" OWNED BY public."ExchangeRatesBNR".id;
+
+
+--
+-- Name: ExchangeRates_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ExchangeRates_id_seq"
@@ -2330,17 +2416,17 @@ CREATE SEQUENCE public."ExchangeRates_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ExchangeRates_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ExchangeRates_id_seq" OWNER TO postgres;
 
 --
--- Name: ExchangeRates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ExchangeRates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ExchangeRates_id_seq" OWNED BY public."ExchangeRates".id;
 
 
 --
--- Name: ForgotPass; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: ForgotPass; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ForgotPass" (
@@ -2355,10 +2441,10 @@ CREATE TABLE public."ForgotPass" (
 );
 
 
-ALTER TABLE public."ForgotPass" OWNER TO sysadmin;
+ALTER TABLE public."ForgotPass" OWNER TO postgres;
 
 --
--- Name: ForgotPass_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: ForgotPass_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."ForgotPass_id_seq"
@@ -2370,17 +2456,17 @@ CREATE SEQUENCE public."ForgotPass_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."ForgotPass_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."ForgotPass_id_seq" OWNER TO postgres;
 
 --
--- Name: ForgotPass_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: ForgotPass_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."ForgotPass_id_seq" OWNED BY public."ForgotPass".id;
 
 
 --
--- Name: Groups; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Groups; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Groups" (
@@ -2392,10 +2478,10 @@ CREATE TABLE public."Groups" (
 );
 
 
-ALTER TABLE public."Groups" OWNER TO sysadmin;
+ALTER TABLE public."Groups" OWNER TO postgres;
 
 --
--- Name: Groups_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Groups_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Groups_id_seq"
@@ -2407,47 +2493,55 @@ CREATE SEQUENCE public."Groups_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Groups_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Groups_id_seq" OWNER TO postgres;
 
 --
--- Name: Groups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Groups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Groups_id_seq" OWNED BY public."Groups".id;
 
 
 --
--- Name: Invoice; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Invoice; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Invoice" (
     id integer NOT NULL,
     "updateadAt" timestamp(3) without time zone NOT NULL,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "partnersId" integer NOT NULL,
-    "entityId" integer NOT NULL,
+    "partnerId" integer,
+    "entityId" integer,
     number text NOT NULL,
     date timestamp(3) without time zone NOT NULL,
     duedate timestamp(3) without time zone NOT NULL,
     "totalAmount" double precision NOT NULL,
     "vatAmount" double precision NOT NULL,
     "totalPayment" double precision NOT NULL,
-    "typeId" integer NOT NULL,
-    "transactionTypeId" integer NOT NULL,
-    "statusId" integer NOT NULL,
+    "typeId" integer,
+    "transactionTypeId" integer,
+    "statusId" integer,
     "entitybankId" integer,
     "partneraddressId" integer,
     "currencyRate" double precision NOT NULL,
     "userId" integer NOT NULL,
     "currencyId" integer,
-    remarks text NOT NULL
+    remarks text NOT NULL,
+    "seriesId" integer,
+    "serialNumber" text NOT NULL,
+    "eqvTotalAmount" double precision NOT NULL,
+    "eqvVatAmount" double precision NOT NULL,
+    "eqvTotalPayment" double precision NOT NULL,
+    "vatOnReceipt" boolean NOT NULL,
+    "parentId" integer DEFAULT 0,
+    "restPayment" double precision DEFAULT '-1'::integer NOT NULL
 );
 
 
-ALTER TABLE public."Invoice" OWNER TO sysadmin;
+ALTER TABLE public."Invoice" OWNER TO postgres;
 
 --
--- Name: InvoiceDetail; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."InvoiceDetail" (
@@ -2468,10 +2562,10 @@ CREATE TABLE public."InvoiceDetail" (
 );
 
 
-ALTER TABLE public."InvoiceDetail" OWNER TO sysadmin;
+ALTER TABLE public."InvoiceDetail" OWNER TO postgres;
 
 --
--- Name: InvoiceDetail_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."InvoiceDetail_id_seq"
@@ -2483,98 +2577,17 @@ CREATE SEQUENCE public."InvoiceDetail_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."InvoiceDetail_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."InvoiceDetail_id_seq" OWNER TO postgres;
 
 --
--- Name: InvoiceDetail_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."InvoiceDetail_id_seq" OWNED BY public."InvoiceDetail".id;
 
 
 --
--- Name: InvoiceItem; Type: TABLE; Schema: public; Owner: sysadmin
---
-
-CREATE TABLE public."InvoiceItem" (
-    id integer NOT NULL,
-    "updateadAt" timestamp(3) without time zone NOT NULL,
-    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "itemName" text NOT NULL,
-    "itemCode" text NOT NULL,
-    "barCode" text NOT NULL,
-    "itemDescription" text NOT NULL,
-    "vatId" integer,
-    "measuringUnitid" integer,
-    "isStockable" boolean NOT NULL,
-    "isActive" boolean NOT NULL,
-    "classificationId" integer NOT NULL,
-    "userId" integer NOT NULL
-);
-
-
-ALTER TABLE public."InvoiceItem" OWNER TO sysadmin;
-
---
--- Name: InvoiceItemClassification; Type: TABLE; Schema: public; Owner: sysadmin
---
-
-CREATE TABLE public."InvoiceItemClassification" (
-    id integer NOT NULL,
-    "updateadAt" timestamp(3) without time zone NOT NULL,
-    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    name text NOT NULL
-);
-
-
-ALTER TABLE public."InvoiceItemClassification" OWNER TO sysadmin;
-
---
--- Name: InvoiceItemClassification_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
---
-
-CREATE SEQUENCE public."InvoiceItemClassification_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public."InvoiceItemClassification_id_seq" OWNER TO sysadmin;
-
---
--- Name: InvoiceItemClassification_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
---
-
-ALTER SEQUENCE public."InvoiceItemClassification_id_seq" OWNED BY public."InvoiceItemClassification".id;
-
-
---
--- Name: InvoiceItem_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
---
-
-CREATE SEQUENCE public."InvoiceItem_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public."InvoiceItem_id_seq" OWNER TO sysadmin;
-
---
--- Name: InvoiceItem_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
---
-
-ALTER SEQUENCE public."InvoiceItem_id_seq" OWNED BY public."InvoiceItem".id;
-
-
---
--- Name: InvoiceStatus; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: InvoiceStatus; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."InvoiceStatus" (
@@ -2585,10 +2598,10 @@ CREATE TABLE public."InvoiceStatus" (
 );
 
 
-ALTER TABLE public."InvoiceStatus" OWNER TO sysadmin;
+ALTER TABLE public."InvoiceStatus" OWNER TO postgres;
 
 --
--- Name: InvoiceStatus_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: InvoiceStatus_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."InvoiceStatus_id_seq"
@@ -2600,17 +2613,17 @@ CREATE SEQUENCE public."InvoiceStatus_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."InvoiceStatus_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."InvoiceStatus_id_seq" OWNER TO postgres;
 
 --
--- Name: InvoiceStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: InvoiceStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."InvoiceStatus_id_seq" OWNED BY public."InvoiceStatus".id;
 
 
 --
--- Name: InvoiceType; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: InvoiceType; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."InvoiceType" (
@@ -2621,10 +2634,10 @@ CREATE TABLE public."InvoiceType" (
 );
 
 
-ALTER TABLE public."InvoiceType" OWNER TO sysadmin;
+ALTER TABLE public."InvoiceType" OWNER TO postgres;
 
 --
--- Name: InvoiceType_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: InvoiceType_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."InvoiceType_id_seq"
@@ -2636,17 +2649,17 @@ CREATE SEQUENCE public."InvoiceType_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."InvoiceType_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."InvoiceType_id_seq" OWNER TO postgres;
 
 --
--- Name: InvoiceType_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: InvoiceType_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."InvoiceType_id_seq" OWNED BY public."InvoiceType".id;
 
 
 --
--- Name: Invoice_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Invoice_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Invoice_id_seq"
@@ -2658,29 +2671,38 @@ CREATE SEQUENCE public."Invoice_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Invoice_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Invoice_id_seq" OWNER TO postgres;
 
 --
--- Name: Invoice_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Invoice_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Invoice_id_seq" OWNED BY public."Invoice".id;
 
 
 --
--- Name: Item; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Item; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Item" (
     id integer NOT NULL,
-    name text NOT NULL
+    name text NOT NULL,
+    "barCode" text,
+    "classificationId" integer,
+    code text,
+    description text,
+    "isActive" boolean DEFAULT true NOT NULL,
+    "isStockable" boolean DEFAULT false NOT NULL,
+    "measuringUnitid" integer,
+    "userId" integer DEFAULT 1 NOT NULL,
+    "vatId" integer
 );
 
 
-ALTER TABLE public."Item" OWNER TO sysadmin;
+ALTER TABLE public."Item" OWNER TO postgres;
 
 --
--- Name: Item_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Item_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Item_id_seq"
@@ -2692,17 +2714,17 @@ CREATE SEQUENCE public."Item_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Item_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Item_id_seq" OWNER TO postgres;
 
 --
--- Name: Item_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Item_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Item_id_seq" OWNED BY public."Item".id;
 
 
 --
--- Name: Location; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Location; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Location" (
@@ -2711,10 +2733,10 @@ CREATE TABLE public."Location" (
 );
 
 
-ALTER TABLE public."Location" OWNER TO sysadmin;
+ALTER TABLE public."Location" OWNER TO postgres;
 
 --
--- Name: Location_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Location_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Location_id_seq"
@@ -2726,17 +2748,17 @@ CREATE SEQUENCE public."Location_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Location_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Location_id_seq" OWNER TO postgres;
 
 --
--- Name: Location_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Location_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Location_id_seq" OWNED BY public."Location".id;
 
 
 --
--- Name: MeasuringUnit; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: MeasuringUnit; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."MeasuringUnit" (
@@ -2745,10 +2767,10 @@ CREATE TABLE public."MeasuringUnit" (
 );
 
 
-ALTER TABLE public."MeasuringUnit" OWNER TO sysadmin;
+ALTER TABLE public."MeasuringUnit" OWNER TO postgres;
 
 --
--- Name: MeasuringUnit_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: MeasuringUnit_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."MeasuringUnit_id_seq"
@@ -2760,17 +2782,17 @@ CREATE SEQUENCE public."MeasuringUnit_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."MeasuringUnit_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."MeasuringUnit_id_seq" OWNER TO postgres;
 
 --
--- Name: MeasuringUnit_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: MeasuringUnit_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."MeasuringUnit_id_seq" OWNED BY public."MeasuringUnit".id;
 
 
 --
--- Name: Partners; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Partners; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Partners" (
@@ -2785,14 +2807,54 @@ CREATE TABLE public."Partners" (
     email text NOT NULL,
     remarks text NOT NULL,
     "contractsId" integer,
-    "isVatPayer" boolean DEFAULT false NOT NULL
+    "isVatPayer" boolean DEFAULT false NOT NULL,
+    "paymentTerm" integer DEFAULT 10,
+    picture text
 );
 
 
-ALTER TABLE public."Partners" OWNER TO sysadmin;
+ALTER TABLE public."Partners" OWNER TO postgres;
 
 --
--- Name: Partners_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: PartnersBanksExtraRates; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."PartnersBanksExtraRates" (
+    id integer NOT NULL,
+    "updateadAt" timestamp(3) without time zone NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "partnersId" integer,
+    "currencyId" integer,
+    percent double precision
+);
+
+
+ALTER TABLE public."PartnersBanksExtraRates" OWNER TO postgres;
+
+--
+-- Name: PartnersBanksExtraRates_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."PartnersBanksExtraRates_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."PartnersBanksExtraRates_id_seq" OWNER TO postgres;
+
+--
+-- Name: PartnersBanksExtraRates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."PartnersBanksExtraRates_id_seq" OWNED BY public."PartnersBanksExtraRates".id;
+
+
+--
+-- Name: Partners_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Partners_id_seq"
@@ -2804,17 +2866,17 @@ CREATE SEQUENCE public."Partners_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Partners_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Partners_id_seq" OWNER TO postgres;
 
 --
--- Name: Partners_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Partners_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Partners_id_seq" OWNED BY public."Partners".id;
 
 
 --
--- Name: PaymentType; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: PaymentType; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."PaymentType" (
@@ -2823,10 +2885,10 @@ CREATE TABLE public."PaymentType" (
 );
 
 
-ALTER TABLE public."PaymentType" OWNER TO sysadmin;
+ALTER TABLE public."PaymentType" OWNER TO postgres;
 
 --
--- Name: PaymentType_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: PaymentType_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."PaymentType_id_seq"
@@ -2838,17 +2900,17 @@ CREATE SEQUENCE public."PaymentType_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."PaymentType_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."PaymentType_id_seq" OWNER TO postgres;
 
 --
--- Name: PaymentType_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: PaymentType_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."PaymentType_id_seq" OWNED BY public."PaymentType".id;
 
 
 --
--- Name: Persons; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Persons; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Persons" (
@@ -2864,10 +2926,10 @@ CREATE TABLE public."Persons" (
 );
 
 
-ALTER TABLE public."Persons" OWNER TO sysadmin;
+ALTER TABLE public."Persons" OWNER TO postgres;
 
 --
--- Name: Persons_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Persons_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Persons_id_seq"
@@ -2879,17 +2941,17 @@ CREATE SEQUENCE public."Persons_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Persons_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Persons_id_seq" OWNER TO postgres;
 
 --
--- Name: Persons_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Persons_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Persons_id_seq" OWNED BY public."Persons".id;
 
 
 --
--- Name: Role; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Role; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Role" (
@@ -2898,10 +2960,10 @@ CREATE TABLE public."Role" (
 );
 
 
-ALTER TABLE public."Role" OWNER TO sysadmin;
+ALTER TABLE public."Role" OWNER TO postgres;
 
 --
--- Name: Role_User; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Role_User; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Role_User" (
@@ -2911,10 +2973,10 @@ CREATE TABLE public."Role_User" (
 );
 
 
-ALTER TABLE public."Role_User" OWNER TO sysadmin;
+ALTER TABLE public."Role_User" OWNER TO postgres;
 
 --
--- Name: Role_User_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Role_User_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Role_User_id_seq"
@@ -2926,17 +2988,17 @@ CREATE SEQUENCE public."Role_User_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Role_User_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Role_User_id_seq" OWNER TO postgres;
 
 --
--- Name: Role_User_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Role_User_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Role_User_id_seq" OWNED BY public."Role_User".id;
 
 
 --
--- Name: Role_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: Role_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."Role_id_seq"
@@ -2948,17 +3010,105 @@ CREATE SEQUENCE public."Role_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."Role_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."Role_id_seq" OWNER TO postgres;
 
 --
--- Name: Role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: Role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."Role_id_seq" OWNED BY public."Role".id;
 
 
 --
--- Name: TransactionType; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: TransactionDetail; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."TransactionDetail" (
+    id integer NOT NULL,
+    "updateadAt" timestamp(3) without time zone NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "transactionId" integer,
+    "invoiceId" integer NOT NULL,
+    "entityId" integer,
+    "partnerId" integer,
+    "partPaymentValue" double precision NOT NULL,
+    "currencyId" integer,
+    "exchangeRate" double precision NOT NULL,
+    "eqvTotalPayment" double precision NOT NULL
+);
+
+
+ALTER TABLE public."TransactionDetail" OWNER TO postgres;
+
+--
+-- Name: TransactionDetailEvents; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."TransactionDetailEvents" (
+    id integer NOT NULL,
+    "updateadAt" timestamp(3) without time zone NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "transactionDetailId" integer,
+    "invoiceId" integer NOT NULL,
+    "entityId" integer,
+    "partnerId" integer,
+    "partPaymentValue" double precision NOT NULL,
+    "eqvTotalPayment" double precision NOT NULL,
+    "restAmount" double precision NOT NULL,
+    "payFromDate" timestamp(3) without time zone NOT NULL,
+    "payToDate" timestamp(3) without time zone NOT NULL,
+    "currencyId" integer
+);
+
+
+ALTER TABLE public."TransactionDetailEvents" OWNER TO postgres;
+
+--
+-- Name: TransactionDetailEvents_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."TransactionDetailEvents_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."TransactionDetailEvents_id_seq" OWNER TO postgres;
+
+--
+-- Name: TransactionDetailEvents_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."TransactionDetailEvents_id_seq" OWNED BY public."TransactionDetailEvents".id;
+
+
+--
+-- Name: TransactionDetail_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."TransactionDetail_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."TransactionDetail_id_seq" OWNER TO postgres;
+
+--
+-- Name: TransactionDetail_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."TransactionDetail_id_seq" OWNED BY public."TransactionDetail".id;
+
+
+--
+-- Name: TransactionType; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."TransactionType" (
@@ -2969,10 +3119,10 @@ CREATE TABLE public."TransactionType" (
 );
 
 
-ALTER TABLE public."TransactionType" OWNER TO sysadmin;
+ALTER TABLE public."TransactionType" OWNER TO postgres;
 
 --
--- Name: TransactionType_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: TransactionType_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."TransactionType_id_seq"
@@ -2984,17 +3134,71 @@ CREATE SEQUENCE public."TransactionType_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."TransactionType_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."TransactionType_id_seq" OWNER TO postgres;
 
 --
--- Name: TransactionType_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: TransactionType_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."TransactionType_id_seq" OWNED BY public."TransactionType".id;
 
 
 --
--- Name: User; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: Transactions; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Transactions" (
+    id integer NOT NULL,
+    "updateadAt" timestamp(3) without time zone NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "partnerId" integer,
+    "entityId" integer,
+    date timestamp(3) without time zone NOT NULL,
+    "currencyId" integer,
+    "paymentValue" double precision NOT NULL,
+    "exchangeRate" double precision NOT NULL,
+    "eqvTotalPayment" double precision NOT NULL,
+    "typeId" integer,
+    "entitybankId" integer,
+    "partnerbankId" integer,
+    cash double precision,
+    card double precision,
+    meal double precision,
+    remarks text,
+    "userId" integer NOT NULL,
+    "statusId" integer,
+    bank double precision,
+    "seriesId" integer,
+    number integer NOT NULL
+);
+
+
+ALTER TABLE public."Transactions" OWNER TO postgres;
+
+--
+-- Name: Transactions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."Transactions_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."Transactions_id_seq" OWNER TO postgres;
+
+--
+-- Name: Transactions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."Transactions_id_seq" OWNED BY public."Transactions".id;
+
+
+--
+-- Name: User; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."User" (
@@ -3009,10 +3213,10 @@ CREATE TABLE public."User" (
 );
 
 
-ALTER TABLE public."User" OWNER TO sysadmin;
+ALTER TABLE public."User" OWNER TO postgres;
 
 --
--- Name: User_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: User_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."User_id_seq"
@@ -3024,17 +3228,17 @@ CREATE SEQUENCE public."User_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."User_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."User_id_seq" OWNER TO postgres;
 
 --
--- Name: User_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: User_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."User_id_seq" OWNED BY public."User".id;
 
 
 --
--- Name: VatQuota; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: VatQuota; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."VatQuota" (
@@ -3049,10 +3253,10 @@ CREATE TABLE public."VatQuota" (
 );
 
 
-ALTER TABLE public."VatQuota" OWNER TO sysadmin;
+ALTER TABLE public."VatQuota" OWNER TO postgres;
 
 --
--- Name: VatQuota_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: VatQuota_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."VatQuota_id_seq"
@@ -3064,17 +3268,17 @@ CREATE SEQUENCE public."VatQuota_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."VatQuota_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."VatQuota_id_seq" OWNER TO postgres;
 
 --
--- Name: VatQuota_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: VatQuota_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."VatQuota_id_seq" OWNED BY public."VatQuota".id;
 
 
 --
--- Name: WorkFlow; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: WorkFlow; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."WorkFlow" (
@@ -3087,10 +3291,10 @@ CREATE TABLE public."WorkFlow" (
 );
 
 
-ALTER TABLE public."WorkFlow" OWNER TO sysadmin;
+ALTER TABLE public."WorkFlow" OWNER TO postgres;
 
 --
--- Name: WorkFlowContractTasks; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."WorkFlowContractTasks" (
@@ -3112,10 +3316,10 @@ CREATE TABLE public."WorkFlowContractTasks" (
 );
 
 
-ALTER TABLE public."WorkFlowContractTasks" OWNER TO sysadmin;
+ALTER TABLE public."WorkFlowContractTasks" OWNER TO postgres;
 
 --
--- Name: WorkFlowContractTasks_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."WorkFlowContractTasks_id_seq"
@@ -3127,17 +3331,17 @@ CREATE SEQUENCE public."WorkFlowContractTasks_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."WorkFlowContractTasks_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."WorkFlowContractTasks_id_seq" OWNER TO postgres;
 
 --
--- Name: WorkFlowContractTasks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."WorkFlowContractTasks_id_seq" OWNED BY public."WorkFlowContractTasks".id;
 
 
 --
--- Name: WorkFlowRejectActions; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRejectActions; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."WorkFlowRejectActions" (
@@ -3150,10 +3354,10 @@ CREATE TABLE public."WorkFlowRejectActions" (
 );
 
 
-ALTER TABLE public."WorkFlowRejectActions" OWNER TO sysadmin;
+ALTER TABLE public."WorkFlowRejectActions" OWNER TO postgres;
 
 --
--- Name: WorkFlowRejectActions_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRejectActions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."WorkFlowRejectActions_id_seq"
@@ -3165,17 +3369,17 @@ CREATE SEQUENCE public."WorkFlowRejectActions_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."WorkFlowRejectActions_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."WorkFlowRejectActions_id_seq" OWNER TO postgres;
 
 --
--- Name: WorkFlowRejectActions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRejectActions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."WorkFlowRejectActions_id_seq" OWNED BY public."WorkFlowRejectActions".id;
 
 
 --
--- Name: WorkFlowRules; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRules; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."WorkFlowRules" (
@@ -3190,10 +3394,10 @@ CREATE TABLE public."WorkFlowRules" (
 );
 
 
-ALTER TABLE public."WorkFlowRules" OWNER TO sysadmin;
+ALTER TABLE public."WorkFlowRules" OWNER TO postgres;
 
 --
--- Name: WorkFlowRules_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRules_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."WorkFlowRules_id_seq"
@@ -3205,17 +3409,17 @@ CREATE SEQUENCE public."WorkFlowRules_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."WorkFlowRules_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."WorkFlowRules_id_seq" OWNER TO postgres;
 
 --
--- Name: WorkFlowRules_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRules_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."WorkFlowRules_id_seq" OWNED BY public."WorkFlowRules".id;
 
 
 --
--- Name: WorkFlowTaskSettings; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."WorkFlowTaskSettings" (
@@ -3233,10 +3437,10 @@ CREATE TABLE public."WorkFlowTaskSettings" (
 );
 
 
-ALTER TABLE public."WorkFlowTaskSettings" OWNER TO sysadmin;
+ALTER TABLE public."WorkFlowTaskSettings" OWNER TO postgres;
 
 --
--- Name: WorkFlowTaskSettingsUsers; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettingsUsers; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."WorkFlowTaskSettingsUsers" (
@@ -3250,10 +3454,10 @@ CREATE TABLE public."WorkFlowTaskSettingsUsers" (
 );
 
 
-ALTER TABLE public."WorkFlowTaskSettingsUsers" OWNER TO sysadmin;
+ALTER TABLE public."WorkFlowTaskSettingsUsers" OWNER TO postgres;
 
 --
--- Name: WorkFlowTaskSettingsUsers_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettingsUsers_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."WorkFlowTaskSettingsUsers_id_seq"
@@ -3265,17 +3469,17 @@ CREATE SEQUENCE public."WorkFlowTaskSettingsUsers_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."WorkFlowTaskSettingsUsers_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."WorkFlowTaskSettingsUsers_id_seq" OWNER TO postgres;
 
 --
--- Name: WorkFlowTaskSettingsUsers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettingsUsers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."WorkFlowTaskSettingsUsers_id_seq" OWNED BY public."WorkFlowTaskSettingsUsers".id;
 
 
 --
--- Name: WorkFlowTaskSettings_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."WorkFlowTaskSettings_id_seq"
@@ -3287,17 +3491,17 @@ CREATE SEQUENCE public."WorkFlowTaskSettings_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."WorkFlowTaskSettings_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."WorkFlowTaskSettings_id_seq" OWNER TO postgres;
 
 --
--- Name: WorkFlowTaskSettings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."WorkFlowTaskSettings_id_seq" OWNED BY public."WorkFlowTaskSettings".id;
 
 
 --
--- Name: WorkFlowXContracts; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowXContracts; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."WorkFlowXContracts" (
@@ -3311,10 +3515,10 @@ CREATE TABLE public."WorkFlowXContracts" (
 );
 
 
-ALTER TABLE public."WorkFlowXContracts" OWNER TO sysadmin;
+ALTER TABLE public."WorkFlowXContracts" OWNER TO postgres;
 
 --
--- Name: WorkFlowXContracts_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: WorkFlowXContracts_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."WorkFlowXContracts_id_seq"
@@ -3326,17 +3530,17 @@ CREATE SEQUENCE public."WorkFlowXContracts_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."WorkFlowXContracts_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."WorkFlowXContracts_id_seq" OWNER TO postgres;
 
 --
--- Name: WorkFlowXContracts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: WorkFlowXContracts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."WorkFlowXContracts_id_seq" OWNED BY public."WorkFlowXContracts".id;
 
 
 --
--- Name: WorkFlow_id_seq; Type: SEQUENCE; Schema: public; Owner: sysadmin
+-- Name: WorkFlow_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public."WorkFlow_id_seq"
@@ -3348,17 +3552,17 @@ CREATE SEQUENCE public."WorkFlow_id_seq"
     CACHE 1;
 
 
-ALTER SEQUENCE public."WorkFlow_id_seq" OWNER TO sysadmin;
+ALTER SEQUENCE public."WorkFlow_id_seq" OWNER TO postgres;
 
 --
--- Name: WorkFlow_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sysadmin
+-- Name: WorkFlow_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public."WorkFlow_id_seq" OWNED BY public."WorkFlow".id;
 
 
 --
--- Name: _GroupsToPartners; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: _GroupsToPartners; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."_GroupsToPartners" (
@@ -3367,10 +3571,10 @@ CREATE TABLE public."_GroupsToPartners" (
 );
 
 
-ALTER TABLE public."_GroupsToPartners" OWNER TO sysadmin;
+ALTER TABLE public."_GroupsToPartners" OWNER TO postgres;
 
 --
--- Name: _GroupsToUser; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: _GroupsToUser; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."_GroupsToUser" (
@@ -3379,10 +3583,10 @@ CREATE TABLE public."_GroupsToUser" (
 );
 
 
-ALTER TABLE public."_GroupsToUser" OWNER TO sysadmin;
+ALTER TABLE public."_GroupsToUser" OWNER TO postgres;
 
 --
--- Name: _prisma_migrations; Type: TABLE; Schema: public; Owner: sysadmin
+-- Name: _prisma_migrations; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public._prisma_migrations (
@@ -3397,421 +3601,494 @@ CREATE TABLE public._prisma_migrations (
 );
 
 
-ALTER TABLE public._prisma_migrations OWNER TO sysadmin;
+ALTER TABLE public._prisma_migrations OWNER TO postgres;
 
 --
--- Name: Address id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: additionalActType; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."additionalActType" (
+    id integer NOT NULL,
+    "updateadAt" timestamp(3) without time zone NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    name text NOT NULL
+);
+
+
+ALTER TABLE public."additionalActType" OWNER TO postgres;
+
+--
+-- Name: additionalActType_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."additionalActType_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."additionalActType_id_seq" OWNER TO postgres;
+
+--
+-- Name: additionalActType_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."additionalActType_id_seq" OWNED BY public."additionalActType".id;
+
+
+--
+-- Name: Address id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Address" ALTER COLUMN id SET DEFAULT nextval('public."Address_id_seq"'::regclass);
 
 
 --
--- Name: Alerts id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Alerts id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Alerts" ALTER COLUMN id SET DEFAULT nextval('public."Alerts_id_seq"'::regclass);
 
 
 --
--- Name: AlertsHistory id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: AlertsHistory id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."AlertsHistory" ALTER COLUMN id SET DEFAULT nextval('public."AlertsHistory_id_seq"'::regclass);
 
 
 --
--- Name: Bank id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Bank id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Bank" ALTER COLUMN id SET DEFAULT nextval('public."Bank_id_seq"'::regclass);
 
 
 --
--- Name: Banks id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Banks id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Banks" ALTER COLUMN id SET DEFAULT nextval('public."Banks_id_seq"'::regclass);
 
 
 --
--- Name: BillingFrequency id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: BillingFrequency id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."BillingFrequency" ALTER COLUMN id SET DEFAULT nextval('public."BillingFrequency_id_seq"'::regclass);
 
 
 --
--- Name: Cashflow id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Cashflow id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Cashflow" ALTER COLUMN id SET DEFAULT nextval('public."Cashflow_id_seq"'::regclass);
 
 
 --
--- Name: Category id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Category id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Category" ALTER COLUMN id SET DEFAULT nextval('public."Category_id_seq"'::regclass);
 
 
 --
--- Name: ContractAlertSchedule id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractAlertSchedule id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractAlertSchedule" ALTER COLUMN id SET DEFAULT nextval('public."ContractAlertSchedule_id_seq"'::regclass);
 
 
 --
--- Name: ContractAttachments id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractAttachments id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractAttachments" ALTER COLUMN id SET DEFAULT nextval('public."ContractAttachments_id_seq"'::regclass);
 
 
 --
--- Name: ContractContent id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractContent id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractContent" ALTER COLUMN id SET DEFAULT nextval('public."ContractContent_id_seq"'::regclass);
 
 
 --
--- Name: ContractDynamicFields id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractDynamicFields id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractDynamicFields" ALTER COLUMN id SET DEFAULT nextval('public."ContractDynamicFields_id_seq"'::regclass);
 
 
 --
--- Name: ContractFinancialDetail id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail" ALTER COLUMN id SET DEFAULT nextval('public."ContractFinancialDetail_id_seq"'::regclass);
 
 
 --
--- Name: ContractFinancialDetailSchedule id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetailSchedule" ALTER COLUMN id SET DEFAULT nextval('public."ContractFinancialDetailSchedule_id_seq"'::regclass);
 
 
 --
--- Name: ContractItems id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractItems id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractItems" ALTER COLUMN id SET DEFAULT nextval('public."ContractItems_id_seq"'::regclass);
 
 
 --
--- Name: ContractStatus id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractStatus id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractStatus" ALTER COLUMN id SET DEFAULT nextval('public."ContractStatus_id_seq"'::regclass);
 
 
 --
--- Name: ContractTasks id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractTasks id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasks" ALTER COLUMN id SET DEFAULT nextval('public."ContractTasks_id_seq"'::regclass);
 
 
 --
--- Name: ContractTasksDueDates id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractTasksDueDates id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasksDueDates" ALTER COLUMN id SET DEFAULT nextval('public."ContractTasksDueDates_id_seq"'::regclass);
 
 
 --
--- Name: ContractTasksPriority id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractTasksPriority id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasksPriority" ALTER COLUMN id SET DEFAULT nextval('public."ContractTasksPriority_id_seq"'::regclass);
 
 
 --
--- Name: ContractTasksReminders id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractTasksReminders id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasksReminders" ALTER COLUMN id SET DEFAULT nextval('public."ContractTasksReminders_id_seq"'::regclass);
 
 
 --
--- Name: ContractTasksStatus id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractTasksStatus id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasksStatus" ALTER COLUMN id SET DEFAULT nextval('public."ContractTasksStatus_id_seq"'::regclass);
 
 
 --
--- Name: ContractTemplates id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractTemplates id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTemplates" ALTER COLUMN id SET DEFAULT nextval('public."ContractTemplates_id_seq"'::regclass);
 
 
 --
--- Name: ContractType id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractType id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractType" ALTER COLUMN id SET DEFAULT nextval('public."ContractType_id_seq"'::regclass);
 
 
 --
--- Name: ContractWFStatus id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractWFStatus id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractWFStatus" ALTER COLUMN id SET DEFAULT nextval('public."ContractWFStatus_id_seq"'::regclass);
 
 
 --
--- Name: Contracts id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Contracts id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts" ALTER COLUMN id SET DEFAULT nextval('public."Contracts_id_seq"'::regclass);
 
 
 --
--- Name: ContractsAudit auditid; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ContractsAudit auditid; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractsAudit" ALTER COLUMN auditid SET DEFAULT nextval('public."ContractsAudit_auditid_seq"'::regclass);
 
 
 --
--- Name: CostCenter id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: CostCenter id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."CostCenter" ALTER COLUMN id SET DEFAULT nextval('public."CostCenter_id_seq"'::regclass);
 
 
 --
--- Name: Currency id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Currency id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Currency" ALTER COLUMN id SET DEFAULT nextval('public."Currency_id_seq"'::regclass);
 
 
 --
--- Name: Department id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Department id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Department" ALTER COLUMN id SET DEFAULT nextval('public."Department_id_seq"'::regclass);
 
 
 --
--- Name: DynamicFields id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: DocumentSeries id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."DocumentSeries" ALTER COLUMN id SET DEFAULT nextval('public."DocumentSeries_id_seq"'::regclass);
+
+
+--
+-- Name: DynamicFields id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."DynamicFields" ALTER COLUMN id SET DEFAULT nextval('public."DynamicFields_id_seq"'::regclass);
 
 
 --
--- Name: ExchangeRates id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ExchangeRates id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ExchangeRates" ALTER COLUMN id SET DEFAULT nextval('public."ExchangeRates_id_seq"'::regclass);
 
 
 --
--- Name: ForgotPass id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: ExchangeRatesBNR id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."ExchangeRatesBNR" ALTER COLUMN id SET DEFAULT nextval('public."ExchangeRatesBNR_id_seq"'::regclass);
+
+
+--
+-- Name: ForgotPass id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ForgotPass" ALTER COLUMN id SET DEFAULT nextval('public."ForgotPass_id_seq"'::regclass);
 
 
 --
--- Name: Groups id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Groups id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Groups" ALTER COLUMN id SET DEFAULT nextval('public."Groups_id_seq"'::regclass);
 
 
 --
--- Name: Invoice id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Invoice id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice" ALTER COLUMN id SET DEFAULT nextval('public."Invoice_id_seq"'::regclass);
 
 
 --
--- Name: InvoiceDetail id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceDetail" ALTER COLUMN id SET DEFAULT nextval('public."InvoiceDetail_id_seq"'::regclass);
 
 
 --
--- Name: InvoiceItem id; Type: DEFAULT; Schema: public; Owner: sysadmin
---
-
-ALTER TABLE ONLY public."InvoiceItem" ALTER COLUMN id SET DEFAULT nextval('public."InvoiceItem_id_seq"'::regclass);
-
-
---
--- Name: InvoiceItemClassification id; Type: DEFAULT; Schema: public; Owner: sysadmin
---
-
-ALTER TABLE ONLY public."InvoiceItemClassification" ALTER COLUMN id SET DEFAULT nextval('public."InvoiceItemClassification_id_seq"'::regclass);
-
-
---
--- Name: InvoiceStatus id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: InvoiceStatus id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceStatus" ALTER COLUMN id SET DEFAULT nextval('public."InvoiceStatus_id_seq"'::regclass);
 
 
 --
--- Name: InvoiceType id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: InvoiceType id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceType" ALTER COLUMN id SET DEFAULT nextval('public."InvoiceType_id_seq"'::regclass);
 
 
 --
--- Name: Item id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Item id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Item" ALTER COLUMN id SET DEFAULT nextval('public."Item_id_seq"'::regclass);
 
 
 --
--- Name: Location id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Location id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Location" ALTER COLUMN id SET DEFAULT nextval('public."Location_id_seq"'::regclass);
 
 
 --
--- Name: MeasuringUnit id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: MeasuringUnit id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."MeasuringUnit" ALTER COLUMN id SET DEFAULT nextval('public."MeasuringUnit_id_seq"'::regclass);
 
 
 --
--- Name: Partners id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Partners id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Partners" ALTER COLUMN id SET DEFAULT nextval('public."Partners_id_seq"'::regclass);
 
 
 --
--- Name: PaymentType id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: PartnersBanksExtraRates id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."PartnersBanksExtraRates" ALTER COLUMN id SET DEFAULT nextval('public."PartnersBanksExtraRates_id_seq"'::regclass);
+
+
+--
+-- Name: PaymentType id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."PaymentType" ALTER COLUMN id SET DEFAULT nextval('public."PaymentType_id_seq"'::regclass);
 
 
 --
--- Name: Persons id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Persons id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Persons" ALTER COLUMN id SET DEFAULT nextval('public."Persons_id_seq"'::regclass);
 
 
 --
--- Name: Role id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Role id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Role" ALTER COLUMN id SET DEFAULT nextval('public."Role_id_seq"'::regclass);
 
 
 --
--- Name: Role_User id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Role_User id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Role_User" ALTER COLUMN id SET DEFAULT nextval('public."Role_User_id_seq"'::regclass);
 
 
 --
--- Name: TransactionType id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: TransactionDetail id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TransactionDetail" ALTER COLUMN id SET DEFAULT nextval('public."TransactionDetail_id_seq"'::regclass);
+
+
+--
+-- Name: TransactionDetailEvents id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TransactionDetailEvents" ALTER COLUMN id SET DEFAULT nextval('public."TransactionDetailEvents_id_seq"'::regclass);
+
+
+--
+-- Name: TransactionType id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."TransactionType" ALTER COLUMN id SET DEFAULT nextval('public."TransactionType_id_seq"'::regclass);
 
 
 --
--- Name: User id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: Transactions id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Transactions" ALTER COLUMN id SET DEFAULT nextval('public."Transactions_id_seq"'::regclass);
+
+
+--
+-- Name: User id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."User" ALTER COLUMN id SET DEFAULT nextval('public."User_id_seq"'::regclass);
 
 
 --
--- Name: VatQuota id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: VatQuota id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."VatQuota" ALTER COLUMN id SET DEFAULT nextval('public."VatQuota_id_seq"'::regclass);
 
 
 --
--- Name: WorkFlow id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: WorkFlow id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlow" ALTER COLUMN id SET DEFAULT nextval('public."WorkFlow_id_seq"'::regclass);
 
 
 --
--- Name: WorkFlowContractTasks id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowContractTasks" ALTER COLUMN id SET DEFAULT nextval('public."WorkFlowContractTasks_id_seq"'::regclass);
 
 
 --
--- Name: WorkFlowRejectActions id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRejectActions id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowRejectActions" ALTER COLUMN id SET DEFAULT nextval('public."WorkFlowRejectActions_id_seq"'::regclass);
 
 
 --
--- Name: WorkFlowRules id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRules id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowRules" ALTER COLUMN id SET DEFAULT nextval('public."WorkFlowRules_id_seq"'::regclass);
 
 
 --
--- Name: WorkFlowTaskSettings id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettings" ALTER COLUMN id SET DEFAULT nextval('public."WorkFlowTaskSettings_id_seq"'::regclass);
 
 
 --
--- Name: WorkFlowTaskSettingsUsers id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettingsUsers id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettingsUsers" ALTER COLUMN id SET DEFAULT nextval('public."WorkFlowTaskSettingsUsers_id_seq"'::regclass);
 
 
 --
--- Name: WorkFlowXContracts id; Type: DEFAULT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowXContracts id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowXContracts" ALTER COLUMN id SET DEFAULT nextval('public."WorkFlowXContracts_id_seq"'::regclass);
 
 
 --
--- Data for Name: Address; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Name: additionalActType id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."additionalActType" ALTER COLUMN id SET DEFAULT nextval('public."additionalActType_id_seq"'::regclass);
+
+
+--
+-- Data for Name: Address; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Address" (id, "updateadAt", "createdAt", "addressName", "addressType", "Country", "County", "City", "Street", "Number", "postalCode", "completeAddress", "partnerId", "Status", "Default", aggregate) FROM stdin;
 1	2024-05-13 13:12:07.672	2024-05-13 13:12:07.672	Dragon	Adresa Comerciala	Romania	Ilfov	Dobroeşti	Dragonul	3	4	Tara:Romania, \n                Judet:Ilfov, \n                Oras:Dobroeşti, \n                Strada:Dragonul, Numar:3, Cod Postal:4	1	t	t	t
-2	2024-05-13 13:16:47.845	2024-05-13 13:16:47.845	bucuresti	Adresa Comerciala	Romania	Bucureşti	Sector 3	Vlad	4	4	Tara:Romania, Judet:Bucureşti, Oras:Sector 3, Strada:Vlad, Numar:4, Cod Postal:4	2	t	t	t
 3	2024-05-21 09:16:12.627	2024-05-21 09:16:12.627	Dragon	Adresa Comerciala	Romania	\N	\N				Tara:, Judet:, Oras:, Strada:, Numar:, Cod Postal:z	3	t	t	f
 4	2024-05-21 09:47:09.287	2024-05-21 09:42:05.772	SoftHub	Adresa Comerciala	Romania	\N	\N				Str. Vlad Județul, 2, Bl:v14a, Sc:2, Et:1, Ap:33, Camera Nr. 1, București, Sect 3	4	t	t	f
+5	2024-05-31 03:36:02.288	2024-05-31 03:36:02.288	Bucuresti	Adresa Facturare	Romania	Bucureşti	Sector 3	Vlad Judetul	Nr.2 , Bl V14, Ap. 33 	234432	Tara:Romania, Judet:Bucureşti, Oras:Sector 3, Strada:Vlad Judetul, Numar:Nr.2 , Bl V14, Ap. 33 , Cod Postal:234432	2	t	t	t
+2	2024-05-31 03:36:12.259	2024-05-13 13:16:47.845	bucuresti	Adresa Comerciala	Romania	Bucureşti	Sector 3	Vlad	4	4	Tara:Romania, Judet:Bucureşti, Oras:Sector 3, Strada:Vlad, Numar:4, Cod Postal:4	2	t	f	t
+6	2024-06-02 15:55:54.413	2024-06-02 15:55:54.413	Floreasca	Adresa Comerciala	Romania	Bucureşti	Sector 1		Floreasca		Tara:Romania, \n                Judet:Bucureşti, \n                Oras:Sector 1, \n                Strada:, Numar:Floreasca, Cod Postal:	14	t	t	t
 \.
 
 
 --
--- Data for Name: Alerts; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Alerts; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Alerts" (id, "updateadAt", "createdAt", name, "isActive", subject, text, internal_emails, nrofdays, param, "isActivePartner", "isActivePerson") FROM stdin;
@@ -3822,7 +4099,7 @@ COPY public."Alerts" (id, "updateadAt", "createdAt", name, "isActive", subject, 
 
 
 --
--- Data for Name: AlertsHistory; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: AlertsHistory; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."AlertsHistory" (id, "updateadAt", "createdAt", "alertId", "alertContent", "sentTo", "contractId", criteria, param, nrofdays) FROM stdin;
@@ -3990,11 +4267,27 @@ COPY public."AlertsHistory" (id, "updateadAt", "createdAt", "alertId", "alertCon
 155	2024-05-22 07:00:00.298	2024-05-22 07:00:00.298	2	Va informam faptul ca urmeaza sa expire contractul cu numarul 234 din data de 02.05.2024 la partenerul SoftHub. Acest contract este in vigoare in compania NIRO INVESTMENT SA si reprezinta 234.	to:  bcc:razvan.mustata@gmail.com	78	Data Final	end	30
 161	2024-05-22 07:00:00.308	2024-05-22 07:00:00.308	1	Va informam faptul ca a fost inchis contractul cu numarul @@NumarContract din data de @@DataContract la partenerul @@Partener. Acest contract a fost in vigoare in compania @@Entitate si reprezinta @@ScurtaDescriere.	to:  bcc:razvan.mustata@gmail.com	47	Inchis la data	completion	0
 163	2024-05-22 07:00:00.309	2024-05-22 07:00:00.309	2	Va informam faptul ca urmeaza sa expire contractul cu numarul 234 din data de 02.05.2024 la partenerul SoftHub. Acest contract este in vigoare in compania NIRO INVESTMENT SA si reprezinta 234.	to:  bcc:razvan.mustata@gmail.com	85	Data Final	end	30
+165	2024-05-29 07:00:00.206	2024-05-29 07:00:00.206	2	<p>Va informam faptul ca urmeaza sa expire contractul cu numarul <span style="color: rgba(255, 255, 255, 0.87); background-color: rgb(31, 41, 55);">32432</span> din data de <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">undefined</span> la partenerul <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">SoftHub</span>. Acest contract a fost in vigoare in compania <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span> si reprezinta <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">234</span>.</p>	to:  bcc:razvan.mustata@gmail.com	13	Data Final	end	30
+166	2024-05-29 07:00:00.252	2024-05-29 07:00:00.252	2	<p>Va informam faptul ca urmeaza sa expire contractul cu numarul <span style="color: rgba(255, 255, 255, 0.87); background-color: rgb(31, 41, 55);">wer</span> din data de <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">undefined</span> la partenerul <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">Dragonul Rosu S.A.</span>. Acest contract a fost in vigoare in compania <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span> si reprezinta <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">wer</span>.</p>	to:  bcc:m_razvan@yahoo.com	71	Data Final	end	30
+167	2024-05-29 07:00:00.264	2024-05-29 07:00:00.264	2	<p>Va informam faptul ca urmeaza sa expire contractul cu numarul <span style="color: rgba(255, 255, 255, 0.87); background-color: rgb(31, 41, 55);">wer</span> din data de <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">undefined</span> la partenerul <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">Dragonul Rosu S.A.</span>. Acest contract a fost in vigoare in compania <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span> si reprezinta <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">wer</span>.</p>	to:  bcc:stefania.mustata@gmail.com	71	Data Final	end	30
+168	2024-05-31 07:00:00.981	2024-05-31 07:00:00.981	1	<p>Va informam faptul ca a fost inchis contractul cu numarul <span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">aa </span>din data de <span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">03.05.2024</span> la partenerul <span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">SoftHub</span>. Acest contract a fost in vigoare in compania <span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span> si reprezinta <span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">a</span>.</p>	to:  bcc:razvan.mustata@gmail.com	41	Inchis la data	completion	0
+169	2024-05-31 07:00:01.144	2024-05-31 07:00:01.144	1	<p>Va informam faptul ca a fost inchis contractul cu numarul <span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">aa </span>din data de <span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">03.05.2024</span> la partenerul <span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">SoftHub</span>. Acest contract a fost in vigoare in compania <span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span> si reprezinta <span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">a</span>.</p>	to:  bcc:razvan.mustata@gmail.com	42	Inchis la data	completion	0
+170	2024-05-31 07:00:01.216	2024-05-31 07:00:01.216	1	<p>Va informam faptul ca a fost inchis contractul cu numarul <span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">act aditional wf </span>din data de <span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">03.05.2024</span> la partenerul <span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">SoftHub</span>. Acest contract a fost in vigoare in compania <span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span> si reprezinta <span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">act aditional wf</span>.</p>	to:  bcc:razvan.mustata@gmail.com	46	Inchis la data	completion	0
+171	2024-10-07 10:00:00.044	2024-10-07 10:00:00.044	2	<p>Va informam faptul ca urmeaza sa expire contractul cu numarul <span style="color: rgba(255, 255, 255, 0.87); background-color: rgb(31, 41, 55);">newctr</span> din data de <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">undefined</span> la partenerul <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">SoftHub</span>. Acest contract a fost in vigoare in compania <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span> si reprezinta <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">newctr</span>.</p>	to:  bcc:razvan.mustata@gmail.com	88	Data Final	end	30
+172	2024-10-07 10:00:30.046	2024-10-07 10:00:30.046	2	<p>Va informam faptul ca urmeaza sa expire contractul cu numarul <span style="color: rgba(255, 255, 255, 0.87); background-color: rgb(31, 41, 55);">newctr</span> din data de <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">undefined</span> la partenerul <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">SoftHub</span>. Acest contract a fost in vigoare in compania <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span> si reprezinta <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">newctr</span>.</p>	to:  bcc:razvan.mustata@gmail.com	88	Data Final	end	30
+173	2024-10-07 10:01:00.046	2024-10-07 10:01:00.046	2	<p>Va informam faptul ca urmeaza sa expire contractul cu numarul <span style="color: rgba(255, 255, 255, 0.87); background-color: rgb(31, 41, 55);">newctr</span> din data de <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">undefined</span> la partenerul <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">SoftHub</span>. Acest contract a fost in vigoare in compania <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span> si reprezinta <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">newctr</span>.</p>	to:  bcc:razvan.mustata@gmail.com	88	Data Final	end	30
+174	2024-10-07 10:01:30.035	2024-10-07 10:01:30.035	2	<p>Va informam faptul ca urmeaza sa expire contractul cu numarul <span style="color: rgba(255, 255, 255, 0.87); background-color: rgb(31, 41, 55);">newctr</span> din data de <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">undefined</span> la partenerul <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">SoftHub</span>. Acest contract a fost in vigoare in compania <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span> si reprezinta <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">newctr</span>.</p>	to:  bcc:razvan.mustata@gmail.com	88	Data Final	end	30
+175	2024-10-07 10:02:00.047	2024-10-07 10:02:00.047	2	<p>Va informam faptul ca urmeaza sa expire contractul cu numarul <span style="color: rgba(255, 255, 255, 0.87); background-color: rgb(31, 41, 55);">newctr</span> din data de <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">undefined</span> la partenerul <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">SoftHub</span>. Acest contract a fost in vigoare in compania <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span> si reprezinta <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">newctr</span>.</p>	to:  bcc:razvan.mustata@gmail.com	88	Data Final	end	30
+176	2024-10-07 10:02:30.037	2024-10-07 10:02:30.037	2	<p>Va informam faptul ca urmeaza sa expire contractul cu numarul <span style="color: rgba(255, 255, 255, 0.87); background-color: rgb(31, 41, 55);">newctr</span> din data de <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">undefined</span> la partenerul <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">SoftHub</span>. Acest contract a fost in vigoare in compania <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span> si reprezinta <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">newctr</span>.</p>	to:  bcc:razvan.mustata@gmail.com	88	Data Final	end	30
+177	2024-10-07 10:03:00.039	2024-10-07 10:03:00.039	2	<p>Va informam faptul ca urmeaza sa expire contractul cu numarul <span style="color: rgba(255, 255, 255, 0.87); background-color: rgb(31, 41, 55);">newctr</span> din data de <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">undefined</span> la partenerul <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">SoftHub</span>. Acest contract a fost in vigoare in compania <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span> si reprezinta <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">newctr</span>.</p>	to:  bcc:razvan.mustata@gmail.com	88	Data Final	end	30
+178	2024-10-07 10:03:30.036	2024-10-07 10:03:30.036	2	<p>Va informam faptul ca urmeaza sa expire contractul cu numarul <span style="color: rgba(255, 255, 255, 0.87); background-color: rgb(31, 41, 55);">newctr</span> din data de <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">undefined</span> la partenerul <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">SoftHub</span>. Acest contract a fost in vigoare in compania <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span> si reprezinta <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">newctr</span>.</p>	to:  bcc:razvan.mustata@gmail.com	88	Data Final	end	30
+179	2024-10-07 10:04:00.037	2024-10-07 10:04:00.037	2	<p>Va informam faptul ca urmeaza sa expire contractul cu numarul <span style="color: rgba(255, 255, 255, 0.87); background-color: rgb(31, 41, 55);">newctr</span> din data de <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">undefined</span> la partenerul <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">SoftHub</span>. Acest contract a fost in vigoare in compania <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span> si reprezinta <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">newctr</span>.</p>	to:  bcc:razvan.mustata@gmail.com	88	Data Final	end	30
+180	2024-10-08 07:00:00.07	2024-10-08 07:00:00.07	2	<p>Va informam faptul ca urmeaza sa expire contractul cu numarul <span style="color: rgba(255, 255, 255, 0.87); background-color: rgb(31, 41, 55);">newctr</span> din data de <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">undefined</span> la partenerul <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">SoftHub</span>. Acest contract a fost in vigoare in compania <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span> si reprezinta <span style="background-color: rgb(31, 41, 55); color: rgba(255, 255, 255, 0.87);">newctr</span>.</p>	to:  bcc:razvan.mustata@gmail.com	88	Data Final	end	30
 \.
 
 
 --
--- Data for Name: Bank; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Bank; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Bank" (id, name) FROM stdin;
@@ -4034,19 +4327,22 @@ COPY public."Bank" (id, name) FROM stdin;
 
 
 --
--- Data for Name: Banks; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Banks; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public."Banks" (id, "updateadAt", "createdAt", "partnerId", bank, branch, currency, iban, status) FROM stdin;
-1	2024-05-13 13:12:07.672	2024-05-13 13:12:07.672	1	Alpha Bank	Tineretului	EUR	234242423	t
-2	2024-05-13 13:17:12.493	2024-05-13 13:17:12.493	2	ING	Tineret	EUR	r345345	t
-3	2024-05-21 09:16:12.627	2024-05-21 09:16:12.627	3	Banca FEROVIARA	Iasi	USD	24234234	t
-4	2024-05-21 09:41:36.241	2024-05-21 09:41:36.241	4	Garanti Bank	Tineretului	RON	ROZBR234432234423423	t
+COPY public."Banks" (id, "updateadAt", "createdAt", "partnerId", bank, branch, currency, iban, status, "isDefault") FROM stdin;
+2	2024-05-13 13:17:12.493	2024-05-13 13:17:12.493	2	ING	Tineret	EUR	r345345	t	\N
+4	2024-05-21 09:41:36.241	2024-05-21 09:41:36.241	4	Garanti Bank	Tineretului	RON	ROZBR234432234423423	t	\N
+5	2024-06-02 15:55:54.413	2024-06-02 15:55:54.413	14	Alpha Bank	Floreasca	EUR	kl23-klkl-4l44-2344-2343-2234	t	\N
+6	2024-06-02 15:55:54.413	2024-06-02 15:55:54.413	14	BCR	Tineretului	USD	kj23-lkjl-2k43-2442-3423-4233	t	\N
+7	2024-06-03 03:09:40.441	2024-06-03 03:09:40.441	13	Alpha Bank	234	RON	mn24-nmmn-2m24-2424-2422-3423	t	\N
+1	2024-06-06 11:41:06.418	2024-05-13 13:12:07.672	1	Alpha Bank	Tineretului	EUR	lk23-klkj-4l23-4242-3423-4234	t	t
+3	2024-10-03 09:26:54.017	2024-05-21 09:16:12.627	3	Banca FEROVIARA	Iasi	USD	24234234	t	t
 \.
 
 
 --
--- Data for Name: BillingFrequency; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: BillingFrequency; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."BillingFrequency" (id, name) FROM stdin;
@@ -4061,7 +4357,7 @@ COPY public."BillingFrequency" (id, name) FROM stdin;
 
 
 --
--- Data for Name: Cashflow; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Cashflow; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Cashflow" (id, name) FROM stdin;
@@ -4096,7 +4392,7 @@ COPY public."Cashflow" (id, name) FROM stdin;
 
 
 --
--- Data for Name: Category; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Category; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Category" (id, name) FROM stdin;
@@ -4106,7 +4402,7 @@ COPY public."Category" (id, name) FROM stdin;
 
 
 --
--- Data for Name: ContractAlertSchedule; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractAlertSchedule; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractAlertSchedule" (id, "updateadAt", "createdAt", "contractId", "alertId", alertname, "datetoBeSent", "isActive", status, subject, nrofdays) FROM stdin;
@@ -4292,11 +4588,33 @@ COPY public."ContractAlertSchedule" (id, "updateadAt", "createdAt", "contractId"
 180	2024-05-28 09:40:00.121	2024-05-28 09:40:00.121	90	1	Contract Inchis inainte de termen	2024-12-31 22:00:00	t	t	Contract Inchis inainte de termen	0
 181	2024-05-28 13:31:00.123	2024-05-28 13:31:00.123	91	2	Expirare Contract	2024-10-31 22:00:00	t	t	Expirare Contract	30
 182	2024-05-28 13:40:00.127	2024-05-28 13:40:00.127	91	1	Contract Inchis inainte de termen	2024-11-30 22:00:00	t	t	Contract Inchis inainte de termen	0
+183	2024-06-06 14:03:50.12	2024-06-06 14:03:50.12	92	2	Expirare Contract	2024-12-16 22:00:00	t	t	Expirare Contract	30
+184	2024-06-06 14:10:00.127	2024-06-06 14:10:00.127	92	1	Contract Inchis inainte de termen	2025-01-15 22:00:00	t	t	Contract Inchis inainte de termen	0
+185	2024-10-04 09:48:30.099	2024-10-04 09:48:30.099	93	2	Expirare Contract	2025-02-10 22:00:00	t	t	Expirare Contract	30
+186	2024-10-04 09:48:30.102	2024-10-04 09:48:30.102	94	2	Expirare Contract	2024-12-17 22:00:00	t	t	Expirare Contract	30
+187	2024-10-04 09:50:00.084	2024-10-04 09:50:00.084	93	1	Contract Inchis inainte de termen	2025-03-12 22:00:00	t	t	Contract Inchis inainte de termen	0
+188	2024-10-04 09:50:00.086	2024-10-04 09:50:00.086	94	1	Contract Inchis inainte de termen	2025-01-16 22:00:00	t	t	Contract Inchis inainte de termen	0
+189	2024-10-05 09:19:40.024	2024-10-05 09:19:40.024	95	2	Expirare Contract	2024-08-31 21:00:00	t	t	Expirare Contract	30
+190	2024-10-05 09:20:00.034	2024-10-05 09:20:00.034	95	1	Contract Inchis inainte de termen	2024-09-30 21:00:00	t	t	Contract Inchis inainte de termen	0
+191	2024-10-05 09:27:50.04	2024-10-05 09:27:50.04	96	2	Expirare Contract	2024-08-31 21:00:00	t	t	Expirare Contract	30
+192	2024-10-05 09:30:00.056	2024-10-05 09:30:00.056	96	1	Contract Inchis inainte de termen	2024-09-30 21:00:00	t	t	Contract Inchis inainte de termen	0
+193	2024-10-05 09:30:20.08	2024-10-05 09:30:20.08	97	2	Expirare Contract	2024-08-31 21:00:00	t	t	Expirare Contract	30
+194	2024-10-05 09:40:00.099	2024-10-05 09:40:00.099	97	1	Contract Inchis inainte de termen	2024-09-30 21:00:00	t	t	Contract Inchis inainte de termen	0
+195	2024-10-05 09:41:20.02	2024-10-05 09:41:20.02	98	2	Expirare Contract	2024-08-31 21:00:00	t	t	Expirare Contract	30
+196	2024-10-05 09:42:50.049	2024-10-05 09:42:50.049	99	2	Expirare Contract	2024-08-31 21:00:00	t	t	Expirare Contract	30
+197	2024-10-05 10:01:50.099	2024-10-05 10:01:50.099	100	2	Expirare Contract	2024-08-31 21:00:00	t	t	Expirare Contract	30
+198	2024-10-05 10:10:00.047	2024-10-05 10:10:00.047	98	1	Contract Inchis inainte de termen	2024-09-30 21:00:00	t	t	Contract Inchis inainte de termen	0
+199	2024-10-05 10:10:00.078	2024-10-05 10:10:00.078	99	1	Contract Inchis inainte de termen	2024-09-30 21:00:00	t	t	Contract Inchis inainte de termen	0
+200	2024-10-05 10:10:00.119	2024-10-05 10:10:00.119	100	1	Contract Inchis inainte de termen	2024-09-30 21:00:00	t	t	Contract Inchis inainte de termen	0
+201	2024-10-11 14:26:20.023	2024-10-11 14:26:20.023	101	2	Expirare Contract	2024-08-31 21:00:00	t	t	Expirare Contract	30
+202	2024-10-11 14:30:00.032	2024-10-11 14:30:00.032	101	1	Contract Inchis inainte de termen	2024-09-30 21:00:00	t	t	Contract Inchis inainte de termen	0
+203	2024-10-14 15:21:30.065	2024-10-14 15:21:30.065	102	2	Expirare Contract	2024-11-30 22:00:00	t	t	Expirare Contract	30
+204	2024-10-14 15:30:00.066	2024-10-14 15:30:00.066	102	1	Contract Inchis inainte de termen	2024-12-30 22:00:00	t	t	Contract Inchis inainte de termen	0
 \.
 
 
 --
--- Data for Name: ContractAttachments; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractAttachments; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractAttachments" (id, "updateadAt", "createdAt", size, path, mimetype, originalname, encoding, fieldname, filename, destination, "contractId") FROM stdin;
@@ -4345,6 +4663,7 @@ COPY public."ContractAttachments" (id, "updateadAt", "createdAt", size, path, mi
 45	2024-05-21 11:31:43.818	2024-05-21 11:31:43.818	689	/Users/razvanmustata/Projects/contracts/backend/Uploads/files-1716291103813-422153940.png	image/png	icons8-link-50.png	7bit	files	files-1716291103813-422153940.png	/Users/razvanmustata/Projects/contracts/backend/Uploads	\N
 46	2024-05-21 11:34:17.442	2024-05-21 11:34:17.421	1086	/Users/razvanmustata/Projects/contracts/backend/Uploads/files-1716291257412-83790235.ico	image/vnd.microsoft.icon	favicon (3).ico	7bit	files	files-1716291257412-83790235.ico	/Users/razvanmustata/Projects/contracts/backend/Uploads	71
 47	2024-05-21 11:37:10.912	2024-05-21 11:37:10.912	202814	/Users/razvanmustata/Projects/contracts/backend/Uploads/files-1716291430906-70193858.ico	image/vnd.microsoft.icon	image (1).ico	7bit	files	files-1716291430906-70193858.ico	/Users/razvanmustata/Projects/contracts/backend/Uploads	\N
+55	2024-06-06 15:45:59.72	2024-06-06 15:45:59.693	19988	/Users/razvanmustata/Projects/contracts/backend/Uploads/files-1717688759686-515636264.xlsx	application/vnd.openxmlformats-officedocument.spreadsheetml.sheet	scadentar_export_1716904344867.xlsx	7bit	files	files-1717688759686-515636264.xlsx	/Users/razvanmustata/Projects/contracts/backend/Uploads	91
 48	2024-05-21 11:44:53.53	2024-05-21 11:44:53.525	873055	/Users/razvanmustata/Projects/contracts/backend/Uploads/files-1716291893508-153436400.pdf	application/pdf	exported_content (18) (1).pdf	7bit	files	files-1716291893508-153436400.pdf	/Users/razvanmustata/Projects/contracts/backend/Uploads	71
 49	2024-05-21 11:44:53.539	2024-05-21 11:44:53.525	925010	/Users/razvanmustata/Projects/contracts/backend/Uploads/files-1716291893517-657630185.pdf	application/pdf	exported_content (29).pdf	7bit	files	files-1716291893517-657630185.pdf	/Users/razvanmustata/Projects/contracts/backend/Uploads	71
 50	2024-05-21 12:36:16.195	2024-05-21 12:36:16.177	746950	/Users/razvanmustata/Projects/contracts/backend/Uploads/files-1716294976170-55621207.pdf	application/pdf	contract_exp (3) (1).pdf	7bit	files	files-1716294976170-55621207.pdf	/Users/razvanmustata/Projects/contracts/backend/Uploads	72
@@ -4355,7 +4674,7 @@ COPY public."ContractAttachments" (id, "updateadAt", "createdAt", size, path, mi
 
 
 --
--- Data for Name: ContractContent; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractContent; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractContent" (id, "updateadAt", "createdAt", content, "contractId") FROM stdin;
@@ -4365,7 +4684,6 @@ COPY public."ContractContent" (id, "updateadAt", "createdAt", content, "contract
 4	2024-05-14 06:32:42.564	2024-05-14 06:32:42.564	<p><strong>CONTRACT PRESTARI SERVICII IN TEHNOLOGIA INFORMATIEI&nbsp;</strong></p><p><strong>NR.: </strong><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">ok2</span><strong>/</strong><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">undefined</span></p><p>Intre:&nbsp;</p><p><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">SoftHub</span> cu sediul social in Bucureşti, sectorul 3, Str. Vlad Judeţul nr. 2, camera nr. 1,&nbsp;bloc V14A, scara 2, etaj 1, ap. 33, adresa email: razvan.mustata@gmail.com, inregistrata la Registrul&nbsp;Comertului cu nr. J40/2456/2017, CUI 37130972, reprezentata legal prin Razvan Mihai Mustata Administrator, in calitate de prestator („<strong>Prestatorul</strong>"), pe de o parte; <strong>si&nbsp;</strong></p><p><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span><strong>, </strong>persoană juridică română, cu sediul în Comuna Dobroeşti, Sat Fundeni, str. Dragonul Roşu, nr. 1-10, etaj 3, biroul nr. 2-4, Centrul Comercial Dragonul Roşu Megashop, judeţ Ilfov, înregistrată la Registrul Comerţului sub nr. J23/227/2002, Cod de Înregistrare Fiscala RO6951013, reprezentata legal prin Mihaela Istrate - Director General, denumită în cele ce urmează<strong> </strong>(<strong>„Beneficiarul</strong>")<strong>, </strong>pe de alta parte,&nbsp;</p><p>Denumite in continuare, individual, „<strong>Partea</strong>" si, in mod colectiv, „<strong>Partile</strong>", au incheiat prezentul&nbsp;Contract prestari servicii in tehnologia informatiei (“<strong>Contractul</strong>”), dupa cum urmeaza:&nbsp;</p><p><strong>Art. 1. Dispoziții generale&nbsp;</strong></p><p>1.1. În aplicarea caracterului independent al activităţilor desfăşurate în temeiul prezentului Contract,&nbsp;Părţile înţeleg şi convin ca niciuna dintre Părţi nu va solicita celeilalte Părţi şi nu va suporta niciun fel&nbsp;de cheltuieli aferente unor elemente pe care legislaţia română le consideră a fi de natură a reflecta&nbsp;natura dependentă a unei activităţi economice.&nbsp;</p><p>1.2. Pe durata prezentului Contract, Prestatorul va furniza Serviciile prevăzute în Contract.&nbsp;</p><p>1.3. Prestatorul îşi va suporta propriile sale cheltuieli în interesul desfăşurării activităţii, precum orice&nbsp;tipuri de cheltuieli aferente:&nbsp;</p><p>a) deplasării de la/la sediul Părţilor sau al altor persoane fizice/juridice,&nbsp;</p><p>b) timpului de odihnă, în care Parţile nu-şi execută prestaţiile unele faţă de altele, c) imposibilităţii temporare de realizare a prestaţiilor contractuale ca urmare a unui concediu&nbsp;medical sau oricăror cauze asemenătoare,&nbsp;</p><p>d) oricăror altor situaţii de natura celor prevăzute la alin. 1-3.&nbsp;</p><p>1.4. Serviciile vor fi prestate de Prestator din orice locatie adecvata, folosind baza materiala a&nbsp;Prestatorului (statie de lucru, conexiune internet, software specializat de dezvoltare, software&nbsp;specializat de testare etc.), iar livrabilele vor fi furnizate electronic Beneficiarului (prin email sau&nbsp;încărcare pe serverele specializate ale Beneficiarului).&nbsp;</p><p><strong>Art. 2. Obiectul Contractului&nbsp;</strong></p><p>2.1. Prestatorul se obliga sa furnizeze, la solicitarea Beneficiarului si in beneficiul acestuia, servicii de&nbsp;integrare a sistemului <strong>Charisma </strong>cu platforma<strong>/</strong>aplicația <strong>CEC Bank</strong>, pentru export extrase de cont și&nbsp;efectuare plăți în sistem internet banking („<strong>Serviciile</strong>”).</p><p>P a g e 2 | 6&nbsp;</p><p><strong>Art. 3. Obligatiile Prestatorului&nbsp;</strong></p><p>Prestatorul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) sa presteze Serviciile catre Beneficiar conform solicitarilor acestuia si sa asigure&nbsp;finalizarea corespunzatoare si in timp util a acestora, la standardele de calitate cerute si&nbsp;in termenele agreate;&nbsp;</p><p>b) sa furnizeze Serviciile spre satisfactia rezonabila a Beneficiarului, Beneficiarul putand&nbsp;solicita Prestatorului sa rectifice orice Servicii care au fost prestate in mod&nbsp;necorespunzator;&nbsp;</p><p>c) pe toată perioada realizării obligaţiilor prezentului Contract, să comunice Beneficiarului,&nbsp;orice modificare cu privire la sediul social, denumire, divizare, fuziune;&nbsp;</p><p>d) să presteze Serviciile prin utilizarea doar a propriilor sale bunuri şi/sau capitaluri (spaţii&nbsp;de birouri/producţie, echipamente, aparatură şi oricare altele asemenea);&nbsp;</p><p>e) să presteze serviciile cu respectarea principiului independenţei activităţii desfăşurate de&nbsp;Prestator consfinţită de dispoziţiile art. 4 lit.a) din O.U.G. nr. 44/2008.&nbsp;</p><p><strong>Art.4. Obligatiile Beneficiarului&nbsp;</strong></p><p>Beneficiarul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) în sensul Art. 3, lit. e), Partile inteleg si convin ca nu se afla si nici nu vor intra intr-o relatie&nbsp;de subordonare una fata de cealalta, fata de organele de conducere ale celeilalte Parti sau&nbsp;fata de alte entitati care detin controlul asupra/ sunt detinute de cealalta Parte;&nbsp;</p><p>b) sa puna la dispozitia Prestatorului informatiile solicitate de acesta, legate de activitatea&nbsp;Beneficiarului, care sunt necesare pentru buna executare a serviciilor asumate de&nbsp;Prestator;&nbsp;</p><p>c) sa plateasca Prestatorului, in termenii stabiliti prin prezentul Contract, pretul prevazut&nbsp;pentru Serviciile prestate, pe baza facturii emise de Prestator, insotita de devizul de lucru,&nbsp;aprobat de Beneficiar.&nbsp;</p><p><strong>Art. 5. Pretul Contractului și modalitatea de plată&nbsp;</strong></p><p>5.1. În schimbul Serviciilor prestate, Beneficiarul se obliga sa plateasca Prestatorului remuneratia&nbsp;datorată în cuantum de <strong>800(optsute) Euro</strong>. Prestatorul nu este plătitor de TVA.&nbsp;</p><p>5.2. Plata Serviciilor se va face in baza unui deviz agreat de ambele Parti care atesta serviciile&nbsp;efectuate, durata lor si termenii de calitate, deviz care va fi furnizat de catre Prestator Beneficiarului&nbsp;la data emiterii facturii fiscale.&nbsp;</p><p>5.3. Plata remunerației datorate Prestatorului se va face la finalizare Serviciilor, în termen de&nbsp;maximum 10 (zece) zile lucrătoare de la data acceptării la plată a facturii fiscale emise de Prestator.&nbsp;</p><p>5.4. Plata se efectueaza în contul Prestatorului cod RO17INGB0000999906676339 deschis la ING&nbsp;BANK NV pe numele Prestatorului.&nbsp;</p><p>P a g e 3 | 6&nbsp;</p><p><strong>Art.6. Durata Contractului&nbsp;</strong></p><p>6.1. Contractul își produce efectele de la data semnării prezentului inscris de către ambele Părți și&nbsp;este valabil până la îndeplinirea tuturor obligațiilor contractuale.&nbsp;</p><p>6.2. Prestatorul se angajează ca, până la data de <strong>20.02.2024</strong>, să finalizeze Serviciile la care se&nbsp;angajează prin prezentul Contract (“<strong>Termen de finalizare</strong>”)&nbsp;</p><p>6.3. Termenul de finalizare este ferm.&nbsp;</p><p>6.4. In cazul in care Prestatorul nu isi indeplineste corespunzător obligatiile asumate prin Contract,&nbsp;Beneficiarul este indreptatit sa perceapa penalitati de intarziere de 0,5% pe zi de intarziere, calculat&nbsp;din valoarea totala a Contractului. In cazul in care Beneficiarul nu onoreaza plata in termenii prevazuți&nbsp;prin Contract, acesta are obligatia de a plati penalitati de intarziere de 0,5% pe zi de intarziere,&nbsp;calculat din suma datorată. Cuantumul penalităților poate depăși valoarea la care ele au fost calculate.&nbsp;</p><p><strong>Art.7. Încetarea Contractului&nbsp;</strong></p><p>7.1. Prezentul Contract încetează în oricare din următoarele modalităţi:&nbsp;</p><p>(a) prin acordul scris al Părţilor;&nbsp;</p><p>(b) prin ajungerea la termen și/sau îndeplinirea tuturor obligațiilor contractuale; (c) prin demararea procedurilor de faliment, dizolvare sau lichidare a oricăreia dintre Părţi; (d) în caz de forţa majoră, în condițiile legii;&nbsp;</p><p>(e) prin denuntarea unilaterala a Contractului de catre Beneficiar, oricand, indiferent de motiv,&nbsp;transmitand Prestatorului o notificare prealabila cu minim 10 (zece) zile calendaristice înainte&nbsp;de data la care operează încetarea Contractului;&nbsp;</p><p>(f) prin cesionarea de către Prestator a drepturile şi obligaţiilor sale prevăzute prin Contract, fără&nbsp;acordul scris, expres și prealabil al Beneficiarului;&nbsp;</p><p>(g) prin rezilierea unilaterală de către oricare dintre Părți, în baza unei notificări de reziliere&nbsp;transmisă celeilalte Părți conform Art. 1.552 Codul Civil, în măsura în care acesta nu&nbsp;îndeplineşte sau îndeplineşte în mod necorespunzător obligatiile sale şi nu le remediază în&nbsp;termenul indicat de catre cealaltă Parte;&nbsp;</p><p>7.2. Încetarea Contractului nu va avea niciun efect asupra obligațiilor deja scadente între Părți la data&nbsp;survenirii acesteia.&nbsp;</p><p>7.3. Prestatorul se afla de drept in inatrziere odata cu implinirea Termenului de finalizare. 7.4. Decalarea termenelor de executie determina decalarea corespunzatoare a platilor.&nbsp;</p><p><strong>Art. 8. Forta majora&nbsp;</strong></p><p>8.1. Forta majora exonereaza de raspundere Partea care o invoca, dar numai in masura si pentru&nbsp;perioada in care Partea este impiedicata sau intarziata sa-si execute obligatia din pricina situatiei de&nbsp;forta majora. Partea care invoca forta majora va depune toate eforturile rezonabile pentru a reduce&nbsp;cat mai mult posibil efectele rezultand din forta majora.&nbsp;</p><p>8.2. Forta majora exonereaza de raspundere Partea care o invoca, in conditiile legii, daca o comunica&nbsp;in scris, celeilalte Parti in termen de 15 zile de la producere si o dovedeste printr-un certificat oficial,&nbsp;in termen de 15 de zile de la data invocarii ei.&nbsp;</p><p>8.3. Prin forta majora se inteleg toate evenimentele si/sau imprejurarile independente de vointa&nbsp;partii care invoca forta majora, imprevizibile si de neinlaturat si care, survenind dupa incheierea&nbsp;contractului, impiedica ori intirzie, total sau partial, indeplinirea obligatiilor izvorind din acest&nbsp;</p><p>P a g e 4 | 6&nbsp;</p><p>contract.&nbsp;</p><p>8.4. Pentru orice intarziere si/sau neindeplinire a obligatiilor contractuale de catre oricare din Parti&nbsp;ca urmare a situatiei de forta majora, niciuna din Parti nu va fi indreptatita sa pretinda celeilalte Parti&nbsp;penalitati, dobanzi, ori despagubiri care altfel ar fi fost platibile.&nbsp;</p><p>8.5. Daca, datorita situatiei de forta majora, una din Parti este impiedicata sa-si indeplineasca, total&nbsp;sau partial obligatiile sale contractuale pe o perioada mai mare 1 luna, atunci oricare Parte va avea&nbsp;dreptul, in lipsa unei alte intelegeri, sa rezilieze contractul, printr-o notificare scrisa adresata&nbsp;celeilalte Parti. In acesta situatie, Partile vor stabili consecintele rezilierii.&nbsp;</p><p><strong>Art. 9. Notificari, adrese, comunicari&nbsp;</strong></p><p>9.1. Orice adresă, notificare, comunicare sau cerere făcută în legătură cu executarea prezentului&nbsp;Contract vor fi făcute în scris.&nbsp;</p><p>9.2. Orice adresă, notificare, comunicare sau cerere este consideră valabil făcută, dacă va fi transmisă&nbsp;celeilalte Părți la adresa menționată în prezentul Contract, prin poștă, cu scrisoare recomandată cu&nbsp;confirmare de primire.&nbsp;</p><p>9.3. Toate aceste comunicări se pot face și prin fax, e-mail, cu condiția confirmării în scris a primirii&nbsp;lor.&nbsp;</p><p>9.4. Toate notificările şi comunicările privind prezentul Contract vor fi trimise la adresele mentionate&nbsp;in preambulul Contractului.&nbsp;</p><p>9.5. În cazul în care o Parte își schimbă datele de contact, aceasta are obligația de a notifica acest&nbsp;eveniment celeilalte Părți în termen de maxim 1 zi lucrătoare, calculat de la momentul producerii&nbsp;schimbării, în caz contrar considerându-se că scrisoarea/notificarea/cererea a fost trimisă în mod&nbsp;valabil la datele cunoscute în momentul încheierii Contractului.&nbsp;</p><p>9.6. Orice adresa, notificare, comunicare sau cerere transmisă prin fax/e-mail se va considera ca fiind&nbsp;trimisă în prima zi lucrătoare după cea în care a fost expediată;&nbsp;</p><p>9.7. Data la care se va considera primită o notificare/adresa/cerere/comunicare este data menționată&nbsp;în raportul de confirmare.&nbsp;</p><p><strong>Art. 10. Litigii&nbsp;</strong></p><p>10.1. Prezentul Contract este guvernat de legea română.&nbsp;</p><p>10.2. Orice neînţelegere rezultată din valabilitatea, executarea şi interpretarea prezentului Contract&nbsp;va fi soluţionată în mod amiabil. Când aceasta nu este posibilă, litigiul va fi depus spre soluţionare&nbsp;instantelor competente de la sediul Beneficiarului.&nbsp;</p><p><strong>Art.11. CLAUZA DE CONFIDENȚIALITATE SI DE PROTECTIE A DATELOR PERSONALE (GDPR).&nbsp;</strong></p><p>Fiecare Parte se obligă să nu divulge terţelor persoane, fără acordul prealabil exprimat în scris al&nbsp;celeilalte Parţi, informaţia obţinută în procesul executării prezentului Contract, precum şi să o&nbsp;utilizeze numai în scopurile executării prezentului Contract. Obligaţia nu se aplică informaţiei: a.&nbsp;divulgate la solicitarea unor autoritati publice cu atributii, făcută în conformitate cu legislaţia în&nbsp;vigoare; b. care este de domeniul public la momentul divulgării; c. divulgate în cadrul unui proces&nbsp;judiciar între Parţi privind acest Contract; d. divulgate acţionarilor Părţii, persoanelor cu funcţii de&nbsp;răspundere, salariaţilor, reprezentanţilor, agenţilor, consultanţilor, auditorilor, cedenţilor,&nbsp;</p><p>P a g e 5 | 6&nbsp;</p><p>succesorilor şi/sau întreprinderilor afiliate ale Parţii care sunt implicate în executarea prezentului&nbsp;Contract, referitor la care Partea va trebui:- să limiteze divulgarea informaţiei numai către cei ce au&nbsp;nevoie de ea pentru îndeplinirea obligaţiilor sale faţă de Parte;- sa asigure folosirea informaţiei&nbsp;exclusiv in scopurile nemijlocit legate de ceea pentru ce informaţia este divulgata;- sa informeze toate&nbsp;aceste persoane privind obligaţia lor de a păstra confidenţialitatea informaţiei în modul stabilit de prezentul Contract.&nbsp;</p><p>Sunt considerate informații confidențiale și fac obiectul prezentelor clauze, datele de identificare&nbsp;(nume, semnătură, serie și număr CI etc.) ale reprezentanților Părților, care se vor regăsi pe&nbsp;documentele emise de (schimbate între) Parți în perioada derulării Contractului și care nu sunt de&nbsp;domeniul public la momentul divulgării. Prelucrarea de către Părți a datelor cu caracter personal ale&nbsp;persoanelor vizate mai sus se va realiza cu respectarea principiilor și drepturilor acestora care decurg&nbsp;din punerea în aplicare a REGULAMENTUL (UE) 2016/679 AL PARLAMENTULUI EUROPEAN ȘI AL&nbsp;CONSILIULUI privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter&nbsp;personal – GDPR. În spiritul GDPR, Părțile au următoarele drepturi de acces la datele personale ale&nbsp;angajaților/reprezentanților proprii, operate de cealaltă Parte:a) Dreptul de acces la date; b) reptul&nbsp;la rectificarea datelor; c) Dreptul la ștergerea datelor; d)Dreptul la restricționarea prelucrării; e)&nbsp;Dreptul la portabilitatea datelor; f) Dreptul de opoziție la prelucrarea datelor; g) Dreptul de a nu fi&nbsp;supus unor decizii automatizate, inclusiv profilarea; h) Dreptul la notificarea destinatarilor privind&nbsp;rectificarea, ștergerea ori restricționarea datelor cu caracter personal.&nbsp;</p><p>Conform legislației naționale în vigoare în domeniu, datele personale solicitate de beneficiar sunt&nbsp;necesare pentru buna derulare a Contractului (completarea facturilor, documentelor contabile) și nu&nbsp;vor fi folosite în alte scopuri.&nbsp;</p><p>Datele personale obținute sunt procesate în bazele de date și pe serverele Niro Investment S.A. (societate afiliata), pe întreaga durată a raporturilor contractuale și ulterior, conform politicilor&nbsp;interne, pe durata necesară îndeplinirii obligațiilor legale ce ii revin. Respectarea cerințelor legale&nbsp;aplicabile sunt permanent monitorizate, inclusiv prin Responsabilul de protecție a datelor cu caracter&nbsp;personal ce poate fi contactat la dpo@nirogroup.ro. Reclamațiile privind posibila încălcare a&nbsp;drepturilor privind prelucrarea datelor cu caracter personal pot fi adresate Autorității Naționale de&nbsp;Supraveghere a Prelucrării Datelor cu Caracter Personal la adresa www.dataprotection.ro.&nbsp;</p><p>Oricare dintre Părţile contractante se obligă, în termenii şi condiţiile prezentului Contract, să păstreze&nbsp;strict confidenţiale, pe durata Contractului şi după incetarea acestuia, toate datele şi informaţiile,&nbsp;divulgate în orice manieră de către cealaltă Parte, în executarea Contractului. Excepţie de la prezenta&nbsp;obligaţie sunt cazurile în care divulgarea este necesară pentru executarea Contractului şi se face&nbsp;numai avand consimţământul scris, expres si prealabil al celeilalte Părţi sau daca divulgarea este&nbsp;solicitată, în mod legal, de către autorităţile de drept.&nbsp;</p><p>În cazul în care oricare dintre Părţi va încălca obligaţia de confidenţialitate, aceasta va fi obligată la&nbsp;plata de daune-interese în favoarea Părţii prejudiciate.&nbsp;</p><p><strong>Art.12. Cesiunea Contractului&nbsp;</strong></p><p>12.1. Prezentul Contract are caracter <em>intuitu personae </em>in privinta Prestatorului; acesta nu poate&nbsp;transmite unei terţe persoane, total sau parţial, drepturile şi obligaţiile ce ii revin prin prezentul&nbsp;Contract, decât dacă a obţinut acordul scris și prealabil al Beneficiarului, care acord trebuie transmis&nbsp;Prestatorului în termen de 5 (cinci) zile lucrătoare de la momentul primirii notificării. În lipsa unui&nbsp;</p><p>P a g e 6 | 6&nbsp;</p><p>răspuns scris și expres exprimat în acest sens, se consideră că Partea nu consimte la cesiunea&nbsp;Contractului şi aceasta nu poate avea loc.&nbsp;</p><p><strong>Art. 13. Clauze finale&nbsp;</strong></p><p>13.1. Partile sunt de drept in intarziere in cazul neindeplinirii sau indeplinirii necorespunzatoare a&nbsp;oricareia din obligatiile ce le revin potrivit Contractului.&nbsp;</p><p>13.2. Reprezentanţii Părţilor declară că sunt pe deplin împuterniciţi pentru semnarea Contractului&nbsp;şi că Partea pe care o reprezintă este valabil înregistrată şi are deplină capacitate pentru încheierea&nbsp;prezentului acord şi pentru exercitarea drepturilor şi executarea obligaţiilor prevăzute prin acesta. 13.3. Partile declara ca toate prevederile Contractului au fost negociate cu buna–credinta, le-au&nbsp;citit, si le-au asumat si sunt de acord cu acestea asa cum sunt consemnate prin prezentul inscris.&nbsp;13.4. Ambele Parti declara ca isi asuma, pe toata durata contractuala, riscul schimbarii&nbsp;imprejurarilor (de orice natura- inclusiv, dar fara a se limita la, cele politice, economice, comerciale si&nbsp;financiare) existente la data incheierii Contractului, cu respectarea prevederilor Art. 1271 Cod civil.&nbsp;13.5. Prezentul Contract este supus legii romane si interpretat in conformitate cu prevederile&nbsp;acesteia. Orice litigiu, controversa sau pretentie a Partilor, decurgand din sau in legatura cu prezentul&nbsp;Contract si care nu a fost solutionata de Parti in mod amiabil, va fi supusa, spre solutionare, instantelor&nbsp;judecatoresti competente din Bucuresti.&nbsp;</p><p>13.6. Contract poate fi modificat exclusiv prin incheierea de acte aditionale.&nbsp;13.7. Prevederile contractuale sunt integral obligatorii pentru Partile semnatare si succesorii lor in&nbsp;drepturi si obligatii.&nbsp;</p><p>Prezentul Contract a fost incheiat in 2 (două) exemplare astazi, 01.02.2024, cate un exemplar pentru&nbsp;fiecare Parte.&nbsp;</p><p>Beneficiar, Prestator,&nbsp;</p><p><strong>NIRO INVESTMENT S.A. SOFTHUB AG S.R.L. </strong>Director General, Administrator,&nbsp;</p><p><strong>Mihaela Istrate Razvan Mihai Mustata</strong>&nbsp;</p>	25
 5	2024-05-14 07:11:17.454	2024-05-14 07:11:17.454	<p><strong>CONTRACT PRESTARI SERVICII IN TEHNOLOGIA INFORMATIEI&nbsp;</strong></p><p><strong>NR.: </strong><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">1aa</span><strong>/</strong><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">undefined</span></p><p>Intre:&nbsp;</p><p><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">SoftHub</span> cu sediul social in Bucureşti, sectorul 3, Str. Vlad Judeţul nr. 2, camera nr. 1,&nbsp;bloc V14A, scara 2, etaj 1, ap. 33, adresa email: razvan.mustata@gmail.com, inregistrata la Registrul&nbsp;Comertului cu nr. J40/2456/2017, CUI 37130972, reprezentata legal prin Razvan Mihai Mustata Administrator, in calitate de prestator („<strong>Prestatorul</strong>"), pe de o parte; <strong>si&nbsp;</strong></p><p><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span><strong>, </strong>persoană juridică română, cu sediul în Comuna Dobroeşti, Sat Fundeni, str. Dragonul Roşu, nr. 1-10, etaj 3, biroul nr. 2-4, Centrul Comercial Dragonul Roşu Megashop, judeţ Ilfov, înregistrată la Registrul Comerţului sub nr. J23/227/2002, Cod de Înregistrare Fiscala RO6951013, reprezentata legal prin Mihaela Istrate - Director General, denumită în cele ce urmează<strong> </strong>(<strong>„Beneficiarul</strong>")<strong>, </strong>pe de alta parte,&nbsp;</p><p>Denumite in continuare, individual, „<strong>Partea</strong>" si, in mod colectiv, „<strong>Partile</strong>", au incheiat prezentul&nbsp;Contract prestari servicii in tehnologia informatiei (“<strong>Contractul</strong>”), dupa cum urmeaza:&nbsp;</p><p><strong>Art. 1. Dispoziții generale&nbsp;</strong></p><p>1.1. În aplicarea caracterului independent al activităţilor desfăşurate în temeiul prezentului Contract,&nbsp;Părţile înţeleg şi convin ca niciuna dintre Părţi nu va solicita celeilalte Părţi şi nu va suporta niciun fel&nbsp;de cheltuieli aferente unor elemente pe care legislaţia română le consideră a fi de natură a reflecta&nbsp;natura dependentă a unei activităţi economice.&nbsp;</p><p>1.2. Pe durata prezentului Contract, Prestatorul va furniza Serviciile prevăzute în Contract.&nbsp;</p><p>1.3. Prestatorul îşi va suporta propriile sale cheltuieli în interesul desfăşurării activităţii, precum orice&nbsp;tipuri de cheltuieli aferente:&nbsp;</p><p>a) deplasării de la/la sediul Părţilor sau al altor persoane fizice/juridice,&nbsp;</p><p>b) timpului de odihnă, în care Parţile nu-şi execută prestaţiile unele faţă de altele, c) imposibilităţii temporare de realizare a prestaţiilor contractuale ca urmare a unui concediu&nbsp;medical sau oricăror cauze asemenătoare,&nbsp;</p><p>d) oricăror altor situaţii de natura celor prevăzute la alin. 1-3.&nbsp;</p><p>1.4. Serviciile vor fi prestate de Prestator din orice locatie adecvata, folosind baza materiala a&nbsp;Prestatorului (statie de lucru, conexiune internet, software specializat de dezvoltare, software&nbsp;specializat de testare etc.), iar livrabilele vor fi furnizate electronic Beneficiarului (prin email sau&nbsp;încărcare pe serverele specializate ale Beneficiarului).&nbsp;</p><p><strong>Art. 2. Obiectul Contractului&nbsp;</strong></p><p>2.1. Prestatorul se obliga sa furnizeze, la solicitarea Beneficiarului si in beneficiul acestuia, servicii de&nbsp;integrare a sistemului <strong>Charisma </strong>cu platforma<strong>/</strong>aplicația <strong>CEC Bank</strong>, pentru export extrase de cont și&nbsp;efectuare plăți în sistem internet banking („<strong>Serviciile</strong>”).</p><p>P a g e 2 | 6&nbsp;</p><p><strong>Art. 3. Obligatiile Prestatorului&nbsp;</strong></p><p>Prestatorul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) sa presteze Serviciile catre Beneficiar conform solicitarilor acestuia si sa asigure&nbsp;finalizarea corespunzatoare si in timp util a acestora, la standardele de calitate cerute si&nbsp;in termenele agreate;&nbsp;</p><p>b) sa furnizeze Serviciile spre satisfactia rezonabila a Beneficiarului, Beneficiarul putand&nbsp;solicita Prestatorului sa rectifice orice Servicii care au fost prestate in mod&nbsp;necorespunzator;&nbsp;</p><p>c) pe toată perioada realizării obligaţiilor prezentului Contract, să comunice Beneficiarului,&nbsp;orice modificare cu privire la sediul social, denumire, divizare, fuziune;&nbsp;</p><p>d) să presteze Serviciile prin utilizarea doar a propriilor sale bunuri şi/sau capitaluri (spaţii&nbsp;de birouri/producţie, echipamente, aparatură şi oricare altele asemenea);&nbsp;</p><p>e) să presteze serviciile cu respectarea principiului independenţei activităţii desfăşurate de&nbsp;Prestator consfinţită de dispoziţiile art. 4 lit.a) din O.U.G. nr. 44/2008.&nbsp;</p><p><strong>Art.4. Obligatiile Beneficiarului&nbsp;</strong></p><p>Beneficiarul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) în sensul Art. 3, lit. e), Partile inteleg si convin ca nu se afla si nici nu vor intra intr-o relatie&nbsp;de subordonare una fata de cealalta, fata de organele de conducere ale celeilalte Parti sau&nbsp;fata de alte entitati care detin controlul asupra/ sunt detinute de cealalta Parte;&nbsp;</p><p>b) sa puna la dispozitia Prestatorului informatiile solicitate de acesta, legate de activitatea&nbsp;Beneficiarului, care sunt necesare pentru buna executare a serviciilor asumate de&nbsp;Prestator;&nbsp;</p><p>c) sa plateasca Prestatorului, in termenii stabiliti prin prezentul Contract, pretul prevazut&nbsp;pentru Serviciile prestate, pe baza facturii emise de Prestator, insotita de devizul de lucru,&nbsp;aprobat de Beneficiar.&nbsp;</p><p><strong>Art. 5. Pretul Contractului și modalitatea de plată&nbsp;</strong></p><p>5.1. În schimbul Serviciilor prestate, Beneficiarul se obliga sa plateasca Prestatorului remuneratia&nbsp;datorată în cuantum de <strong>800(optsute) Euro</strong>. Prestatorul nu este plătitor de TVA.&nbsp;</p><p>5.2. Plata Serviciilor se va face in baza unui deviz agreat de ambele Parti care atesta serviciile&nbsp;efectuate, durata lor si termenii de calitate, deviz care va fi furnizat de catre Prestator Beneficiarului&nbsp;la data emiterii facturii fiscale.&nbsp;</p><p>5.3. Plata remunerației datorate Prestatorului se va face la finalizare Serviciilor, în termen de&nbsp;maximum 10 (zece) zile lucrătoare de la data acceptării la plată a facturii fiscale emise de Prestator.&nbsp;</p><p>5.4. Plata se efectueaza în contul Prestatorului cod RO17INGB0000999906676339 deschis la ING&nbsp;BANK NV pe numele Prestatorului.&nbsp;</p><p>P a g e 3 | 6&nbsp;</p><p><strong>Art.6. Durata Contractului&nbsp;</strong></p><p>6.1. Contractul își produce efectele de la data semnării prezentului inscris de către ambele Părți și&nbsp;este valabil până la îndeplinirea tuturor obligațiilor contractuale.&nbsp;</p><p>6.2. Prestatorul se angajează ca, până la data de <strong>20.02.2024</strong>, să finalizeze Serviciile la care se&nbsp;angajează prin prezentul Contract (“<strong>Termen de finalizare</strong>”)&nbsp;</p><p>6.3. Termenul de finalizare este ferm.&nbsp;</p><p>6.4. In cazul in care Prestatorul nu isi indeplineste corespunzător obligatiile asumate prin Contract,&nbsp;Beneficiarul este indreptatit sa perceapa penalitati de intarziere de 0,5% pe zi de intarziere, calculat&nbsp;din valoarea totala a Contractului. In cazul in care Beneficiarul nu onoreaza plata in termenii prevazuți&nbsp;prin Contract, acesta are obligatia de a plati penalitati de intarziere de 0,5% pe zi de intarziere,&nbsp;calculat din suma datorată. Cuantumul penalităților poate depăși valoarea la care ele au fost calculate.&nbsp;</p><p><strong>Art.7. Încetarea Contractului&nbsp;</strong></p><p>7.1. Prezentul Contract încetează în oricare din următoarele modalităţi:&nbsp;</p><p>(a) prin acordul scris al Părţilor;&nbsp;</p><p>(b) prin ajungerea la termen și/sau îndeplinirea tuturor obligațiilor contractuale; (c) prin demararea procedurilor de faliment, dizolvare sau lichidare a oricăreia dintre Părţi; (d) în caz de forţa majoră, în condițiile legii;&nbsp;</p><p>(e) prin denuntarea unilaterala a Contractului de catre Beneficiar, oricand, indiferent de motiv,&nbsp;transmitand Prestatorului o notificare prealabila cu minim 10 (zece) zile calendaristice înainte&nbsp;de data la care operează încetarea Contractului;&nbsp;</p><p>(f) prin cesionarea de către Prestator a drepturile şi obligaţiilor sale prevăzute prin Contract, fără&nbsp;acordul scris, expres și prealabil al Beneficiarului;&nbsp;</p><p>(g) prin rezilierea unilaterală de către oricare dintre Părți, în baza unei notificări de reziliere&nbsp;transmisă celeilalte Părți conform Art. 1.552 Codul Civil, în măsura în care acesta nu&nbsp;îndeplineşte sau îndeplineşte în mod necorespunzător obligatiile sale şi nu le remediază în&nbsp;termenul indicat de catre cealaltă Parte;&nbsp;</p><p>7.2. Încetarea Contractului nu va avea niciun efect asupra obligațiilor deja scadente între Părți la data&nbsp;survenirii acesteia.&nbsp;</p><p>7.3. Prestatorul se afla de drept in inatrziere odata cu implinirea Termenului de finalizare. 7.4. Decalarea termenelor de executie determina decalarea corespunzatoare a platilor.&nbsp;</p><p><strong>Art. 8. Forta majora&nbsp;</strong></p><p>8.1. Forta majora exonereaza de raspundere Partea care o invoca, dar numai in masura si pentru&nbsp;perioada in care Partea este impiedicata sau intarziata sa-si execute obligatia din pricina situatiei de&nbsp;forta majora. Partea care invoca forta majora va depune toate eforturile rezonabile pentru a reduce&nbsp;cat mai mult posibil efectele rezultand din forta majora.&nbsp;</p><p>8.2. Forta majora exonereaza de raspundere Partea care o invoca, in conditiile legii, daca o comunica&nbsp;in scris, celeilalte Parti in termen de 15 zile de la producere si o dovedeste printr-un certificat oficial,&nbsp;in termen de 15 de zile de la data invocarii ei.&nbsp;</p><p>8.3. Prin forta majora se inteleg toate evenimentele si/sau imprejurarile independente de vointa&nbsp;partii care invoca forta majora, imprevizibile si de neinlaturat si care, survenind dupa incheierea&nbsp;contractului, impiedica ori intirzie, total sau partial, indeplinirea obligatiilor izvorind din acest&nbsp;</p><p>P a g e 4 | 6&nbsp;</p><p>contract.&nbsp;</p><p>8.4. Pentru orice intarziere si/sau neindeplinire a obligatiilor contractuale de catre oricare din Parti&nbsp;ca urmare a situatiei de forta majora, niciuna din Parti nu va fi indreptatita sa pretinda celeilalte Parti&nbsp;penalitati, dobanzi, ori despagubiri care altfel ar fi fost platibile.&nbsp;</p><p>8.5. Daca, datorita situatiei de forta majora, una din Parti este impiedicata sa-si indeplineasca, total&nbsp;sau partial obligatiile sale contractuale pe o perioada mai mare 1 luna, atunci oricare Parte va avea&nbsp;dreptul, in lipsa unei alte intelegeri, sa rezilieze contractul, printr-o notificare scrisa adresata&nbsp;celeilalte Parti. In acesta situatie, Partile vor stabili consecintele rezilierii.&nbsp;</p><p><strong>Art. 9. Notificari, adrese, comunicari&nbsp;</strong></p><p>9.1. Orice adresă, notificare, comunicare sau cerere făcută în legătură cu executarea prezentului&nbsp;Contract vor fi făcute în scris.&nbsp;</p><p>9.2. Orice adresă, notificare, comunicare sau cerere este consideră valabil făcută, dacă va fi transmisă&nbsp;celeilalte Părți la adresa menționată în prezentul Contract, prin poștă, cu scrisoare recomandată cu&nbsp;confirmare de primire.&nbsp;</p><p>9.3. Toate aceste comunicări se pot face și prin fax, e-mail, cu condiția confirmării în scris a primirii&nbsp;lor.&nbsp;</p><p>9.4. Toate notificările şi comunicările privind prezentul Contract vor fi trimise la adresele mentionate&nbsp;in preambulul Contractului.&nbsp;</p><p>9.5. În cazul în care o Parte își schimbă datele de contact, aceasta are obligația de a notifica acest&nbsp;eveniment celeilalte Părți în termen de maxim 1 zi lucrătoare, calculat de la momentul producerii&nbsp;schimbării, în caz contrar considerându-se că scrisoarea/notificarea/cererea a fost trimisă în mod&nbsp;valabil la datele cunoscute în momentul încheierii Contractului.&nbsp;</p><p>9.6. Orice adresa, notificare, comunicare sau cerere transmisă prin fax/e-mail se va considera ca fiind&nbsp;trimisă în prima zi lucrătoare după cea în care a fost expediată;&nbsp;</p><p>9.7. Data la care se va considera primită o notificare/adresa/cerere/comunicare este data menționată&nbsp;în raportul de confirmare.&nbsp;</p><p><strong>Art. 10. Litigii&nbsp;</strong></p><p>10.1. Prezentul Contract este guvernat de legea română.&nbsp;</p><p>10.2. Orice neînţelegere rezultată din valabilitatea, executarea şi interpretarea prezentului Contract&nbsp;va fi soluţionată în mod amiabil. Când aceasta nu este posibilă, litigiul va fi depus spre soluţionare&nbsp;instantelor competente de la sediul Beneficiarului.&nbsp;</p><p><strong>Art.11. CLAUZA DE CONFIDENȚIALITATE SI DE PROTECTIE A DATELOR PERSONALE (GDPR).&nbsp;</strong></p><p>Fiecare Parte se obligă să nu divulge terţelor persoane, fără acordul prealabil exprimat în scris al&nbsp;celeilalte Parţi, informaţia obţinută în procesul executării prezentului Contract, precum şi să o&nbsp;utilizeze numai în scopurile executării prezentului Contract. Obligaţia nu se aplică informaţiei: a.&nbsp;divulgate la solicitarea unor autoritati publice cu atributii, făcută în conformitate cu legislaţia în&nbsp;vigoare; b. care este de domeniul public la momentul divulgării; c. divulgate în cadrul unui proces&nbsp;judiciar între Parţi privind acest Contract; d. divulgate acţionarilor Părţii, persoanelor cu funcţii de&nbsp;răspundere, salariaţilor, reprezentanţilor, agenţilor, consultanţilor, auditorilor, cedenţilor,&nbsp;</p><p>P a g e 5 | 6&nbsp;</p><p>succesorilor şi/sau întreprinderilor afiliate ale Parţii care sunt implicate în executarea prezentului&nbsp;Contract, referitor la care Partea va trebui:- să limiteze divulgarea informaţiei numai către cei ce au&nbsp;nevoie de ea pentru îndeplinirea obligaţiilor sale faţă de Parte;- sa asigure folosirea informaţiei&nbsp;exclusiv in scopurile nemijlocit legate de ceea pentru ce informaţia este divulgata;- sa informeze toate&nbsp;aceste persoane privind obligaţia lor de a păstra confidenţialitatea informaţiei în modul stabilit de prezentul Contract.&nbsp;</p><p>Sunt considerate informații confidențiale și fac obiectul prezentelor clauze, datele de identificare&nbsp;(nume, semnătură, serie și număr CI etc.) ale reprezentanților Părților, care se vor regăsi pe&nbsp;documentele emise de (schimbate între) Parți în perioada derulării Contractului și care nu sunt de&nbsp;domeniul public la momentul divulgării. Prelucrarea de către Părți a datelor cu caracter personal ale&nbsp;persoanelor vizate mai sus se va realiza cu respectarea principiilor și drepturilor acestora care decurg&nbsp;din punerea în aplicare a REGULAMENTUL (UE) 2016/679 AL PARLAMENTULUI EUROPEAN ȘI AL&nbsp;CONSILIULUI privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter&nbsp;personal – GDPR. În spiritul GDPR, Părțile au următoarele drepturi de acces la datele personale ale&nbsp;angajaților/reprezentanților proprii, operate de cealaltă Parte:a) Dreptul de acces la date; b) reptul&nbsp;la rectificarea datelor; c) Dreptul la ștergerea datelor; d)Dreptul la restricționarea prelucrării; e)&nbsp;Dreptul la portabilitatea datelor; f) Dreptul de opoziție la prelucrarea datelor; g) Dreptul de a nu fi&nbsp;supus unor decizii automatizate, inclusiv profilarea; h) Dreptul la notificarea destinatarilor privind&nbsp;rectificarea, ștergerea ori restricționarea datelor cu caracter personal.&nbsp;</p><p>Conform legislației naționale în vigoare în domeniu, datele personale solicitate de beneficiar sunt&nbsp;necesare pentru buna derulare a Contractului (completarea facturilor, documentelor contabile) și nu&nbsp;vor fi folosite în alte scopuri.&nbsp;</p><p>Datele personale obținute sunt procesate în bazele de date și pe serverele Niro Investment S.A. (societate afiliata), pe întreaga durată a raporturilor contractuale și ulterior, conform politicilor&nbsp;interne, pe durata necesară îndeplinirii obligațiilor legale ce ii revin. Respectarea cerințelor legale&nbsp;aplicabile sunt permanent monitorizate, inclusiv prin Responsabilul de protecție a datelor cu caracter&nbsp;personal ce poate fi contactat la dpo@nirogroup.ro. Reclamațiile privind posibila încălcare a&nbsp;drepturilor privind prelucrarea datelor cu caracter personal pot fi adresate Autorității Naționale de&nbsp;Supraveghere a Prelucrării Datelor cu Caracter Personal la adresa www.dataprotection.ro.&nbsp;</p><p>Oricare dintre Părţile contractante se obligă, în termenii şi condiţiile prezentului Contract, să păstreze&nbsp;strict confidenţiale, pe durata Contractului şi după incetarea acestuia, toate datele şi informaţiile,&nbsp;divulgate în orice manieră de către cealaltă Parte, în executarea Contractului. Excepţie de la prezenta&nbsp;obligaţie sunt cazurile în care divulgarea este necesară pentru executarea Contractului şi se face&nbsp;numai avand consimţământul scris, expres si prealabil al celeilalte Părţi sau daca divulgarea este&nbsp;solicitată, în mod legal, de către autorităţile de drept.&nbsp;</p><p>În cazul în care oricare dintre Părţi va încălca obligaţia de confidenţialitate, aceasta va fi obligată la&nbsp;plata de daune-interese în favoarea Părţii prejudiciate.&nbsp;</p><p><strong>Art.12. Cesiunea Contractului&nbsp;</strong></p><p>12.1. Prezentul Contract are caracter <em>intuitu personae </em>in privinta Prestatorului; acesta nu poate&nbsp;transmite unei terţe persoane, total sau parţial, drepturile şi obligaţiile ce ii revin prin prezentul&nbsp;Contract, decât dacă a obţinut acordul scris și prealabil al Beneficiarului, care acord trebuie transmis&nbsp;Prestatorului în termen de 5 (cinci) zile lucrătoare de la momentul primirii notificării. În lipsa unui&nbsp;</p><p>P a g e 6 | 6&nbsp;</p><p>răspuns scris și expres exprimat în acest sens, se consideră că Partea nu consimte la cesiunea&nbsp;Contractului şi aceasta nu poate avea loc.&nbsp;</p><p><strong>Art. 13. Clauze finale&nbsp;</strong></p><p>13.1. Partile sunt de drept in intarziere in cazul neindeplinirii sau indeplinirii necorespunzatoare a&nbsp;oricareia din obligatiile ce le revin potrivit Contractului.&nbsp;</p><p>13.2. Reprezentanţii Părţilor declară că sunt pe deplin împuterniciţi pentru semnarea Contractului&nbsp;şi că Partea pe care o reprezintă este valabil înregistrată şi are deplină capacitate pentru încheierea&nbsp;prezentului acord şi pentru exercitarea drepturilor şi executarea obligaţiilor prevăzute prin acesta. 13.3. Partile declara ca toate prevederile Contractului au fost negociate cu buna–credinta, le-au&nbsp;citit, si le-au asumat si sunt de acord cu acestea asa cum sunt consemnate prin prezentul inscris.&nbsp;13.4. Ambele Parti declara ca isi asuma, pe toata durata contractuala, riscul schimbarii&nbsp;imprejurarilor (de orice natura- inclusiv, dar fara a se limita la, cele politice, economice, comerciale si&nbsp;financiare) existente la data incheierii Contractului, cu respectarea prevederilor Art. 1271 Cod civil.&nbsp;13.5. Prezentul Contract este supus legii romane si interpretat in conformitate cu prevederile&nbsp;acesteia. Orice litigiu, controversa sau pretentie a Partilor, decurgand din sau in legatura cu prezentul&nbsp;Contract si care nu a fost solutionata de Parti in mod amiabil, va fi supusa, spre solutionare, instantelor&nbsp;judecatoresti competente din Bucuresti.&nbsp;</p><p>13.6. Contract poate fi modificat exclusiv prin incheierea de acte aditionale.&nbsp;13.7. Prevederile contractuale sunt integral obligatorii pentru Partile semnatare si succesorii lor in&nbsp;drepturi si obligatii.&nbsp;</p><p>Prezentul Contract a fost incheiat in 2 (două) exemplare astazi, 01.02.2024, cate un exemplar pentru&nbsp;fiecare Parte.&nbsp;</p><p>Beneficiar, Prestator,&nbsp;</p><p><strong>NIRO INVESTMENT S.A. SOFTHUB AG S.R.L. </strong>Director General, Administrator,&nbsp;</p><p><strong>Mihaela Istrate Razvan Mihai Mustata</strong>&nbsp;</p>	26
 6	2024-05-15 07:08:00.475	2024-05-15 07:08:00.475	<p><strong>CONTRACT PRESTARI SERVICII IN TEHNOLOGIA INFORMATIEI&nbsp;</strong></p><p><strong>NR.: </strong><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">testdata4</span><strong>/</strong><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">02.05.2024</span></p><p>Intre:&nbsp;</p><p><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">SoftHub</span> cu sediul social in Bucureşti, sectorul 3, Str. Vlad Judeţul nr. 2, camera nr. 1,&nbsp;bloc V14A, scara 2, etaj 1, ap. 33, adresa email: razvan.mustata@gmail.com, inregistrata la Registrul&nbsp;Comertului cu nr. J40/2456/2017, CUI 37130972, reprezentata legal prin Razvan Mihai Mustata Administrator, in calitate de prestator („<strong>Prestatorul</strong>"), pe de o parte; <strong>si&nbsp;</strong></p><p><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span><strong>, </strong>persoană juridică română, cu sediul în Comuna Dobroeşti, Sat Fundeni, str. Dragonul Roşu, nr. 1-10, etaj 3, biroul nr. 2-4, Centrul Comercial Dragonul Roşu Megashop, judeţ Ilfov, înregistrată la Registrul Comerţului sub nr. J23/227/2002, Cod de Înregistrare Fiscala RO6951013, reprezentata legal prin Mihaela Istrate - Director General, denumită în cele ce urmează<strong> </strong>(<strong>„Beneficiarul</strong>")<strong>, </strong>pe de alta parte,&nbsp;</p><p>Denumite in continuare, individual, „<strong>Partea</strong>" si, in mod colectiv, „<strong>Partile</strong>", au incheiat prezentul&nbsp;Contract prestari servicii in tehnologia informatiei (“<strong>Contractul</strong>”), dupa cum urmeaza:&nbsp;</p><p><strong>Art. 1. Dispoziții generale&nbsp;</strong></p><p>1.1. În aplicarea caracterului independent al activităţilor desfăşurate în temeiul prezentului Contract,&nbsp;Părţile înţeleg şi convin ca niciuna dintre Părţi nu va solicita celeilalte Părţi şi nu va suporta niciun fel&nbsp;de cheltuieli aferente unor elemente pe care legislaţia română le consideră a fi de natură a reflecta&nbsp;natura dependentă a unei activităţi economice.&nbsp;</p><p>1.2. Pe durata prezentului Contract, Prestatorul va furniza Serviciile prevăzute în Contract.&nbsp;</p><p>1.3. Prestatorul îşi va suporta propriile sale cheltuieli în interesul desfăşurării activităţii, precum orice&nbsp;tipuri de cheltuieli aferente:&nbsp;</p><p>a) deplasării de la/la sediul Părţilor sau al altor persoane fizice/juridice,&nbsp;</p><p>b) timpului de odihnă, în care Parţile nu-şi execută prestaţiile unele faţă de altele, c) imposibilităţii temporare de realizare a prestaţiilor contractuale ca urmare a unui concediu&nbsp;medical sau oricăror cauze asemenătoare,&nbsp;</p><p>d) oricăror altor situaţii de natura celor prevăzute la alin. 1-3.&nbsp;</p><p>1.4. Serviciile vor fi prestate de Prestator din orice locatie adecvata, folosind baza materiala a&nbsp;Prestatorului (statie de lucru, conexiune internet, software specializat de dezvoltare, software&nbsp;specializat de testare etc.), iar livrabilele vor fi furnizate electronic Beneficiarului (prin email sau&nbsp;încărcare pe serverele specializate ale Beneficiarului).&nbsp;</p><p><strong>Art. 2. Obiectul Contractului&nbsp;</strong></p><p>2.1. Prestatorul se obliga sa furnizeze, la solicitarea Beneficiarului si in beneficiul acestuia, servicii de&nbsp;integrare a sistemului <strong>Charisma </strong>cu platforma<strong>/</strong>aplicația <strong>CEC Bank</strong>, pentru export extrase de cont și&nbsp;efectuare plăți în sistem internet banking („<strong>Serviciile</strong>”).</p><p>P a g e 2 | 6&nbsp;</p><p><strong>Art. 3. Obligatiile Prestatorului&nbsp;</strong></p><p>Prestatorul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) sa presteze Serviciile catre Beneficiar conform solicitarilor acestuia si sa asigure&nbsp;finalizarea corespunzatoare si in timp util a acestora, la standardele de calitate cerute si&nbsp;in termenele agreate;&nbsp;</p><p>b) sa furnizeze Serviciile spre satisfactia rezonabila a Beneficiarului, Beneficiarul putand&nbsp;solicita Prestatorului sa rectifice orice Servicii care au fost prestate in mod&nbsp;necorespunzator;&nbsp;</p><p>c) pe toată perioada realizării obligaţiilor prezentului Contract, să comunice Beneficiarului,&nbsp;orice modificare cu privire la sediul social, denumire, divizare, fuziune;&nbsp;</p><p>d) să presteze Serviciile prin utilizarea doar a propriilor sale bunuri şi/sau capitaluri (spaţii&nbsp;de birouri/producţie, echipamente, aparatură şi oricare altele asemenea);&nbsp;</p><p>e) să presteze serviciile cu respectarea principiului independenţei activităţii desfăşurate de&nbsp;Prestator consfinţită de dispoziţiile art. 4 lit.a) din O.U.G. nr. 44/2008.&nbsp;</p><p><strong>Art.4. Obligatiile Beneficiarului&nbsp;</strong></p><p>Beneficiarul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) în sensul Art. 3, lit. e), Partile inteleg si convin ca nu se afla si nici nu vor intra intr-o relatie&nbsp;de subordonare una fata de cealalta, fata de organele de conducere ale celeilalte Parti sau&nbsp;fata de alte entitati care detin controlul asupra/ sunt detinute de cealalta Parte;&nbsp;</p><p>b) sa puna la dispozitia Prestatorului informatiile solicitate de acesta, legate de activitatea&nbsp;Beneficiarului, care sunt necesare pentru buna executare a serviciilor asumate de&nbsp;Prestator;&nbsp;</p><p>c) sa plateasca Prestatorului, in termenii stabiliti prin prezentul Contract, pretul prevazut&nbsp;pentru Serviciile prestate, pe baza facturii emise de Prestator, insotita de devizul de lucru,&nbsp;aprobat de Beneficiar.&nbsp;</p><p><strong>Art. 5. Pretul Contractului și modalitatea de plată&nbsp;</strong></p><p>5.1. În schimbul Serviciilor prestate, Beneficiarul se obliga sa plateasca Prestatorului remuneratia&nbsp;datorată în cuantum de <strong>800(optsute) Euro</strong>. Prestatorul nu este plătitor de TVA.&nbsp;</p><p>5.2. Plata Serviciilor se va face in baza unui deviz agreat de ambele Parti care atesta serviciile&nbsp;efectuate, durata lor si termenii de calitate, deviz care va fi furnizat de catre Prestator Beneficiarului&nbsp;la data emiterii facturii fiscale.&nbsp;</p><p>5.3. Plata remunerației datorate Prestatorului se va face la finalizare Serviciilor, în termen de&nbsp;maximum 10 (zece) zile lucrătoare de la data acceptării la plată a facturii fiscale emise de Prestator.&nbsp;</p><p>5.4. Plata se efectueaza în contul Prestatorului cod RO17INGB0000999906676339 deschis la ING&nbsp;BANK NV pe numele Prestatorului.&nbsp;</p><p>P a g e 3 | 6&nbsp;</p><p><strong>Art.6. Durata Contractului&nbsp;</strong></p><p>6.1. Contractul își produce efectele de la data semnării prezentului inscris de către ambele Părți și&nbsp;este valabil până la îndeplinirea tuturor obligațiilor contractuale.&nbsp;</p><p>6.2. Prestatorul se angajează ca, până la data de <strong>20.02.2024</strong>, să finalizeze Serviciile la care se&nbsp;angajează prin prezentul Contract (“<strong>Termen de finalizare</strong>”)&nbsp;</p><p>6.3. Termenul de finalizare este ferm.&nbsp;</p><p>6.4. In cazul in care Prestatorul nu isi indeplineste corespunzător obligatiile asumate prin Contract,&nbsp;Beneficiarul este indreptatit sa perceapa penalitati de intarziere de 0,5% pe zi de intarziere, calculat&nbsp;din valoarea totala a Contractului. In cazul in care Beneficiarul nu onoreaza plata in termenii prevazuți&nbsp;prin Contract, acesta are obligatia de a plati penalitati de intarziere de 0,5% pe zi de intarziere,&nbsp;calculat din suma datorată. Cuantumul penalităților poate depăși valoarea la care ele au fost calculate.&nbsp;</p><p><strong>Art.7. Încetarea Contractului&nbsp;</strong></p><p>7.1. Prezentul Contract încetează în oricare din următoarele modalităţi:&nbsp;</p><p>(a) prin acordul scris al Părţilor;&nbsp;</p><p>(b) prin ajungerea la termen și/sau îndeplinirea tuturor obligațiilor contractuale; (c) prin demararea procedurilor de faliment, dizolvare sau lichidare a oricăreia dintre Părţi; (d) în caz de forţa majoră, în condițiile legii;&nbsp;</p><p>(e) prin denuntarea unilaterala a Contractului de catre Beneficiar, oricand, indiferent de motiv,&nbsp;transmitand Prestatorului o notificare prealabila cu minim 10 (zece) zile calendaristice înainte&nbsp;de data la care operează încetarea Contractului;&nbsp;</p><p>(f) prin cesionarea de către Prestator a drepturile şi obligaţiilor sale prevăzute prin Contract, fără&nbsp;acordul scris, expres și prealabil al Beneficiarului;&nbsp;</p><p>(g) prin rezilierea unilaterală de către oricare dintre Părți, în baza unei notificări de reziliere&nbsp;transmisă celeilalte Părți conform Art. 1.552 Codul Civil, în măsura în care acesta nu&nbsp;îndeplineşte sau îndeplineşte în mod necorespunzător obligatiile sale şi nu le remediază în&nbsp;termenul indicat de catre cealaltă Parte;&nbsp;</p><p>7.2. Încetarea Contractului nu va avea niciun efect asupra obligațiilor deja scadente între Părți la data&nbsp;survenirii acesteia.&nbsp;</p><p>7.3. Prestatorul se afla de drept in inatrziere odata cu implinirea Termenului de finalizare. 7.4. Decalarea termenelor de executie determina decalarea corespunzatoare a platilor.&nbsp;</p><p><strong>Art. 8. Forta majora&nbsp;</strong></p><p>8.1. Forta majora exonereaza de raspundere Partea care o invoca, dar numai in masura si pentru&nbsp;perioada in care Partea este impiedicata sau intarziata sa-si execute obligatia din pricina situatiei de&nbsp;forta majora. Partea care invoca forta majora va depune toate eforturile rezonabile pentru a reduce&nbsp;cat mai mult posibil efectele rezultand din forta majora.&nbsp;</p><p>8.2. Forta majora exonereaza de raspundere Partea care o invoca, in conditiile legii, daca o comunica&nbsp;in scris, celeilalte Parti in termen de 15 zile de la producere si o dovedeste printr-un certificat oficial,&nbsp;in termen de 15 de zile de la data invocarii ei.&nbsp;</p><p>8.3. Prin forta majora se inteleg toate evenimentele si/sau imprejurarile independente de vointa&nbsp;partii care invoca forta majora, imprevizibile si de neinlaturat si care, survenind dupa incheierea&nbsp;contractului, impiedica ori intirzie, total sau partial, indeplinirea obligatiilor izvorind din acest&nbsp;</p><p>P a g e 4 | 6&nbsp;</p><p>contract.&nbsp;</p><p>8.4. Pentru orice intarziere si/sau neindeplinire a obligatiilor contractuale de catre oricare din Parti&nbsp;ca urmare a situatiei de forta majora, niciuna din Parti nu va fi indreptatita sa pretinda celeilalte Parti&nbsp;penalitati, dobanzi, ori despagubiri care altfel ar fi fost platibile.&nbsp;</p><p>8.5. Daca, datorita situatiei de forta majora, una din Parti este impiedicata sa-si indeplineasca, total&nbsp;sau partial obligatiile sale contractuale pe o perioada mai mare 1 luna, atunci oricare Parte va avea&nbsp;dreptul, in lipsa unei alte intelegeri, sa rezilieze contractul, printr-o notificare scrisa adresata&nbsp;celeilalte Parti. In acesta situatie, Partile vor stabili consecintele rezilierii.&nbsp;</p><p><strong>Art. 9. Notificari, adrese, comunicari&nbsp;</strong></p><p>9.1. Orice adresă, notificare, comunicare sau cerere făcută în legătură cu executarea prezentului&nbsp;Contract vor fi făcute în scris.&nbsp;</p><p>9.2. Orice adresă, notificare, comunicare sau cerere este consideră valabil făcută, dacă va fi transmisă&nbsp;celeilalte Părți la adresa menționată în prezentul Contract, prin poștă, cu scrisoare recomandată cu&nbsp;confirmare de primire.&nbsp;</p><p>9.3. Toate aceste comunicări se pot face și prin fax, e-mail, cu condiția confirmării în scris a primirii&nbsp;lor.&nbsp;</p><p>9.4. Toate notificările şi comunicările privind prezentul Contract vor fi trimise la adresele mentionate&nbsp;in preambulul Contractului.&nbsp;</p><p>9.5. În cazul în care o Parte își schimbă datele de contact, aceasta are obligația de a notifica acest&nbsp;eveniment celeilalte Părți în termen de maxim 1 zi lucrătoare, calculat de la momentul producerii&nbsp;schimbării, în caz contrar considerându-se că scrisoarea/notificarea/cererea a fost trimisă în mod&nbsp;valabil la datele cunoscute în momentul încheierii Contractului.&nbsp;</p><p>9.6. Orice adresa, notificare, comunicare sau cerere transmisă prin fax/e-mail se va considera ca fiind&nbsp;trimisă în prima zi lucrătoare după cea în care a fost expediată;&nbsp;</p><p>9.7. Data la care se va considera primită o notificare/adresa/cerere/comunicare este data menționată&nbsp;în raportul de confirmare.&nbsp;</p><p><strong>Art. 10. Litigii&nbsp;</strong></p><p>10.1. Prezentul Contract este guvernat de legea română.&nbsp;</p><p>10.2. Orice neînţelegere rezultată din valabilitatea, executarea şi interpretarea prezentului Contract&nbsp;va fi soluţionată în mod amiabil. Când aceasta nu este posibilă, litigiul va fi depus spre soluţionare&nbsp;instantelor competente de la sediul Beneficiarului.&nbsp;</p><p><strong>Art.11. CLAUZA DE CONFIDENȚIALITATE SI DE PROTECTIE A DATELOR PERSONALE (GDPR).&nbsp;</strong></p><p>Fiecare Parte se obligă să nu divulge terţelor persoane, fără acordul prealabil exprimat în scris al&nbsp;celeilalte Parţi, informaţia obţinută în procesul executării prezentului Contract, precum şi să o&nbsp;utilizeze numai în scopurile executării prezentului Contract. Obligaţia nu se aplică informaţiei: a.&nbsp;divulgate la solicitarea unor autoritati publice cu atributii, făcută în conformitate cu legislaţia în&nbsp;vigoare; b. care este de domeniul public la momentul divulgării; c. divulgate în cadrul unui proces&nbsp;judiciar între Parţi privind acest Contract; d. divulgate acţionarilor Părţii, persoanelor cu funcţii de&nbsp;răspundere, salariaţilor, reprezentanţilor, agenţilor, consultanţilor, auditorilor, cedenţilor,&nbsp;</p><p>P a g e 5 | 6&nbsp;</p><p>succesorilor şi/sau întreprinderilor afiliate ale Parţii care sunt implicate în executarea prezentului&nbsp;Contract, referitor la care Partea va trebui:- să limiteze divulgarea informaţiei numai către cei ce au&nbsp;nevoie de ea pentru îndeplinirea obligaţiilor sale faţă de Parte;- sa asigure folosirea informaţiei&nbsp;exclusiv in scopurile nemijlocit legate de ceea pentru ce informaţia este divulgata;- sa informeze toate&nbsp;aceste persoane privind obligaţia lor de a păstra confidenţialitatea informaţiei în modul stabilit de prezentul Contract.&nbsp;</p><p>Sunt considerate informații confidențiale și fac obiectul prezentelor clauze, datele de identificare&nbsp;(nume, semnătură, serie și număr CI etc.) ale reprezentanților Părților, care se vor regăsi pe&nbsp;documentele emise de (schimbate între) Parți în perioada derulării Contractului și care nu sunt de&nbsp;domeniul public la momentul divulgării. Prelucrarea de către Părți a datelor cu caracter personal ale&nbsp;persoanelor vizate mai sus se va realiza cu respectarea principiilor și drepturilor acestora care decurg&nbsp;din punerea în aplicare a REGULAMENTUL (UE) 2016/679 AL PARLAMENTULUI EUROPEAN ȘI AL&nbsp;CONSILIULUI privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter&nbsp;personal – GDPR. În spiritul GDPR, Părțile au următoarele drepturi de acces la datele personale ale&nbsp;angajaților/reprezentanților proprii, operate de cealaltă Parte:a) Dreptul de acces la date; b) reptul&nbsp;la rectificarea datelor; c) Dreptul la ștergerea datelor; d)Dreptul la restricționarea prelucrării; e)&nbsp;Dreptul la portabilitatea datelor; f) Dreptul de opoziție la prelucrarea datelor; g) Dreptul de a nu fi&nbsp;supus unor decizii automatizate, inclusiv profilarea; h) Dreptul la notificarea destinatarilor privind&nbsp;rectificarea, ștergerea ori restricționarea datelor cu caracter personal.&nbsp;</p><p>Conform legislației naționale în vigoare în domeniu, datele personale solicitate de beneficiar sunt&nbsp;necesare pentru buna derulare a Contractului (completarea facturilor, documentelor contabile) și nu&nbsp;vor fi folosite în alte scopuri.&nbsp;</p><p>Datele personale obținute sunt procesate în bazele de date și pe serverele Niro Investment S.A. (societate afiliata), pe întreaga durată a raporturilor contractuale și ulterior, conform politicilor&nbsp;interne, pe durata necesară îndeplinirii obligațiilor legale ce ii revin. Respectarea cerințelor legale&nbsp;aplicabile sunt permanent monitorizate, inclusiv prin Responsabilul de protecție a datelor cu caracter&nbsp;personal ce poate fi contactat la dpo@nirogroup.ro. Reclamațiile privind posibila încălcare a&nbsp;drepturilor privind prelucrarea datelor cu caracter personal pot fi adresate Autorității Naționale de&nbsp;Supraveghere a Prelucrării Datelor cu Caracter Personal la adresa www.dataprotection.ro.&nbsp;</p><p>Oricare dintre Părţile contractante se obligă, în termenii şi condiţiile prezentului Contract, să păstreze&nbsp;strict confidenţiale, pe durata Contractului şi după incetarea acestuia, toate datele şi informaţiile,&nbsp;divulgate în orice manieră de către cealaltă Parte, în executarea Contractului. Excepţie de la prezenta&nbsp;obligaţie sunt cazurile în care divulgarea este necesară pentru executarea Contractului şi se face&nbsp;numai avand consimţământul scris, expres si prealabil al celeilalte Părţi sau daca divulgarea este&nbsp;solicitată, în mod legal, de către autorităţile de drept.&nbsp;</p><p>În cazul în care oricare dintre Părţi va încălca obligaţia de confidenţialitate, aceasta va fi obligată la&nbsp;plata de daune-interese în favoarea Părţii prejudiciate.&nbsp;</p><p><strong>Art.12. Cesiunea Contractului&nbsp;</strong></p><p>12.1. Prezentul Contract are caracter <em>intuitu personae </em>in privinta Prestatorului; acesta nu poate&nbsp;transmite unei terţe persoane, total sau parţial, drepturile şi obligaţiile ce ii revin prin prezentul&nbsp;Contract, decât dacă a obţinut acordul scris și prealabil al Beneficiarului, care acord trebuie transmis&nbsp;Prestatorului în termen de 5 (cinci) zile lucrătoare de la momentul primirii notificării. În lipsa unui&nbsp;</p><p>P a g e 6 | 6&nbsp;</p><p>răspuns scris și expres exprimat în acest sens, se consideră că Partea nu consimte la cesiunea&nbsp;Contractului şi aceasta nu poate avea loc.&nbsp;</p><p><strong>Art. 13. Clauze finale&nbsp;</strong></p><p>13.1. Partile sunt de drept in intarziere in cazul neindeplinirii sau indeplinirii necorespunzatoare a&nbsp;oricareia din obligatiile ce le revin potrivit Contractului.&nbsp;</p><p>13.2. Reprezentanţii Părţilor declară că sunt pe deplin împuterniciţi pentru semnarea Contractului&nbsp;şi că Partea pe care o reprezintă este valabil înregistrată şi are deplină capacitate pentru încheierea&nbsp;prezentului acord şi pentru exercitarea drepturilor şi executarea obligaţiilor prevăzute prin acesta. 13.3. Partile declara ca toate prevederile Contractului au fost negociate cu buna–credinta, le-au&nbsp;citit, si le-au asumat si sunt de acord cu acestea asa cum sunt consemnate prin prezentul inscris.&nbsp;13.4. Ambele Parti declara ca isi asuma, pe toata durata contractuala, riscul schimbarii&nbsp;imprejurarilor (de orice natura- inclusiv, dar fara a se limita la, cele politice, economice, comerciale si&nbsp;financiare) existente la data incheierii Contractului, cu respectarea prevederilor Art. 1271 Cod civil.&nbsp;13.5. Prezentul Contract este supus legii romane si interpretat in conformitate cu prevederile&nbsp;acesteia. Orice litigiu, controversa sau pretentie a Partilor, decurgand din sau in legatura cu prezentul&nbsp;Contract si care nu a fost solutionata de Parti in mod amiabil, va fi supusa, spre solutionare, instantelor&nbsp;judecatoresti competente din Bucuresti.&nbsp;</p><p>13.6. Contract poate fi modificat exclusiv prin incheierea de acte aditionale.&nbsp;13.7. Prevederile contractuale sunt integral obligatorii pentru Partile semnatare si succesorii lor in&nbsp;drepturi si obligatii.&nbsp;</p><p>Prezentul Contract a fost incheiat in 2 (două) exemplare astazi, 01.02.2024, cate un exemplar pentru&nbsp;fiecare Parte.&nbsp;</p><p>Beneficiar, Prestator,&nbsp;</p><p><strong>NIRO INVESTMENT S.A. SOFTHUB AG S.R.L. </strong>Director General, Administrator,&nbsp;</p><p><strong>Mihaela Istrate Razvan Mihai Mustata</strong>&nbsp;</p>	39
-7	2024-05-15 08:58:14.004	2024-05-15 08:58:14.004	<p><strong>CONTRACT PRESTARI SERVICII IN TEHNOLOGIA INFORMATIEI&nbsp;</strong></p><p><strong>NR.: </strong><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">stare</span><strong>/</strong><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">02.05.2024</span></p><p>Intre:&nbsp;</p><p><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">SoftHub</span> cu sediul social in Bucureşti, sectorul 3, Str. Vlad Judeţul nr. 2, camera nr. 1,&nbsp;bloc V14A, scara 2, etaj 1, ap. 33, adresa email: razvan.mustata@gmail.com, inregistrata la Registrul&nbsp;Comertului cu nr. J40/2456/2017, CUI 37130972, reprezentata legal prin Razvan Mihai Mustata Administrator, in calitate de prestator („<strong>Prestatorul</strong>"), pe de o parte; <strong>si&nbsp;</strong></p><p><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span><strong>, </strong>persoană juridică română, cu sediul în Comuna Dobroeşti, Sat Fundeni, str. Dragonul Roşu, nr. 1-10, etaj 3, biroul nr. 2-4, Centrul Comercial Dragonul Roşu Megashop, judeţ Ilfov, înregistrată la Registrul Comerţului sub nr. J23/227/2002, Cod de Înregistrare Fiscala RO6951013, reprezentata legal prin Mihaela Istrate - Director General, denumită în cele ce urmează<strong> </strong>(<strong>„Beneficiarul</strong>")<strong>, </strong>pe de alta parte,&nbsp;</p><p>Denumite in continuare, individual, „<strong>Partea</strong>" si, in mod colectiv, „<strong>Partile</strong>", au incheiat prezentul&nbsp;Contract prestari servicii in tehnologia informatiei (“<strong>Contractul</strong>”), dupa cum urmeaza:&nbsp;</p><p><strong>Art. 1. Dispoziții generale&nbsp;</strong></p><p>1.1. În aplicarea caracterului independent al activităţilor desfăşurate în temeiul prezentului Contract,&nbsp;Părţile înţeleg şi convin ca niciuna dintre Părţi nu va solicita celeilalte Părţi şi nu va suporta niciun fel&nbsp;de cheltuieli aferente unor elemente pe care legislaţia română le consideră a fi de natură a reflecta&nbsp;natura dependentă a unei activităţi economice.&nbsp;</p><p>1.2. Pe durata prezentului Contract, Prestatorul va furniza Serviciile prevăzute în Contract.&nbsp;</p><p>1.3. Prestatorul îşi va suporta propriile sale cheltuieli în interesul desfăşurării activităţii, precum orice&nbsp;tipuri de cheltuieli aferente:&nbsp;</p><p>a) deplasării de la/la sediul Părţilor sau al altor persoane fizice/juridice,&nbsp;</p><p>b) timpului de odihnă, în care Parţile nu-şi execută prestaţiile unele faţă de altele, c) imposibilităţii temporare de realizare a prestaţiilor contractuale ca urmare a unui concediu&nbsp;medical sau oricăror cauze asemenătoare,&nbsp;</p><p>d) oricăror altor situaţii de natura celor prevăzute la alin. 1-3.&nbsp;</p><p>1.4. Serviciile vor fi prestate de Prestator din orice locatie adecvata, folosind baza materiala a&nbsp;Prestatorului (statie de lucru, conexiune internet, software specializat de dezvoltare, software&nbsp;specializat de testare etc.), iar livrabilele vor fi furnizate electronic Beneficiarului (prin email sau&nbsp;încărcare pe serverele specializate ale Beneficiarului).&nbsp;</p><p><strong>Art. 2. Obiectul Contractului&nbsp;</strong></p><p>2.1. Prestatorul se obliga sa furnizeze, la solicitarea Beneficiarului si in beneficiul acestuia, servicii de&nbsp;integrare a sistemului <strong>Charisma </strong>cu platforma<strong>/</strong>aplicația <strong>CEC Bank</strong>, pentru export extrase de cont și&nbsp;efectuare plăți în sistem internet banking („<strong>Serviciile</strong>”).</p><p>P a g e 2 | 6&nbsp;</p><p><strong>Art. 3. Obligatiile Prestatorului&nbsp;</strong></p><p>Prestatorul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) sa presteze Serviciile catre Beneficiar conform solicitarilor acestuia si sa asigure&nbsp;finalizarea corespunzatoare si in timp util a acestora, la standardele de calitate cerute si&nbsp;in termenele agreate;&nbsp;</p><p>b) sa furnizeze Serviciile spre satisfactia rezonabila a Beneficiarului, Beneficiarul putand&nbsp;solicita Prestatorului sa rectifice orice Servicii care au fost prestate in mod&nbsp;necorespunzator;&nbsp;</p><p>c) pe toată perioada realizării obligaţiilor prezentului Contract, să comunice Beneficiarului,&nbsp;orice modificare cu privire la sediul social, denumire, divizare, fuziune;&nbsp;</p><p>d) să presteze Serviciile prin utilizarea doar a propriilor sale bunuri şi/sau capitaluri (spaţii&nbsp;de birouri/producţie, echipamente, aparatură şi oricare altele asemenea);&nbsp;</p><p>e) să presteze serviciile cu respectarea principiului independenţei activităţii desfăşurate de&nbsp;Prestator consfinţită de dispoziţiile art. 4 lit.a) din O.U.G. nr. 44/2008.&nbsp;</p><p><strong>Art.4. Obligatiile Beneficiarului&nbsp;</strong></p><p>Beneficiarul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) în sensul Art. 3, lit. e), Partile inteleg si convin ca nu se afla si nici nu vor intra intr-o relatie&nbsp;de subordonare una fata de cealalta, fata de organele de conducere ale celeilalte Parti sau&nbsp;fata de alte entitati care detin controlul asupra/ sunt detinute de cealalta Parte;&nbsp;</p><p>b) sa puna la dispozitia Prestatorului informatiile solicitate de acesta, legate de activitatea&nbsp;Beneficiarului, care sunt necesare pentru buna executare a serviciilor asumate de&nbsp;Prestator;&nbsp;</p><p>c) sa plateasca Prestatorului, in termenii stabiliti prin prezentul Contract, pretul prevazut&nbsp;pentru Serviciile prestate, pe baza facturii emise de Prestator, insotita de devizul de lucru,&nbsp;aprobat de Beneficiar.&nbsp;</p><p><strong>Art. 5. Pretul Contractului și modalitatea de plată&nbsp;</strong></p><p>5.1. În schimbul Serviciilor prestate, Beneficiarul se obliga sa plateasca Prestatorului remuneratia&nbsp;datorată în cuantum de <strong>800(optsute) Euro</strong>. Prestatorul nu este plătitor de TVA.&nbsp;</p><p>5.2. Plata Serviciilor se va face in baza unui deviz agreat de ambele Parti care atesta serviciile&nbsp;efectuate, durata lor si termenii de calitate, deviz care va fi furnizat de catre Prestator Beneficiarului&nbsp;la data emiterii facturii fiscale.&nbsp;</p><p>5.3. Plata remunerației datorate Prestatorului se va face la finalizare Serviciilor, în termen de&nbsp;maximum 10 (zece) zile lucrătoare de la data acceptării la plată a facturii fiscale emise de Prestator.&nbsp;</p><p>5.4. Plata se efectueaza în contul Prestatorului cod RO17INGB0000999906676339 deschis la ING&nbsp;BANK NV pe numele Prestatorului.&nbsp;</p><p>P a g e 3 | 6&nbsp;</p><p><strong>Art.6. Durata Contractului&nbsp;</strong></p><p>6.1. Contractul își produce efectele de la data semnării prezentului inscris de către ambele Părți și&nbsp;este valabil până la îndeplinirea tuturor obligațiilor contractuale.&nbsp;</p><p>6.2. Prestatorul se angajează ca, până la data de <strong>20.02.2024</strong>, să finalizeze Serviciile la care se&nbsp;angajează prin prezentul Contract (“<strong>Termen de finalizare</strong>”)&nbsp;</p><p>6.3. Termenul de finalizare este ferm.&nbsp;</p><p>6.4. In cazul in care Prestatorul nu isi indeplineste corespunzător obligatiile asumate prin Contract,&nbsp;Beneficiarul este indreptatit sa perceapa penalitati de intarziere de 0,5% pe zi de intarziere, calculat&nbsp;din valoarea totala a Contractului. In cazul in care Beneficiarul nu onoreaza plata in termenii prevazuți&nbsp;prin Contract, acesta are obligatia de a plati penalitati de intarziere de 0,5% pe zi de intarziere,&nbsp;calculat din suma datorată. Cuantumul penalităților poate depăși valoarea la care ele au fost calculate.&nbsp;</p><p><strong>Art.7. Încetarea Contractului&nbsp;</strong></p><p>7.1. Prezentul Contract încetează în oricare din următoarele modalităţi:&nbsp;</p><p>(a) prin acordul scris al Părţilor;&nbsp;</p><p>(b) prin ajungerea la termen și/sau îndeplinirea tuturor obligațiilor contractuale; (c) prin demararea procedurilor de faliment, dizolvare sau lichidare a oricăreia dintre Părţi; (d) în caz de forţa majoră, în condițiile legii;&nbsp;</p><p>(e) prin denuntarea unilaterala a Contractului de catre Beneficiar, oricand, indiferent de motiv,&nbsp;transmitand Prestatorului o notificare prealabila cu minim 10 (zece) zile calendaristice înainte&nbsp;de data la care operează încetarea Contractului;&nbsp;</p><p>(f) prin cesionarea de către Prestator a drepturile şi obligaţiilor sale prevăzute prin Contract, fără&nbsp;acordul scris, expres și prealabil al Beneficiarului;&nbsp;</p><p>(g) prin rezilierea unilaterală de către oricare dintre Părți, în baza unei notificări de reziliere&nbsp;transmisă celeilalte Părți conform Art. 1.552 Codul Civil, în măsura în care acesta nu&nbsp;îndeplineşte sau îndeplineşte în mod necorespunzător obligatiile sale şi nu le remediază în&nbsp;termenul indicat de catre cealaltă Parte;&nbsp;</p><p>7.2. Încetarea Contractului nu va avea niciun efect asupra obligațiilor deja scadente între Părți la data&nbsp;survenirii acesteia.&nbsp;</p><p>7.3. Prestatorul se afla de drept in inatrziere odata cu implinirea Termenului de finalizare. 7.4. Decalarea termenelor de executie determina decalarea corespunzatoare a platilor.&nbsp;</p><p><strong>Art. 8. Forta majora&nbsp;</strong></p><p>8.1. Forta majora exonereaza de raspundere Partea care o invoca, dar numai in masura si pentru&nbsp;perioada in care Partea este impiedicata sau intarziata sa-si execute obligatia din pricina situatiei de&nbsp;forta majora. Partea care invoca forta majora va depune toate eforturile rezonabile pentru a reduce&nbsp;cat mai mult posibil efectele rezultand din forta majora.&nbsp;</p><p>8.2. Forta majora exonereaza de raspundere Partea care o invoca, in conditiile legii, daca o comunica&nbsp;in scris, celeilalte Parti in termen de 15 zile de la producere si o dovedeste printr-un certificat oficial,&nbsp;in termen de 15 de zile de la data invocarii ei.&nbsp;</p><p>8.3. Prin forta majora se inteleg toate evenimentele si/sau imprejurarile independente de vointa&nbsp;partii care invoca forta majora, imprevizibile si de neinlaturat si care, survenind dupa incheierea&nbsp;contractului, impiedica ori intirzie, total sau partial, indeplinirea obligatiilor izvorind din acest&nbsp;</p><p>P a g e 4 | 6&nbsp;</p><p>contract.&nbsp;</p><p>8.4. Pentru orice intarziere si/sau neindeplinire a obligatiilor contractuale de catre oricare din Parti&nbsp;ca urmare a situatiei de forta majora, niciuna din Parti nu va fi indreptatita sa pretinda celeilalte Parti&nbsp;penalitati, dobanzi, ori despagubiri care altfel ar fi fost platibile.&nbsp;</p><p>8.5. Daca, datorita situatiei de forta majora, una din Parti este impiedicata sa-si indeplineasca, total&nbsp;sau partial obligatiile sale contractuale pe o perioada mai mare 1 luna, atunci oricare Parte va avea&nbsp;dreptul, in lipsa unei alte intelegeri, sa rezilieze contractul, printr-o notificare scrisa adresata&nbsp;celeilalte Parti. In acesta situatie, Partile vor stabili consecintele rezilierii.&nbsp;</p><p><strong>Art. 9. Notificari, adrese, comunicari&nbsp;</strong></p><p>9.1. Orice adresă, notificare, comunicare sau cerere făcută în legătură cu executarea prezentului&nbsp;Contract vor fi făcute în scris.&nbsp;</p><p>9.2. Orice adresă, notificare, comunicare sau cerere este consideră valabil făcută, dacă va fi transmisă&nbsp;celeilalte Părți la adresa menționată în prezentul Contract, prin poștă, cu scrisoare recomandată cu&nbsp;confirmare de primire.&nbsp;</p><p>9.3. Toate aceste comunicări se pot face și prin fax, e-mail, cu condiția confirmării în scris a primirii&nbsp;lor.&nbsp;</p><p>9.4. Toate notificările şi comunicările privind prezentul Contract vor fi trimise la adresele mentionate&nbsp;in preambulul Contractului.&nbsp;</p><p>9.5. În cazul în care o Parte își schimbă datele de contact, aceasta are obligația de a notifica acest&nbsp;eveniment celeilalte Părți în termen de maxim 1 zi lucrătoare, calculat de la momentul producerii&nbsp;schimbării, în caz contrar considerându-se că scrisoarea/notificarea/cererea a fost trimisă în mod&nbsp;valabil la datele cunoscute în momentul încheierii Contractului.&nbsp;</p><p>9.6. Orice adresa, notificare, comunicare sau cerere transmisă prin fax/e-mail se va considera ca fiind&nbsp;trimisă în prima zi lucrătoare după cea în care a fost expediată;&nbsp;</p><p>9.7. Data la care se va considera primită o notificare/adresa/cerere/comunicare este data menționată&nbsp;în raportul de confirmare.&nbsp;</p><p><strong>Art. 10. Litigii&nbsp;</strong></p><p>10.1. Prezentul Contract este guvernat de legea română.&nbsp;</p><p>10.2. Orice neînţelegere rezultată din valabilitatea, executarea şi interpretarea prezentului Contract&nbsp;va fi soluţionată în mod amiabil. Când aceasta nu este posibilă, litigiul va fi depus spre soluţionare&nbsp;instantelor competente de la sediul Beneficiarului.&nbsp;</p><p><strong>Art.11. CLAUZA DE CONFIDENȚIALITATE SI DE PROTECTIE A DATELOR PERSONALE (GDPR).&nbsp;</strong></p><p>Fiecare Parte se obligă să nu divulge terţelor persoane, fără acordul prealabil exprimat în scris al&nbsp;celeilalte Parţi, informaţia obţinută în procesul executării prezentului Contract, precum şi să o&nbsp;utilizeze numai în scopurile executării prezentului Contract. Obligaţia nu se aplică informaţiei: a.&nbsp;divulgate la solicitarea unor autoritati publice cu atributii, făcută în conformitate cu legislaţia în&nbsp;vigoare; b. care este de domeniul public la momentul divulgării; c. divulgate în cadrul unui proces&nbsp;judiciar între Parţi privind acest Contract; d. divulgate acţionarilor Părţii, persoanelor cu funcţii de&nbsp;răspundere, salariaţilor, reprezentanţilor, agenţilor, consultanţilor, auditorilor, cedenţilor,&nbsp;</p><p>P a g e 5 | 6&nbsp;</p><p>succesorilor şi/sau întreprinderilor afiliate ale Parţii care sunt implicate în executarea prezentului&nbsp;Contract, referitor la care Partea va trebui:- să limiteze divulgarea informaţiei numai către cei ce au&nbsp;nevoie de ea pentru îndeplinirea obligaţiilor sale faţă de Parte;- sa asigure folosirea informaţiei&nbsp;exclusiv in scopurile nemijlocit legate de ceea pentru ce informaţia este divulgata;- sa informeze toate&nbsp;aceste persoane privind obligaţia lor de a păstra confidenţialitatea informaţiei în modul stabilit de prezentul Contract.&nbsp;</p><p>Sunt considerate informații confidențiale și fac obiectul prezentelor clauze, datele de identificare&nbsp;(nume, semnătură, serie și număr CI etc.) ale reprezentanților Părților, care se vor regăsi pe&nbsp;documentele emise de (schimbate între) Parți în perioada derulării Contractului și care nu sunt de&nbsp;domeniul public la momentul divulgării. Prelucrarea de către Părți a datelor cu caracter personal ale&nbsp;persoanelor vizate mai sus se va realiza cu respectarea principiilor și drepturilor acestora care decurg&nbsp;din punerea în aplicare a REGULAMENTUL (UE) 2016/679 AL PARLAMENTULUI EUROPEAN ȘI AL&nbsp;CONSILIULUI privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter&nbsp;personal – GDPR. În spiritul GDPR, Părțile au următoarele drepturi de acces la datele personale ale&nbsp;angajaților/reprezentanților proprii, operate de cealaltă Parte:a) Dreptul de acces la date; b) reptul&nbsp;la rectificarea datelor; c) Dreptul la ștergerea datelor; d)Dreptul la restricționarea prelucrării; e)&nbsp;Dreptul la portabilitatea datelor; f) Dreptul de opoziție la prelucrarea datelor; g) Dreptul de a nu fi&nbsp;supus unor decizii automatizate, inclusiv profilarea; h) Dreptul la notificarea destinatarilor privind&nbsp;rectificarea, ștergerea ori restricționarea datelor cu caracter personal.&nbsp;</p><p>Conform legislației naționale în vigoare în domeniu, datele personale solicitate de beneficiar sunt&nbsp;necesare pentru buna derulare a Contractului (completarea facturilor, documentelor contabile) și nu&nbsp;vor fi folosite în alte scopuri.&nbsp;</p><p>Datele personale obținute sunt procesate în bazele de date și pe serverele Niro Investment S.A. (societate afiliata), pe întreaga durată a raporturilor contractuale și ulterior, conform politicilor&nbsp;interne, pe durata necesară îndeplinirii obligațiilor legale ce ii revin. Respectarea cerințelor legale&nbsp;aplicabile sunt permanent monitorizate, inclusiv prin Responsabilul de protecție a datelor cu caracter&nbsp;personal ce poate fi contactat la dpo@nirogroup.ro. Reclamațiile privind posibila încălcare a&nbsp;drepturilor privind prelucrarea datelor cu caracter personal pot fi adresate Autorității Naționale de&nbsp;Supraveghere a Prelucrării Datelor cu Caracter Personal la adresa www.dataprotection.ro.&nbsp;</p><p>Oricare dintre Părţile contractante se obligă, în termenii şi condiţiile prezentului Contract, să păstreze&nbsp;strict confidenţiale, pe durata Contractului şi după incetarea acestuia, toate datele şi informaţiile,&nbsp;divulgate în orice manieră de către cealaltă Parte, în executarea Contractului. Excepţie de la prezenta&nbsp;obligaţie sunt cazurile în care divulgarea este necesară pentru executarea Contractului şi se face&nbsp;numai avand consimţământul scris, expres si prealabil al celeilalte Părţi sau daca divulgarea este&nbsp;solicitată, în mod legal, de către autorităţile de drept.&nbsp;</p><p>În cazul în care oricare dintre Părţi va încălca obligaţia de confidenţialitate, aceasta va fi obligată la&nbsp;plata de daune-interese în favoarea Părţii prejudiciate.&nbsp;</p><p><strong>Art.12. Cesiunea Contractului&nbsp;</strong></p><p>12.1. Prezentul Contract are caracter <em>intuitu personae </em>in privinta Prestatorului; acesta nu poate&nbsp;transmite unei terţe persoane, total sau parţial, drepturile şi obligaţiile ce ii revin prin prezentul&nbsp;Contract, decât dacă a obţinut acordul scris și prealabil al Beneficiarului, care acord trebuie transmis&nbsp;Prestatorului în termen de 5 (cinci) zile lucrătoare de la momentul primirii notificării. În lipsa unui&nbsp;</p><p>P a g e 6 | 6&nbsp;</p><p>răspuns scris și expres exprimat în acest sens, se consideră că Partea nu consimte la cesiunea&nbsp;Contractului şi aceasta nu poate avea loc.&nbsp;</p><p><strong>Art. 13. Clauze finale&nbsp;</strong></p><p>13.1. Partile sunt de drept in intarziere in cazul neindeplinirii sau indeplinirii necorespunzatoare a&nbsp;oricareia din obligatiile ce le revin potrivit Contractului.&nbsp;</p><p>13.2. Reprezentanţii Părţilor declară că sunt pe deplin împuterniciţi pentru semnarea Contractului&nbsp;şi că Partea pe care o reprezintă este valabil înregistrată şi are deplină capacitate pentru încheierea&nbsp;prezentului acord şi pentru exercitarea drepturilor şi executarea obligaţiilor prevăzute prin acesta. 13.3. Partile declara ca toate prevederile Contractului au fost negociate cu buna–credinta, le-au&nbsp;citit, si le-au asumat si sunt de acord cu acestea asa cum sunt consemnate prin prezentul inscris.&nbsp;13.4. Ambele Parti declara ca isi asuma, pe toata durata contractuala, riscul schimbarii&nbsp;imprejurarilor (de orice natura- inclusiv, dar fara a se limita la, cele politice, economice, comerciale si&nbsp;financiare) existente la data incheierii Contractului, cu respectarea prevederilor Art. 1271 Cod civil.&nbsp;13.5. Prezentul Contract este supus legii romane si interpretat in conformitate cu prevederile&nbsp;acesteia. Orice litigiu, controversa sau pretentie a Partilor, decurgand din sau in legatura cu prezentul&nbsp;Contract si care nu a fost solutionata de Parti in mod amiabil, va fi supusa, spre solutionare, instantelor&nbsp;judecatoresti competente din Bucuresti.&nbsp;</p><p>13.6. Contract poate fi modificat exclusiv prin incheierea de acte aditionale.&nbsp;13.7. Prevederile contractuale sunt integral obligatorii pentru Partile semnatare si succesorii lor in&nbsp;drepturi si obligatii.&nbsp;</p><p>Prezentul Contract a fost incheiat in 2 (două) exemplare astazi, 01.02.2024, cate un exemplar pentru&nbsp;fiecare Parte.&nbsp;</p><p>Beneficiar, Prestator,&nbsp;</p><p><strong>NIRO INVESTMENT S.A. SOFTHUB AG S.R.L. </strong>Director General, Administrator,&nbsp;</p><p><strong>Mihaela Istrate Razvan Mihai Mustata</strong>&nbsp;</p>	43
 9	2024-05-21 12:12:10.136	2024-05-21 12:12:10.136	<p><strong>CONTRACT PRESTARI SERVICII IN TEHNOLOGIA INFORMATIEI&nbsp;</strong></p><p><strong>NR.: </strong><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">wer</span><strong>/</strong><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">undefined</span></p><p>Intre:&nbsp;</p><p><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">Dragonul Rosu S.A.</span> cu sediul social in Bucureşti, sectorul 3, Str. Vlad Judeţul nr. 2, camera nr. 1,&nbsp;bloc V14A, scara 2, etaj 1, ap. 33, adresa email: razvan.mustata@gmail.com, inregistrata la Registrul&nbsp;Comertului cu nr. J40/2456/2017, CUI 37130972, reprezentata legal prin Razvan Mihai Mustata Administrator, in calitate de prestator („<strong>Prestatorul</strong>"), pe de o parte; <strong>si&nbsp;</strong></p><p><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span><strong>, </strong>persoană juridică română, cu sediul în Comuna Dobroeşti, Sat Fundeni, str. Dragonul Roşu, nr. 1-10, etaj 3, biroul nr. 2-4, Centrul Comercial Dragonul Roşu Megashop, judeţ Ilfov, înregistrată la Registrul Comerţului sub nr. J23/227/2002, Cod de Înregistrare Fiscala RO6951013, reprezentata legal prin Mihaela Istrate - Director General, denumită în cele ce urmează<strong> </strong>(<strong>„Beneficiarul</strong>")<strong>, </strong>pe de alta parte,&nbsp;</p><p>Denumite in continuare, individual, „<strong>Partea</strong>" si, in mod colectiv, „<strong>Partile</strong>", au incheiat prezentul&nbsp;Contract prestari servicii in tehnologia informatiei (“<strong>Contractul</strong>”), dupa cum urmeaza:&nbsp;</p><p><strong>Art. 1. Dispoziții generale&nbsp;</strong></p><p>1.1. În aplicarea caracterului independent al activităţilor desfăşurate în temeiul prezentului Contract,&nbsp;Părţile înţeleg şi convin ca niciuna dintre Părţi nu va solicita celeilalte Părţi şi nu va suporta niciun fel&nbsp;de cheltuieli aferente unor elemente pe care legislaţia română le consideră a fi de natură a reflecta&nbsp;natura dependentă a unei activităţi economice.&nbsp;</p><p>1.2. Pe durata prezentului Contract, Prestatorul va furniza Serviciile prevăzute în Contract.&nbsp;</p><p>1.3. Prestatorul îşi va suporta propriile sale cheltuieli în interesul desfăşurării activităţii, precum orice&nbsp;tipuri de cheltuieli aferente:&nbsp;</p><p>a) deplasării de la/la sediul Părţilor sau al altor persoane fizice/juridice,&nbsp;</p><p>b) timpului de odihnă, în care Parţile nu-şi execută prestaţiile unele faţă de altele, c) imposibilităţii temporare de realizare a prestaţiilor contractuale ca urmare a unui concediu&nbsp;medical sau oricăror cauze asemenătoare,&nbsp;</p><p>d) oricăror altor situaţii de natura celor prevăzute la alin. 1-3.&nbsp;</p><p>1.4. Serviciile vor fi prestate de Prestator din orice locatie adecvata, folosind baza materiala a&nbsp;Prestatorului (statie de lucru, conexiune internet, software specializat de dezvoltare, software&nbsp;specializat de testare etc.), iar livrabilele vor fi furnizate electronic Beneficiarului (prin email sau&nbsp;încărcare pe serverele specializate ale Beneficiarului).&nbsp;</p><p><strong>Art. 2. Obiectul Contractului&nbsp;</strong></p><p>2.1. Prestatorul se obliga sa furnizeze, la solicitarea Beneficiarului si in beneficiul acestuia, servicii de&nbsp;integrare a sistemului <strong>Charisma </strong>cu platforma<strong>/</strong>aplicația <strong>CEC Bank</strong>, pentru export extrase de cont și&nbsp;efectuare plăți în sistem internet banking („<strong>Serviciile</strong>”).</p><p>P a g e 2 | 6&nbsp;</p><p><strong>Art. 3. Obligatiile Prestatorului&nbsp;</strong></p><p>Prestatorul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) sa presteze Serviciile catre Beneficiar conform solicitarilor acestuia si sa asigure&nbsp;finalizarea corespunzatoare si in timp util a acestora, la standardele de calitate cerute si&nbsp;in termenele agreate;&nbsp;</p><p>b) sa furnizeze Serviciile spre satisfactia rezonabila a Beneficiarului, Beneficiarul putand&nbsp;solicita Prestatorului sa rectifice orice Servicii care au fost prestate in mod&nbsp;necorespunzator;&nbsp;</p><p>c) pe toată perioada realizării obligaţiilor prezentului Contract, să comunice Beneficiarului,&nbsp;orice modificare cu privire la sediul social, denumire, divizare, fuziune;&nbsp;</p><p>d) să presteze Serviciile prin utilizarea doar a propriilor sale bunuri şi/sau capitaluri (spaţii&nbsp;de birouri/producţie, echipamente, aparatură şi oricare altele asemenea);&nbsp;</p><p>e) să presteze serviciile cu respectarea principiului independenţei activităţii desfăşurate de&nbsp;Prestator consfinţită de dispoziţiile art. 4 lit.a) din O.U.G. nr. 44/2008.&nbsp;</p><p><strong>Art.4. Obligatiile Beneficiarului&nbsp;</strong></p><p>Beneficiarul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) în sensul Art. 3, lit. e), Partile inteleg si convin ca nu se afla si nici nu vor intra intr-o relatie&nbsp;de subordonare una fata de cealalta, fata de organele de conducere ale celeilalte Parti sau&nbsp;fata de alte entitati care detin controlul asupra/ sunt detinute de cealalta Parte;&nbsp;</p><p>b) sa puna la dispozitia Prestatorului informatiile solicitate de acesta, legate de activitatea&nbsp;Beneficiarului, care sunt necesare pentru buna executare a serviciilor asumate de&nbsp;Prestator;&nbsp;</p><p>c) sa plateasca Prestatorului, in termenii stabiliti prin prezentul Contract, pretul prevazut&nbsp;pentru Serviciile prestate, pe baza facturii emise de Prestator, insotita de devizul de lucru,&nbsp;aprobat de Beneficiar.&nbsp;</p><p><strong>Art. 5. Pretul Contractului și modalitatea de plată&nbsp;</strong></p><p>5.1. În schimbul Serviciilor prestate, Beneficiarul se obliga sa plateasca Prestatorului remuneratia&nbsp;datorată în cuantum de <strong>800(optsute) Euro</strong>. Prestatorul nu este plătitor de TVA.&nbsp;</p><p>5.2. Plata Serviciilor se va face in baza unui deviz agreat de ambele Parti care atesta serviciile&nbsp;efectuate, durata lor si termenii de calitate, deviz care va fi furnizat de catre Prestator Beneficiarului&nbsp;la data emiterii facturii fiscale.&nbsp;</p><p>5.3. Plata remunerației datorate Prestatorului se va face la finalizare Serviciilor, în termen de&nbsp;maximum 10 (zece) zile lucrătoare de la data acceptării la plată a facturii fiscale emise de Prestator.&nbsp;</p><p>5.4. Plata se efectueaza în contul Prestatorului cod RO17INGB0000999906676339 deschis la ING&nbsp;BANK NV pe numele Prestatorului.&nbsp;</p><p>P a g e 3 | 6&nbsp;</p><p><strong>Art.6. Durata Contractului&nbsp;</strong></p><p>6.1. Contractul își produce efectele de la data semnării prezentului inscris de către ambele Părți și&nbsp;este valabil până la îndeplinirea tuturor obligațiilor contractuale.&nbsp;</p><p>6.2. Prestatorul se angajează ca, până la data de <strong>20.02.2024</strong>, să finalizeze Serviciile la care se&nbsp;angajează prin prezentul Contract (“<strong>Termen de finalizare</strong>”)&nbsp;</p><p>6.3. Termenul de finalizare este ferm.&nbsp;</p><p>6.4. In cazul in care Prestatorul nu isi indeplineste corespunzător obligatiile asumate prin Contract,&nbsp;Beneficiarul este indreptatit sa perceapa penalitati de intarziere de 0,5% pe zi de intarziere, calculat&nbsp;din valoarea totala a Contractului. In cazul in care Beneficiarul nu onoreaza plata in termenii prevazuți&nbsp;prin Contract, acesta are obligatia de a plati penalitati de intarziere de 0,5% pe zi de intarziere,&nbsp;calculat din suma datorată. Cuantumul penalităților poate depăși valoarea la care ele au fost calculate.&nbsp;</p><p><strong>Art.7. Încetarea Contractului&nbsp;</strong></p><p>7.1. Prezentul Contract încetează în oricare din următoarele modalităţi:&nbsp;</p><p>(a) prin acordul scris al Părţilor;&nbsp;</p><p>(b) prin ajungerea la termen și/sau îndeplinirea tuturor obligațiilor contractuale; (c) prin demararea procedurilor de faliment, dizolvare sau lichidare a oricăreia dintre Părţi; (d) în caz de forţa majoră, în condițiile legii;&nbsp;</p><p>(e) prin denuntarea unilaterala a Contractului de catre Beneficiar, oricand, indiferent de motiv,&nbsp;transmitand Prestatorului o notificare prealabila cu minim 10 (zece) zile calendaristice înainte&nbsp;de data la care operează încetarea Contractului;&nbsp;</p><p>(f) prin cesionarea de către Prestator a drepturile şi obligaţiilor sale prevăzute prin Contract, fără&nbsp;acordul scris, expres și prealabil al Beneficiarului;&nbsp;</p><p>(g) prin rezilierea unilaterală de către oricare dintre Părți, în baza unei notificări de reziliere&nbsp;transmisă celeilalte Părți conform Art. 1.552 Codul Civil, în măsura în care acesta nu&nbsp;îndeplineşte sau îndeplineşte în mod necorespunzător obligatiile sale şi nu le remediază în&nbsp;termenul indicat de catre cealaltă Parte;&nbsp;</p><p>7.2. Încetarea Contractului nu va avea niciun efect asupra obligațiilor deja scadente între Părți la data&nbsp;survenirii acesteia.&nbsp;</p><p>7.3. Prestatorul se afla de drept in inatrziere odata cu implinirea Termenului de finalizare. 7.4. Decalarea termenelor de executie determina decalarea corespunzatoare a platilor.&nbsp;</p><p><strong>Art. 8. Forta majora&nbsp;</strong></p><p>8.1. Forta majora exonereaza de raspundere Partea care o invoca, dar numai in masura si pentru&nbsp;perioada in care Partea este impiedicata sau intarziata sa-si execute obligatia din pricina situatiei de&nbsp;forta majora. Partea care invoca forta majora va depune toate eforturile rezonabile pentru a reduce&nbsp;cat mai mult posibil efectele rezultand din forta majora.&nbsp;</p><p>8.2. Forta majora exonereaza de raspundere Partea care o invoca, in conditiile legii, daca o comunica&nbsp;in scris, celeilalte Parti in termen de 15 zile de la producere si o dovedeste printr-un certificat oficial,&nbsp;in termen de 15 de zile de la data invocarii ei.&nbsp;</p><p>8.3. Prin forta majora se inteleg toate evenimentele si/sau imprejurarile independente de vointa&nbsp;partii care invoca forta majora, imprevizibile si de neinlaturat si care, survenind dupa incheierea&nbsp;contractului, impiedica ori intirzie, total sau partial, indeplinirea obligatiilor izvorind din acest&nbsp;</p><p>P a g e 4 | 6&nbsp;</p><p>contract.&nbsp;</p><p>8.4. Pentru orice intarziere si/sau neindeplinire a obligatiilor contractuale de catre oricare din Parti&nbsp;ca urmare a situatiei de forta majora, niciuna din Parti nu va fi indreptatita sa pretinda celeilalte Parti&nbsp;penalitati, dobanzi, ori despagubiri care altfel ar fi fost platibile.&nbsp;</p><p>8.5. Daca, datorita situatiei de forta majora, una din Parti este impiedicata sa-si indeplineasca, total&nbsp;sau partial obligatiile sale contractuale pe o perioada mai mare 1 luna, atunci oricare Parte va avea&nbsp;dreptul, in lipsa unei alte intelegeri, sa rezilieze contractul, printr-o notificare scrisa adresata&nbsp;celeilalte Parti. In acesta situatie, Partile vor stabili consecintele rezilierii.&nbsp;</p><p><strong>Art. 9. Notificari, adrese, comunicari&nbsp;</strong></p><p>9.1. Orice adresă, notificare, comunicare sau cerere făcută în legătură cu executarea prezentului&nbsp;Contract vor fi făcute în scris.&nbsp;</p><p>9.2. Orice adresă, notificare, comunicare sau cerere este consideră valabil făcută, dacă va fi transmisă&nbsp;celeilalte Părți la adresa menționată în prezentul Contract, prin poștă, cu scrisoare recomandată cu&nbsp;confirmare de primire.&nbsp;</p><p>9.3. Toate aceste comunicări se pot face și prin fax, e-mail, cu condiția confirmării în scris a primirii&nbsp;lor.&nbsp;</p><p>9.4. Toate notificările şi comunicările privind prezentul Contract vor fi trimise la adresele mentionate&nbsp;in preambulul Contractului.&nbsp;</p><p>9.5. În cazul în care o Parte își schimbă datele de contact, aceasta are obligația de a notifica acest&nbsp;eveniment celeilalte Părți în termen de maxim 1 zi lucrătoare, calculat de la momentul producerii&nbsp;schimbării, în caz contrar considerându-se că scrisoarea/notificarea/cererea a fost trimisă în mod&nbsp;valabil la datele cunoscute în momentul încheierii Contractului.&nbsp;</p><p>9.6. Orice adresa, notificare, comunicare sau cerere transmisă prin fax/e-mail se va considera ca fiind&nbsp;trimisă în prima zi lucrătoare după cea în care a fost expediată;&nbsp;</p><p>9.7. Data la care se va considera primită o notificare/adresa/cerere/comunicare este data menționată&nbsp;în raportul de confirmare.&nbsp;</p><p><strong>Art. 10. Litigii&nbsp;</strong></p><p>10.1. Prezentul Contract este guvernat de legea română.&nbsp;</p><p>10.2. Orice neînţelegere rezultată din valabilitatea, executarea şi interpretarea prezentului Contract&nbsp;va fi soluţionată în mod amiabil. Când aceasta nu este posibilă, litigiul va fi depus spre soluţionare&nbsp;instantelor competente de la sediul Beneficiarului.&nbsp;</p><p><strong>Art.11. CLAUZA DE CONFIDENȚIALITATE SI DE PROTECTIE A DATELOR PERSONALE (GDPR).&nbsp;</strong></p><p>Fiecare Parte se obligă să nu divulge terţelor persoane, fără acordul prealabil exprimat în scris al&nbsp;celeilalte Parţi, informaţia obţinută în procesul executării prezentului Contract, precum şi să o&nbsp;utilizeze numai în scopurile executării prezentului Contract. Obligaţia nu se aplică informaţiei: a.&nbsp;divulgate la solicitarea unor autoritati publice cu atributii, făcută în conformitate cu legislaţia în&nbsp;vigoare; b. care este de domeniul public la momentul divulgării; c. divulgate în cadrul unui proces&nbsp;judiciar între Parţi privind acest Contract; d. divulgate acţionarilor Părţii, persoanelor cu funcţii de&nbsp;răspundere, salariaţilor, reprezentanţilor, agenţilor, consultanţilor, auditorilor, cedenţilor,&nbsp;</p><p>P a g e 5 | 6&nbsp;</p><p>succesorilor şi/sau întreprinderilor afiliate ale Parţii care sunt implicate în executarea prezentului&nbsp;Contract, referitor la care Partea va trebui:- să limiteze divulgarea informaţiei numai către cei ce au&nbsp;nevoie de ea pentru îndeplinirea obligaţiilor sale faţă de Parte;- sa asigure folosirea informaţiei&nbsp;exclusiv in scopurile nemijlocit legate de ceea pentru ce informaţia este divulgata;- sa informeze toate&nbsp;aceste persoane privind obligaţia lor de a păstra confidenţialitatea informaţiei în modul stabilit de prezentul Contract.&nbsp;</p><p>Sunt considerate informații confidențiale și fac obiectul prezentelor clauze, datele de identificare&nbsp;(nume, semnătură, serie și număr CI etc.) ale reprezentanților Părților, care se vor regăsi pe&nbsp;documentele emise de (schimbate între) Parți în perioada derulării Contractului și care nu sunt de&nbsp;domeniul public la momentul divulgării. Prelucrarea de către Părți a datelor cu caracter personal ale&nbsp;persoanelor vizate mai sus se va realiza cu respectarea principiilor și drepturilor acestora care decurg&nbsp;din punerea în aplicare a REGULAMENTUL (UE) 2016/679 AL PARLAMENTULUI EUROPEAN ȘI AL&nbsp;CONSILIULUI privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter&nbsp;personal – GDPR. În spiritul GDPR, Părțile au următoarele drepturi de acces la datele personale ale&nbsp;angajaților/reprezentanților proprii, operate de cealaltă Parte:a) Dreptul de acces la date; b) reptul&nbsp;la rectificarea datelor; c) Dreptul la ștergerea datelor; d)Dreptul la restricționarea prelucrării; e)&nbsp;Dreptul la portabilitatea datelor; f) Dreptul de opoziție la prelucrarea datelor; g) Dreptul de a nu fi&nbsp;supus unor decizii automatizate, inclusiv profilarea; h) Dreptul la notificarea destinatarilor privind&nbsp;rectificarea, ștergerea ori restricționarea datelor cu caracter personal.&nbsp;</p><p>Conform legislației naționale în vigoare în domeniu, datele personale solicitate de beneficiar sunt&nbsp;necesare pentru buna derulare a Contractului (completarea facturilor, documentelor contabile) și nu&nbsp;vor fi folosite în alte scopuri.&nbsp;</p><p>Datele personale obținute sunt procesate în bazele de date și pe serverele Niro Investment S.A. (societate afiliata), pe întreaga durată a raporturilor contractuale și ulterior, conform politicilor&nbsp;interne, pe durata necesară îndeplinirii obligațiilor legale ce ii revin. Respectarea cerințelor legale&nbsp;aplicabile sunt permanent monitorizate, inclusiv prin Responsabilul de protecție a datelor cu caracter&nbsp;personal ce poate fi contactat la dpo@nirogroup.ro. Reclamațiile privind posibila încălcare a&nbsp;drepturilor privind prelucrarea datelor cu caracter personal pot fi adresate Autorității Naționale de&nbsp;Supraveghere a Prelucrării Datelor cu Caracter Personal la adresa www.dataprotection.ro.&nbsp;</p><p>Oricare dintre Părţile contractante se obligă, în termenii şi condiţiile prezentului Contract, să păstreze&nbsp;strict confidenţiale, pe durata Contractului şi după incetarea acestuia, toate datele şi informaţiile,&nbsp;divulgate în orice manieră de către cealaltă Parte, în executarea Contractului. Excepţie de la prezenta&nbsp;obligaţie sunt cazurile în care divulgarea este necesară pentru executarea Contractului şi se face&nbsp;numai avand consimţământul scris, expres si prealabil al celeilalte Părţi sau daca divulgarea este&nbsp;solicitată, în mod legal, de către autorităţile de drept.&nbsp;</p><p>În cazul în care oricare dintre Părţi va încălca obligaţia de confidenţialitate, aceasta va fi obligată la&nbsp;plata de daune-interese în favoarea Părţii prejudiciate.&nbsp;</p><p><strong>Art.12. Cesiunea Contractului&nbsp;</strong></p><p>12.1. Prezentul Contract are caracter <em>intuitu personae </em>in privinta Prestatorului; acesta nu poate&nbsp;transmite unei terţe persoane, total sau parţial, drepturile şi obligaţiile ce ii revin prin prezentul&nbsp;Contract, decât dacă a obţinut acordul scris și prealabil al Beneficiarului, care acord trebuie transmis&nbsp;Prestatorului în termen de 5 (cinci) zile lucrătoare de la momentul primirii notificării. În lipsa unui&nbsp;</p><p>P a g e 6 | 6&nbsp;</p><p>răspuns scris și expres exprimat în acest sens, se consideră că Partea nu consimte la cesiunea&nbsp;Contractului şi aceasta nu poate avea loc.&nbsp;</p><p><strong>Art. 13. Clauze finale&nbsp;</strong></p><p>13.1. Partile sunt de drept in intarziere in cazul neindeplinirii sau indeplinirii necorespunzatoare a&nbsp;oricareia din obligatiile ce le revin potrivit Contractului.&nbsp;</p><p>13.2. Reprezentanţii Părţilor declară că sunt pe deplin împuterniciţi pentru semnarea Contractului&nbsp;şi că Partea pe care o reprezintă este valabil înregistrată şi are deplină capacitate pentru încheierea&nbsp;prezentului acord şi pentru exercitarea drepturilor şi executarea obligaţiilor prevăzute prin acesta. 13.3. Partile declara ca toate prevederile Contractului au fost negociate cu buna–credinta, le-au&nbsp;citit, si le-au asumat si sunt de acord cu acestea asa cum sunt consemnate prin prezentul inscris.&nbsp;13.4. Ambele Parti declara ca isi asuma, pe toata durata contractuala, riscul schimbarii&nbsp;imprejurarilor (de orice natura- inclusiv, dar fara a se limita la, cele politice, economice, comerciale si&nbsp;financiare) existente la data incheierii Contractului, cu respectarea prevederilor Art. 1271 Cod civil.&nbsp;13.5. Prezentul Contract este supus legii romane si interpretat in conformitate cu prevederile&nbsp;acesteia. Orice litigiu, controversa sau pretentie a Partilor, decurgand din sau in legatura cu prezentul&nbsp;Contract si care nu a fost solutionata de Parti in mod amiabil, va fi supusa, spre solutionare, instantelor&nbsp;judecatoresti competente din Bucuresti.&nbsp;</p><p>13.6. Contract poate fi modificat exclusiv prin incheierea de acte aditionale.&nbsp;13.7. Prevederile contractuale sunt integral obligatorii pentru Partile semnatare si succesorii lor in&nbsp;drepturi si obligatii.&nbsp;</p><p>Prezentul Contract a fost incheiat in 2 (două) exemplare astazi, 01.02.2024, cate un exemplar pentru&nbsp;fiecare Parte.&nbsp;</p><p>Beneficiar, Prestator,&nbsp;</p><p><strong>NIRO INVESTMENT S.A. SOFTHUB AG S.R.L. </strong>Director General, Administrator,&nbsp;</p><p><strong>Mihaela Istrate Razvan Mihai Mustata</strong>&nbsp;</p>	71
 10	2024-05-21 12:30:05.483	2024-05-21 12:30:05.483	<p><strong>CONTRACT PRESTARI SERVICII IN TEHNOLOGIA INFORMATIEI&nbsp;</strong></p><p><strong>NR.: </strong><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">234</span><strong>/</strong><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">undefined</span></p><p>Intre:&nbsp;</p><p><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">SoftHub</span> cu sediul social in Bucureşti, sectorul 3, Str. Vlad Judeţul nr. 2, camera nr. 1,&nbsp;bloc V14A, scara 2, etaj 1, ap. 33, adresa email: razvan.mustata@gmail.com, inregistrata la Registrul&nbsp;Comertului cu nr. J40/2456/2017, CUI 37130972, reprezentata legal prin Razvan Mihai Mustata Administrator, in calitate de prestator („<strong>Prestatorul</strong>"), pe de o parte; <strong>si&nbsp;</strong></p><p><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span><strong>, </strong>persoană juridică română, cu sediul în Comuna Dobroeşti, Sat Fundeni, str. Dragonul Roşu, nr. 1-10, etaj 3, biroul nr. 2-4, Centrul Comercial Dragonul Roşu Megashop, judeţ Ilfov, înregistrată la Registrul Comerţului sub nr. J23/227/2002, Cod de Înregistrare Fiscala RO6951013, reprezentata legal prin Mihaela Istrate - Director General, denumită în cele ce urmează<strong> </strong>(<strong>„Beneficiarul</strong>")<strong>, </strong>pe de alta parte,&nbsp;</p><p>Denumite in continuare, individual, „<strong>Partea</strong>" si, in mod colectiv, „<strong>Partile</strong>", au incheiat prezentul&nbsp;Contract prestari servicii in tehnologia informatiei (“<strong>Contractul</strong>”), dupa cum urmeaza:&nbsp;</p><p><strong>Art. 1. Dispoziții generale&nbsp;</strong></p><p>1.1. În aplicarea caracterului independent al activităţilor desfăşurate în temeiul prezentului Contract,&nbsp;Părţile înţeleg şi convin ca niciuna dintre Părţi nu va solicita celeilalte Părţi şi nu va suporta niciun fel&nbsp;de cheltuieli aferente unor elemente pe care legislaţia română le consideră a fi de natură a reflecta&nbsp;natura dependentă a unei activităţi economice.&nbsp;</p><p>1.2. Pe durata prezentului Contract, Prestatorul va furniza Serviciile prevăzute în Contract.&nbsp;</p><p>1.3. Prestatorul îşi va suporta propriile sale cheltuieli în interesul desfăşurării activităţii, precum orice&nbsp;tipuri de cheltuieli aferente:&nbsp;</p><p>a) deplasării de la/la sediul Părţilor sau al altor persoane fizice/juridice,&nbsp;</p><p>b) timpului de odihnă, în care Parţile nu-şi execută prestaţiile unele faţă de altele, c) imposibilităţii temporare de realizare a prestaţiilor contractuale ca urmare a unui concediu&nbsp;medical sau oricăror cauze asemenătoare,&nbsp;</p><p>d) oricăror altor situaţii de natura celor prevăzute la alin. 1-3.&nbsp;</p><p>1.4. Serviciile vor fi prestate de Prestator din orice locatie adecvata, folosind baza materiala a&nbsp;Prestatorului (statie de lucru, conexiune internet, software specializat de dezvoltare, software&nbsp;specializat de testare etc.), iar livrabilele vor fi furnizate electronic Beneficiarului (prin email sau&nbsp;încărcare pe serverele specializate ale Beneficiarului).&nbsp;</p><p><strong>Art. 2. Obiectul Contractului&nbsp;</strong></p><p>2.1. Prestatorul se obliga sa furnizeze, la solicitarea Beneficiarului si in beneficiul acestuia, servicii de&nbsp;integrare a sistemului <strong>Charisma </strong>cu platforma<strong>/</strong>aplicația <strong>CEC Bank</strong>, pentru export extrase de cont și&nbsp;efectuare plăți în sistem internet banking („<strong>Serviciile</strong>”).</p><p>P a g e 2 | 6&nbsp;</p><p><strong>Art. 3. Obligatiile Prestatorului&nbsp;</strong></p><p>Prestatorul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) sa presteze Serviciile catre Beneficiar conform solicitarilor acestuia si sa asigure&nbsp;finalizarea corespunzatoare si in timp util a acestora, la standardele de calitate cerute si&nbsp;in termenele agreate;&nbsp;</p><p>b) sa furnizeze Serviciile spre satisfactia rezonabila a Beneficiarului, Beneficiarul putand&nbsp;solicita Prestatorului sa rectifice orice Servicii care au fost prestate in mod&nbsp;necorespunzator;&nbsp;</p><p>c) pe toată perioada realizării obligaţiilor prezentului Contract, să comunice Beneficiarului,&nbsp;orice modificare cu privire la sediul social, denumire, divizare, fuziune;&nbsp;</p><p>d) să presteze Serviciile prin utilizarea doar a propriilor sale bunuri şi/sau capitaluri (spaţii&nbsp;de birouri/producţie, echipamente, aparatură şi oricare altele asemenea);&nbsp;</p><p>e) să presteze serviciile cu respectarea principiului independenţei activităţii desfăşurate de&nbsp;Prestator consfinţită de dispoziţiile art. 4 lit.a) din O.U.G. nr. 44/2008.&nbsp;</p><p><strong>Art.4. Obligatiile Beneficiarului&nbsp;</strong></p><p>Beneficiarul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) în sensul Art. 3, lit. e), Partile inteleg si convin ca nu se afla si nici nu vor intra intr-o relatie&nbsp;de subordonare una fata de cealalta, fata de organele de conducere ale celeilalte Parti sau&nbsp;fata de alte entitati care detin controlul asupra/ sunt detinute de cealalta Parte;&nbsp;</p><p>b) sa puna la dispozitia Prestatorului informatiile solicitate de acesta, legate de activitatea&nbsp;Beneficiarului, care sunt necesare pentru buna executare a serviciilor asumate de&nbsp;Prestator;&nbsp;</p><p>c) sa plateasca Prestatorului, in termenii stabiliti prin prezentul Contract, pretul prevazut&nbsp;pentru Serviciile prestate, pe baza facturii emise de Prestator, insotita de devizul de lucru,&nbsp;aprobat de Beneficiar.&nbsp;</p><p><strong>Art. 5. Pretul Contractului și modalitatea de plată&nbsp;</strong></p><p>5.1. În schimbul Serviciilor prestate, Beneficiarul se obliga sa plateasca Prestatorului remuneratia&nbsp;datorată în cuantum de <strong>800(optsute) Euro</strong>. Prestatorul nu este plătitor de TVA.&nbsp;</p><p>5.2. Plata Serviciilor se va face in baza unui deviz agreat de ambele Parti care atesta serviciile&nbsp;efectuate, durata lor si termenii de calitate, deviz care va fi furnizat de catre Prestator Beneficiarului&nbsp;la data emiterii facturii fiscale.&nbsp;</p><p>5.3. Plata remunerației datorate Prestatorului se va face la finalizare Serviciilor, în termen de&nbsp;maximum 10 (zece) zile lucrătoare de la data acceptării la plată a facturii fiscale emise de Prestator.&nbsp;</p><p>5.4. Plata se efectueaza în contul Prestatorului cod RO17INGB0000999906676339 deschis la ING&nbsp;BANK NV pe numele Prestatorului.&nbsp;</p><p>P a g e 3 | 6&nbsp;</p><p><strong>Art.6. Durata Contractului&nbsp;</strong></p><p>6.1. Contractul își produce efectele de la data semnării prezentului inscris de către ambele Părți și&nbsp;este valabil până la îndeplinirea tuturor obligațiilor contractuale.&nbsp;</p><p>6.2. Prestatorul se angajează ca, până la data de <strong>20.02.2024</strong>, să finalizeze Serviciile la care se&nbsp;angajează prin prezentul Contract (“<strong>Termen de finalizare</strong>”)&nbsp;</p><p>6.3. Termenul de finalizare este ferm.&nbsp;</p><p>6.4. In cazul in care Prestatorul nu isi indeplineste corespunzător obligatiile asumate prin Contract,&nbsp;Beneficiarul este indreptatit sa perceapa penalitati de intarziere de 0,5% pe zi de intarziere, calculat&nbsp;din valoarea totala a Contractului. In cazul in care Beneficiarul nu onoreaza plata in termenii prevazuți&nbsp;prin Contract, acesta are obligatia de a plati penalitati de intarziere de 0,5% pe zi de intarziere,&nbsp;calculat din suma datorată. Cuantumul penalităților poate depăși valoarea la care ele au fost calculate.&nbsp;</p><p><strong>Art.7. Încetarea Contractului&nbsp;</strong></p><p>7.1. Prezentul Contract încetează în oricare din următoarele modalităţi:&nbsp;</p><p>(a) prin acordul scris al Părţilor;&nbsp;</p><p>(b) prin ajungerea la termen și/sau îndeplinirea tuturor obligațiilor contractuale; (c) prin demararea procedurilor de faliment, dizolvare sau lichidare a oricăreia dintre Părţi; (d) în caz de forţa majoră, în condițiile legii;&nbsp;</p><p>(e) prin denuntarea unilaterala a Contractului de catre Beneficiar, oricand, indiferent de motiv,&nbsp;transmitand Prestatorului o notificare prealabila cu minim 10 (zece) zile calendaristice înainte&nbsp;de data la care operează încetarea Contractului;&nbsp;</p><p>(f) prin cesionarea de către Prestator a drepturile şi obligaţiilor sale prevăzute prin Contract, fără&nbsp;acordul scris, expres și prealabil al Beneficiarului;&nbsp;</p><p>(g) prin rezilierea unilaterală de către oricare dintre Părți, în baza unei notificări de reziliere&nbsp;transmisă celeilalte Părți conform Art. 1.552 Codul Civil, în măsura în care acesta nu&nbsp;îndeplineşte sau îndeplineşte în mod necorespunzător obligatiile sale şi nu le remediază în&nbsp;termenul indicat de catre cealaltă Parte;&nbsp;</p><p>7.2. Încetarea Contractului nu va avea niciun efect asupra obligațiilor deja scadente între Părți la data&nbsp;survenirii acesteia.&nbsp;</p><p>7.3. Prestatorul se afla de drept in inatrziere odata cu implinirea Termenului de finalizare. 7.4. Decalarea termenelor de executie determina decalarea corespunzatoare a platilor.&nbsp;</p><p><strong>Art. 8. Forta majora&nbsp;</strong></p><p>8.1. Forta majora exonereaza de raspundere Partea care o invoca, dar numai in masura si pentru&nbsp;perioada in care Partea este impiedicata sau intarziata sa-si execute obligatia din pricina situatiei de&nbsp;forta majora. Partea care invoca forta majora va depune toate eforturile rezonabile pentru a reduce&nbsp;cat mai mult posibil efectele rezultand din forta majora.&nbsp;</p><p>8.2. Forta majora exonereaza de raspundere Partea care o invoca, in conditiile legii, daca o comunica&nbsp;in scris, celeilalte Parti in termen de 15 zile de la producere si o dovedeste printr-un certificat oficial,&nbsp;in termen de 15 de zile de la data invocarii ei.&nbsp;</p><p>8.3. Prin forta majora se inteleg toate evenimentele si/sau imprejurarile independente de vointa&nbsp;partii care invoca forta majora, imprevizibile si de neinlaturat si care, survenind dupa incheierea&nbsp;contractului, impiedica ori intirzie, total sau partial, indeplinirea obligatiilor izvorind din acest&nbsp;</p><p>P a g e 4 | 6&nbsp;</p><p>contract.&nbsp;</p><p>8.4. Pentru orice intarziere si/sau neindeplinire a obligatiilor contractuale de catre oricare din Parti&nbsp;ca urmare a situatiei de forta majora, niciuna din Parti nu va fi indreptatita sa pretinda celeilalte Parti&nbsp;penalitati, dobanzi, ori despagubiri care altfel ar fi fost platibile.&nbsp;</p><p>8.5. Daca, datorita situatiei de forta majora, una din Parti este impiedicata sa-si indeplineasca, total&nbsp;sau partial obligatiile sale contractuale pe o perioada mai mare 1 luna, atunci oricare Parte va avea&nbsp;dreptul, in lipsa unei alte intelegeri, sa rezilieze contractul, printr-o notificare scrisa adresata&nbsp;celeilalte Parti. In acesta situatie, Partile vor stabili consecintele rezilierii.&nbsp;</p><p><strong>Art. 9. Notificari, adrese, comunicari&nbsp;</strong></p><p>9.1. Orice adresă, notificare, comunicare sau cerere făcută în legătură cu executarea prezentului&nbsp;Contract vor fi făcute în scris.&nbsp;</p><p>9.2. Orice adresă, notificare, comunicare sau cerere este consideră valabil făcută, dacă va fi transmisă&nbsp;celeilalte Părți la adresa menționată în prezentul Contract, prin poștă, cu scrisoare recomandată cu&nbsp;confirmare de primire.&nbsp;</p><p>9.3. Toate aceste comunicări se pot face și prin fax, e-mail, cu condiția confirmării în scris a primirii&nbsp;lor.&nbsp;</p><p>9.4. Toate notificările şi comunicările privind prezentul Contract vor fi trimise la adresele mentionate&nbsp;in preambulul Contractului.&nbsp;</p><p>9.5. În cazul în care o Parte își schimbă datele de contact, aceasta are obligația de a notifica acest&nbsp;eveniment celeilalte Părți în termen de maxim 1 zi lucrătoare, calculat de la momentul producerii&nbsp;schimbării, în caz contrar considerându-se că scrisoarea/notificarea/cererea a fost trimisă în mod&nbsp;valabil la datele cunoscute în momentul încheierii Contractului.&nbsp;</p><p>9.6. Orice adresa, notificare, comunicare sau cerere transmisă prin fax/e-mail se va considera ca fiind&nbsp;trimisă în prima zi lucrătoare după cea în care a fost expediată;&nbsp;</p><p>9.7. Data la care se va considera primită o notificare/adresa/cerere/comunicare este data menționată&nbsp;în raportul de confirmare.&nbsp;</p><p><strong>Art. 10. Litigii&nbsp;</strong></p><p>10.1. Prezentul Contract este guvernat de legea română.&nbsp;</p><p>10.2. Orice neînţelegere rezultată din valabilitatea, executarea şi interpretarea prezentului Contract&nbsp;va fi soluţionată în mod amiabil. Când aceasta nu este posibilă, litigiul va fi depus spre soluţionare&nbsp;instantelor competente de la sediul Beneficiarului.&nbsp;</p><p><strong>Art.11. CLAUZA DE CONFIDENȚIALITATE SI DE PROTECTIE A DATELOR PERSONALE (GDPR).&nbsp;</strong></p><p>Fiecare Parte se obligă să nu divulge terţelor persoane, fără acordul prealabil exprimat în scris al&nbsp;celeilalte Parţi, informaţia obţinută în procesul executării prezentului Contract, precum şi să o&nbsp;utilizeze numai în scopurile executării prezentului Contract. Obligaţia nu se aplică informaţiei: a.&nbsp;divulgate la solicitarea unor autoritati publice cu atributii, făcută în conformitate cu legislaţia în&nbsp;vigoare; b. care este de domeniul public la momentul divulgării; c. divulgate în cadrul unui proces&nbsp;judiciar între Parţi privind acest Contract; d. divulgate acţionarilor Părţii, persoanelor cu funcţii de&nbsp;răspundere, salariaţilor, reprezentanţilor, agenţilor, consultanţilor, auditorilor, cedenţilor,&nbsp;</p><p>P a g e 5 | 6&nbsp;</p><p>succesorilor şi/sau întreprinderilor afiliate ale Parţii care sunt implicate în executarea prezentului&nbsp;Contract, referitor la care Partea va trebui:- să limiteze divulgarea informaţiei numai către cei ce au&nbsp;nevoie de ea pentru îndeplinirea obligaţiilor sale faţă de Parte;- sa asigure folosirea informaţiei&nbsp;exclusiv in scopurile nemijlocit legate de ceea pentru ce informaţia este divulgata;- sa informeze toate&nbsp;aceste persoane privind obligaţia lor de a păstra confidenţialitatea informaţiei în modul stabilit de prezentul Contract.&nbsp;</p><p>Sunt considerate informații confidențiale și fac obiectul prezentelor clauze, datele de identificare&nbsp;(nume, semnătură, serie și număr CI etc.) ale reprezentanților Părților, care se vor regăsi pe&nbsp;documentele emise de (schimbate între) Parți în perioada derulării Contractului și care nu sunt de&nbsp;domeniul public la momentul divulgării. Prelucrarea de către Părți a datelor cu caracter personal ale&nbsp;persoanelor vizate mai sus se va realiza cu respectarea principiilor și drepturilor acestora care decurg&nbsp;din punerea în aplicare a REGULAMENTUL (UE) 2016/679 AL PARLAMENTULUI EUROPEAN ȘI AL&nbsp;CONSILIULUI privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter&nbsp;personal – GDPR. În spiritul GDPR, Părțile au următoarele drepturi de acces la datele personale ale&nbsp;angajaților/reprezentanților proprii, operate de cealaltă Parte:a) Dreptul de acces la date; b) reptul&nbsp;la rectificarea datelor; c) Dreptul la ștergerea datelor; d)Dreptul la restricționarea prelucrării; e)&nbsp;Dreptul la portabilitatea datelor; f) Dreptul de opoziție la prelucrarea datelor; g) Dreptul de a nu fi&nbsp;supus unor decizii automatizate, inclusiv profilarea; h) Dreptul la notificarea destinatarilor privind&nbsp;rectificarea, ștergerea ori restricționarea datelor cu caracter personal.&nbsp;</p><p>Conform legislației naționale în vigoare în domeniu, datele personale solicitate de beneficiar sunt&nbsp;necesare pentru buna derulare a Contractului (completarea facturilor, documentelor contabile) și nu&nbsp;vor fi folosite în alte scopuri.&nbsp;</p><p>Datele personale obținute sunt procesate în bazele de date și pe serverele Niro Investment S.A. (societate afiliata), pe întreaga durată a raporturilor contractuale și ulterior, conform politicilor&nbsp;interne, pe durata necesară îndeplinirii obligațiilor legale ce ii revin. Respectarea cerințelor legale&nbsp;aplicabile sunt permanent monitorizate, inclusiv prin Responsabilul de protecție a datelor cu caracter&nbsp;personal ce poate fi contactat la dpo@nirogroup.ro. Reclamațiile privind posibila încălcare a&nbsp;drepturilor privind prelucrarea datelor cu caracter personal pot fi adresate Autorității Naționale de&nbsp;Supraveghere a Prelucrării Datelor cu Caracter Personal la adresa www.dataprotection.ro.&nbsp;</p><p>Oricare dintre Părţile contractante se obligă, în termenii şi condiţiile prezentului Contract, să păstreze&nbsp;strict confidenţiale, pe durata Contractului şi după incetarea acestuia, toate datele şi informaţiile,&nbsp;divulgate în orice manieră de către cealaltă Parte, în executarea Contractului. Excepţie de la prezenta&nbsp;obligaţie sunt cazurile în care divulgarea este necesară pentru executarea Contractului şi se face&nbsp;numai avand consimţământul scris, expres si prealabil al celeilalte Părţi sau daca divulgarea este&nbsp;solicitată, în mod legal, de către autorităţile de drept.&nbsp;</p><p>În cazul în care oricare dintre Părţi va încălca obligaţia de confidenţialitate, aceasta va fi obligată la&nbsp;plata de daune-interese în favoarea Părţii prejudiciate.&nbsp;</p><p><strong>Art.12. Cesiunea Contractului&nbsp;</strong></p><p>12.1. Prezentul Contract are caracter <em>intuitu personae </em>in privinta Prestatorului; acesta nu poate&nbsp;transmite unei terţe persoane, total sau parţial, drepturile şi obligaţiile ce ii revin prin prezentul&nbsp;Contract, decât dacă a obţinut acordul scris și prealabil al Beneficiarului, care acord trebuie transmis&nbsp;Prestatorului în termen de 5 (cinci) zile lucrătoare de la momentul primirii notificării. În lipsa unui&nbsp;</p><p>P a g e 6 | 6&nbsp;</p><p>răspuns scris și expres exprimat în acest sens, se consideră că Partea nu consimte la cesiunea&nbsp;Contractului şi aceasta nu poate avea loc.&nbsp;</p><p><strong>Art. 13. Clauze finale&nbsp;</strong></p><p>13.1. Partile sunt de drept in intarziere in cazul neindeplinirii sau indeplinirii necorespunzatoare a&nbsp;oricareia din obligatiile ce le revin potrivit Contractului.&nbsp;</p><p>13.2. Reprezentanţii Părţilor declară că sunt pe deplin împuterniciţi pentru semnarea Contractului&nbsp;şi că Partea pe care o reprezintă este valabil înregistrată şi are deplină capacitate pentru încheierea&nbsp;prezentului acord şi pentru exercitarea drepturilor şi executarea obligaţiilor prevăzute prin acesta. 13.3. Partile declara ca toate prevederile Contractului au fost negociate cu buna–credinta, le-au&nbsp;citit, si le-au asumat si sunt de acord cu acestea asa cum sunt consemnate prin prezentul inscris.&nbsp;13.4. Ambele Parti declara ca isi asuma, pe toata durata contractuala, riscul schimbarii&nbsp;imprejurarilor (de orice natura- inclusiv, dar fara a se limita la, cele politice, economice, comerciale si&nbsp;financiare) existente la data incheierii Contractului, cu respectarea prevederilor Art. 1271 Cod civil.&nbsp;13.5. Prezentul Contract este supus legii romane si interpretat in conformitate cu prevederile&nbsp;acesteia. Orice litigiu, controversa sau pretentie a Partilor, decurgand din sau in legatura cu prezentul&nbsp;Contract si care nu a fost solutionata de Parti in mod amiabil, va fi supusa, spre solutionare, instantelor&nbsp;judecatoresti competente din Bucuresti.&nbsp;</p><p>13.6. Contract poate fi modificat exclusiv prin incheierea de acte aditionale.&nbsp;13.7. Prevederile contractuale sunt integral obligatorii pentru Partile semnatare si succesorii lor in&nbsp;drepturi si obligatii.&nbsp;</p><p>Prezentul Contract a fost incheiat in 2 (două) exemplare astazi, 01.02.2024, cate un exemplar pentru&nbsp;fiecare Parte.&nbsp;</p><p>Beneficiar, Prestator,&nbsp;</p><p><strong>NIRO INVESTMENT S.A. SOFTHUB AG S.R.L. </strong>Director General, Administrator,&nbsp;</p><p><strong>Mihaela Istrate Razvan Mihai Mustata</strong>&nbsp;</p>	72
 11	2024-05-22 03:47:31.439	2024-05-22 03:47:31.439	<p><strong>CONTRACT PRESTARI SERVICII IN TEHNOLOGIA INFORMATIEI&nbsp;</strong></p><p><strong>NR.: </strong><span style="color: rgba(255, 255, 255, 0.87); background-color: rgb(42, 50, 61);">ContractNumber</span><strong>/</strong><span style="color: rgba(255, 255, 255, 0.87); background-color: rgb(42, 50, 61);">SignDate</span></p><p>Intre:&nbsp;</p><p><span style="color: rgba(255, 255, 255, 0.87); background-color: rgb(42, 50, 61);">PartnerName</span> cu sediul social in Bucureşti, sectorul 3, Str. Vlad Judeţul nr. 2, camera nr. 1,&nbsp;bloc V14A, scara 2, etaj 1, ap. 33, adresa email: razvan.mustata@gmail.com, inregistrata la Registrul&nbsp;Comertului cu nr. J40/2456/2017, CUI 37130972, reprezentata legal prin Razvan Mihai Mustata Administrator, in calitate de prestator („<strong>Prestatorul</strong>"), pe de o parte; <strong>si&nbsp;</strong></p><p><span style="color: rgba(255, 255, 255, 0.87); background-color: rgb(42, 50, 61);">EntityName</span><strong>, </strong>persoană juridică română, cu sediul în Comuna Dobroeşti, Sat Fundeni, str. Dragonul Roşu, nr. 1-10, etaj 3, biroul nr. 2-4, Centrul Comercial Dragonul Roşu Megashop, judeţ Ilfov, înregistrată la Registrul Comerţului sub nr. J23/227/2002, Cod de Înregistrare Fiscala RO6951013, reprezentata legal prin Mihaela Istrate - Director General, denumită în cele ce urmează<strong> </strong>(<strong>„Beneficiarul</strong>")<strong>, </strong>pe de alta parte,&nbsp;</p><p>Denumite in continuare, individual, „<strong>Partea</strong>" si, in mod colectiv, „<strong>Partile</strong>", au incheiat prezentul&nbsp;Contract prestari servicii in tehnologia informatiei (“<strong>Contractul</strong>”), dupa cum urmeaza:&nbsp;</p><p><strong>Art. 1. Dispoziții generale&nbsp;</strong></p><p>1.1. În aplicarea caracterului independent al activităţilor desfăşurate în temeiul prezentului Contract,&nbsp;Părţile înţeleg şi convin ca niciuna dintre Părţi nu va solicita celeilalte Părţi şi nu va suporta niciun fel&nbsp;de cheltuieli aferente unor elemente pe care legislaţia română le consideră a fi de natură a reflecta&nbsp;natura dependentă a unei activităţi economice.&nbsp;</p><p>1.2. Pe durata prezentului Contract, Prestatorul va furniza Serviciile prevăzute în Contract.&nbsp;</p><p>1.3. Prestatorul îşi va suporta propriile sale cheltuieli în interesul desfăşurării activităţii, precum orice&nbsp;tipuri de cheltuieli aferente:&nbsp;</p><p>a) deplasării de la/la sediul Părţilor sau al altor persoane fizice/juridice,&nbsp;</p><p>b) timpului de odihnă, în care Parţile nu-şi execută prestaţiile unele faţă de altele, c) imposibilităţii temporare de realizare a prestaţiilor contractuale ca urmare a unui concediu&nbsp;medical sau oricăror cauze asemenătoare,&nbsp;</p><p>d) oricăror altor situaţii de natura celor prevăzute la alin. 1-3.&nbsp;</p><p>1.4. Serviciile vor fi prestate de Prestator din orice locatie adecvata, folosind baza materiala a&nbsp;Prestatorului (statie de lucru, conexiune internet, software specializat de dezvoltare, software&nbsp;specializat de testare etc.), iar livrabilele vor fi furnizate electronic Beneficiarului (prin email sau&nbsp;încărcare pe serverele specializate ale Beneficiarului).&nbsp;</p><p><strong>Art. 2. Obiectul Contractului&nbsp;</strong></p><p>2.1. Prestatorul se obliga sa furnizeze, la solicitarea Beneficiarului si in beneficiul acestuia, servicii de&nbsp;integrare a sistemului <strong>Charisma </strong>cu platforma<strong>/</strong>aplicația <strong>CEC Bank</strong>, pentru export extrase de cont și&nbsp;efectuare plăți în sistem internet banking („<strong>Serviciile</strong>”).</p><p>P a g e 2 | 6&nbsp;</p><p><strong>Art. 3. Obligatiile Prestatorului&nbsp;</strong></p><p>Prestatorul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) sa presteze Serviciile catre Beneficiar conform solicitarilor acestuia si sa asigure&nbsp;finalizarea corespunzatoare si in timp util a acestora, la standardele de calitate cerute si&nbsp;in termenele agreate;&nbsp;</p><p>b) sa furnizeze Serviciile spre satisfactia rezonabila a Beneficiarului, Beneficiarul putand&nbsp;solicita Prestatorului sa rectifice orice Servicii care au fost prestate in mod&nbsp;necorespunzator;&nbsp;</p><p>c) pe toată perioada realizării obligaţiilor prezentului Contract, să comunice Beneficiarului,&nbsp;orice modificare cu privire la sediul social, denumire, divizare, fuziune;&nbsp;</p><p>d) să presteze Serviciile prin utilizarea doar a propriilor sale bunuri şi/sau capitaluri (spaţii&nbsp;de birouri/producţie, echipamente, aparatură şi oricare altele asemenea);&nbsp;</p><p>e) să presteze serviciile cu respectarea principiului independenţei activităţii desfăşurate de&nbsp;Prestator consfinţită de dispoziţiile art. 4 lit.a) din O.U.G. nr. 44/2008.&nbsp;</p><p><strong>Art.4. Obligatiile Beneficiarului&nbsp;</strong></p><p>Beneficiarul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) în sensul Art. 3, lit. e), Partile inteleg si convin ca nu se afla si nici nu vor intra intr-o relatie&nbsp;de subordonare una fata de cealalta, fata de organele de conducere ale celeilalte Parti sau&nbsp;fata de alte entitati care detin controlul asupra/ sunt detinute de cealalta Parte;&nbsp;</p><p>b) sa puna la dispozitia Prestatorului informatiile solicitate de acesta, legate de activitatea&nbsp;Beneficiarului, care sunt necesare pentru buna executare a serviciilor asumate de&nbsp;Prestator;&nbsp;</p><p>c) sa plateasca Prestatorului, in termenii stabiliti prin prezentul Contract, pretul prevazut&nbsp;pentru Serviciile prestate, pe baza facturii emise de Prestator, insotita de devizul de lucru,&nbsp;aprobat de Beneficiar.&nbsp;</p><p><strong>Art. 5. Pretul Contractului și modalitatea de plată&nbsp;</strong></p><p>5.1. În schimbul Serviciilor prestate, Beneficiarul se obliga sa plateasca Prestatorului remuneratia&nbsp;datorată în cuantum de <strong>800(optsute) Euro</strong>. Prestatorul nu este plătitor de TVA.&nbsp;</p><p>5.2. Plata Serviciilor se va face in baza unui deviz agreat de ambele Parti care atesta serviciile&nbsp;efectuate, durata lor si termenii de calitate, deviz care va fi furnizat de catre Prestator Beneficiarului&nbsp;la data emiterii facturii fiscale.&nbsp;</p><p>5.3. Plata remunerației datorate Prestatorului se va face la finalizare Serviciilor, în termen de&nbsp;maximum 10 (zece) zile lucrătoare de la data acceptării la plată a facturii fiscale emise de Prestator.&nbsp;</p><p>5.4. Plata se efectueaza în contul Prestatorului cod RO17INGB0000999906676339 deschis la ING&nbsp;BANK NV pe numele Prestatorului.&nbsp;</p><p>P a g e 3 | 6&nbsp;</p><p><strong>Art.6. Durata Contractului&nbsp;</strong></p><p>6.1. Contractul își produce efectele de la data semnării prezentului inscris de către ambele Părți și&nbsp;este valabil până la îndeplinirea tuturor obligațiilor contractuale.&nbsp;</p><p>6.2. Prestatorul se angajează ca, până la data de <strong>20.02.2024</strong>, să finalizeze Serviciile la care se&nbsp;angajează prin prezentul Contract (“<strong>Termen de finalizare</strong>”)&nbsp;</p><p>6.3. Termenul de finalizare este ferm.&nbsp;</p><p>6.4. In cazul in care Prestatorul nu isi indeplineste corespunzător obligatiile asumate prin Contract,&nbsp;Beneficiarul este indreptatit sa perceapa penalitati de intarziere de 0,5% pe zi de intarziere, calculat&nbsp;din valoarea totala a Contractului. In cazul in care Beneficiarul nu onoreaza plata in termenii prevazuți&nbsp;prin Contract, acesta are obligatia de a plati penalitati de intarziere de 0,5% pe zi de intarziere,&nbsp;calculat din suma datorată. Cuantumul penalităților poate depăși valoarea la care ele au fost calculate.&nbsp;</p><p><strong>Art.7. Încetarea Contractului&nbsp;</strong></p><p>7.1. Prezentul Contract încetează în oricare din următoarele modalităţi:&nbsp;</p><p>(a) prin acordul scris al Părţilor;&nbsp;</p><p>(b) prin ajungerea la termen și/sau îndeplinirea tuturor obligațiilor contractuale; (c) prin demararea procedurilor de faliment, dizolvare sau lichidare a oricăreia dintre Părţi; (d) în caz de forţa majoră, în condițiile legii;&nbsp;</p><p>(e) prin denuntarea unilaterala a Contractului de catre Beneficiar, oricand, indiferent de motiv,&nbsp;transmitand Prestatorului o notificare prealabila cu minim 10 (zece) zile calendaristice înainte&nbsp;de data la care operează încetarea Contractului;&nbsp;</p><p>(f) prin cesionarea de către Prestator a drepturile şi obligaţiilor sale prevăzute prin Contract, fără&nbsp;acordul scris, expres și prealabil al Beneficiarului;&nbsp;</p><p>(g) prin rezilierea unilaterală de către oricare dintre Părți, în baza unei notificări de reziliere&nbsp;transmisă celeilalte Părți conform Art. 1.552 Codul Civil, în măsura în care acesta nu&nbsp;îndeplineşte sau îndeplineşte în mod necorespunzător obligatiile sale şi nu le remediază în&nbsp;termenul indicat de catre cealaltă Parte;&nbsp;</p><p>7.2. Încetarea Contractului nu va avea niciun efect asupra obligațiilor deja scadente între Părți la data&nbsp;survenirii acesteia.&nbsp;</p><p>7.3. Prestatorul se afla de drept in inatrziere odata cu implinirea Termenului de finalizare. 7.4. Decalarea termenelor de executie determina decalarea corespunzatoare a platilor.&nbsp;</p><p><strong>Art. 8. Forta majora&nbsp;</strong></p><p>8.1. Forta majora exonereaza de raspundere Partea care o invoca, dar numai in masura si pentru&nbsp;perioada in care Partea este impiedicata sau intarziata sa-si execute obligatia din pricina situatiei de&nbsp;forta majora. Partea care invoca forta majora va depune toate eforturile rezonabile pentru a reduce&nbsp;cat mai mult posibil efectele rezultand din forta majora.&nbsp;</p><p>8.2. Forta majora exonereaza de raspundere Partea care o invoca, in conditiile legii, daca o comunica&nbsp;in scris, celeilalte Parti in termen de 15 zile de la producere si o dovedeste printr-un certificat oficial,&nbsp;in termen de 15 de zile de la data invocarii ei.&nbsp;</p><p>8.3. Prin forta majora se inteleg toate evenimentele si/sau imprejurarile independente de vointa&nbsp;partii care invoca forta majora, imprevizibile si de neinlaturat si care, survenind dupa incheierea&nbsp;contractului, impiedica ori intirzie, total sau partial, indeplinirea obligatiilor izvorind din acest&nbsp;</p><p>P a g e 4 | 6&nbsp;</p><p>contract.&nbsp;</p><p>8.4. Pentru orice intarziere si/sau neindeplinire a obligatiilor contractuale de catre oricare din Parti&nbsp;ca urmare a situatiei de forta majora, niciuna din Parti nu va fi indreptatita sa pretinda celeilalte Parti&nbsp;penalitati, dobanzi, ori despagubiri care altfel ar fi fost platibile.&nbsp;</p><p>8.5. Daca, datorita situatiei de forta majora, una din Parti este impiedicata sa-si indeplineasca, total&nbsp;sau partial obligatiile sale contractuale pe o perioada mai mare 1 luna, atunci oricare Parte va avea&nbsp;dreptul, in lipsa unei alte intelegeri, sa rezilieze contractul, printr-o notificare scrisa adresata&nbsp;celeilalte Parti. In acesta situatie, Partile vor stabili consecintele rezilierii.&nbsp;</p><p><strong>Art. 9. Notificari, adrese, comunicari&nbsp;</strong></p><p>9.1. Orice adresă, notificare, comunicare sau cerere făcută în legătură cu executarea prezentului&nbsp;Contract vor fi făcute în scris.&nbsp;</p><p>9.2. Orice adresă, notificare, comunicare sau cerere este consideră valabil făcută, dacă va fi transmisă&nbsp;celeilalte Părți la adresa menționată în prezentul Contract, prin poștă, cu scrisoare recomandată cu&nbsp;confirmare de primire.&nbsp;</p><p>9.3. Toate aceste comunicări se pot face și prin fax, e-mail, cu condiția confirmării în scris a primirii&nbsp;lor.&nbsp;</p><p>9.4. Toate notificările şi comunicările privind prezentul Contract vor fi trimise la adresele mentionate&nbsp;in preambulul Contractului.&nbsp;</p><p>9.5. În cazul în care o Parte își schimbă datele de contact, aceasta are obligația de a notifica acest&nbsp;eveniment celeilalte Părți în termen de maxim 1 zi lucrătoare, calculat de la momentul producerii&nbsp;schimbării, în caz contrar considerându-se că scrisoarea/notificarea/cererea a fost trimisă în mod&nbsp;valabil la datele cunoscute în momentul încheierii Contractului.&nbsp;</p><p>9.6. Orice adresa, notificare, comunicare sau cerere transmisă prin fax/e-mail se va considera ca fiind&nbsp;trimisă în prima zi lucrătoare după cea în care a fost expediată;&nbsp;</p><p>9.7. Data la care se va considera primită o notificare/adresa/cerere/comunicare este data menționată&nbsp;în raportul de confirmare.&nbsp;</p><p><strong>Art. 10. Litigii&nbsp;</strong></p><p>10.1. Prezentul Contract este guvernat de legea română.&nbsp;</p><p>10.2. Orice neînţelegere rezultată din valabilitatea, executarea şi interpretarea prezentului Contract&nbsp;va fi soluţionată în mod amiabil. Când aceasta nu este posibilă, litigiul va fi depus spre soluţionare&nbsp;instantelor competente de la sediul Beneficiarului.&nbsp;</p><p><strong>Art.11. CLAUZA DE CONFIDENȚIALITATE SI DE PROTECTIE A DATELOR PERSONALE (GDPR).&nbsp;</strong></p><p>Fiecare Parte se obligă să nu divulge terţelor persoane, fără acordul prealabil exprimat în scris al&nbsp;celeilalte Parţi, informaţia obţinută în procesul executării prezentului Contract, precum şi să o&nbsp;utilizeze numai în scopurile executării prezentului Contract. Obligaţia nu se aplică informaţiei: a.&nbsp;divulgate la solicitarea unor autoritati publice cu atributii, făcută în conformitate cu legislaţia în&nbsp;vigoare; b. care este de domeniul public la momentul divulgării; c. divulgate în cadrul unui proces&nbsp;judiciar între Parţi privind acest Contract; d. divulgate acţionarilor Părţii, persoanelor cu funcţii de&nbsp;răspundere, salariaţilor, reprezentanţilor, agenţilor, consultanţilor, auditorilor, cedenţilor,&nbsp;</p><p>P a g e 5 | 6&nbsp;</p><p>succesorilor şi/sau întreprinderilor afiliate ale Parţii care sunt implicate în executarea prezentului&nbsp;Contract, referitor la care Partea va trebui:- să limiteze divulgarea informaţiei numai către cei ce au&nbsp;nevoie de ea pentru îndeplinirea obligaţiilor sale faţă de Parte;- sa asigure folosirea informaţiei&nbsp;exclusiv in scopurile nemijlocit legate de ceea pentru ce informaţia este divulgata;- sa informeze toate&nbsp;aceste persoane privind obligaţia lor de a păstra confidenţialitatea informaţiei în modul stabilit de prezentul Contract.&nbsp;</p><p>Sunt considerate informații confidențiale și fac obiectul prezentelor clauze, datele de identificare&nbsp;(nume, semnătură, serie și număr CI etc.) ale reprezentanților Părților, care se vor regăsi pe&nbsp;documentele emise de (schimbate între) Parți în perioada derulării Contractului și care nu sunt de&nbsp;domeniul public la momentul divulgării. Prelucrarea de către Părți a datelor cu caracter personal ale&nbsp;persoanelor vizate mai sus se va realiza cu respectarea principiilor și drepturilor acestora care decurg&nbsp;din punerea în aplicare a REGULAMENTUL (UE) 2016/679 AL PARLAMENTULUI EUROPEAN ȘI AL&nbsp;CONSILIULUI privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter&nbsp;personal – GDPR. În spiritul GDPR, Părțile au următoarele drepturi de acces la datele personale ale&nbsp;angajaților/reprezentanților proprii, operate de cealaltă Parte:a) Dreptul de acces la date; b) reptul&nbsp;la rectificarea datelor; c) Dreptul la ștergerea datelor; d)Dreptul la restricționarea prelucrării; e)&nbsp;Dreptul la portabilitatea datelor; f) Dreptul de opoziție la prelucrarea datelor; g) Dreptul de a nu fi&nbsp;supus unor decizii automatizate, inclusiv profilarea; h) Dreptul la notificarea destinatarilor privind&nbsp;rectificarea, ștergerea ori restricționarea datelor cu caracter personal.&nbsp;</p><p>Conform legislației naționale în vigoare în domeniu, datele personale solicitate de beneficiar sunt&nbsp;necesare pentru buna derulare a Contractului (completarea facturilor, documentelor contabile) și nu&nbsp;vor fi folosite în alte scopuri.&nbsp;</p><p>Datele personale obținute sunt procesate în bazele de date și pe serverele Niro Investment S.A. (societate afiliata), pe întreaga durată a raporturilor contractuale și ulterior, conform politicilor&nbsp;interne, pe durata necesară îndeplinirii obligațiilor legale ce ii revin. Respectarea cerințelor legale&nbsp;aplicabile sunt permanent monitorizate, inclusiv prin Responsabilul de protecție a datelor cu caracter&nbsp;personal ce poate fi contactat la dpo@nirogroup.ro. Reclamațiile privind posibila încălcare a&nbsp;drepturilor privind prelucrarea datelor cu caracter personal pot fi adresate Autorității Naționale de&nbsp;Supraveghere a Prelucrării Datelor cu Caracter Personal la adresa www.dataprotection.ro.&nbsp;</p><p>Oricare dintre Părţile contractante se obligă, în termenii şi condiţiile prezentului Contract, să păstreze&nbsp;strict confidenţiale, pe durata Contractului şi după incetarea acestuia, toate datele şi informaţiile,&nbsp;divulgate în orice manieră de către cealaltă Parte, în executarea Contractului. Excepţie de la prezenta&nbsp;obligaţie sunt cazurile în care divulgarea este necesară pentru executarea Contractului şi se face&nbsp;numai avand consimţământul scris, expres si prealabil al celeilalte Părţi sau daca divulgarea este&nbsp;solicitată, în mod legal, de către autorităţile de drept.&nbsp;</p><p>În cazul în care oricare dintre Părţi va încălca obligaţia de confidenţialitate, aceasta va fi obligată la&nbsp;plata de daune-interese în favoarea Părţii prejudiciate.&nbsp;</p><p><strong>Art.12. Cesiunea Contractului&nbsp;</strong></p><p>12.1. Prezentul Contract are caracter <em>intuitu personae </em>in privinta Prestatorului; acesta nu poate&nbsp;transmite unei terţe persoane, total sau parţial, drepturile şi obligaţiile ce ii revin prin prezentul&nbsp;Contract, decât dacă a obţinut acordul scris și prealabil al Beneficiarului, care acord trebuie transmis&nbsp;Prestatorului în termen de 5 (cinci) zile lucrătoare de la momentul primirii notificării. În lipsa unui&nbsp;</p><p>P a g e 6 | 6&nbsp;</p><p>răspuns scris și expres exprimat în acest sens, se consideră că Partea nu consimte la cesiunea&nbsp;Contractului şi aceasta nu poate avea loc.&nbsp;</p><p><strong>Art. 13. Clauze finale&nbsp;</strong></p><p>13.1. Partile sunt de drept in intarziere in cazul neindeplinirii sau indeplinirii necorespunzatoare a&nbsp;oricareia din obligatiile ce le revin potrivit Contractului.&nbsp;</p><p>13.2. Reprezentanţii Părţilor declară că sunt pe deplin împuterniciţi pentru semnarea Contractului&nbsp;şi că Partea pe care o reprezintă este valabil înregistrată şi are deplină capacitate pentru încheierea&nbsp;prezentului acord şi pentru exercitarea drepturilor şi executarea obligaţiilor prevăzute prin acesta. 13.3. Partile declara ca toate prevederile Contractului au fost negociate cu buna–credinta, le-au&nbsp;citit, si le-au asumat si sunt de acord cu acestea asa cum sunt consemnate prin prezentul inscris.&nbsp;13.4. Ambele Parti declara ca isi asuma, pe toata durata contractuala, riscul schimbarii&nbsp;imprejurarilor (de orice natura- inclusiv, dar fara a se limita la, cele politice, economice, comerciale si&nbsp;financiare) existente la data incheierii Contractului, cu respectarea prevederilor Art. 1271 Cod civil.&nbsp;13.5. Prezentul Contract este supus legii romane si interpretat in conformitate cu prevederile&nbsp;acesteia. Orice litigiu, controversa sau pretentie a Partilor, decurgand din sau in legatura cu prezentul&nbsp;Contract si care nu a fost solutionata de Parti in mod amiabil, va fi supusa, spre solutionare, instantelor&nbsp;judecatoresti competente din Bucuresti.&nbsp;</p><p>13.6. Contract poate fi modificat exclusiv prin incheierea de acte aditionale.&nbsp;13.7. Prevederile contractuale sunt integral obligatorii pentru Partile semnatare si succesorii lor in&nbsp;drepturi si obligatii.&nbsp;</p><p>Prezentul Contract a fost incheiat in 2 (două) exemplare astazi, 01.02.2024, cate un exemplar pentru&nbsp;fiecare Parte.&nbsp;</p><p>Beneficiar, Prestator,&nbsp;</p><p><strong>NIRO INVESTMENT S.A. SOFTHUB AG S.R.L. </strong>Director General, Administrator,&nbsp;</p><p><strong>Mihaela Istrate Razvan Mihai Mustata</strong>&nbsp;</p>	74
@@ -4375,11 +4693,14 @@ COPY public."ContractContent" (id, "updateadAt", "createdAt", content, "contract
 8	2024-05-28 05:53:27.568	2024-05-16 06:06:10.338	<p><strong>CONTRACT PRESTARI SERVICII IN TEHNOLOGIA INFORMATIEI&nbsp;</strong></p><p><strong>NR.: </strong><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">1test</span><strong>/</strong><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">undefined</span></p><p>Intre:&nbsp;</p><p><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">SoftHub</span> cu sediul social in Bucureşti, sectorul 3, Str. Vlad Judeţul nr. 2, camera nr. 1,&nbsp;bloc V14A, scara 2, etaj 1, ap. 33, adresa email: razvan.mustata@gmail.com, inregistrata la Registrul&nbsp;Comertului cu nr. J40/2456/2017, CUI 37130972, reprezentata legal prin Razvan Mihai Mustata Administrator, in calitate de prestator („<strong>Prestatorul</strong>"), pe de o parte; <strong>si&nbsp;</strong></p><p><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span><strong>, </strong>persoană juridică română, cu sediul în Comuna Dobroeşti, Sat Fundeni, str. Dragonul Roşu, nr. 1-10, etaj 3, biroul nr. 2-4, Centrul Comercial Dragonul Roşu Megashop, judeţ Ilfov, înregistrată la Registrul Comerţului sub nr. J23/227/2002, Cod de Înregistrare Fiscala RO6951013, reprezentata legal prin Mihaela Istrate - Director General, denumită în cele ce urmează<strong> </strong>(<strong>„Beneficiarul</strong>")<strong>, </strong>pe de alta parte,&nbsp;</p><p>Denumite in continuare, individual, „<strong>Partea</strong>" si, in mod colectiv, „<strong>Partile</strong>", au incheiat prezentul&nbsp;Contract prestari servicii in tehnologia informatiei (“<strong>Contractul</strong>”), dupa cum urmeaza:&nbsp;</p><p><strong>Art. 1. Dispoziții generale&nbsp;</strong></p><p>1.1. În aplicarea caracterului independent al activităţilor desfăşurate în temeiul prezentului Contract,&nbsp;Părţile înţeleg şi convin ca niciuna dintre Părţi nu va solicita celeilalte Părţi şi nu va suporta niciun fel&nbsp;de cheltuieli aferente unor elemente pe care legislaţia română le consideră a fi de natură a reflecta&nbsp;natura dependentă a unei activităţi economice.&nbsp;</p><p>1.2. Pe durata prezentului Contract, Prestatorul va furniza Serviciile prevăzute în Contract.&nbsp;</p><p>1.3. Prestatorul îşi va suporta propriile sale cheltuieli în interesul desfăşurării activităţii, precum orice&nbsp;tipuri de cheltuieli aferente:&nbsp;</p><p>a) deplasării de la/la sediul Părţilor sau al altor persoane fizice/juridice,&nbsp;</p><p>b) timpului de odihnă, în care Parţile nu-şi execută prestaţiile unele faţă de altele, c) imposibilităţii temporare de realizare a prestaţiilor contractuale ca urmare a unui concediu&nbsp;medical sau oricăror cauze asemenătoare,&nbsp;</p><p>d) oricăror altor situaţii de natura celor prevăzute la alin. 1-3.&nbsp;</p><p>1.4. Serviciile vor fi prestate de Prestator din orice locatie adecvata, folosind baza materiala a&nbsp;Prestatorului (statie de lucru, conexiune internet, software specializat de dezvoltare, software&nbsp;specializat de testare etc.), iar livrabilele vor fi furnizate electronic Beneficiarului (prin email sau&nbsp;încărcare pe serverele specializate ale Beneficiarului).&nbsp;</p><p><strong>Art. 2. Obiectul Contractului&nbsp;</strong></p><p>2.1. Prestatorul se obliga sa furnizeze, la solicitarea Beneficiarului si in beneficiul acestuia, servicii de&nbsp;integrare a sistemului <strong>Charisma </strong>cu platforma<strong>/</strong>aplicația <strong>CEC Bank</strong>, pentru export extrase de cont și&nbsp;efectuare plăți în sistem internet banking („<strong>Serviciile</strong>”).</p><p>P a g e 2 | 6&nbsp;</p><p><strong>Art. 3. Obligatiile Prestatorului&nbsp;</strong></p><p>Prestatorul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) sa presteze Serviciile catre Beneficiar conform solicitarilor acestuia si sa asigure&nbsp;finalizarea corespunzatoare si in timp util a acestora, la standardele de calitate cerute si&nbsp;in termenele agreate;&nbsp;</p><p>b) sa furnizeze Serviciile spre satisfactia rezonabila a Beneficiarului, Beneficiarul putand&nbsp;solicita Prestatorului sa rectifice orice Servicii care au fost prestate in mod&nbsp;necorespunzator;&nbsp;</p><p>c) pe toată perioada realizării obligaţiilor prezentului Contract, să comunice Beneficiarului,&nbsp;orice modificare cu privire la sediul social, denumire, divizare, fuziune;&nbsp;</p><p>d) să presteze Serviciile prin utilizarea doar a propriilor sale bunuri şi/sau capitaluri (spaţii&nbsp;de birouri/producţie, echipamente, aparatură şi oricare altele asemenea);&nbsp;</p><p>e) să presteze serviciile cu respectarea principiului independenţei activităţii desfăşurate de&nbsp;Prestator consfinţită de dispoziţiile art. 4 lit.a) din O.U.G. nr. 44/2008.&nbsp;</p><p><strong>Art.4. Obligatiile Beneficiarului&nbsp;</strong></p><p>Beneficiarul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) în sensul Art. 3, lit. e), Partile inteleg si convin ca nu se afla si nici nu vor intra intr-o relatie&nbsp;de subordonare una fata de cealalta, fata de organele de conducere ale celeilalte Parti sau&nbsp;fata de alte entitati care detin controlul asupra/ sunt detinute de cealalta Parte;&nbsp;</p><p>b) sa puna la dispozitia Prestatorului informatiile solicitate de acesta, legate de activitatea&nbsp;Beneficiarului, care sunt necesare pentru buna executare a serviciilor asumate de&nbsp;Prestator;&nbsp;</p><p>c) sa plateasca Prestatorului, in termenii stabiliti prin prezentul Contract, pretul prevazut&nbsp;pentru Serviciile prestate, pe baza facturii emise de Prestator, insotita de devizul de lucru,&nbsp;aprobat de Beneficiar.&nbsp;</p><p><strong>Art. 5. Pretul Contractului și modalitatea de plată&nbsp;</strong></p><p>5.1. În schimbul Serviciilor prestate, Beneficiarul se obliga sa plateasca Prestatorului remuneratia&nbsp;datorată în cuantum de <strong>800(optsute) Euro</strong>. Prestatorul nu este plătitor de TVA.&nbsp;</p><p>5.2. Plata Serviciilor se va face in baza unui deviz agreat de ambele Parti care atesta serviciile&nbsp;efectuate, durata lor si termenii de calitate, deviz care va fi furnizat de catre Prestator Beneficiarului&nbsp;la data emiterii facturii fiscale.&nbsp;</p><p>5.3. Plata remunerației datorate Prestatorului se va face la finalizare Serviciilor, în termen de&nbsp;maximum 10 (zece) zile lucrătoare de la data acceptării la plată a facturii fiscale emise de Prestator.&nbsp;</p><p>5.4. Plata se efectueaza în contul Prestatorului cod RO17INGB0000999906676339 deschis la ING&nbsp;BANK NV pe numele Prestatorului.&nbsp;</p><p>P a g e 3 | 6&nbsp;</p><p><strong>Art.6. Durata Contractului&nbsp;</strong></p><p>6.1. Contractul își produce efectele de la data semnării prezentului inscris de către ambele Părți și&nbsp;este valabil până la îndeplinirea tuturor obligațiilor contractuale.&nbsp;</p><p>6.2. Prestatorul se angajează ca, până la data de <strong>20.02.2024</strong>, să finalizeze Serviciile la care se&nbsp;angajează prin prezentul Contract (“<strong>Termen de finalizare</strong>”)&nbsp;</p><p>6.3. Termenul de finalizare este ferm.&nbsp;</p><p>6.4. In cazul in care Prestatorul nu isi indeplineste corespunzător obligatiile asumate prin Contract,&nbsp;Beneficiarul este indreptatit sa perceapa penalitati de intarziere de 0,5% pe zi de intarziere, calculat&nbsp;din valoarea totala a Contractului. In cazul in care Beneficiarul nu onoreaza plata in termenii prevazuți&nbsp;prin Contract, acesta are obligatia de a plati penalitati de intarziere de 0,5% pe zi de intarziere,&nbsp;calculat din suma datorată. Cuantumul penalităților poate depăși valoarea la care ele au fost calculate.&nbsp;</p><p><strong>Art.7. Încetarea Contractului&nbsp;</strong></p><p>7.1. Prezentul Contract încetează în oricare din următoarele modalităţi:&nbsp;</p><p>(a) prin acordul scris al Părţilor;&nbsp;</p><p>(b) prin ajungerea la termen și/sau îndeplinirea tuturor obligațiilor contractuale; (c) prin demararea procedurilor de faliment, dizolvare sau lichidare a oricăreia dintre Părţi; (d) în caz de forţa majoră, în condițiile legii;&nbsp;</p><p>(e) prin denuntarea unilaterala a Contractului de catre Beneficiar, oricand, indiferent de motiv,&nbsp;transmitand Prestatorului o notificare prealabila cu minim 10 (zece) zile calendaristice înainte&nbsp;de data la care operează încetarea Contractului;&nbsp;</p><p>(f) prin cesionarea de către Prestator a drepturile şi obligaţiilor sale prevăzute prin Contract, fără&nbsp;acordul scris, expres și prealabil al Beneficiarului;&nbsp;</p><p>(g) prin rezilierea unilaterală de către oricare dintre Părți, în baza unei notificări de reziliere&nbsp;transmisă celeilalte Părți conform Art. 1.552 Codul Civil, în măsura în care acesta nu&nbsp;îndeplineşte sau îndeplineşte în mod necorespunzător obligatiile sale şi nu le remediază în&nbsp;termenul indicat de catre cealaltă Parte;&nbsp;</p><p>7.2. Încetarea Contractului nu va avea niciun efect asupra obligațiilor deja scadente între Părți la data&nbsp;survenirii acesteia.&nbsp;</p><p>7.3. Prestatorul se afla de drept in inatrziere odata cu implinirea Termenului de finalizare. 7.4. Decalarea termenelor de executie determina decalarea corespunzatoare a platilor.&nbsp;</p><p><strong>Art. 8. Forta majora&nbsp;</strong></p><p>8.1. Forta majora exonereaza de raspundere Partea care o invoca, dar numai in masura si pentru&nbsp;perioada in care Partea este impiedicata sau intarziata sa-si execute obligatia din pricina situatiei de&nbsp;forta majora. Partea care invoca forta majora va depune toate eforturile rezonabile pentru a reduce&nbsp;cat mai mult posibil efectele rezultand din forta majora.&nbsp;</p><p>8.2. Forta majora exonereaza de raspundere Partea care o invoca, in conditiile legii, daca o comunica&nbsp;in scris, celeilalte Parti in termen de 15 zile de la producere si o dovedeste printr-un certificat oficial,&nbsp;in termen de 15 de zile de la data invocarii ei.&nbsp;</p><p>8.3. Prin forta majora se inteleg toate evenimentele si/sau imprejurarile independente de vointa&nbsp;partii care invoca forta majora, imprevizibile si de neinlaturat si care, survenind dupa incheierea&nbsp;contractului, impiedica ori intirzie, total sau partial, indeplinirea obligatiilor izvorind din acest&nbsp;</p><p>P a g e 4 | 6&nbsp;</p><p>contract.&nbsp;</p><p>8.4. Pentru orice intarziere si/sau neindeplinire a obligatiilor contractuale de catre oricare din Parti&nbsp;ca urmare a situatiei de forta majora, niciuna din Parti nu va fi indreptatita sa pretinda celeilalte Parti&nbsp;penalitati, dobanzi, ori despagubiri care altfel ar fi fost platibile.&nbsp;</p><p>8.5. Daca, datorita situatiei de forta majora, una din Parti este impiedicata sa-si indeplineasca, total&nbsp;sau partial obligatiile sale contractuale pe o perioada mai mare 1 luna, atunci oricare Parte va avea&nbsp;dreptul, in lipsa unei alte intelegeri, sa rezilieze contractul, printr-o notificare scrisa adresata&nbsp;celeilalte Parti. In acesta situatie, Partile vor stabili consecintele rezilierii.&nbsp;</p><p><strong>Art. 9. Notificari, adrese, comunicari&nbsp;</strong></p><p>9.1. Orice adresă, notificare, comunicare sau cerere făcută în legătură cu executarea prezentului&nbsp;Contract vor fi făcute în scris.&nbsp;</p><p>9.2. Orice adresă, notificare, comunicare sau cerere este consideră valabil făcută, dacă va fi transmisă&nbsp;celeilalte Părți la adresa menționată în prezentul Contract, prin poștă, cu scrisoare recomandată cu&nbsp;confirmare de primire.&nbsp;</p><p>9.3. Toate aceste comunicări se pot face și prin fax, e-mail, cu condiția confirmării în scris a primirii&nbsp;lor.&nbsp;</p><p>9.4. Toate notificările şi comunicările privind prezentul Contract vor fi trimise la adresele mentionate&nbsp;in preambulul Contractului.&nbsp;</p><p>9.5. În cazul în care o Parte își schimbă datele de contact, aceasta are obligația de a notifica acest&nbsp;eveniment celeilalte Părți în termen de maxim 1 zi lucrătoare, calculat de la momentul producerii&nbsp;schimbării, în caz contrar considerându-se că scrisoarea/notificarea/cererea a fost trimisă în mod&nbsp;valabil la datele cunoscute în momentul încheierii Contractului.&nbsp;</p><p>9.6. Orice adresa, notificare, comunicare sau cerere transmisă prin fax/e-mail se va considera ca fiind&nbsp;trimisă în prima zi lucrătoare după cea în care a fost expediată;&nbsp;</p><p>9.7. Data la care se va considera primită o notificare/adresa/cerere/comunicare este data menționată&nbsp;în raportul de confirmare.&nbsp;</p><p><strong>Art. 10. Litigii&nbsp;</strong></p><p>10.1. Prezentul Contract este guvernat de legea română.&nbsp;</p><p>10.2. Orice neînţelegere rezultată din valabilitatea, executarea şi interpretarea prezentului Contract&nbsp;va fi soluţionată în mod amiabil. Când aceasta nu este posibilă, litigiul va fi depus spre soluţionare&nbsp;instantelor competente de la sediul Beneficiarului.&nbsp;</p><p><strong>Art.11. CLAUZA DE CONFIDENȚIALITATE SI DE PROTECTIE A DATELOR PERSONALE (GDPR).&nbsp;</strong></p><p>Fiecare Parte se obligă să nu divulge terţelor persoane, fără acordul prealabil exprimat în scris al&nbsp;celeilalte Parţi, informaţia obţinută în procesul executării prezentului Contract, precum şi să o&nbsp;utilizeze numai în scopurile executării prezentului Contract. Obligaţia nu se aplică informaţiei: a.&nbsp;divulgate la solicitarea unor autoritati publice cu atributii, făcută în conformitate cu legislaţia în&nbsp;vigoare; b. care este de domeniul public la momentul divulgării; c. divulgate în cadrul unui proces&nbsp;judiciar între Parţi privind acest Contract; d. divulgate acţionarilor Părţii, persoanelor cu funcţii de&nbsp;răspundere, salariaţilor, reprezentanţilor, agenţilor, consultanţilor, auditorilor, cedenţilor,&nbsp;</p><p>P a g e 5 | 6&nbsp;</p><p>succesorilor şi/sau întreprinderilor afiliate ale Parţii care sunt implicate în executarea prezentului&nbsp;Contract, referitor la care Partea va trebui:- să limiteze divulgarea informaţiei numai către cei ce au&nbsp;nevoie de ea pentru îndeplinirea obligaţiilor sale faţă de Parte;- sa asigure folosirea informaţiei&nbsp;exclusiv in scopurile nemijlocit legate de ceea pentru ce informaţia este divulgata;- sa informeze toate&nbsp;aceste persoane privind obligaţia lor de a păstra confidenţialitatea informaţiei în modul stabilit de prezentul Contract.&nbsp;</p><p>Sunt considerate informații confidențiale și fac obiectul prezentelor clauze, datele de identificare&nbsp;(nume, semnătură, serie și număr CI etc.) ale reprezentanților Părților, care se vor regăsi pe&nbsp;documentele emise de (schimbate între) Parți în perioada derulării Contractului și care nu sunt de&nbsp;domeniul public la momentul divulgării. Prelucrarea de către Părți a datelor cu caracter personal ale&nbsp;persoanelor vizate mai sus se va realiza cu respectarea principiilor și drepturilor acestora care decurg&nbsp;din punerea în aplicare a REGULAMENTUL (UE) 2016/679 AL PARLAMENTULUI EUROPEAN ȘI AL&nbsp;CONSILIULUI privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter&nbsp;personal – GDPR. În spiritul GDPR, Părțile au următoarele drepturi de acces la datele personale ale&nbsp;angajaților/reprezentanților proprii, operate de cealaltă Parte:a) Dreptul de acces la date; b) reptul&nbsp;la rectificarea datelor; c) Dreptul la ștergerea datelor; d)Dreptul la restricționarea prelucrării; e)&nbsp;Dreptul la portabilitatea datelor; f) Dreptul de opoziție la prelucrarea datelor; g) Dreptul de a nu fi&nbsp;supus unor decizii automatizate, inclusiv profilarea; h) Dreptul la notificarea destinatarilor privind&nbsp;rectificarea, ștergerea ori restricționarea datelor cu caracter personal.&nbsp;</p><p>Conform legislației naționale în vigoare în domeniu, datele personale solicitate de beneficiar sunt&nbsp;necesare pentru buna derulare a Contractului (completarea facturilor, documentelor contabile) și nu&nbsp;vor fi folosite în alte scopuri.&nbsp;</p><p>Datele personale obținute sunt procesate în bazele de date și pe serverele Niro Investment S.A. (societate afiliata), pe întreaga durată a raporturilor contractuale și ulterior, conform politicilor&nbsp;interne, pe durata necesară îndeplinirii obligațiilor legale ce ii revin. Respectarea cerințelor legale&nbsp;aplicabile sunt permanent monitorizate, inclusiv prin Responsabilul de protecție a datelor cu caracter&nbsp;personal ce poate fi contactat la dpo@nirogroup.ro. Reclamațiile privind posibila încălcare a&nbsp;drepturilor privind prelucrarea datelor cu caracter personal pot fi adresate Autorității Naționale de&nbsp;Supraveghere a Prelucrării Datelor cu Caracter Personal la adresa www.dataprotection.ro.&nbsp;</p><p>Oricare dintre Părţile contractante se obligă, în termenii şi condiţiile prezentului Contract, să păstreze&nbsp;strict confidenţiale, pe durata Contractului şi după incetarea acestuia, toate datele şi informaţiile,&nbsp;divulgate în orice manieră de către cealaltă Parte, în executarea Contractului. Excepţie de la prezenta&nbsp;obligaţie sunt cazurile în care divulgarea este necesară pentru executarea Contractului şi se face&nbsp;numai avand consimţământul scris, expres si prealabil al celeilalte Părţi sau daca divulgarea este&nbsp;solicitată, în mod legal, de către autorităţile de drept.&nbsp;</p><p>În cazul în care oricare dintre Părţi va încălca obligaţia de confidenţialitate, aceasta va fi obligată la&nbsp;plata de daune-interese în favoarea Părţii prejudiciate.&nbsp;</p><p><strong>Art.12. Cesiunea Contractului&nbsp;</strong></p><p>12.1. Prezentul Contract are caracter <em>intuitu personae </em>in privinta Prestatorului; acesta nu poate&nbsp;transmite unei terţe persoane, total sau parţial, drepturile şi obligaţiile ce ii revin prin prezentul&nbsp;Contract, decât dacă a obţinut acordul scris și prealabil al Beneficiarului, care acord trebuie transmis&nbsp;Prestatorului în termen de 5 (cinci) zile lucrătoare de la momentul primirii notificării. În lipsa unui&nbsp;</p><p>P a g e 6 | 6&nbsp;</p><p>răspuns scris și expres exprimat în acest sens, se consideră că Partea nu consimte la cesiunea&nbsp;Contractului şi aceasta nu poate avea loc.&nbsp;</p><p><strong>Art. 13. Clauze finale&nbsp;</strong></p><p>13.1. Partile sunt de drept in intarziere in cazul neindeplinirii sau indeplinirii necorespunzatoare a&nbsp;oricareia din obligatiile ce le revin potrivit Contractului.&nbsp;</p><p>13.2. Reprezentanţii Părţilor declară că sunt pe deplin împuterniciţi pentru semnarea Contractului&nbsp;şi că Partea pe care o reprezintă este valabil înregistrată şi are deplină capacitate pentru încheierea&nbsp;prezentului acord şi pentru exercitarea drepturilor şi executarea obligaţiilor prevăzute prin acesta. 13.3. Partile declara ca toate prevederile Contractului au fost negociate cu buna–credinta, le-au&nbsp;citit, si le-au asumat si sunt de acord cu acestea asa cum sunt consemnate prin prezentul inscris.&nbsp;13.4. Ambele Parti declara ca isi asuma, pe toata durata contractuala, riscul schimbarii&nbsp;imprejurarilor (de orice natura- inclusiv, dar fara a se limita la, cele politice, economice, comerciale si&nbsp;financiare) existente la data incheierii Contractului, cu respectarea prevederilor Art. 1271 Cod civil.&nbsp;13.5. Prezentul Contract este supus legii romane si interpretat in conformitate cu prevederile&nbsp;acesteia. Orice litigiu, controversa sau pretentie a Partilor, decurgand din sau in legatura cu prezentul&nbsp;Contract si care nu a fost solutionata de Parti in mod amiabil, va fi supusa, spre solutionare, instantelor&nbsp;judecatoresti competente din Bucuresti.&nbsp;</p><p>13.6. Contract poate fi modificat exclusiv prin incheierea de acte aditionale.&nbsp;13.7. Prevederile contractuale sunt integral obligatorii pentru Partile semnatare si succesorii lor in&nbsp;drepturi si obligatii.&nbsp;</p><p>Prezentul Contract a fost incheiat in 2 (două) exemplare astazi, 01.02.2024, cate un exemplar pentru&nbsp;fiecare Parte.&nbsp;</p><p>Beneficiar, Prestator,&nbsp;</p><p><strong>NIRO INVESTMENT S.A. SOFTHUB AG S.R.L. </strong>Director General, Administrator,&nbsp;</p><p><strong>Mihaela Istrate Razvan Mihai Mustata</strong>&nbsp;</p>	1
 15	2024-05-28 09:52:07.758	2024-05-28 09:51:41.076	<p><strong>MODEL CONTRACT DE VANZARE-CUMPARARE NR. </strong><strong style="color: rgb(230, 0, 0);">__</strong><span style="color: rgb(230, 0, 0); background-color: rgb(31, 41, 55);">test dragon</span><strong style="color: rgb(230, 0, 0);">__</strong><strong> / </strong><strong style="color: rgb(230, 0, 0);">_____</strong><span style="color: rgb(230, 0, 0); background-color: rgb(31, 41, 55);">02.05.2024</span><strong style="color: rgb(230, 0, 0);">_______</strong></p><p><br></p><p>Incheiat intre: S.C. <span style="background-color: rgb(31, 41, 55); color: rgb(230, 0, 0);">Softhub Ag S.R.L.</span>, cu sediul in……………….. str. …………………, nr…….. tel./fax …………….. CF……………………………………RC………………cont nr………………deschis la Banca ………<span style="background-color: rgb(31, 41, 55); color: rgb(230, 0, 0);">Garanti Bank</span>….., denumita în prezentul contract VANZATOR şi S.C<strong>. </strong><span style="background-color: rgb(31, 41, 55); color: rgb(230, 0, 0);">Dragonul Rosu S.A.</span> cu sediul in ……………….. str.&nbsp;…………………, nr. …….. tel./fax …………….. CF …………………………………… RC ……………… cont nr. ……………… deschis la Banca …………….., denumita în prezentul contract CUMPARATOR.</p><p><strong>1. OBIECTUL CONTRACTULUI .</strong></p><p><br></p><p>1. 1.Obiectul contractului este vânzarea-cumpărarea de ……………………<span style="background-color: rgb(31, 41, 55); color: rgb(230, 0, 0);">wer</span>…………………</p><p><br></p><p>1.2. Părţile contractante sunt de acord ca VÂNZATORUL sa vândă şi CUMPARATORUL sa cumpere produsele xxxxxxxxxxxxx conform celor specificate în ANEXA nr.1, la preturile, cantităţile, condiţiile de livrare şi de plata convenite prin prezentul contract.&nbsp;</p><p>1.3.Preturile din ANEXA nr. 1 sunt exprimate în EURO, iar plata se face în lei la cursul de referinţa al BNR din data emiterii facturii. La aceste preturi se aplica TVA.</p><p><br></p><p>1.4. Marfa care face obiectul prezentului contract rămâne proprietatea VÂNZATORULUI până la achitarea ei integrală de către CUMPĂRATOR.</p><p><br></p><p><strong>2. CONDITII DE LIVRARE&nbsp;</strong></p><p>2.1.Marfa se livrează în următoarele condiţii <strong>xxxxxxxxxxxxx&nbsp;</strong></p><p>2.2.Termenul de livrare este de<strong> xxxxxx</strong> zile calendaristice de la data achitării avansului prevăzut la pct.4.1.</p><p><br></p><p><strong>3. VALOAREA CONTRACTULUI&nbsp;</strong></p><p>3.1.Valoarea totală a contractului este de _____________ EURO, fără TVA, preţ ferm.&nbsp;</p><p><strong>4. CONDITII DE PLATA&nbsp;</strong></p><p>4.1. CUMPARATORUL va achita în contul VANZATORULUI prin OrdÎn de Plata sau Fila CEC un avans de _________ EURO, fără TVA, în termen de 3 zile lucrătoare de la data semnării contractului.&nbsp;</p><p>4.2. Diferenţa de _________ EURO, fără TVA, va fi achitata de CUMPARATOR la data livrării mărfii cu Fila CEC sau OrdÎn de Plata vizat de banca.&nbsp;</p><p>4.3. Toate plăţile vor fi efectuate de CUMPARATOR în lei, la cursul zilei.&nbsp;</p><p>4.4. VANZATORUL şi CUMPARATORUL sunt de acord cu facturarea separata a eventualelor diferente de curs valutar în plus sau minus de la data emiterii facturii şi pana la data efectuării plătii.&nbsp;</p><p>4.5. Daca CUMPARATORUL renunţa la contract din motive imputabile lui, atunci el va renunţa la marfa care face obiectul prezentului contract şi la suma achitata VANZATORULUI. <strong>5.OBLIGATIILE VANZATORULUI</strong>&nbsp;</p><p>5.1. Să anunţe CUMPARATORUL cu cel puţÎn 3 zile lucrătoare înainte de sosirea mărfii.</p><p>5.2. Să asigure CUMPARATORULUI livrarea mărfii conform specificaţiei din ANEXA nr.1.&nbsp;</p><p>5.3.Să asigure la cererea CUMPĂRĂTORULUI transportul produselor, pentru suma de ________ EURO, fără TVA.&nbsp;</p><p>5.4.Să certifice şi să asigure pentru produsele vândute (CUMPARATORULUI)&nbsp;termenul de valabilitate&nbsp;de ………zile/luni de la data fabricării, dar nu mai mult de ……………. de la data livrării.</p><p>5.5.Să furnizeze&nbsp;CUMPARATORULUI următoarele documente de certificare a calităţii produselor livrate :BuletÎn de analiză/certificat de caltate şi/sau specificaţia tehnică pentru produsul/produsele livrate (după cauz ).</p><p><strong>6.</strong> <strong>OBLIGATIILE CUMPARATORULUI</strong>&nbsp;</p><p>6.1. Să achite VÂNZATORULUI contravaloarea mărfii în condiţiile prevăzute la pct.4.</p><p>6.2. SĂ asigure depozitarea, manipularea produselor în condiţiile prevăzute în specificaţia tehnică primita de la VÂNZATOR.</p><p><strong>8. FORTA MAJORA&nbsp;</strong></p><p>8.1. Forţa majoră exonerează de răspundere partea care o invoca în condiţiile legii, cu cerinţa notificării scrise prealabil în termen de 7 zile de la apariţia cazului de forţa majora.&nbsp;</p><p><strong>9.LITIGII&nbsp;</strong></p><p>9.1. Eventualele litigii în derularea prezentului contract vor fi rezolvate pe cale amiabila.</p><p>În situaţia În care acest lucru nu este posibil, litigiul va fi supus arbitrajului Camerei de Comerţ şi Industrie a României sau va fi soluţionat potrivit normelor de drept comun.&nbsp;</p><p><strong>10. DISPOZITII FINALE&nbsp;</strong></p><p>10.1. Modificarea termenilor prezentului contract de către ambele părţi este posibilă numai prin act adiţional.&nbsp;</p><p>10.2. ANEXA nr.1 face parte din prezentul contract de vânzare-cumpărare.</p><p>10.3. Contractul poate fi reziliat numai cu acordul scris al ambelor părţi.</p><p>10.4. Contractul intra în vigoare de la data semnării sale de către VANZATOR şi CUMPARATOR.</p><p>10.5. Prezentul contract s-a încheiat azi _____________ , în doua exemplare, cate unul pentru fiecare parte contractanta, ambele cu valoare de original.</p><p><br></p><p>VÂNZATOR CUMPĂRĂTOR,</p><p>S.C. _____________________________\tS.C. _____________________________&nbsp;</p><p>Director/Administrator _________________Director,/Administrator _______________________</p><p>Semnătura : Semnătura</p><p><br></p><p>Data semnării: ____________ Data semnării: ____________&nbsp;</p><p><br></p><p><br></p><p><br></p><p><br></p><p><strong>ANEXA NR.1 LA CONTRACTUL DE VANZARE-CUMPARARE NR. _____ / ___________&nbsp;</strong></p><p>1. SPECIFICATIA CONTRACTULUI • XXXXXXXXXXX&nbsp;</p><p>2.CANTITATEA • ___ buc/kg. ________________________&nbsp;</p><p>3.PRET UNITAR • ______________ EURO, fără TVA pentru _________________________. •</p><p>4.VALOAREA CONTRACTULUI • _______________ EURO, fără TVA.&nbsp;</p><p>5. Specificaţia tehnică&nbsp;de produs :xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</p><p><br></p><p><br></p><p>VANZATOR CUMPARATOR,</p><p>S.C. _____________________________\tS.C. _____________________________&nbsp;</p><p>Director&nbsp;__________________________\tDirector, _________________________</p><p>Data semnării: ____________ Data semnării: ____________&nbsp;</p>	90
 16	2024-05-28 13:56:13.744	2024-05-28 13:56:13.744	<p><strong>MODEL CONTRACT DE VANZARE-CUMPARARE NR. </strong><strong style="color: rgb(230, 0, 0);">__</strong><span style="color: rgb(230, 0, 0); background-color: rgb(31, 41, 55);">3543</span><strong style="color: rgb(230, 0, 0);">__</strong><strong> / </strong><strong style="color: rgb(230, 0, 0);">_____</strong><span style="color: rgb(230, 0, 0); background-color: rgb(31, 41, 55);">undefined</span><strong style="color: rgb(230, 0, 0);">_______</strong></p><p><br></p><p>Incheiat intre: S.C. <span style="background-color: rgb(31, 41, 55); color: rgb(230, 0, 0);">SoftHub</span>, cu sediul in……………….. str. …………………, nr…….. tel./fax …………….. CF……………………………………RC………………cont nr………………deschis la Banca ………<span style="background-color: rgb(31, 41, 55); color: rgb(230, 0, 0);">ING</span>….., denumita în prezentul contract VANZATOR şi S.C<strong>. </strong><span style="background-color: rgb(31, 41, 55); color: rgb(230, 0, 0);">NIRO INVESTMENT SA</span> cu sediul in ……………….. str.&nbsp;…………………, nr. …….. tel./fax …………….. CF …………………………………… RC ……………… cont nr. ……………… deschis la Banca …………….., denumita în prezentul contract CUMPARATOR.</p><p><strong>1. OBIECTUL CONTRACTULUI .</strong></p><p><br></p><p>1. 1.Obiectul contractului este vânzarea-cumpărarea de ……………………<span style="background-color: rgb(31, 41, 55); color: rgb(230, 0, 0);">345</span>…………………</p><p><br></p><p>1.2. Părţile contractante sunt de acord ca VÂNZATORUL sa vândă şi CUMPARATORUL sa cumpere produsele xxxxxxxxxxxxx conform celor specificate în ANEXA nr.1, la preturile, cantităţile, condiţiile de livrare şi de plata convenite prin prezentul contract.&nbsp;</p><p>1.3.Preturile din ANEXA nr. 1 sunt exprimate în EURO, iar plata se face în lei la cursul de referinţa al BNR din data emiterii facturii. La aceste preturi se aplica TVA.</p><p><br></p><p>1.4. Marfa care face obiectul prezentului contract rămâne proprietatea VÂNZATORULUI până la achitarea ei integrală de către CUMPĂRATOR.</p><p><br></p><p><strong>2. CONDITII DE LIVRARE&nbsp;</strong></p><p>2.1.Marfa se livrează în următoarele condiţii <strong>xxxxxxxxxxxxx&nbsp;</strong></p><p>2.2.Termenul de livrare este de<strong> xxxxxx</strong> zile calendaristice de la data achitării avansului prevăzut la pct.4.1.</p><p><br></p><p><strong>3. VALOAREA CONTRACTULUI&nbsp;</strong></p><p>3.1.Valoarea totală a contractului este de _____________ EURO, fără TVA, preţ ferm.&nbsp;</p><p><strong>4. CONDITII DE PLATA&nbsp;</strong></p><p>4.1. CUMPARATORUL va achita în contul VANZATORULUI prin OrdÎn de Plata sau Fila CEC un avans de _________ EURO, fără TVA, în termen de 3 zile lucrătoare de la data semnării contractului.&nbsp;</p><p>4.2. Diferenţa de _________ EURO, fără TVA, va fi achitata de CUMPARATOR la data livrării mărfii cu Fila CEC sau OrdÎn de Plata vizat de banca.&nbsp;</p><p>4.3. Toate plăţile vor fi efectuate de CUMPARATOR în lei, la cursul zilei.&nbsp;</p><p>4.4. VANZATORUL şi CUMPARATORUL sunt de acord cu facturarea separata a eventualelor diferente de curs valutar în plus sau minus de la data emiterii facturii şi pana la data efectuării plătii.&nbsp;</p><p>4.5. Daca CUMPARATORUL renunţa la contract din motive imputabile lui, atunci el va renunţa la marfa care face obiectul prezentului contract şi la suma achitata VANZATORULUI. <strong>5.OBLIGATIILE VANZATORULUI</strong>&nbsp;</p><p>5.1. Să anunţe CUMPARATORUL cu cel puţÎn 3 zile lucrătoare înainte de sosirea mărfii.</p><p>5.2. Să asigure CUMPARATORULUI livrarea mărfii conform specificaţiei din ANEXA nr.1.&nbsp;</p><p>5.3.Să asigure la cererea CUMPĂRĂTORULUI transportul produselor, pentru suma de ________ EURO, fără TVA.&nbsp;</p><p>5.4.Să certifice şi să asigure pentru produsele vândute (CUMPARATORULUI)&nbsp;termenul de valabilitate&nbsp;de ………zile/luni de la data fabricării, dar nu mai mult de ……………. de la data livrării.</p><p>5.5.Să furnizeze&nbsp;CUMPARATORULUI următoarele documente de certificare a calităţii produselor livrate :BuletÎn de analiză/certificat de caltate şi/sau specificaţia tehnică pentru produsul/produsele livrate (după cauz ).</p><p><strong>6.</strong> <strong>OBLIGATIILE CUMPARATORULUI</strong>&nbsp;</p><p>6.1. Să achite VÂNZATORULUI contravaloarea mărfii în condiţiile prevăzute la pct.4.</p><p>6.2. SĂ asigure depozitarea, manipularea produselor în condiţiile prevăzute în specificaţia tehnică primita de la VÂNZATOR.</p><p><strong>8. FORTA MAJORA&nbsp;</strong></p><p>8.1. Forţa majoră exonerează de răspundere partea care o invoca în condiţiile legii, cu cerinţa notificării scrise prealabil în termen de 7 zile de la apariţia cazului de forţa majora.&nbsp;</p><p><strong>9.LITIGII&nbsp;</strong></p><p>9.1. Eventualele litigii în derularea prezentului contract vor fi rezolvate pe cale amiabila.</p><p>În situaţia În care acest lucru nu este posibil, litigiul va fi supus arbitrajului Camerei de Comerţ şi Industrie a României sau va fi soluţionat potrivit normelor de drept comun.&nbsp;</p><p><strong>10. DISPOZITII FINALE&nbsp;</strong></p><p>10.1. Modificarea termenilor prezentului contract de către ambele părţi este posibilă numai prin act adiţional.&nbsp;</p><p>10.2. ANEXA nr.1 face parte din prezentul contract de vânzare-cumpărare.</p><p>10.3. Contractul poate fi reziliat numai cu acordul scris al ambelor părţi.</p><p>10.4. Contractul intra în vigoare de la data semnării sale de către VANZATOR şi CUMPARATOR.</p><p>10.5. Prezentul contract s-a încheiat azi _____________ , în doua exemplare, cate unul pentru fiecare parte contractanta, ambele cu valoare de original.</p><p><br></p><p>VÂNZATOR CUMPĂRĂTOR,</p><p>S.C. _____________________________\tS.C. _____________________________&nbsp;</p><p>Director/Administrator _________________Director,/Administrator _______________________</p><p>Semnătura : Semnătura</p><p><br></p><p>Data semnării: ____________ Data semnării: ____________&nbsp;</p><p><br></p><p><br></p><p><br></p><p><br></p><p><strong>ANEXA NR.1 LA CONTRACTUL DE VANZARE-CUMPARARE NR. _____ / ___________&nbsp;</strong></p><p>1. SPECIFICATIA CONTRACTULUI • XXXXXXXXXXX&nbsp;</p><p>2.CANTITATEA • ___ buc/kg. ________________________&nbsp;</p><p>3.PRET UNITAR • ______________ EURO, fără TVA pentru _________________________. •</p><p>4.VALOAREA CONTRACTULUI • _______________ EURO, fără TVA.&nbsp;</p><p>5. Specificaţia tehnică&nbsp;de produs :xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</p><p><br></p><p><br></p><p>VANZATOR CUMPARATOR,</p><p>S.C. _____________________________\tS.C. _____________________________&nbsp;</p><p>Director&nbsp;__________________________\tDirector, _________________________</p><p>Data semnării: ____________ Data semnării: ____________&nbsp;</p>	8
+17	2024-10-05 10:02:07.488	2024-10-05 10:02:07.488	<p><strong>CONTRACT PRESTARI SERVICII IN TEHNOLOGIA INFORMATIEI&nbsp;</strong></p><p><strong>NR.: </strong><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">stare4444</span><strong>/</strong><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">02.05.2024</span></p><p>Intre:&nbsp;</p><p><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">SoftHub</span> cu sediul social in Bucureşti, sectorul 3, Str. Vlad Judeţul nr. 2, camera nr. 1,&nbsp;bloc V14A, scara 2, etaj 1, ap. 33, adresa email: razvan.mustata@gmail.com, inregistrata la Registrul&nbsp;Comertului cu nr. J40/2456/2017, CUI 37130972, reprezentata legal prin Razvan Mihai Mustata Administrator, in calitate de prestator („<strong>Prestatorul</strong>"), pe de o parte; <strong>si&nbsp;</strong></p><p><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span><strong>, </strong>persoană juridică română, cu sediul în Comuna Dobroeşti, Sat Fundeni, str. Dragonul Roşu, nr. 1-10, etaj 3, biroul nr. 2-4, Centrul Comercial Dragonul Roşu Megashop, judeţ Ilfov, înregistrată la Registrul Comerţului sub nr. J23/227/2002, Cod de Înregistrare Fiscala RO6951013, reprezentata legal prin Mihaela Istrate - Director General, denumită în cele ce urmează<strong> </strong>(<strong>„Beneficiarul</strong>")<strong>, </strong>pe de alta parte,&nbsp;</p><p>Denumite in continuare, individual, „<strong>Partea</strong>" si, in mod colectiv, „<strong>Partile</strong>", au incheiat prezentul&nbsp;Contract prestari servicii in tehnologia informatiei (“<strong>Contractul</strong>”), dupa cum urmeaza:&nbsp;</p><p><strong>Art. 1. Dispoziții generale&nbsp;</strong></p><p>1.1. În aplicarea caracterului independent al activităţilor desfăşurate în temeiul prezentului Contract,&nbsp;Părţile înţeleg şi convin ca niciuna dintre Părţi nu va solicita celeilalte Părţi şi nu va suporta niciun fel&nbsp;de cheltuieli aferente unor elemente pe care legislaţia română le consideră a fi de natură a reflecta&nbsp;natura dependentă a unei activităţi economice.&nbsp;</p><p>1.2. Pe durata prezentului Contract, Prestatorul va furniza Serviciile prevăzute în Contract.&nbsp;</p><p>1.3. Prestatorul îşi va suporta propriile sale cheltuieli în interesul desfăşurării activităţii, precum orice&nbsp;tipuri de cheltuieli aferente:&nbsp;</p><p>a) deplasării de la/la sediul Părţilor sau al altor persoane fizice/juridice,&nbsp;</p><p>b) timpului de odihnă, în care Parţile nu-şi execută prestaţiile unele faţă de altele, c) imposibilităţii temporare de realizare a prestaţiilor contractuale ca urmare a unui concediu&nbsp;medical sau oricăror cauze asemenătoare,&nbsp;</p><p>d) oricăror altor situaţii de natura celor prevăzute la alin. 1-3.&nbsp;</p><p>1.4. Serviciile vor fi prestate de Prestator din orice locatie adecvata, folosind baza materiala a&nbsp;Prestatorului (statie de lucru, conexiune internet, software specializat de dezvoltare, software&nbsp;specializat de testare etc.), iar livrabilele vor fi furnizate electronic Beneficiarului (prin email sau&nbsp;încărcare pe serverele specializate ale Beneficiarului).&nbsp;</p><p><strong>Art. 2. Obiectul Contractului&nbsp;</strong></p><p>2.1. Prestatorul se obliga sa furnizeze, la solicitarea Beneficiarului si in beneficiul acestuia, servicii de&nbsp;integrare a sistemului <strong>Charisma </strong>cu platforma<strong>/</strong>aplicația <strong>CEC Bank</strong>, pentru export extrase de cont și&nbsp;efectuare plăți în sistem internet banking („<strong>Serviciile</strong>”).</p><p>P a g e 2 | 6&nbsp;</p><p><strong>Art. 3. Obligatiile Prestatorului&nbsp;</strong></p><p>Prestatorul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) sa presteze Serviciile catre Beneficiar conform solicitarilor acestuia si sa asigure&nbsp;finalizarea corespunzatoare si in timp util a acestora, la standardele de calitate cerute si&nbsp;in termenele agreate;&nbsp;</p><p>b) sa furnizeze Serviciile spre satisfactia rezonabila a Beneficiarului, Beneficiarul putand&nbsp;solicita Prestatorului sa rectifice orice Servicii care au fost prestate in mod&nbsp;necorespunzator;&nbsp;</p><p>c) pe toată perioada realizării obligaţiilor prezentului Contract, să comunice Beneficiarului,&nbsp;orice modificare cu privire la sediul social, denumire, divizare, fuziune;&nbsp;</p><p>d) să presteze Serviciile prin utilizarea doar a propriilor sale bunuri şi/sau capitaluri (spaţii&nbsp;de birouri/producţie, echipamente, aparatură şi oricare altele asemenea);&nbsp;</p><p>e) să presteze serviciile cu respectarea principiului independenţei activităţii desfăşurate de&nbsp;Prestator consfinţită de dispoziţiile art. 4 lit.a) din O.U.G. nr. 44/2008.&nbsp;</p><p><strong>Art.4. Obligatiile Beneficiarului&nbsp;</strong></p><p>Beneficiarul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) în sensul Art. 3, lit. e), Partile inteleg si convin ca nu se afla si nici nu vor intra intr-o relatie&nbsp;de subordonare una fata de cealalta, fata de organele de conducere ale celeilalte Parti sau&nbsp;fata de alte entitati care detin controlul asupra/ sunt detinute de cealalta Parte;&nbsp;</p><p>b) sa puna la dispozitia Prestatorului informatiile solicitate de acesta, legate de activitatea&nbsp;Beneficiarului, care sunt necesare pentru buna executare a serviciilor asumate de&nbsp;Prestator;&nbsp;</p><p>c) sa plateasca Prestatorului, in termenii stabiliti prin prezentul Contract, pretul prevazut&nbsp;pentru Serviciile prestate, pe baza facturii emise de Prestator, insotita de devizul de lucru,&nbsp;aprobat de Beneficiar.&nbsp;</p><p><strong>Art. 5. Pretul Contractului și modalitatea de plată&nbsp;</strong></p><p>5.1. În schimbul Serviciilor prestate, Beneficiarul se obliga sa plateasca Prestatorului remuneratia&nbsp;datorată în cuantum de <strong>800(optsute) Euro</strong>. Prestatorul nu este plătitor de TVA.&nbsp;</p><p>5.2. Plata Serviciilor se va face in baza unui deviz agreat de ambele Parti care atesta serviciile&nbsp;efectuate, durata lor si termenii de calitate, deviz care va fi furnizat de catre Prestator Beneficiarului&nbsp;la data emiterii facturii fiscale.&nbsp;</p><p>5.3. Plata remunerației datorate Prestatorului se va face la finalizare Serviciilor, în termen de&nbsp;maximum 10 (zece) zile lucrătoare de la data acceptării la plată a facturii fiscale emise de Prestator.&nbsp;</p><p>5.4. Plata se efectueaza în contul Prestatorului cod RO17INGB0000999906676339 deschis la ING&nbsp;BANK NV pe numele Prestatorului.&nbsp;</p><p>P a g e 3 | 6&nbsp;</p><p><strong>Art.6. Durata Contractului&nbsp;</strong></p><p>6.1. Contractul își produce efectele de la data semnării prezentului inscris de către ambele Părți și&nbsp;este valabil până la îndeplinirea tuturor obligațiilor contractuale.&nbsp;</p><p>6.2. Prestatorul se angajează ca, până la data de <strong>20.02.2024</strong>, să finalizeze Serviciile la care se&nbsp;angajează prin prezentul Contract (“<strong>Termen de finalizare</strong>”)&nbsp;</p><p>6.3. Termenul de finalizare este ferm.&nbsp;</p><p>6.4. In cazul in care Prestatorul nu isi indeplineste corespunzător obligatiile asumate prin Contract,&nbsp;Beneficiarul este indreptatit sa perceapa penalitati de intarziere de 0,5% pe zi de intarziere, calculat&nbsp;din valoarea totala a Contractului. In cazul in care Beneficiarul nu onoreaza plata in termenii prevazuți&nbsp;prin Contract, acesta are obligatia de a plati penalitati de intarziere de 0,5% pe zi de intarziere,&nbsp;calculat din suma datorată. Cuantumul penalităților poate depăși valoarea la care ele au fost calculate.&nbsp;</p><p><strong>Art.7. Încetarea Contractului&nbsp;</strong></p><p>7.1. Prezentul Contract încetează în oricare din următoarele modalităţi:&nbsp;</p><p>(a) prin acordul scris al Părţilor;&nbsp;</p><p>(b) prin ajungerea la termen și/sau îndeplinirea tuturor obligațiilor contractuale; (c) prin demararea procedurilor de faliment, dizolvare sau lichidare a oricăreia dintre Părţi; (d) în caz de forţa majoră, în condițiile legii;&nbsp;</p><p>(e) prin denuntarea unilaterala a Contractului de catre Beneficiar, oricand, indiferent de motiv,&nbsp;transmitand Prestatorului o notificare prealabila cu minim 10 (zece) zile calendaristice înainte&nbsp;de data la care operează încetarea Contractului;&nbsp;</p><p>(f) prin cesionarea de către Prestator a drepturile şi obligaţiilor sale prevăzute prin Contract, fără&nbsp;acordul scris, expres și prealabil al Beneficiarului;&nbsp;</p><p>(g) prin rezilierea unilaterală de către oricare dintre Părți, în baza unei notificări de reziliere&nbsp;transmisă celeilalte Părți conform Art. 1.552 Codul Civil, în măsura în care acesta nu&nbsp;îndeplineşte sau îndeplineşte în mod necorespunzător obligatiile sale şi nu le remediază în&nbsp;termenul indicat de catre cealaltă Parte;&nbsp;</p><p>7.2. Încetarea Contractului nu va avea niciun efect asupra obligațiilor deja scadente între Părți la data&nbsp;survenirii acesteia.&nbsp;</p><p>7.3. Prestatorul se afla de drept in inatrziere odata cu implinirea Termenului de finalizare. 7.4. Decalarea termenelor de executie determina decalarea corespunzatoare a platilor.&nbsp;</p><p><strong>Art. 8. Forta majora&nbsp;</strong></p><p>8.1. Forta majora exonereaza de raspundere Partea care o invoca, dar numai in masura si pentru&nbsp;perioada in care Partea este impiedicata sau intarziata sa-si execute obligatia din pricina situatiei de&nbsp;forta majora. Partea care invoca forta majora va depune toate eforturile rezonabile pentru a reduce&nbsp;cat mai mult posibil efectele rezultand din forta majora.&nbsp;</p><p>8.2. Forta majora exonereaza de raspundere Partea care o invoca, in conditiile legii, daca o comunica&nbsp;in scris, celeilalte Parti in termen de 15 zile de la producere si o dovedeste printr-un certificat oficial,&nbsp;in termen de 15 de zile de la data invocarii ei.&nbsp;</p><p>8.3. Prin forta majora se inteleg toate evenimentele si/sau imprejurarile independente de vointa&nbsp;partii care invoca forta majora, imprevizibile si de neinlaturat si care, survenind dupa incheierea&nbsp;contractului, impiedica ori intirzie, total sau partial, indeplinirea obligatiilor izvorind din acest&nbsp;</p><p>P a g e 4 | 6&nbsp;</p><p>contract.&nbsp;</p><p>8.4. Pentru orice intarziere si/sau neindeplinire a obligatiilor contractuale de catre oricare din Parti&nbsp;ca urmare a situatiei de forta majora, niciuna din Parti nu va fi indreptatita sa pretinda celeilalte Parti&nbsp;penalitati, dobanzi, ori despagubiri care altfel ar fi fost platibile.&nbsp;</p><p>8.5. Daca, datorita situatiei de forta majora, una din Parti este impiedicata sa-si indeplineasca, total&nbsp;sau partial obligatiile sale contractuale pe o perioada mai mare 1 luna, atunci oricare Parte va avea&nbsp;dreptul, in lipsa unei alte intelegeri, sa rezilieze contractul, printr-o notificare scrisa adresata&nbsp;celeilalte Parti. In acesta situatie, Partile vor stabili consecintele rezilierii.&nbsp;</p><p><strong>Art. 9. Notificari, adrese, comunicari&nbsp;</strong></p><p>9.1. Orice adresă, notificare, comunicare sau cerere făcută în legătură cu executarea prezentului&nbsp;Contract vor fi făcute în scris.&nbsp;</p><p>9.2. Orice adresă, notificare, comunicare sau cerere este consideră valabil făcută, dacă va fi transmisă&nbsp;celeilalte Părți la adresa menționată în prezentul Contract, prin poștă, cu scrisoare recomandată cu&nbsp;confirmare de primire.&nbsp;</p><p>9.3. Toate aceste comunicări se pot face și prin fax, e-mail, cu condiția confirmării în scris a primirii&nbsp;lor.&nbsp;</p><p>9.4. Toate notificările şi comunicările privind prezentul Contract vor fi trimise la adresele mentionate&nbsp;in preambulul Contractului.&nbsp;</p><p>9.5. În cazul în care o Parte își schimbă datele de contact, aceasta are obligația de a notifica acest&nbsp;eveniment celeilalte Părți în termen de maxim 1 zi lucrătoare, calculat de la momentul producerii&nbsp;schimbării, în caz contrar considerându-se că scrisoarea/notificarea/cererea a fost trimisă în mod&nbsp;valabil la datele cunoscute în momentul încheierii Contractului.&nbsp;</p><p>9.6. Orice adresa, notificare, comunicare sau cerere transmisă prin fax/e-mail se va considera ca fiind&nbsp;trimisă în prima zi lucrătoare după cea în care a fost expediată;&nbsp;</p><p>9.7. Data la care se va considera primită o notificare/adresa/cerere/comunicare este data menționată&nbsp;în raportul de confirmare.&nbsp;</p><p><strong>Art. 10. Litigii&nbsp;</strong></p><p>10.1. Prezentul Contract este guvernat de legea română.&nbsp;</p><p>10.2. Orice neînţelegere rezultată din valabilitatea, executarea şi interpretarea prezentului Contract&nbsp;va fi soluţionată în mod amiabil. Când aceasta nu este posibilă, litigiul va fi depus spre soluţionare&nbsp;instantelor competente de la sediul Beneficiarului.&nbsp;</p><p><strong>Art.11. CLAUZA DE CONFIDENȚIALITATE SI DE PROTECTIE A DATELOR PERSONALE (GDPR).&nbsp;</strong></p><p>Fiecare Parte se obligă să nu divulge terţelor persoane, fără acordul prealabil exprimat în scris al&nbsp;celeilalte Parţi, informaţia obţinută în procesul executării prezentului Contract, precum şi să o&nbsp;utilizeze numai în scopurile executării prezentului Contract. Obligaţia nu se aplică informaţiei: a.&nbsp;divulgate la solicitarea unor autoritati publice cu atributii, făcută în conformitate cu legislaţia în&nbsp;vigoare; b. care este de domeniul public la momentul divulgării; c. divulgate în cadrul unui proces&nbsp;judiciar între Parţi privind acest Contract; d. divulgate acţionarilor Părţii, persoanelor cu funcţii de&nbsp;răspundere, salariaţilor, reprezentanţilor, agenţilor, consultanţilor, auditorilor, cedenţilor,&nbsp;</p><p>P a g e 5 | 6&nbsp;</p><p>succesorilor şi/sau întreprinderilor afiliate ale Parţii care sunt implicate în executarea prezentului&nbsp;Contract, referitor la care Partea va trebui:- să limiteze divulgarea informaţiei numai către cei ce au&nbsp;nevoie de ea pentru îndeplinirea obligaţiilor sale faţă de Parte;- sa asigure folosirea informaţiei&nbsp;exclusiv in scopurile nemijlocit legate de ceea pentru ce informaţia este divulgata;- sa informeze toate&nbsp;aceste persoane privind obligaţia lor de a păstra confidenţialitatea informaţiei în modul stabilit de prezentul Contract.&nbsp;</p><p>Sunt considerate informații confidențiale și fac obiectul prezentelor clauze, datele de identificare&nbsp;(nume, semnătură, serie și număr CI etc.) ale reprezentanților Părților, care se vor regăsi pe&nbsp;documentele emise de (schimbate între) Parți în perioada derulării Contractului și care nu sunt de&nbsp;domeniul public la momentul divulgării. Prelucrarea de către Părți a datelor cu caracter personal ale&nbsp;persoanelor vizate mai sus se va realiza cu respectarea principiilor și drepturilor acestora care decurg&nbsp;din punerea în aplicare a REGULAMENTUL (UE) 2016/679 AL PARLAMENTULUI EUROPEAN ȘI AL&nbsp;CONSILIULUI privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter&nbsp;personal – GDPR. În spiritul GDPR, Părțile au următoarele drepturi de acces la datele personale ale&nbsp;angajaților/reprezentanților proprii, operate de cealaltă Parte:a) Dreptul de acces la date; b) reptul&nbsp;la rectificarea datelor; c) Dreptul la ștergerea datelor; d)Dreptul la restricționarea prelucrării; e)&nbsp;Dreptul la portabilitatea datelor; f) Dreptul de opoziție la prelucrarea datelor; g) Dreptul de a nu fi&nbsp;supus unor decizii automatizate, inclusiv profilarea; h) Dreptul la notificarea destinatarilor privind&nbsp;rectificarea, ștergerea ori restricționarea datelor cu caracter personal.&nbsp;</p><p>Conform legislației naționale în vigoare în domeniu, datele personale solicitate de beneficiar sunt&nbsp;necesare pentru buna derulare a Contractului (completarea facturilor, documentelor contabile) și nu&nbsp;vor fi folosite în alte scopuri.&nbsp;</p><p>Datele personale obținute sunt procesate în bazele de date și pe serverele Niro Investment S.A. (societate afiliata), pe întreaga durată a raporturilor contractuale și ulterior, conform politicilor&nbsp;interne, pe durata necesară îndeplinirii obligațiilor legale ce ii revin. Respectarea cerințelor legale&nbsp;aplicabile sunt permanent monitorizate, inclusiv prin Responsabilul de protecție a datelor cu caracter&nbsp;personal ce poate fi contactat la dpo@nirogroup.ro. Reclamațiile privind posibila încălcare a&nbsp;drepturilor privind prelucrarea datelor cu caracter personal pot fi adresate Autorității Naționale de&nbsp;Supraveghere a Prelucrării Datelor cu Caracter Personal la adresa www.dataprotection.ro.&nbsp;</p><p>Oricare dintre Părţile contractante se obligă, în termenii şi condiţiile prezentului Contract, să păstreze&nbsp;strict confidenţiale, pe durata Contractului şi după incetarea acestuia, toate datele şi informaţiile,&nbsp;divulgate în orice manieră de către cealaltă Parte, în executarea Contractului. Excepţie de la prezenta&nbsp;obligaţie sunt cazurile în care divulgarea este necesară pentru executarea Contractului şi se face&nbsp;numai avand consimţământul scris, expres si prealabil al celeilalte Părţi sau daca divulgarea este&nbsp;solicitată, în mod legal, de către autorităţile de drept.&nbsp;</p><p>În cazul în care oricare dintre Părţi va încălca obligaţia de confidenţialitate, aceasta va fi obligată la&nbsp;plata de daune-interese în favoarea Părţii prejudiciate.&nbsp;</p><p><strong>Art.12. Cesiunea Contractului&nbsp;</strong></p><p>12.1. Prezentul Contract are caracter <em>intuitu personae </em>in privinta Prestatorului; acesta nu poate&nbsp;transmite unei terţe persoane, total sau parţial, drepturile şi obligaţiile ce ii revin prin prezentul&nbsp;Contract, decât dacă a obţinut acordul scris și prealabil al Beneficiarului, care acord trebuie transmis&nbsp;Prestatorului în termen de 5 (cinci) zile lucrătoare de la momentul primirii notificării. În lipsa unui&nbsp;</p><p>P a g e 6 | 6&nbsp;</p><p>răspuns scris și expres exprimat în acest sens, se consideră că Partea nu consimte la cesiunea&nbsp;Contractului şi aceasta nu poate avea loc.&nbsp;</p><p><strong>Art. 13. Clauze finale&nbsp;</strong></p><p>13.1. Partile sunt de drept in intarziere in cazul neindeplinirii sau indeplinirii necorespunzatoare a&nbsp;oricareia din obligatiile ce le revin potrivit Contractului.&nbsp;</p><p>13.2. Reprezentanţii Părţilor declară că sunt pe deplin împuterniciţi pentru semnarea Contractului&nbsp;şi că Partea pe care o reprezintă este valabil înregistrată şi are deplină capacitate pentru încheierea&nbsp;prezentului acord şi pentru exercitarea drepturilor şi executarea obligaţiilor prevăzute prin acesta. 13.3. Partile declara ca toate prevederile Contractului au fost negociate cu buna–credinta, le-au&nbsp;citit, si le-au asumat si sunt de acord cu acestea asa cum sunt consemnate prin prezentul inscris.&nbsp;13.4. Ambele Parti declara ca isi asuma, pe toata durata contractuala, riscul schimbarii&nbsp;imprejurarilor (de orice natura- inclusiv, dar fara a se limita la, cele politice, economice, comerciale si&nbsp;financiare) existente la data incheierii Contractului, cu respectarea prevederilor Art. 1271 Cod civil.&nbsp;13.5. Prezentul Contract este supus legii romane si interpretat in conformitate cu prevederile&nbsp;acesteia. Orice litigiu, controversa sau pretentie a Partilor, decurgand din sau in legatura cu prezentul&nbsp;Contract si care nu a fost solutionata de Parti in mod amiabil, va fi supusa, spre solutionare, instantelor&nbsp;judecatoresti competente din Bucuresti.&nbsp;</p><p>13.6. Contract poate fi modificat exclusiv prin incheierea de acte aditionale.&nbsp;13.7. Prevederile contractuale sunt integral obligatorii pentru Partile semnatare si succesorii lor in&nbsp;drepturi si obligatii.&nbsp;</p><p>Prezentul Contract a fost incheiat in 2 (două) exemplare astazi, 01.02.2024, cate un exemplar pentru&nbsp;fiecare Parte.&nbsp;</p><p>Beneficiar, Prestator,&nbsp;</p><p><strong>NIRO INVESTMENT S.A. SOFTHUB AG S.R.L. </strong>Director General, Administrator,&nbsp;</p><p><strong>Mihaela Istrate Razvan Mihai Mustata</strong>&nbsp;</p>	100
+7	2024-10-11 14:28:11.379	2024-05-15 08:58:14.004	<p><strong>MODEL CONTRACT DE VANZARE-CUMPARARE NR. </strong><strong style="color: rgb(230, 0, 0);">__</strong><span style="color: rgb(230, 0, 0); background-color: rgb(31, 41, 55);">stare</span><strong style="color: rgb(230, 0, 0);">__</strong><strong> / </strong><strong style="color: rgb(230, 0, 0);">_____</strong><span style="color: rgb(230, 0, 0); background-color: rgb(31, 41, 55);">02.05.2024</span><strong style="color: rgb(230, 0, 0);">_______</strong></p><p><br></p><p>Incheiat intre: S.C. <span style="background-color: rgb(31, 41, 55); color: rgb(230, 0, 0);">SoftHub</span>, cu sediul in……………….. str. …………………, nr…….. tel./fax …………….. CF……………………………………RC………………cont nr………………deschis la Banca ………<span style="background-color: rgb(31, 41, 55); color: rgb(230, 0, 0);">ING</span>….., denumita în prezentul contract VANZATOR şi S.C<strong>. </strong><span style="background-color: rgb(31, 41, 55); color: rgb(230, 0, 0);">NIRO INVESTMENT SA</span> cu sediul in ……………….. str.&nbsp;…………………, nr. …….. tel./fax …………….. CF …………………………………… RC ……………… cont nr. ……………… deschis la Banca …………….., denumita în prezentul contract CUMPARATOR.</p><p><strong>1. OBIECTUL CONTRACTULUI .</strong></p><p><br></p><p>1. 1.Obiectul contractului este vânzarea-cumpărarea de ……………………<span style="background-color: rgb(31, 41, 55); color: rgb(230, 0, 0);">stare</span>…………………</p><p><br></p><p>1.2. Părţile contractante sunt de acord ca VÂNZATORUL sa vândă şi CUMPARATORUL sa cumpere produsele xxxxxxxxxxxxx conform celor specificate în ANEXA nr.1, la preturile, cantităţile, condiţiile de livrare şi de plata convenite prin prezentul contract.&nbsp;</p><p>1.3.Preturile din ANEXA nr. 1 sunt exprimate în EURO, iar plata se face în lei la cursul de referinţa al BNR din data emiterii facturii. La aceste preturi se aplica TVA.</p><p><br></p><p>1.4. Marfa care face obiectul prezentului contract rămâne proprietatea VÂNZATORULUI până la achitarea ei integrală de către CUMPĂRATOR.</p><p><br></p><p><strong>2. CONDITII DE LIVRARE&nbsp;</strong></p><p>2.1.Marfa se livrează în următoarele condiţii <strong>xxxxxxxxxxxxx&nbsp;</strong></p><p>2.2.Termenul de livrare este de<strong> xxxxxx</strong> zile calendaristice de la data achitării avansului prevăzut la pct.4.1.</p><p><br></p><p><strong>3. VALOAREA CONTRACTULUI&nbsp;</strong></p><p>3.1.Valoarea totală a contractului este de _____________ EURO, fără TVA, preţ ferm.&nbsp;</p><p><strong>4. CONDITII DE PLATA&nbsp;</strong></p><p>4.1. CUMPARATORUL va achita în contul VANZATORULUI prin OrdÎn de Plata sau Fila CEC un avans de _________ EURO, fără TVA, în termen de 3 zile lucrătoare de la data semnării contractului.&nbsp;</p><p>4.2. Diferenţa de _________ EURO, fără TVA, va fi achitata de CUMPARATOR la data livrării mărfii cu Fila CEC sau OrdÎn de Plata vizat de banca.&nbsp;</p><p>4.3. Toate plăţile vor fi efectuate de CUMPARATOR în lei, la cursul zilei.&nbsp;</p><p>4.4. VANZATORUL şi CUMPARATORUL sunt de acord cu facturarea separata a eventualelor diferente de curs valutar în plus sau minus de la data emiterii facturii şi pana la data efectuării plătii.&nbsp;</p><p>4.5. Daca CUMPARATORUL renunţa la contract din motive imputabile lui, atunci el va renunţa la marfa care face obiectul prezentului contract şi la suma achitata VANZATORULUI. <strong>5.OBLIGATIILE VANZATORULUI</strong>&nbsp;</p><p>5.1. Să anunţe CUMPARATORUL cu cel puţÎn 3 zile lucrătoare înainte de sosirea mărfii.</p><p>5.2. Să asigure CUMPARATORULUI livrarea mărfii conform specificaţiei din ANEXA nr.1.&nbsp;</p><p>5.3.Să asigure la cererea CUMPĂRĂTORULUI transportul produselor, pentru suma de ________ EURO, fără TVA.&nbsp;</p><p>5.4.Să certifice şi să asigure pentru produsele vândute (CUMPARATORULUI)&nbsp;termenul de valabilitate&nbsp;de ………zile/luni de la data fabricării, dar nu mai mult de ……………. de la data livrării.</p><p>5.5.Să furnizeze&nbsp;CUMPARATORULUI următoarele documente de certificare a calităţii produselor livrate :BuletÎn de analiză/certificat de caltate şi/sau specificaţia tehnică pentru produsul/produsele livrate (după cauz ).</p><p><strong>6.</strong> <strong>OBLIGATIILE CUMPARATORULUI</strong>&nbsp;</p><p>6.1. Să achite VÂNZATORULUI contravaloarea mărfii în condiţiile prevăzute la pct.4.</p><p>6.2. SĂ asigure depozitarea, manipularea produselor în condiţiile prevăzute în specificaţia tehnică primita de la VÂNZATOR.</p><p><strong>8. FORTA MAJORA&nbsp;</strong></p><p>8.1. Forţa majoră exonerează de răspundere partea care o invoca în condiţiile legii, cu cerinţa notificării scrise prealabil în termen de 7 zile de la apariţia cazului de forţa majora.&nbsp;</p><p><strong>9.LITIGII&nbsp;</strong></p><p>9.1. Eventualele litigii în derularea prezentului contract vor fi rezolvate pe cale amiabila.</p><p>În situaţia În care acest lucru nu este posibil, litigiul va fi supus arbitrajului Camerei de Comerţ şi Industrie a României sau va fi soluţionat potrivit normelor de drept comun.&nbsp;</p><p><strong>10. DISPOZITII FINALE&nbsp;</strong></p><p>10.1. Modificarea termenilor prezentului contract de către ambele părţi este posibilă numai prin act adiţional.&nbsp;</p><p>10.2. ANEXA nr.1 face parte din prezentul contract de vânzare-cumpărare.</p><p>10.3. Contractul poate fi reziliat numai cu acordul scris al ambelor părţi.</p><p>10.4. Contractul intra în vigoare de la data semnării sale de către VANZATOR şi CUMPARATOR.</p><p>10.5. Prezentul contract s-a încheiat azi _____________ , în doua exemplare, cate unul pentru fiecare parte contractanta, ambele cu valoare de original.</p><p><br></p><p>VÂNZATOR CUMPĂRĂTOR,</p><p>S.C. _____________________________\tS.C. _____________________________&nbsp;</p><p>Director/Administrator _________________Director,/Administrator _______________________</p><p>Semnătura : Semnătura</p><p><br></p><p>Data semnării: ____________ Data semnării: ____________&nbsp;</p><p><br></p><p><br></p><p><br></p><p><br></p><p><strong>ANEXA NR.1 LA CONTRACTUL DE VANZARE-CUMPARARE NR. _____ / ___________&nbsp;</strong></p><p>1. SPECIFICATIA CONTRACTULUI • XXXXXXXXXXX&nbsp;</p><p>2.CANTITATEA • ___ buc/kg. ________________________&nbsp;</p><p>3.PRET UNITAR • ______________ EURO, fără TVA pentru _________________________. •</p><p>4.VALOAREA CONTRACTULUI • _______________ EURO, fără TVA.&nbsp;</p><p>5. Specificaţia tehnică&nbsp;de produs :xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</p><p><br></p><p><br></p><p>VANZATOR CUMPARATOR,</p><p>S.C. _____________________________\tS.C. _____________________________&nbsp;</p><p>Director&nbsp;__________________________\tDirector, _________________________</p><p>Data semnării: ____________ Data semnării: ____________&nbsp;</p>	43
+18	2024-10-14 15:28:04.23	2024-10-14 15:28:04.23	<p><strong>CONTRACT PRESTARI SERVICII IN TEHNOLOGIA INFORMATIEI&nbsp;</strong></p><p><strong>NR.: </strong><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">Op1</span><strong>/</strong><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">undefined</span></p><p>Intre:&nbsp;</p><p><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">SoftHub</span> cu sediul social in Bucureşti, sectorul 3, Str. Vlad Judeţul nr. 2, camera nr. 1,&nbsp;bloc V14A, scara 2, etaj 1, ap. 33, adresa email: razvan.mustata@gmail.com, inregistrata la Registrul&nbsp;Comertului cu nr. J40/2456/2017, CUI 37130972, reprezentata legal prin Razvan Mihai Mustata Administrator, in calitate de prestator („<strong>Prestatorul</strong>"), pe de o parte; <strong>si&nbsp;</strong></p><p><span style="background-color: rgb(42, 50, 61); color: rgba(255, 255, 255, 0.87);">NIRO INVESTMENT SA</span><strong>, </strong>persoană juridică română, cu sediul în Comuna Dobroeşti, Sat Fundeni, str. Dragonul Roşu, nr. 1-10, etaj 3, biroul nr. 2-4, Centrul Comercial Dragonul Roşu Megashop, judeţ Ilfov, înregistrată la Registrul Comerţului sub nr. J23/227/2002, Cod de Înregistrare Fiscala RO6951013, reprezentata legal prin Mihaela Istrate - Director General, denumită în cele ce urmează<strong> </strong>(<strong>„Beneficiarul</strong>")<strong>, </strong>pe de alta parte,&nbsp;</p><p>Denumite in continuare, individual, „<strong>Partea</strong>" si, in mod colectiv, „<strong>Partile</strong>", au incheiat prezentul&nbsp;Contract prestari servicii in tehnologia informatiei (“<strong>Contractul</strong>”), dupa cum urmeaza:&nbsp;</p><p><strong>Art. 1. Dispoziții generale&nbsp;</strong></p><p>1.1. În aplicarea caracterului independent al activităţilor desfăşurate în temeiul prezentului Contract,&nbsp;Părţile înţeleg şi convin ca niciuna dintre Părţi nu va solicita celeilalte Părţi şi nu va suporta niciun fel&nbsp;de cheltuieli aferente unor elemente pe care legislaţia română le consideră a fi de natură a reflecta&nbsp;natura dependentă a unei activităţi economice.&nbsp;</p><p>1.2. Pe durata prezentului Contract, Prestatorul va furniza Serviciile prevăzute în Contract.&nbsp;</p><p>1.3. Prestatorul îşi va suporta propriile sale cheltuieli în interesul desfăşurării activităţii, precum orice&nbsp;tipuri de cheltuieli aferente:&nbsp;</p><p>a) deplasării de la/la sediul Părţilor sau al altor persoane fizice/juridice,&nbsp;</p><p>b) timpului de odihnă, în care Parţile nu-şi execută prestaţiile unele faţă de altele, c) imposibilităţii temporare de realizare a prestaţiilor contractuale ca urmare a unui concediu&nbsp;medical sau oricăror cauze asemenătoare,&nbsp;</p><p>d) oricăror altor situaţii de natura celor prevăzute la alin. 1-3.&nbsp;</p><p>1.4. Serviciile vor fi prestate de Prestator din orice locatie adecvata, folosind baza materiala a&nbsp;Prestatorului (statie de lucru, conexiune internet, software specializat de dezvoltare, software&nbsp;specializat de testare etc.), iar livrabilele vor fi furnizate electronic Beneficiarului (prin email sau&nbsp;încărcare pe serverele specializate ale Beneficiarului).&nbsp;</p><p><strong>Art. 2. Obiectul Contractului&nbsp;</strong></p><p>2.1. Prestatorul se obliga sa furnizeze, la solicitarea Beneficiarului si in beneficiul acestuia, servicii de&nbsp;integrare a sistemului <strong>Charisma </strong>cu platforma<strong>/</strong>aplicația <strong>CEC Bank</strong>, pentru export extrase de cont și&nbsp;efectuare plăți în sistem internet banking („<strong>Serviciile</strong>”).</p><p>P a g e 2 | 6&nbsp;</p><p><strong>Art. 3. Obligatiile Prestatorului&nbsp;</strong></p><p>Prestatorul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) sa presteze Serviciile catre Beneficiar conform solicitarilor acestuia si sa asigure&nbsp;finalizarea corespunzatoare si in timp util a acestora, la standardele de calitate cerute si&nbsp;in termenele agreate;&nbsp;</p><p>b) sa furnizeze Serviciile spre satisfactia rezonabila a Beneficiarului, Beneficiarul putand&nbsp;solicita Prestatorului sa rectifice orice Servicii care au fost prestate in mod&nbsp;necorespunzator;&nbsp;</p><p>c) pe toată perioada realizării obligaţiilor prezentului Contract, să comunice Beneficiarului,&nbsp;orice modificare cu privire la sediul social, denumire, divizare, fuziune;&nbsp;</p><p>d) să presteze Serviciile prin utilizarea doar a propriilor sale bunuri şi/sau capitaluri (spaţii&nbsp;de birouri/producţie, echipamente, aparatură şi oricare altele asemenea);&nbsp;</p><p>e) să presteze serviciile cu respectarea principiului independenţei activităţii desfăşurate de&nbsp;Prestator consfinţită de dispoziţiile art. 4 lit.a) din O.U.G. nr. 44/2008.&nbsp;</p><p><strong>Art.4. Obligatiile Beneficiarului&nbsp;</strong></p><p>Beneficiarul isi asuma urmatoarele obligatii:&nbsp;</p><p>a) în sensul Art. 3, lit. e), Partile inteleg si convin ca nu se afla si nici nu vor intra intr-o relatie&nbsp;de subordonare una fata de cealalta, fata de organele de conducere ale celeilalte Parti sau&nbsp;fata de alte entitati care detin controlul asupra/ sunt detinute de cealalta Parte;&nbsp;</p><p>b) sa puna la dispozitia Prestatorului informatiile solicitate de acesta, legate de activitatea&nbsp;Beneficiarului, care sunt necesare pentru buna executare a serviciilor asumate de&nbsp;Prestator;&nbsp;</p><p>c) sa plateasca Prestatorului, in termenii stabiliti prin prezentul Contract, pretul prevazut&nbsp;pentru Serviciile prestate, pe baza facturii emise de Prestator, insotita de devizul de lucru,&nbsp;aprobat de Beneficiar.&nbsp;</p><p><strong>Art. 5. Pretul Contractului și modalitatea de plată&nbsp;</strong></p><p>5.1. În schimbul Serviciilor prestate, Beneficiarul se obliga sa plateasca Prestatorului remuneratia&nbsp;datorată în cuantum de <strong>800(optsute) Euro</strong>. Prestatorul nu este plătitor de TVA.&nbsp;</p><p>5.2. Plata Serviciilor se va face in baza unui deviz agreat de ambele Parti care atesta serviciile&nbsp;efectuate, durata lor si termenii de calitate, deviz care va fi furnizat de catre Prestator Beneficiarului&nbsp;la data emiterii facturii fiscale.&nbsp;</p><p>5.3. Plata remunerației datorate Prestatorului se va face la finalizare Serviciilor, în termen de&nbsp;maximum 10 (zece) zile lucrătoare de la data acceptării la plată a facturii fiscale emise de Prestator.&nbsp;</p><p>5.4. Plata se efectueaza în contul Prestatorului cod RO17INGB0000999906676339 deschis la ING&nbsp;BANK NV pe numele Prestatorului.&nbsp;</p><p>P a g e 3 | 6&nbsp;</p><p><strong>Art.6. Durata Contractului&nbsp;</strong></p><p>6.1. Contractul își produce efectele de la data semnării prezentului inscris de către ambele Părți și&nbsp;este valabil până la îndeplinirea tuturor obligațiilor contractuale.&nbsp;</p><p>6.2. Prestatorul se angajează ca, până la data de <strong>20.02.2024</strong>, să finalizeze Serviciile la care se&nbsp;angajează prin prezentul Contract (“<strong>Termen de finalizare</strong>”)&nbsp;</p><p>6.3. Termenul de finalizare este ferm.&nbsp;</p><p>6.4. In cazul in care Prestatorul nu isi indeplineste corespunzător obligatiile asumate prin Contract,&nbsp;Beneficiarul este indreptatit sa perceapa penalitati de intarziere de 0,5% pe zi de intarziere, calculat&nbsp;din valoarea totala a Contractului. In cazul in care Beneficiarul nu onoreaza plata in termenii prevazuți&nbsp;prin Contract, acesta are obligatia de a plati penalitati de intarziere de 0,5% pe zi de intarziere,&nbsp;calculat din suma datorată. Cuantumul penalităților poate depăși valoarea la care ele au fost calculate.&nbsp;</p><p><strong>Art.7. Încetarea Contractului&nbsp;</strong></p><p>7.1. Prezentul Contract încetează în oricare din următoarele modalităţi:&nbsp;</p><p>(a) prin acordul scris al Părţilor;&nbsp;</p><p>(b) prin ajungerea la termen și/sau îndeplinirea tuturor obligațiilor contractuale; (c) prin demararea procedurilor de faliment, dizolvare sau lichidare a oricăreia dintre Părţi; (d) în caz de forţa majoră, în condițiile legii;&nbsp;</p><p>(e) prin denuntarea unilaterala a Contractului de catre Beneficiar, oricand, indiferent de motiv,&nbsp;transmitand Prestatorului o notificare prealabila cu minim 10 (zece) zile calendaristice înainte&nbsp;de data la care operează încetarea Contractului;&nbsp;</p><p>(f) prin cesionarea de către Prestator a drepturile şi obligaţiilor sale prevăzute prin Contract, fără&nbsp;acordul scris, expres și prealabil al Beneficiarului;&nbsp;</p><p>(g) prin rezilierea unilaterală de către oricare dintre Părți, în baza unei notificări de reziliere&nbsp;transmisă celeilalte Părți conform Art. 1.552 Codul Civil, în măsura în care acesta nu&nbsp;îndeplineşte sau îndeplineşte în mod necorespunzător obligatiile sale şi nu le remediază în&nbsp;termenul indicat de catre cealaltă Parte;&nbsp;</p><p>7.2. Încetarea Contractului nu va avea niciun efect asupra obligațiilor deja scadente între Părți la data&nbsp;survenirii acesteia.&nbsp;</p><p>7.3. Prestatorul se afla de drept in inatrziere odata cu implinirea Termenului de finalizare. 7.4. Decalarea termenelor de executie determina decalarea corespunzatoare a platilor.&nbsp;</p><p><strong>Art. 8. Forta majora&nbsp;</strong></p><p>8.1. Forta majora exonereaza de raspundere Partea care o invoca, dar numai in masura si pentru&nbsp;perioada in care Partea este impiedicata sau intarziata sa-si execute obligatia din pricina situatiei de&nbsp;forta majora. Partea care invoca forta majora va depune toate eforturile rezonabile pentru a reduce&nbsp;cat mai mult posibil efectele rezultand din forta majora.&nbsp;</p><p>8.2. Forta majora exonereaza de raspundere Partea care o invoca, in conditiile legii, daca o comunica&nbsp;in scris, celeilalte Parti in termen de 15 zile de la producere si o dovedeste printr-un certificat oficial,&nbsp;in termen de 15 de zile de la data invocarii ei.&nbsp;</p><p>8.3. Prin forta majora se inteleg toate evenimentele si/sau imprejurarile independente de vointa&nbsp;partii care invoca forta majora, imprevizibile si de neinlaturat si care, survenind dupa incheierea&nbsp;contractului, impiedica ori intirzie, total sau partial, indeplinirea obligatiilor izvorind din acest&nbsp;</p><p>P a g e 4 | 6&nbsp;</p><p>contract.&nbsp;</p><p>8.4. Pentru orice intarziere si/sau neindeplinire a obligatiilor contractuale de catre oricare din Parti&nbsp;ca urmare a situatiei de forta majora, niciuna din Parti nu va fi indreptatita sa pretinda celeilalte Parti&nbsp;penalitati, dobanzi, ori despagubiri care altfel ar fi fost platibile.&nbsp;</p><p>8.5. Daca, datorita situatiei de forta majora, una din Parti este impiedicata sa-si indeplineasca, total&nbsp;sau partial obligatiile sale contractuale pe o perioada mai mare 1 luna, atunci oricare Parte va avea&nbsp;dreptul, in lipsa unei alte intelegeri, sa rezilieze contractul, printr-o notificare scrisa adresata&nbsp;celeilalte Parti. In acesta situatie, Partile vor stabili consecintele rezilierii.&nbsp;</p><p><strong>Art. 9. Notificari, adrese, comunicari&nbsp;</strong></p><p>9.1. Orice adresă, notificare, comunicare sau cerere făcută în legătură cu executarea prezentului&nbsp;Contract vor fi făcute în scris.&nbsp;</p><p>9.2. Orice adresă, notificare, comunicare sau cerere este consideră valabil făcută, dacă va fi transmisă&nbsp;celeilalte Părți la adresa menționată în prezentul Contract, prin poștă, cu scrisoare recomandată cu&nbsp;confirmare de primire.&nbsp;</p><p>9.3. Toate aceste comunicări se pot face și prin fax, e-mail, cu condiția confirmării în scris a primirii&nbsp;lor.&nbsp;</p><p>9.4. Toate notificările şi comunicările privind prezentul Contract vor fi trimise la adresele mentionate&nbsp;in preambulul Contractului.&nbsp;</p><p>9.5. În cazul în care o Parte își schimbă datele de contact, aceasta are obligația de a notifica acest&nbsp;eveniment celeilalte Părți în termen de maxim 1 zi lucrătoare, calculat de la momentul producerii&nbsp;schimbării, în caz contrar considerându-se că scrisoarea/notificarea/cererea a fost trimisă în mod&nbsp;valabil la datele cunoscute în momentul încheierii Contractului.&nbsp;</p><p>9.6. Orice adresa, notificare, comunicare sau cerere transmisă prin fax/e-mail se va considera ca fiind&nbsp;trimisă în prima zi lucrătoare după cea în care a fost expediată;&nbsp;</p><p>9.7. Data la care se va considera primită o notificare/adresa/cerere/comunicare este data menționată&nbsp;în raportul de confirmare.&nbsp;</p><p><strong>Art. 10. Litigii&nbsp;</strong></p><p>10.1. Prezentul Contract este guvernat de legea română.&nbsp;</p><p>10.2. Orice neînţelegere rezultată din valabilitatea, executarea şi interpretarea prezentului Contract&nbsp;va fi soluţionată în mod amiabil. Când aceasta nu este posibilă, litigiul va fi depus spre soluţionare&nbsp;instantelor competente de la sediul Beneficiarului.&nbsp;</p><p><strong>Art.11. CLAUZA DE CONFIDENȚIALITATE SI DE PROTECTIE A DATELOR PERSONALE (GDPR).&nbsp;</strong></p><p>Fiecare Parte se obligă să nu divulge terţelor persoane, fără acordul prealabil exprimat în scris al&nbsp;celeilalte Parţi, informaţia obţinută în procesul executării prezentului Contract, precum şi să o&nbsp;utilizeze numai în scopurile executării prezentului Contract. Obligaţia nu se aplică informaţiei: a.&nbsp;divulgate la solicitarea unor autoritati publice cu atributii, făcută în conformitate cu legislaţia în&nbsp;vigoare; b. care este de domeniul public la momentul divulgării; c. divulgate în cadrul unui proces&nbsp;judiciar între Parţi privind acest Contract; d. divulgate acţionarilor Părţii, persoanelor cu funcţii de&nbsp;răspundere, salariaţilor, reprezentanţilor, agenţilor, consultanţilor, auditorilor, cedenţilor,&nbsp;</p><p>P a g e 5 | 6&nbsp;</p><p>succesorilor şi/sau întreprinderilor afiliate ale Parţii care sunt implicate în executarea prezentului&nbsp;Contract, referitor la care Partea va trebui:- să limiteze divulgarea informaţiei numai către cei ce au&nbsp;nevoie de ea pentru îndeplinirea obligaţiilor sale faţă de Parte;- sa asigure folosirea informaţiei&nbsp;exclusiv in scopurile nemijlocit legate de ceea pentru ce informaţia este divulgata;- sa informeze toate&nbsp;aceste persoane privind obligaţia lor de a păstra confidenţialitatea informaţiei în modul stabilit de prezentul Contract.&nbsp;</p><p>Sunt considerate informații confidențiale și fac obiectul prezentelor clauze, datele de identificare&nbsp;(nume, semnătură, serie și număr CI etc.) ale reprezentanților Părților, care se vor regăsi pe&nbsp;documentele emise de (schimbate între) Parți în perioada derulării Contractului și care nu sunt de&nbsp;domeniul public la momentul divulgării. Prelucrarea de către Părți a datelor cu caracter personal ale&nbsp;persoanelor vizate mai sus se va realiza cu respectarea principiilor și drepturilor acestora care decurg&nbsp;din punerea în aplicare a REGULAMENTUL (UE) 2016/679 AL PARLAMENTULUI EUROPEAN ȘI AL&nbsp;CONSILIULUI privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter&nbsp;personal – GDPR. În spiritul GDPR, Părțile au următoarele drepturi de acces la datele personale ale&nbsp;angajaților/reprezentanților proprii, operate de cealaltă Parte:a) Dreptul de acces la date; b) reptul&nbsp;la rectificarea datelor; c) Dreptul la ștergerea datelor; d)Dreptul la restricționarea prelucrării; e)&nbsp;Dreptul la portabilitatea datelor; f) Dreptul de opoziție la prelucrarea datelor; g) Dreptul de a nu fi&nbsp;supus unor decizii automatizate, inclusiv profilarea; h) Dreptul la notificarea destinatarilor privind&nbsp;rectificarea, ștergerea ori restricționarea datelor cu caracter personal.&nbsp;</p><p>Conform legislației naționale în vigoare în domeniu, datele personale solicitate de beneficiar sunt&nbsp;necesare pentru buna derulare a Contractului (completarea facturilor, documentelor contabile) și nu&nbsp;vor fi folosite în alte scopuri.&nbsp;</p><p>Datele personale obținute sunt procesate în bazele de date și pe serverele Niro Investment S.A. (societate afiliata), pe întreaga durată a raporturilor contractuale și ulterior, conform politicilor&nbsp;interne, pe durata necesară îndeplinirii obligațiilor legale ce ii revin. Respectarea cerințelor legale&nbsp;aplicabile sunt permanent monitorizate, inclusiv prin Responsabilul de protecție a datelor cu caracter&nbsp;personal ce poate fi contactat la dpo@nirogroup.ro. Reclamațiile privind posibila încălcare a&nbsp;drepturilor privind prelucrarea datelor cu caracter personal pot fi adresate Autorității Naționale de&nbsp;Supraveghere a Prelucrării Datelor cu Caracter Personal la adresa www.dataprotection.ro.&nbsp;</p><p>Oricare dintre Părţile contractante se obligă, în termenii şi condiţiile prezentului Contract, să păstreze&nbsp;strict confidenţiale, pe durata Contractului şi după incetarea acestuia, toate datele şi informaţiile,&nbsp;divulgate în orice manieră de către cealaltă Parte, în executarea Contractului. Excepţie de la prezenta&nbsp;obligaţie sunt cazurile în care divulgarea este necesară pentru executarea Contractului şi se face&nbsp;numai avand consimţământul scris, expres si prealabil al celeilalte Părţi sau daca divulgarea este&nbsp;solicitată, în mod legal, de către autorităţile de drept.&nbsp;</p><p>În cazul în care oricare dintre Părţi va încălca obligaţia de confidenţialitate, aceasta va fi obligată la&nbsp;plata de daune-interese în favoarea Părţii prejudiciate.&nbsp;</p><p><strong>Art.12. Cesiunea Contractului&nbsp;</strong></p><p>12.1. Prezentul Contract are caracter <em>intuitu personae </em>in privinta Prestatorului; acesta nu poate&nbsp;transmite unei terţe persoane, total sau parţial, drepturile şi obligaţiile ce ii revin prin prezentul&nbsp;Contract, decât dacă a obţinut acordul scris și prealabil al Beneficiarului, care acord trebuie transmis&nbsp;Prestatorului în termen de 5 (cinci) zile lucrătoare de la momentul primirii notificării. În lipsa unui&nbsp;</p><p>P a g e 6 | 6&nbsp;</p><p>răspuns scris și expres exprimat în acest sens, se consideră că Partea nu consimte la cesiunea&nbsp;Contractului şi aceasta nu poate avea loc.&nbsp;</p><p><strong>Art. 13. Clauze finale&nbsp;</strong></p><p>13.1. Partile sunt de drept in intarziere in cazul neindeplinirii sau indeplinirii necorespunzatoare a&nbsp;oricareia din obligatiile ce le revin potrivit Contractului.&nbsp;</p><p>13.2. Reprezentanţii Părţilor declară că sunt pe deplin împuterniciţi pentru semnarea Contractului&nbsp;şi că Partea pe care o reprezintă este valabil înregistrată şi are deplină capacitate pentru încheierea&nbsp;prezentului acord şi pentru exercitarea drepturilor şi executarea obligaţiilor prevăzute prin acesta. 13.3. Partile declara ca toate prevederile Contractului au fost negociate cu buna–credinta, le-au&nbsp;citit, si le-au asumat si sunt de acord cu acestea asa cum sunt consemnate prin prezentul inscris.&nbsp;13.4. Ambele Parti declara ca isi asuma, pe toata durata contractuala, riscul schimbarii&nbsp;imprejurarilor (de orice natura- inclusiv, dar fara a se limita la, cele politice, economice, comerciale si&nbsp;financiare) existente la data incheierii Contractului, cu respectarea prevederilor Art. 1271 Cod civil.&nbsp;13.5. Prezentul Contract este supus legii romane si interpretat in conformitate cu prevederile&nbsp;acesteia. Orice litigiu, controversa sau pretentie a Partilor, decurgand din sau in legatura cu prezentul&nbsp;Contract si care nu a fost solutionata de Parti in mod amiabil, va fi supusa, spre solutionare, instantelor&nbsp;judecatoresti competente din Bucuresti.&nbsp;</p><p>13.6. Contract poate fi modificat exclusiv prin incheierea de acte aditionale.&nbsp;13.7. Prevederile contractuale sunt integral obligatorii pentru Partile semnatare si succesorii lor in&nbsp;drepturi si obligatii.&nbsp;</p><p>Prezentul Contract a fost incheiat in 2 (două) exemplare astazi, 01.02.2024, cate un exemplar pentru&nbsp;fiecare Parte.&nbsp;</p><p>Beneficiar, Prestator,&nbsp;</p><p><strong>NIRO INVESTMENT S.A. SOFTHUB AG S.R.L. </strong>Director General, Administrator,&nbsp;</p><p><strong>Mihaela Istrate Razvan Mihai Mustata</strong>&nbsp;</p>	32
 \.
 
 
 --
--- Data for Name: ContractDynamicFields; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractDynamicFields; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractDynamicFields" (id, "updateadAt", "createdAt", "contractId", "dffInt1", "dffInt2", "dffInt3", "dffInt4", "dffString1", "dffString2", "dffString3", "dffString4", "dffDate1", "dffDate2") FROM stdin;
@@ -4436,7 +4757,6 @@ COPY public."ContractDynamicFields" (id, "updateadAt", "createdAt", "contractId"
 52	2024-05-16 10:59:59.269	2024-05-16 10:59:59.269	52	\N	\N	\N	\N					\N	\N
 53	2024-05-16 11:12:10.889	2024-05-16 11:12:10.889	53	\N	\N	\N	\N					\N	\N
 54	2024-05-16 11:55:48.195	2024-05-16 11:55:48.195	54	\N	\N	\N	\N					\N	\N
-55	2024-05-16 12:04:52.129	2024-05-16 12:04:52.129	55	\N	\N	\N	\N					\N	\N
 56	2024-05-16 12:13:01.376	2024-05-16 12:13:01.376	56	\N	\N	\N	\N					\N	\N
 57	2024-05-16 12:41:29.38	2024-05-16 12:41:29.38	57	\N	\N	\N	\N					\N	\N
 58	2024-05-16 12:45:04.091	2024-05-16 12:45:04.091	58	\N	\N	\N	\N					\N	\N
@@ -4471,14 +4791,26 @@ COPY public."ContractDynamicFields" (id, "updateadAt", "createdAt", "contractId"
 88	2024-05-22 07:42:38.713	2024-05-22 07:42:38.713	88	\N	\N	\N	\N					\N	\N
 89	2024-05-22 07:52:20.378	2024-05-22 07:52:20.378	89	\N	\N	\N	\N					\N	\N
 85	2024-05-23 06:07:23.54	2024-05-22 06:22:20.428	85	\N	\N	\N	\N					1970-01-02 00:00:00	1970-01-02 00:00:00
-1	2024-05-27 14:34:03.394	2024-05-13 14:15:09.084	1	\N	\N	\N	\N					1970-01-03 00:00:00	1970-01-03 00:00:00
 90	2024-05-28 09:39:16.791	2024-05-28 09:39:16.791	90	\N	\N	\N	\N					\N	\N
 91	2024-05-28 13:30:55.098	2024-05-28 13:30:55.098	91	\N	\N	\N	\N					1970-01-02 00:00:00	1970-01-02 00:00:00
+1	2024-06-06 14:03:01.904	2024-05-13 14:15:09.084	1	\N	\N	\N	\N					1970-01-04 00:00:00	1970-01-04 00:00:00
+92	2024-06-06 14:03:41.51	2024-06-06 14:03:41.51	92	\N	\N	\N	\N					1970-01-05 00:00:00	1970-01-05 00:00:00
+93	2024-10-03 13:13:28.674	2024-10-03 13:13:28.674	93	\N	\N	\N	\N					\N	\N
+94	2024-10-04 09:37:55.811	2024-10-04 09:37:55.811	94	\N	\N	\N	\N					\N	\N
+55	2024-10-04 09:51:39.327	2024-05-16 12:04:52.129	55	\N	\N	\N	\N					1970-01-02 00:00:00	1970-01-02 00:00:00
+95	2024-10-05 09:19:32.526	2024-10-05 09:19:32.526	95	\N	\N	\N	\N					1970-01-02 00:00:00	1970-01-02 00:00:00
+96	2024-10-05 09:27:42.634	2024-10-05 09:27:42.634	96	\N	\N	\N	\N					1970-01-02 00:00:00	1970-01-02 00:00:00
+97	2024-10-05 09:30:19.197	2024-10-05 09:30:19.197	97	\N	\N	\N	\N					1970-01-02 00:00:00	1970-01-02 00:00:00
+98	2024-10-05 09:41:16.107	2024-10-05 09:41:16.107	98	\N	\N	\N	\N					1970-01-02 00:00:00	1970-01-02 00:00:00
+99	2024-10-05 09:42:46.275	2024-10-05 09:42:46.275	99	\N	\N	\N	\N					1970-01-02 00:00:00	1970-01-02 00:00:00
+100	2024-10-05 10:01:45.878	2024-10-05 10:01:45.878	100	\N	\N	\N	\N					1970-01-03 00:00:00	1970-01-03 00:00:00
+101	2024-10-11 14:26:15.935	2024-10-11 14:26:15.935	101	\N	\N	\N	\N					1970-01-03 00:00:00	1970-01-03 00:00:00
+102	2024-10-14 15:21:24.514	2024-10-14 15:21:24.514	102	\N	\N	\N	\N					1970-01-02 00:00:00	1970-01-02 00:00:00
 \.
 
 
 --
--- Data for Name: ContractFinancialDetail; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractFinancialDetail; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractFinancialDetail" (id, "updateadAt", "createdAt", itemid, "currencyValue", "currencyPercent", "billingDay", "billingQtty", "billingFrequencyid", "measuringUnitid", "paymentTypeid", "billingPenaltyPercent", "billingDueDays", remarks, "guaranteeLetter", "guaranteeLetterCurrencyid", "guaranteeLetterDate", "guaranteeLetterValue", "contractItemId", active, price, currencyid, "advancePercent", "goodexecutionLetter", "goodexecutionLetterBankId", "goodexecutionLetterCurrencyId", "goodexecutionLetterDate", "goodexecutionLetterInfo", "goodexecutionLetterValue", "guaranteeLetterBankId", "guaranteeLetterInfo", "vatId") FROM stdin;
@@ -4531,187 +4863,250 @@ COPY public."ContractFinancialDetail" (id, "updateadAt", "createdAt", itemid, "c
 47	2024-05-28 09:36:34.676	2024-05-28 09:36:34.676	2	\N	0	1	1	3	2	1	0	10	327	\N	\N	1970-01-01 00:00:00	0	44	t	20	3	3	f	\N	\N	1970-01-01 00:00:00		\N	\N		2
 48	2024-05-29 05:00:34.449	2024-05-29 05:00:34.449	4	5	5	15	1	3	1	2	55	10		\N	\N	1970-01-01 00:00:00	0	32	t	55	2	50	f	\N	\N	1970-01-01 00:00:00		\N	\N		1
 49	2024-05-29 05:11:51.451	2024-05-29 05:11:51.451	3	8	0	1	1	3	2	2	8	10	8	\N	\N	\N	0	45	t	8888	2	8	f	\N	\N	\N		\N	\N		2
+50	2024-05-29 09:12:48.431	2024-05-29 09:12:48.431	1	4	1	1	1	1	2	2	2	10	1	\N	\N	\N	0	46	t	23	2	2	f	\N	\N	\N		\N	\N		2
+51	2024-05-29 09:13:15.106	2024-05-29 09:13:15.106	1	4	1	1	1	3	2	2	2	10	1	\N	\N	1970-01-01 00:00:00	0	46	t	23	2	2	f	\N	\N	1970-01-01 00:00:00		\N	\N		2
+52	2024-10-03 13:14:24.306	2024-10-03 13:14:24.306	2	\N	0	1	1	3	3	1	0	10		\N	\N	\N	0	47	t	5000	1	0	f	\N	\N	\N		\N	\N		1
+53	2024-10-05 11:56:11.121	2024-10-05 11:56:11.121	1	\N	0	1	1	2	1	2	0	10	233	\N	\N	\N	0	48	t	340	2	0	f	\N	\N	\N		\N	\N		1
+54	2024-10-05 13:04:08.832	2024-10-05 13:04:08.832	1	\N	0	1	1	3	1	2	0	10		\N	\N	\N	0	49	t	1500	2	0	f	\N	\N	\N		\N	\N		1
+55	2024-10-05 14:17:44.113	2024-10-05 14:17:44.113	1	\N	0	1	1	3	1	2	0	10		\N	\N	\N	0	50	t	222	2	0	f	\N	\N	\N		\N	\N		4
+56	2024-10-05 14:22:24.049	2024-10-05 14:22:24.049	2	\N	0	1	1	3	1	2	0	10		\N	\N	\N	0	51	t	330	3	0	f	\N	\N	\N		\N	\N		4
+57	2024-10-05 15:31:27.165	2024-10-05 15:31:27.165	4	\N	0	1	1	3	2	2	0	10		\N	\N	\N	0	52	t	4444	2	0	f	\N	\N	\N		\N	\N		1
+58	2024-10-05 15:48:37.036	2024-10-05 15:48:37.036	8	\N	0	1	1	3	3	3	0	10		\N	\N	\N	0	53	t	444	3	0	f	\N	\N	\N		\N	\N		2
+59	2024-10-05 16:14:28.688	2024-10-05 15:53:53.659	4	\N	0	1	1	3	1	2	0	10		t	1	1970-01-01 00:00:00	3444	54	t	4444	2	0	f	\N	\N	1970-01-01 00:00:00		\N	1	444	4
 \.
 
 
 --
--- Data for Name: ContractFinancialDetailSchedule; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractFinancialDetailSchedule; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractFinancialDetailSchedule" (id, "updateadAt", "createdAt", itemid, date, "measuringUnitid", "billingQtty", "totalContractValue", "billingValue", "isInvoiced", "isPayed", currencyid, active, "contractfinancialItemId") FROM stdin;
-1	2024-05-14 04:10:20.859	2024-05-14 04:10:20.859	1	2024-05-01 00:00:00	3	1	555	555	f	f	2	t	1
-2	2024-05-14 06:28:51.106	2024-05-14 06:28:51.106	1	2024-05-01 00:00:00	1	1	500	500	f	f	3	t	4
-3	2024-05-14 06:28:51.106	2024-05-14 06:28:51.106	1	2024-06-01 00:00:00	1	1	500	500	f	f	3	t	4
-4	2024-05-14 06:28:51.106	2024-05-14 06:28:51.106	1	2024-07-01 00:00:00	1	1	500	500	f	f	3	t	4
-5	2024-05-14 06:28:51.106	2024-05-14 06:28:51.106	1	2024-08-01 00:00:00	1	1	500	500	f	f	3	t	4
-6	2024-05-14 06:28:51.106	2024-05-14 06:28:51.106	1	2024-09-01 00:00:00	1	1	500	500	f	f	3	t	4
-7	2024-05-14 06:28:51.106	2024-05-14 06:28:51.106	1	2024-10-01 00:00:00	1	1	500	500	f	f	3	t	4
-8	2024-05-14 06:28:51.106	2024-05-14 06:28:51.106	1	2024-11-01 00:00:00	1	1	500	500	f	f	3	t	4
-9	2024-05-14 06:28:51.106	2024-05-14 06:28:51.106	1	2024-12-01 00:00:00	1	1	500	500	f	f	3	t	4
-10	2024-05-14 06:34:04.779	2024-05-14 06:34:04.779	1	2024-05-01 00:00:00	2	1	555	555	f	f	2	t	5
-11	2024-05-14 06:34:04.779	2024-05-14 06:34:04.779	1	2024-08-01 00:00:00	2	1	555	555	f	f	2	t	5
-127	2024-05-27 13:41:53.209	2024-05-27 13:41:53.209	1	2024-06-05 00:00:00	\N	38	37962	999	f	f	2	t	6
-128	2024-05-27 13:41:53.209	2024-05-27 13:41:53.209	1	2024-06-05 00:00:00	\N	3	1500	500	f	f	2	t	6
-129	2024-05-27 13:41:53.209	2024-05-27 13:41:53.209	1	2024-07-05 00:00:00	\N	3	1500	500	f	f	2	t	6
-130	2024-05-27 13:41:53.209	2024-05-27 13:41:53.209	1	2024-08-05 00:00:00	\N	3	1500	500	f	f	2	t	6
-131	2024-05-27 13:41:53.209	2024-05-27 13:41:53.209	1	2024-09-05 00:00:00	\N	3	1500	500	f	f	2	t	6
-132	2024-05-27 13:41:53.209	2024-05-27 13:41:53.209	1	2024-10-05 00:00:00	\N	3	1500	500	f	f	2	t	6
-133	2024-05-27 13:41:53.209	2024-05-27 13:41:53.209	1	2024-11-05 00:00:00	\N	3	1500	500	f	f	2	t	6
-134	2024-05-27 13:41:53.209	2024-05-27 13:41:53.209	1	2024-12-05 00:00:00	\N	3	1500	500	f	f	2	t	6
-135	2024-05-27 13:41:53.209	2024-05-27 13:41:53.209	1	2025-01-05 00:00:00	\N	3	1500	500	f	f	2	t	6
-145	2024-05-27 15:31:13.693	2024-05-27 15:31:13.693	3	2024-05-01 00:00:00	32	1	555	555	f	f	1	t	21
-146	2024-05-27 15:31:13.693	2024-05-27 15:31:13.693	3	2024-06-01 00:00:00	32	1	555	555	f	f	1	t	21
-147	2024-05-27 15:31:13.693	2024-05-27 15:31:13.693	3	2024-07-01 00:00:00	32	1	555	555	f	f	1	t	21
-30	2024-05-14 07:55:00.106	2024-05-14 07:55:00.106	1	2024-05-01 00:00:00	\N	4	800	200	f	f	2	t	7
-31	2024-05-14 07:55:00.106	2024-05-14 07:55:00.106	1	2024-06-01 00:00:00	\N	4	800	200	f	f	2	t	7
-32	2024-05-14 07:55:00.106	2024-05-14 07:55:00.106	1	2024-07-01 00:00:00	\N	4	800	200	f	f	2	t	7
-33	2024-05-14 07:55:00.106	2024-05-14 07:55:00.106	1	2024-08-01 00:00:00	\N	4	800	200	f	f	2	t	7
-34	2024-05-14 07:55:00.106	2024-05-14 07:55:00.106	1	2024-09-01 00:00:00	\N	4	800	200	f	f	2	t	7
-35	2024-05-14 07:55:00.106	2024-05-14 07:55:00.106	1	2024-10-01 00:00:00	\N	4	800	200	f	f	2	t	7
-36	2024-05-14 07:55:00.106	2024-05-14 07:55:00.106	1	2024-11-01 00:00:00	\N	4	800	200	f	f	2	t	7
-37	2024-05-14 07:55:00.106	2024-05-14 07:55:00.106	1	2024-12-01 00:00:00	\N	4	800	200	f	f	2	t	7
-38	2024-05-14 07:55:00.106	2024-05-14 07:55:00.106	1	2025-01-01 00:00:00	\N	4	800	200	f	f	2	t	7
-39	2024-05-14 08:03:42.274	2024-05-14 08:03:42.274	1	2024-05-01 00:00:00	1	1	500	500	f	f	2	t	8
-40	2024-05-14 08:03:42.274	2024-05-14 08:03:42.274	1	2024-06-01 00:00:00	1	1	500	500	f	f	2	t	8
-41	2024-05-14 08:03:42.274	2024-05-14 08:03:42.274	1	2024-07-01 00:00:00	1	1	500	500	f	f	2	t	8
-42	2024-05-14 08:03:42.274	2024-05-14 08:03:42.274	1	2024-08-01 00:00:00	1	1	500	500	f	f	2	t	8
-43	2024-05-14 08:03:42.274	2024-05-14 08:03:42.274	1	2024-09-01 00:00:00	1	1	500	500	f	f	2	t	8
-44	2024-05-14 08:03:42.274	2024-05-14 08:03:42.274	1	2024-10-01 00:00:00	1	1	500	500	f	f	2	t	8
-45	2024-05-14 08:03:42.274	2024-05-14 08:03:42.274	1	2024-11-01 00:00:00	1	1	500	500	f	f	2	t	8
-46	2024-05-14 08:03:42.274	2024-05-14 08:03:42.274	1	2024-12-01 00:00:00	1	1	500	500	f	f	2	t	8
-47	2024-05-14 08:03:42.274	2024-05-14 08:03:42.274	1	2025-01-01 00:00:00	1	1	500	500	f	f	2	t	8
-48	2024-05-14 08:29:49.277	2024-05-14 08:29:49.277	1	2024-05-01 00:00:00	1	1	550	550	f	f	3	t	9
-49	2024-05-14 08:29:49.277	2024-05-14 08:29:49.277	1	2024-06-01 00:00:00	1	1	550	550	f	f	3	t	9
-50	2024-05-14 08:29:49.277	2024-05-14 08:29:49.277	1	2024-07-01 00:00:00	1	1	550	550	f	f	3	t	9
-51	2024-05-14 08:29:49.277	2024-05-14 08:29:49.277	1	2024-08-01 00:00:00	1	1	550	550	f	f	3	t	9
-52	2024-05-14 08:29:49.277	2024-05-14 08:29:49.277	1	2024-09-01 00:00:00	1	1	550	550	f	f	3	t	9
-53	2024-05-14 08:29:49.277	2024-05-14 08:29:49.277	1	2024-10-01 00:00:00	1	1	550	550	f	f	3	t	9
-54	2024-05-14 08:29:49.277	2024-05-14 08:29:49.277	1	2024-11-01 00:00:00	1	1	550	550	f	f	3	t	9
-55	2024-05-14 08:29:49.277	2024-05-14 08:29:49.277	1	2024-12-01 00:00:00	1	1	550	550	f	f	3	t	9
-56	2024-05-14 08:29:49.277	2024-05-14 08:29:49.277	1	2025-01-01 00:00:00	1	1	550	550	f	f	3	t	9
-57	2024-05-14 13:54:26.891	2024-05-14 13:54:26.891	1	2024-05-01 00:00:00	1	1	455	455	f	f	3	t	10
-58	2024-05-14 13:54:26.891	2024-05-14 13:54:26.891	1	2024-06-01 00:00:00	1	1	455	455	f	f	3	t	10
-59	2024-05-14 13:54:26.891	2024-05-14 13:54:26.891	1	2024-07-01 00:00:00	1	1	455	455	f	f	3	t	10
-60	2024-05-14 13:54:26.891	2024-05-14 13:54:26.891	1	2024-08-01 00:00:00	1	1	455	455	f	f	3	t	10
-61	2024-05-14 13:54:26.891	2024-05-14 13:54:26.891	1	2024-09-01 00:00:00	1	1	455	455	f	f	3	t	10
-62	2024-05-14 13:54:26.891	2024-05-14 13:54:26.891	1	2024-10-01 00:00:00	1	1	455	455	f	f	3	t	10
-63	2024-05-14 13:54:26.891	2024-05-14 13:54:26.891	1	2024-11-01 00:00:00	1	1	455	455	f	f	3	t	10
-64	2024-05-15 06:58:39.66	2024-05-15 06:58:39.66	1	2024-05-13 00:00:00	1	12	2880	240	f	f	4	t	11
-65	2024-05-15 07:05:23.312	2024-05-15 07:05:23.312	1	2024-05-12 00:00:00	3	21	462	22	f	f	5	t	12
-66	2024-05-15 09:00:15.492	2024-05-15 09:00:15.492	1	2024-05-01 00:00:00	3	1	1000	1000	f	f	2	t	13
-67	2024-05-15 09:00:15.492	2024-05-15 09:00:15.492	1	2024-06-01 00:00:00	3	1	1000	1000	f	f	2	t	13
-68	2024-05-15 09:00:15.492	2024-05-15 09:00:15.492	1	2024-07-01 00:00:00	3	1	1000	1000	f	f	2	t	13
-69	2024-05-15 09:00:15.492	2024-05-15 09:00:15.492	1	2024-08-01 00:00:00	3	1	1000	1000	f	f	2	t	13
-70	2024-05-15 09:00:15.492	2024-05-15 09:00:15.492	1	2024-09-01 00:00:00	3	1	1000	1000	f	f	2	t	13
-71	2024-05-15 09:00:15.492	2024-05-15 09:00:15.492	1	2024-10-01 00:00:00	3	1	1000	1000	f	f	2	t	13
-72	2024-05-22 06:30:43.679	2024-05-22 06:30:43.679	1	2024-05-01 00:00:00	2	1	33	33	f	f	3	t	19
-136	2024-05-27 15:28:51.692	2024-05-27 15:28:51.692	3	2024-05-01 00:00:00	32	1	555	555	f	f	1	t	20
-137	2024-05-27 15:28:51.692	2024-05-27 15:28:51.692	3	2024-06-01 00:00:00	32	1	555	555	f	f	1	t	20
-138	2024-05-27 15:28:51.692	2024-05-27 15:28:51.692	3	2024-07-01 00:00:00	32	1	555	555	f	f	1	t	20
-139	2024-05-27 15:28:51.692	2024-05-27 15:28:51.692	3	2024-08-01 00:00:00	32	1	555	555	f	f	1	t	20
-140	2024-05-27 15:28:51.692	2024-05-27 15:28:51.692	3	2024-09-01 00:00:00	32	1	555	555	f	f	1	t	20
-141	2024-05-27 15:28:51.692	2024-05-27 15:28:51.692	3	2024-10-01 00:00:00	32	1	555	555	f	f	1	t	20
-142	2024-05-27 15:28:51.692	2024-05-27 15:28:51.692	3	2024-11-01 00:00:00	32	1	555	555	f	f	1	t	20
-143	2024-05-27 15:28:51.692	2024-05-27 15:28:51.692	3	2024-12-01 00:00:00	32	1	555	555	f	f	1	t	20
-144	2024-05-27 15:28:51.692	2024-05-27 15:28:51.692	3	2025-01-01 00:00:00	32	1	555	555	f	f	1	t	20
-148	2024-05-27 15:31:13.693	2024-05-27 15:31:13.693	3	2024-08-01 00:00:00	32	1	555	555	f	f	1	t	21
-149	2024-05-27 15:31:13.693	2024-05-27 15:31:13.693	3	2024-09-01 00:00:00	32	1	555	555	f	f	1	t	21
-150	2024-05-27 15:31:13.693	2024-05-27 15:31:13.693	3	2024-10-01 00:00:00	32	1	555	555	f	f	1	t	21
-151	2024-05-27 15:31:13.693	2024-05-27 15:31:13.693	3	2024-11-01 00:00:00	32	1	555	555	f	f	1	t	21
-152	2024-05-27 15:31:13.693	2024-05-27 15:31:13.693	3	2024-12-01 00:00:00	32	1	555	555	f	f	1	t	21
-153	2024-05-27 15:31:13.693	2024-05-27 15:31:13.693	3	2025-01-01 00:00:00	32	1	555	555	f	f	1	t	21
-244	2024-05-28 04:37:34.019	2024-05-28 04:37:34.019	4	2025-01-09 00:00:00	\N	7	63	9	f	f	4	t	28
-245	2024-05-28 04:37:34.019	2024-05-28 04:37:34.019	4	2024-06-09 00:00:00	\N	9	81	9	f	f	4	t	28
-246	2024-05-28 04:37:34.019	2024-05-28 04:37:34.019	4	2024-07-09 00:00:00	\N	9	81	9	f	f	4	t	28
-247	2024-05-28 04:37:34.019	2024-05-28 04:37:34.019	4	2024-08-09 00:00:00	\N	9	81	9	f	f	4	t	28
-248	2024-05-28 04:37:34.019	2024-05-28 04:37:34.019	4	2024-09-09 00:00:00	\N	9	81	9	f	f	4	t	28
-249	2024-05-28 04:37:34.019	2024-05-28 04:37:34.019	4	2024-10-09 00:00:00	\N	9	81	9	f	f	4	t	28
-250	2024-05-28 04:37:34.019	2024-05-28 04:37:34.019	4	2024-11-09 00:00:00	\N	9	81	9	f	f	4	t	28
-251	2024-05-28 04:37:34.019	2024-05-28 04:37:34.019	4	2024-12-09 00:00:00	\N	9	81	9	f	f	4	t	28
-252	2024-05-28 04:37:34.019	2024-05-28 04:37:34.019	4	2025-01-09 00:00:00	\N	9	81	9	f	f	4	t	28
-376	2024-05-28 09:05:34.171	2024-05-28 09:05:34.171	2	2024-05-01 00:00:00	2	1	30	30	f	f	2	t	35
-377	2024-05-28 09:05:34.171	2024-05-28 09:05:34.171	2	2024-06-01 00:00:00	2	1	30	30	f	f	2	t	35
-378	2024-05-28 09:05:34.171	2024-05-28 09:05:34.171	2	2024-07-01 00:00:00	2	1	30	30	f	f	2	t	35
-379	2024-05-28 09:05:34.171	2024-05-28 09:05:34.171	2	2024-08-01 00:00:00	2	1	30	30	f	f	2	t	35
-380	2024-05-28 09:05:34.171	2024-05-28 09:05:34.171	2	2024-09-01 00:00:00	2	1	30	30	f	f	2	t	35
-381	2024-05-28 09:05:34.171	2024-05-28 09:05:34.171	2	2024-10-01 00:00:00	2	1	30	30	f	f	2	t	35
-382	2024-05-28 09:05:34.171	2024-05-28 09:05:34.171	2	2024-11-01 00:00:00	2	1	30	30	f	f	2	t	35
-383	2024-05-28 09:07:18.245	2024-05-28 09:07:18.245	4	2024-05-13 00:00:00	1	1	30	30	f	f	1	t	38
-384	2024-05-28 09:07:18.245	2024-05-28 09:07:18.245	4	2024-06-13 00:00:00	1	1	30	30	f	f	1	t	38
-385	2024-05-28 09:07:18.245	2024-05-28 09:07:18.245	4	2024-07-13 00:00:00	1	1	30	30	f	f	1	t	38
-386	2024-05-28 09:07:18.245	2024-05-28 09:07:18.245	4	2024-08-13 00:00:00	1	1	30	30	f	f	1	t	38
-387	2024-05-28 09:07:18.245	2024-05-28 09:07:18.245	4	2024-09-13 00:00:00	1	1	30	30	f	f	1	t	38
-388	2024-05-28 09:07:18.245	2024-05-28 09:07:18.245	4	2024-10-13 00:00:00	1	1	30	30	f	f	1	t	38
-389	2024-05-28 09:07:18.245	2024-05-28 09:07:18.245	4	2024-11-13 00:00:00	1	1	30	30	f	f	1	t	38
-403	2024-05-28 09:15:30.891	2024-05-28 09:15:30.891	4	2024-05-13 00:00:00	1	1	30	30	f	f	1	t	39
-404	2024-05-28 09:15:30.891	2024-05-28 09:15:30.891	4	2024-06-13 00:00:00	1	1	30	30	f	f	1	t	39
-405	2024-05-28 09:15:30.891	2024-05-28 09:15:30.891	4	2024-07-13 00:00:00	1	1	30	30	f	f	1	t	39
-406	2024-05-28 09:15:30.891	2024-05-28 09:15:30.891	4	2024-08-13 00:00:00	1	1	30	30	f	f	1	t	39
-407	2024-05-28 09:15:30.891	2024-05-28 09:15:30.891	4	2024-09-13 00:00:00	1	1	30	30	f	f	1	t	39
-408	2024-05-28 09:15:30.891	2024-05-28 09:15:30.891	4	2024-10-13 00:00:00	1	1	30	30	f	f	1	t	39
-409	2024-05-28 09:15:30.891	2024-05-28 09:15:30.891	4	2024-11-13 00:00:00	1	1	30	30	f	f	1	t	39
-418	2024-05-28 09:17:50.635	2024-05-28 09:17:50.635	3	2024-05-01 00:00:00	\N	1	7.5	7.5	f	f	1	t	43
-419	2024-05-28 09:17:50.635	2024-05-28 09:17:50.635	3	2024-06-01 00:00:00	\N	1	5.5	5.5	f	f	1	t	43
-420	2024-05-28 09:17:50.635	2024-05-28 09:17:50.635	3	2024-07-01 00:00:00	\N	1	5.5	5.5	f	f	1	t	43
-421	2024-05-28 09:17:50.635	2024-05-28 09:17:50.635	3	2024-08-01 00:00:00	\N	1	678	678	f	f	1	t	43
-422	2024-05-28 09:17:50.635	2024-05-28 09:17:50.635	3	2024-09-01 00:00:00	\N	1	5.5	5.5	f	f	1	t	43
-423	2024-05-28 09:17:50.635	2024-05-28 09:17:50.635	3	2024-10-01 00:00:00	\N	1	5.5	5.5	f	f	1	t	43
-424	2024-05-28 09:17:50.635	2024-05-28 09:17:50.635	3	2024-11-01 00:00:00	\N	1	9.5	9.5	f	f	1	t	43
-425	2024-05-28 09:17:50.635	2024-05-28 09:17:50.635	3	2024-12-01 00:00:00	\N	1	5.5	5.5	f	f	1	t	43
-434	2024-05-29 05:00:34.477	2024-05-29 05:00:34.477	4	2024-05-15 00:00:00	1	1	55	55	f	f	2	t	26
-435	2024-05-29 05:00:34.477	2024-05-29 05:00:34.477	4	2024-06-15 00:00:00	1	1	55	55	f	f	2	t	26
-436	2024-05-29 05:00:34.477	2024-05-29 05:00:34.477	4	2024-07-15 00:00:00	1	1	55	55	f	f	2	t	26
-437	2024-05-29 05:00:34.477	2024-05-29 05:00:34.477	4	2024-08-15 00:00:00	1	1	55	55	f	f	2	t	26
-438	2024-05-29 05:00:34.477	2024-05-29 05:00:34.477	4	2024-09-15 00:00:00	1	1	55	55	f	f	2	t	26
-439	2024-05-29 05:00:34.477	2024-05-29 05:00:34.477	4	2024-10-15 00:00:00	1	1	55	55	f	f	2	t	26
-440	2024-05-29 05:00:34.477	2024-05-29 05:00:34.477	4	2024-11-15 00:00:00	1	1	55	55	f	f	2	t	26
-441	2024-05-29 05:00:34.477	2024-05-29 05:00:34.477	4	2024-12-15 00:00:00	1	1	55	55	f	f	2	t	26
-442	2024-05-29 05:00:34.477	2024-05-29 05:00:34.477	4	2025-01-15 00:00:00	1	1	55	55	f	f	2	t	26
-355	2024-05-28 08:08:00.164	2024-05-28 08:08:00.164	1	2024-05-01 00:00:00	\N	6	4026	671	f	f	1	t	33
-356	2024-05-28 08:08:00.164	2024-05-28 08:08:00.164	1	2024-06-01 00:00:00	\N	1	1333	1333	f	f	1	t	33
-269	2024-05-28 06:59:37.006	2024-05-28 06:59:37.006	3	2024-05-01 00:00:00	2	1	3	3	f	f	1	t	32
-270	2024-05-28 06:59:37.006	2024-05-28 06:59:37.006	3	2024-06-01 00:00:00	2	1	3	3	f	f	1	t	32
-357	2024-05-28 08:08:00.164	2024-05-28 08:08:00.164	1	2024-08-01 00:00:00	\N	21	2	1	f	f	1	t	33
-358	2024-05-28 08:08:00.164	2024-05-28 08:08:00.164	1	2024-09-01 00:00:00	\N	3	4	1	t	f	1	t	33
-359	2024-05-28 08:08:00.164	2024-05-28 08:08:00.164	1	2024-10-01 00:00:00	\N	14	1	1	t	t	1	t	33
-360	2024-05-28 08:08:00.164	2024-05-28 08:08:00.164	1	2024-11-01 00:00:00	\N	1	4	1	t	t	1	t	33
-361	2024-05-28 08:08:00.164	2024-05-28 08:08:00.164	1	2024-12-01 00:00:00	\N	1	1	1	f	f	1	t	33
-271	2024-05-28 06:59:37.006	2024-05-28 06:59:37.006	3	2024-07-01 00:00:00	2	1	3	3	f	f	1	t	32
-272	2024-05-28 06:59:37.006	2024-05-28 06:59:37.006	3	2024-08-01 00:00:00	2	1	3	3	f	f	1	t	32
-273	2024-05-28 06:59:37.006	2024-05-28 06:59:37.006	3	2024-09-01 00:00:00	2	1	3	3	f	f	1	t	32
-274	2024-05-28 06:59:37.006	2024-05-28 06:59:37.006	3	2024-10-01 00:00:00	2	1	3	3	f	f	1	t	32
-275	2024-05-28 06:59:37.006	2024-05-28 06:59:37.006	3	2024-11-01 00:00:00	2	1	3	3	f	f	1	t	32
-276	2024-05-28 06:59:37.006	2024-05-28 06:59:37.006	3	2024-12-01 00:00:00	2	1	3	3	f	f	1	t	32
-285	2024-05-28 07:05:15.983	2024-05-28 07:05:15.983	1	2024-05-01 00:00:00	\N	1111.5	555.75	0.5	f	f	1	t	30
-286	2024-05-28 07:05:15.983	2024-05-28 07:05:15.983	1	2024-06-01 00:00:00	\N	1111.5	555.75	0.5	f	f	1	t	30
-287	2024-05-28 07:05:15.983	2024-05-28 07:05:15.983	1	2024-07-01 00:00:00	\N	1111.5	555.75	0.5	f	f	1	t	30
-288	2024-05-28 07:05:15.983	2024-05-28 07:05:15.983	1	2024-08-01 00:00:00	\N	1111.5	555.75	0.5	f	f	1	t	30
-289	2024-05-28 07:05:15.983	2024-05-28 07:05:15.983	1	2024-09-01 00:00:00	\N	1111.5	555.75	0.5	f	f	1	t	30
-290	2024-05-28 07:05:15.983	2024-05-28 07:05:15.983	1	2024-10-01 00:00:00	\N	1111.5	555.75	0.5	f	f	1	t	30
-291	2024-05-28 07:05:15.983	2024-05-28 07:05:15.983	1	2024-11-01 00:00:00	\N	1111.5	555.75	0.5	f	f	1	t	30
-292	2024-05-28 07:05:15.983	2024-05-28 07:05:15.983	1	2024-12-01 00:00:00	\N	1111.5	555.75	0.5	f	f	1	t	30
-426	2024-05-28 09:36:34.739	2024-05-28 09:36:34.739	2	2024-05-01 00:00:00	2	1	20	20	f	f	3	t	46
-427	2024-05-28 09:36:34.739	2024-05-28 09:36:34.739	2	2024-06-01 00:00:00	2	1	20	20	f	f	3	t	46
-428	2024-05-28 09:36:34.739	2024-05-28 09:36:34.739	2	2024-07-01 00:00:00	2	1	20	20	f	f	3	t	46
-429	2024-05-28 09:36:34.739	2024-05-28 09:36:34.739	2	2024-08-01 00:00:00	2	1	20	20	f	f	3	t	46
-430	2024-05-28 09:36:34.739	2024-05-28 09:36:34.739	2	2024-09-01 00:00:00	2	1	20	20	f	f	3	t	46
-431	2024-05-28 09:36:34.739	2024-05-28 09:36:34.739	2	2024-10-01 00:00:00	2	1	20	20	f	f	3	t	46
-432	2024-05-28 09:36:34.739	2024-05-28 09:36:34.739	2	2024-11-01 00:00:00	2	1	20	20	f	f	3	t	46
-433	2024-05-28 09:36:34.739	2024-05-28 09:36:34.739	2	2024-12-01 00:00:00	2	1	20	20	f	f	3	t	46
-443	2024-05-29 05:11:51.456	2024-05-29 05:11:51.456	3	2024-05-01 00:00:00	2	1	8888	8888	f	f	2	t	49
-444	2024-05-29 05:11:51.456	2024-05-29 05:11:51.456	3	2024-06-01 00:00:00	2	1	8888	8888	f	f	2	t	49
-445	2024-05-29 05:11:51.456	2024-05-29 05:11:51.456	3	2024-07-01 00:00:00	2	1	8888	8888	f	f	2	t	49
-446	2024-05-29 05:11:51.456	2024-05-29 05:11:51.456	3	2024-08-01 00:00:00	2	1	8888	8888	f	f	2	t	49
-447	2024-05-29 05:11:51.456	2024-05-29 05:11:51.456	3	2024-09-01 00:00:00	2	1	8888	8888	f	f	2	t	49
-448	2024-05-29 05:11:51.456	2024-05-29 05:11:51.456	3	2024-10-01 00:00:00	2	1	8888	8888	f	f	2	t	49
-449	2024-05-29 05:11:51.456	2024-05-29 05:11:51.456	3	2024-11-01 00:00:00	2	1	8888	8888	f	f	2	t	49
-450	2024-05-29 05:11:51.456	2024-05-29 05:11:51.456	3	2024-12-01 00:00:00	2	1	8888	8888	f	f	2	t	49
-451	2024-05-29 05:11:51.456	2024-05-29 05:11:51.456	3	2025-01-01 00:00:00	2	1	8888	8888	f	f	2	t	49
+70	2024-05-15 09:00:15.492	2024-05-15 09:00:15.492	1	2024-12-25 22:00:00	3	1	1000	1999	f	f	2	t	13
+135	2024-05-27 13:41:53.209	2024-05-27 13:41:53.209	1	2024-11-25 22:00:00	\N	3	1500	3333	f	f	2	t	6
+69	2024-05-15 09:00:15.492	2024-05-15 09:00:15.492	1	2025-02-25 22:00:00	3	1	1000	333	f	f	2	t	13
+66	2024-05-15 09:00:15.492	2024-05-15 09:00:15.492	1	2025-02-25 22:00:00	3	1	1000	10	f	f	2	t	13
+68	2024-05-15 09:00:15.492	2024-05-15 09:00:15.492	1	2025-02-25 22:00:00	3	1	1000	10	f	f	2	t	13
+421	2024-05-28 09:17:50.635	2024-05-28 09:17:50.635	3	2025-02-25 22:00:00	\N	1	678	2500	f	f	1	t	43
+63	2024-05-14 13:54:26.891	2024-05-14 13:54:26.891	1	2024-10-25 22:00:00	1	1	455	10	f	f	3	t	10
+64	2024-05-15 06:58:39.66	2024-05-15 06:58:39.66	1	2025-03-25 22:00:00	1	12	2880	1800	f	f	4	t	11
+67	2024-05-15 09:00:15.492	2024-05-15 09:00:15.492	1	2025-02-01 22:00:00	3	1	1000	2234	f	f	2	t	13
+6	2024-10-04 08:43:39.298	2024-05-14 06:28:51.106	1	2025-04-25 22:00:00	1	1	500	3000	f	f	3	t	4
+462	2024-10-05 13:04:08.834	2024-10-05 13:04:08.834	1	2024-05-01 00:00:00	1	1	1500	1500	f	f	2	t	54
+463	2024-10-05 13:04:08.834	2024-10-05 13:04:08.834	1	2024-06-01 00:00:00	1	1	1500	1500	f	f	2	t	54
+464	2024-10-05 13:04:08.834	2024-10-05 13:04:08.834	1	2024-07-01 00:00:00	1	1	1500	1500	f	f	2	t	54
+465	2024-10-05 13:04:08.834	2024-10-05 13:04:08.834	1	2024-08-01 00:00:00	1	1	1500	1500	f	f	2	t	54
+466	2024-10-05 13:04:08.834	2024-10-05 13:04:08.834	1	2024-09-01 00:00:00	1	1	1500	1500	f	f	2	t	54
+467	2024-10-05 13:04:08.834	2024-10-05 13:04:08.834	1	2024-10-01 00:00:00	1	1	1500	1500	f	f	2	t	54
+71	2024-05-15 09:00:15.492	2024-05-15 09:00:15.492	1	2025-02-25 22:00:00	3	1	1000	10	f	f	2	t	13
+136	2024-05-27 15:28:51.692	2024-05-27 15:28:51.692	3	2025-02-25 22:00:00	32	1	555	10	f	f	1	t	20
+468	2024-10-05 13:04:08.834	2024-10-05 13:04:08.834	1	2024-11-01 00:00:00	1	1	1500	1500	f	f	2	t	54
+469	2024-10-05 13:04:08.834	2024-10-05 13:04:08.834	1	2024-12-01 00:00:00	1	1	1500	1500	f	f	2	t	54
+137	2024-05-27 15:28:51.692	2024-05-27 15:28:51.692	3	2025-02-25 22:00:00	32	1	555	10	f	f	1	t	20
+386	2024-05-28 09:07:18.245	2024-05-28 09:07:18.245	4	2025-02-25 22:00:00	1	1	30	30	f	f	1	t	38
+387	2024-05-28 09:07:18.245	2024-05-28 09:07:18.245	4	2025-02-25 22:00:00	1	1	30	30	f	f	1	t	38
+388	2024-05-28 09:07:18.245	2024-05-28 09:07:18.245	4	2025-02-25 22:00:00	1	1	30	30	f	f	1	t	38
+389	2024-05-28 09:07:18.245	2024-05-28 09:07:18.245	4	2025-02-25 22:00:00	1	1	30	30	f	f	1	t	38
+403	2024-05-28 09:15:30.891	2024-05-28 09:15:30.891	4	2025-02-25 22:00:00	1	1	30	30	f	f	1	t	39
+430	2024-05-28 09:36:34.739	2024-05-28 09:36:34.739	2	2025-02-25 22:00:00	2	1	20	20	f	f	3	t	46
+5	2024-05-14 06:28:51.106	2024-05-14 06:28:51.106	1	2025-02-25 22:00:00	1	1	500	10	f	f	3	t	4
+8	2024-05-14 06:28:51.106	2024-05-14 06:28:51.106	1	2025-02-25 22:00:00	1	1	500	10	f	f	3	t	4
+9	2024-05-14 06:28:51.106	2024-05-14 06:28:51.106	1	2025-02-25 22:00:00	1	1	500	10	f	f	3	t	4
+10	2024-05-14 06:34:04.779	2024-05-14 06:34:04.779	1	2025-02-25 22:00:00	2	1	555	10	f	f	2	t	5
+30	2024-05-14 07:55:00.106	2024-05-14 07:55:00.106	1	2025-02-25 22:00:00	\N	4	800	10	f	f	2	t	7
+31	2024-05-14 07:55:00.106	2024-05-14 07:55:00.106	1	2025-02-25 22:00:00	\N	4	800	10	f	f	2	t	7
+32	2024-05-14 07:55:00.106	2024-05-14 07:55:00.106	1	2025-02-25 22:00:00	\N	4	800	10	f	f	2	t	7
+33	2024-05-14 07:55:00.106	2024-05-14 07:55:00.106	1	2025-02-25 22:00:00	\N	4	800	10	f	f	2	t	7
+34	2024-05-14 07:55:00.106	2024-05-14 07:55:00.106	1	2025-02-25 22:00:00	\N	4	800	10	f	f	2	t	7
+35	2024-05-14 07:55:00.106	2024-05-14 07:55:00.106	1	2025-02-25 22:00:00	\N	4	800	10	f	f	2	t	7
+428	2024-05-28 09:36:34.739	2024-05-28 09:36:34.739	2	2025-02-25 22:00:00	2	1	20	20	f	f	3	t	46
+470	2024-10-05 14:17:44.116	2024-10-05 14:17:44.116	1	2024-05-01 00:00:00	1	1	222	222	f	f	2	t	55
+132	2024-05-27 13:41:53.209	2024-05-27 13:41:53.209	1	2025-02-25 22:00:00	\N	3	1500	2343	f	f	2	t	6
+429	2024-05-28 09:36:34.739	2024-05-28 09:36:34.739	2	2025-02-25 22:00:00	2	1	20	20	f	f	3	t	46
+133	2024-05-27 13:41:53.209	2024-05-27 13:41:53.209	1	2025-02-25 22:00:00	\N	3	1500	10	f	f	2	t	6
+134	2024-05-27 13:41:53.209	2024-05-27 13:41:53.209	1	2025-02-25 22:00:00	\N	3	1500	10	f	f	2	t	6
+286	2024-05-28 07:05:15.983	2024-05-28 07:05:15.983	1	2025-02-25 22:00:00	\N	1111.5	555.75	0.5	f	f	1	t	30
+1	2024-05-14 04:10:20.859	2024-05-14 04:10:20.859	1	2025-02-25 22:00:00	3	1	555	10	f	f	2	t	1
+287	2024-05-28 07:05:15.983	2024-05-28 07:05:15.983	1	2025-02-25 22:00:00	\N	1111.5	555.75	0.5	f	f	1	t	30
+7	2024-05-14 06:28:51.106	2024-05-14 06:28:51.106	1	2025-02-25 22:00:00	1	1	500	234	f	f	3	t	4
+11	2024-05-14 06:34:04.779	2024-05-14 06:34:04.779	1	2025-02-25 22:00:00	2	1	555	423	f	f	2	t	5
+138	2024-05-27 15:28:51.692	2024-05-27 15:28:51.692	3	2025-02-25 22:00:00	32	1	555	10	f	f	1	t	20
+139	2024-05-27 15:28:51.692	2024-05-27 15:28:51.692	3	2025-02-25 22:00:00	32	1	555	10	f	f	1	t	20
+151	2024-05-27 15:31:13.693	2024-05-27 15:31:13.693	3	2025-02-25 22:00:00	32	1	555	10	f	f	1	t	21
+152	2024-05-27 15:31:13.693	2024-05-27 15:31:13.693	3	2025-02-25 22:00:00	32	1	555	10	f	f	1	t	21
+3	2024-05-14 06:28:51.106	2024-05-14 06:28:51.106	1	2025-02-25 22:00:00	1	1	500	10	f	f	3	t	4
+404	2024-05-28 09:15:30.891	2024-05-28 09:15:30.891	4	2025-02-25 22:00:00	1	1	30	30	f	f	1	t	39
+405	2024-05-28 09:15:30.891	2024-05-28 09:15:30.891	4	2025-02-25 22:00:00	1	1	30	30	f	f	1	t	39
+406	2024-05-28 09:15:30.891	2024-05-28 09:15:30.891	4	2025-02-25 22:00:00	1	1	30	30	f	f	1	t	39
+407	2024-05-28 09:15:30.891	2024-05-28 09:15:30.891	4	2025-02-25 22:00:00	1	1	30	30	f	f	1	t	39
+408	2024-05-28 09:15:30.891	2024-05-28 09:15:30.891	4	2025-02-25 22:00:00	1	1	30	30	f	f	1	t	39
+409	2024-05-28 09:15:30.891	2024-05-28 09:15:30.891	4	2025-02-25 22:00:00	1	1	30	30	f	f	1	t	39
+418	2024-05-28 09:17:50.635	2024-05-28 09:17:50.635	3	2025-02-25 22:00:00	\N	1	7.5	7.5	f	f	1	t	43
+419	2024-05-28 09:17:50.635	2024-05-28 09:17:50.635	3	2025-02-25 22:00:00	\N	1	5.5	5.5	f	f	1	t	43
+471	2024-10-05 14:17:44.116	2024-10-05 14:17:44.116	1	2024-06-01 00:00:00	1	1	222	222	f	f	2	t	55
+472	2024-10-05 14:17:44.116	2024-10-05 14:17:44.116	1	2024-07-01 00:00:00	1	1	222	222	f	f	2	t	55
+473	2024-10-05 14:17:44.116	2024-10-05 14:17:44.116	1	2024-08-01 00:00:00	1	1	222	222	f	f	2	t	55
+474	2024-10-05 14:17:44.116	2024-10-05 14:17:44.116	1	2024-09-01 00:00:00	1	1	222	222	f	f	2	t	55
+475	2024-10-05 14:17:44.116	2024-10-05 14:17:44.116	1	2024-10-01 00:00:00	1	1	222	222	f	f	2	t	55
+476	2024-10-05 14:17:44.116	2024-10-05 14:17:44.116	1	2024-11-01 00:00:00	1	1	222	222	f	f	2	t	55
+477	2024-10-05 14:17:44.116	2024-10-05 14:17:44.116	1	2024-12-01 00:00:00	1	1	222	222	f	f	2	t	55
+420	2024-05-28 09:17:50.635	2024-05-28 09:17:50.635	3	2025-02-25 22:00:00	\N	1	5.5	5.5	f	f	1	t	43
+422	2024-05-28 09:17:50.635	2024-05-28 09:17:50.635	3	2025-02-25 22:00:00	\N	1	5.5	5.5	f	f	1	t	43
+423	2024-05-28 09:17:50.635	2024-05-28 09:17:50.635	3	2025-02-25 22:00:00	\N	1	5.5	5.5	f	f	1	t	43
+424	2024-05-28 09:17:50.635	2024-05-28 09:17:50.635	3	2025-02-25 22:00:00	\N	1	9.5	9.5	f	f	1	t	43
+425	2024-05-28 09:17:50.635	2024-05-28 09:17:50.635	3	2025-02-25 22:00:00	\N	1	5.5	5.5	f	f	1	t	43
+434	2024-05-29 05:00:34.477	2024-05-29 05:00:34.477	4	2025-02-25 22:00:00	1	1	55	55	f	f	2	t	26
+435	2024-05-29 05:00:34.477	2024-05-29 05:00:34.477	4	2025-02-25 22:00:00	1	1	55	55	f	f	2	t	26
+436	2024-05-29 05:00:34.477	2024-05-29 05:00:34.477	4	2025-02-25 22:00:00	1	1	55	55	f	f	2	t	26
+453	2024-05-29 09:13:15.119	2024-05-29 09:13:15.119	1	2025-04-25 22:00:00	2	1	4000	23	f	f	2	t	50
+478	2024-10-05 14:22:24.052	2024-10-05 14:22:24.052	2	2024-05-01 00:00:00	1	1	330	330	f	f	3	t	56
+479	2024-10-05 14:22:24.052	2024-10-05 14:22:24.052	2	2024-06-01 00:00:00	1	1	330	330	f	f	3	t	56
+480	2024-10-05 14:22:24.052	2024-10-05 14:22:24.052	2	2024-07-01 00:00:00	1	1	330	330	f	f	3	t	56
+2	2024-05-14 06:28:51.106	2024-05-14 06:28:51.106	1	2025-02-25 22:00:00	1	1	500	43	f	f	3	t	4
+4	2024-05-14 06:28:51.106	2024-05-14 06:28:51.106	1	2025-02-25 22:00:00	1	1	500	2344	f	f	3	t	4
+36	2024-05-14 07:55:00.106	2024-05-14 07:55:00.106	1	2025-02-25 22:00:00	\N	4	800	10	f	f	2	t	7
+127	2024-05-27 13:41:53.209	2024-05-27 13:41:53.209	1	2025-02-25 22:00:00	\N	38	37962	234	f	f	2	t	6
+129	2024-05-27 13:41:53.209	2024-05-27 13:41:53.209	1	2025-02-25 22:00:00	\N	3	1500	234	f	f	2	t	6
+481	2024-10-05 14:22:24.052	2024-10-05 14:22:24.052	2	2024-08-01 00:00:00	1	1	330	330	f	f	3	t	56
+482	2024-10-05 14:22:24.052	2024-10-05 14:22:24.052	2	2024-09-01 00:00:00	1	1	330	330	f	f	3	t	56
+483	2024-10-05 14:22:24.052	2024-10-05 14:22:24.052	2	2024-10-01 00:00:00	1	1	330	330	f	f	3	t	56
+484	2024-10-05 14:22:24.052	2024-10-05 14:22:24.052	2	2024-11-01 00:00:00	1	1	330	330	f	f	3	t	56
+130	2024-05-27 13:41:53.209	2024-05-27 13:41:53.209	1	2025-02-25 22:00:00	\N	3	1500	234	f	f	2	t	6
+144	2024-05-27 15:28:51.692	2024-05-27 15:28:51.692	3	2025-02-25 22:00:00	32	1	555	10	f	f	1	t	20
+153	2024-05-27 15:31:13.693	2024-05-27 15:31:13.693	3	2025-02-25 22:00:00	32	1	555	10	f	f	1	t	21
+37	2024-05-14 07:55:00.106	2024-05-14 07:55:00.106	1	2025-02-25 22:00:00	\N	4	800	10	f	f	2	t	7
+38	2024-05-14 07:55:00.106	2024-05-14 07:55:00.106	1	2025-02-25 22:00:00	\N	4	800	10	f	f	2	t	7
+39	2024-05-14 08:03:42.274	2024-05-14 08:03:42.274	1	2025-02-25 22:00:00	1	1	500	10	f	f	2	t	8
+40	2024-05-14 08:03:42.274	2024-05-14 08:03:42.274	1	2025-02-25 22:00:00	1	1	500	10	f	f	2	t	8
+41	2024-05-14 08:03:42.274	2024-05-14 08:03:42.274	1	2025-02-25 22:00:00	1	1	500	10	f	f	2	t	8
+42	2024-05-14 08:03:42.274	2024-05-14 08:03:42.274	1	2025-02-25 22:00:00	1	1	500	10	f	f	2	t	8
+43	2024-05-14 08:03:42.274	2024-05-14 08:03:42.274	1	2025-02-25 22:00:00	1	1	500	10	f	f	2	t	8
+44	2024-05-14 08:03:42.274	2024-05-14 08:03:42.274	1	2025-02-25 22:00:00	1	1	500	10	f	f	2	t	8
+45	2024-05-14 08:03:42.274	2024-05-14 08:03:42.274	1	2025-02-25 22:00:00	1	1	500	10	f	f	2	t	8
+46	2024-05-14 08:03:42.274	2024-05-14 08:03:42.274	1	2025-02-25 22:00:00	1	1	500	10	f	f	2	t	8
+47	2024-05-14 08:03:42.274	2024-05-14 08:03:42.274	1	2025-02-25 22:00:00	1	1	500	10	f	f	2	t	8
+128	2024-05-27 13:41:53.209	2024-05-27 13:41:53.209	1	2025-02-25 22:00:00	\N	3	1500	10	f	f	2	t	6
+131	2024-05-27 13:41:53.209	2024-05-27 13:41:53.209	1	2025-02-25 22:00:00	\N	3	1500	10	f	f	2	t	6
+244	2024-05-28 04:37:34.019	2024-05-28 04:37:34.019	4	2025-02-25 22:00:00	\N	7	63	9	f	f	4	t	28
+252	2024-05-28 04:37:34.019	2024-05-28 04:37:34.019	4	2025-02-25 22:00:00	\N	9	81	9	f	f	4	t	28
+438	2024-05-29 05:00:34.477	2024-05-29 05:00:34.477	4	2025-02-25 22:00:00	1	1	55	55	f	f	2	t	26
+439	2024-05-29 05:00:34.477	2024-05-29 05:00:34.477	4	2025-02-25 22:00:00	1	1	55	55	f	f	2	t	26
+440	2024-05-29 05:00:34.477	2024-05-29 05:00:34.477	4	2025-02-25 22:00:00	1	1	55	55	f	f	2	t	26
+441	2024-05-29 05:00:34.477	2024-05-29 05:00:34.477	4	2025-02-25 22:00:00	1	1	55	55	f	f	2	t	26
+442	2024-05-29 05:00:34.477	2024-05-29 05:00:34.477	4	2025-02-25 22:00:00	1	1	55	55	f	f	2	t	26
+452	2024-05-29 09:13:15.119	2024-05-29 09:13:15.119	1	2025-02-25 22:00:00	2	1	23	23	f	f	2	t	50
+485	2024-10-05 14:22:24.052	2024-10-05 14:22:24.052	2	2024-12-01 00:00:00	1	1	330	330	f	f	3	t	56
+519	2024-10-05 16:14:28.701	2024-10-05 16:14:28.701	4	2024-07-01 00:00:00	\N	1	4444	4444	f	f	2	t	59
+520	2024-10-05 16:14:28.701	2024-10-05 16:14:28.701	4	2024-08-01 00:00:00	\N	1	4444	4444	f	f	2	t	59
+521	2024-10-05 16:14:28.701	2024-10-05 16:14:28.701	4	2024-10-01 00:00:00	\N	1	4444	4444	f	f	2	t	59
+454	2024-05-29 09:13:15.119	2024-05-29 09:13:15.119	1	2025-02-25 22:00:00	2	1	23	23	f	f	2	t	50
+455	2024-05-29 09:13:15.119	2024-05-29 09:13:15.119	1	2025-02-25 22:00:00	2	1	23	23	f	f	2	t	50
+437	2024-05-29 05:00:34.477	2024-05-29 05:00:34.477	4	2025-02-25 22:00:00	1	1	55	55	f	f	2	t	26
+385	2024-05-28 09:07:18.245	2024-05-28 09:07:18.245	4	2025-02-25 22:00:00	1	1	30	30	f	f	1	t	38
+426	2024-05-28 09:36:34.739	2024-05-28 09:36:34.739	2	2025-02-25 22:00:00	2	1	20	20	f	f	3	t	46
+427	2024-05-28 09:36:34.739	2024-05-28 09:36:34.739	2	2025-02-25 22:00:00	2	1	20	20	f	f	3	t	46
+145	2024-05-27 15:31:13.693	2024-05-27 15:31:13.693	3	2025-02-25 22:00:00	32	1	555	10	f	f	1	t	21
+140	2024-05-27 15:28:51.692	2024-05-27 15:28:51.692	3	2025-02-25 22:00:00	32	1	555	10	f	f	1	t	20
+141	2024-05-27 15:28:51.692	2024-05-27 15:28:51.692	3	2025-02-25 22:00:00	32	1	555	10	f	f	1	t	20
+142	2024-05-27 15:28:51.692	2024-05-27 15:28:51.692	3	2025-02-25 22:00:00	32	1	555	10	f	f	1	t	20
+456	2024-10-03 13:14:24.309	2025-03-03 13:14:24.309	2	2025-02-25 22:00:00	3	1	5000	1000	f	f	1	t	52
+458	2024-10-03 13:14:24.309	2025-01-03 13:14:24.309	2	2024-12-25 22:00:00	3	1	7000	7000	f	f	1	t	52
+459	2024-10-03 13:14:24.309	2024-12-03 13:14:24.309	2	2025-03-25 22:00:00	3	1	3000	3000	f	f	1	t	52
+460	2024-10-03 13:14:24.309	2024-11-03 13:14:24.309	2	2024-11-25 22:00:00	3	1	6000	4000	f	f	1	t	52
+461	2024-10-03 13:14:24.309	2024-10-03 13:14:24.309	2	2024-10-25 22:00:00	3	1	5000	5000	f	f	1	t	52
+143	2024-05-27 15:28:51.692	2024-05-27 15:28:51.692	3	2025-02-25 22:00:00	32	1	555	10	f	f	1	t	20
+457	2024-10-03 13:14:24.309	2025-02-03 13:14:24.309	2	2025-02-01 22:00:00	3	1	4000	8000	f	f	1	t	52
+486	2024-10-05 15:31:27.168	2024-10-05 15:31:27.168	4	2024-05-01 00:00:00	2	1	4444	4444	f	f	2	t	57
+487	2024-10-05 15:31:27.168	2024-10-05 15:31:27.168	4	2024-06-01 00:00:00	2	1	4444	4444	f	f	2	t	57
+488	2024-10-05 15:31:27.168	2024-10-05 15:31:27.168	4	2024-07-01 00:00:00	2	1	4444	4444	f	f	2	t	57
+489	2024-10-05 15:31:27.168	2024-10-05 15:31:27.168	4	2024-08-01 00:00:00	2	1	4444	4444	f	f	2	t	57
+490	2024-10-05 15:31:27.168	2024-10-05 15:31:27.168	4	2024-09-01 00:00:00	2	1	4444	4444	f	f	2	t	57
+491	2024-10-05 15:31:27.168	2024-10-05 15:31:27.168	4	2024-10-01 00:00:00	2	1	4444	4444	f	f	2	t	57
+492	2024-10-05 15:31:27.168	2024-10-05 15:31:27.168	4	2024-11-01 00:00:00	2	1	4444	4444	f	f	2	t	57
+493	2024-10-05 15:31:27.168	2024-10-05 15:31:27.168	4	2024-12-01 00:00:00	2	1	4444	4444	f	f	2	t	57
+148	2024-05-27 15:31:13.693	2024-05-27 15:31:13.693	3	2025-02-25 22:00:00	32	1	555	10	f	f	1	t	21
+149	2024-05-27 15:31:13.693	2024-05-27 15:31:13.693	3	2025-02-25 22:00:00	32	1	555	10	f	f	1	t	21
+150	2024-05-27 15:31:13.693	2024-05-27 15:31:13.693	3	2025-02-25 22:00:00	32	1	555	10	f	f	1	t	21
+146	2024-05-27 15:31:13.693	2024-05-27 15:31:13.693	3	2025-02-25 22:00:00	32	1	555	10	f	f	1	t	21
+147	2024-05-27 15:31:13.693	2024-05-27 15:31:13.693	3	2025-02-25 22:00:00	32	1	555	10	f	f	1	t	21
+48	2024-05-14 08:29:49.277	2024-05-14 08:29:49.277	1	2025-02-25 22:00:00	1	1	550	10	f	f	3	t	9
+49	2024-05-14 08:29:49.277	2024-05-14 08:29:49.277	1	2025-02-25 22:00:00	1	1	550	10	f	f	3	t	9
+50	2024-05-14 08:29:49.277	2024-05-14 08:29:49.277	1	2025-02-25 22:00:00	1	1	550	10	f	f	3	t	9
+51	2024-05-14 08:29:49.277	2024-05-14 08:29:49.277	1	2025-02-25 22:00:00	1	1	550	10	f	f	3	t	9
+57	2024-05-14 13:54:26.891	2024-05-14 13:54:26.891	1	2025-02-25 22:00:00	1	1	455	234	f	f	3	t	10
+52	2024-05-14 08:29:49.277	2024-05-14 08:29:49.277	1	2025-02-25 22:00:00	1	1	550	10	f	f	3	t	9
+53	2024-05-14 08:29:49.277	2024-05-14 08:29:49.277	1	2025-02-25 22:00:00	1	1	550	10	f	f	3	t	9
+54	2024-05-14 08:29:49.277	2024-05-14 08:29:49.277	1	2025-02-25 22:00:00	1	1	550	10	f	f	3	t	9
+55	2024-05-14 08:29:49.277	2024-05-14 08:29:49.277	1	2025-02-25 22:00:00	1	1	550	10	f	f	3	t	9
+56	2024-05-14 08:29:49.277	2024-05-14 08:29:49.277	1	2025-02-25 22:00:00	1	1	550	10	f	f	3	t	9
+58	2024-05-14 13:54:26.891	2024-05-14 13:54:26.891	1	2025-02-25 22:00:00	1	1	455	10	f	f	3	t	10
+249	2024-05-28 04:37:34.019	2024-05-28 04:37:34.019	4	2025-02-25 22:00:00	\N	9	81	9	f	f	4	t	28
+250	2024-05-28 04:37:34.019	2024-05-28 04:37:34.019	4	2025-02-25 22:00:00	\N	9	81	9	f	f	4	t	28
+251	2024-05-28 04:37:34.019	2024-05-28 04:37:34.019	4	2025-02-25 22:00:00	\N	9	81	9	f	f	4	t	28
+269	2024-05-28 06:59:37.006	2024-05-28 06:59:37.006	3	2025-02-25 22:00:00	2	1	3	3	f	f	1	t	32
+270	2024-05-28 06:59:37.006	2024-05-28 06:59:37.006	3	2025-02-25 22:00:00	2	1	3	3	f	f	1	t	32
+494	2024-10-05 15:48:37.038	2024-10-05 15:48:37.038	8	2024-05-01 00:00:00	3	1	444	444	f	f	3	t	58
+495	2024-10-05 15:48:37.038	2024-10-05 15:48:37.038	8	2024-06-01 00:00:00	3	1	444	444	f	f	3	t	58
+496	2024-10-05 15:48:37.038	2024-10-05 15:48:37.038	8	2024-07-01 00:00:00	3	1	444	444	f	f	3	t	58
+497	2024-10-05 15:48:37.038	2024-10-05 15:48:37.038	8	2024-08-01 00:00:00	3	1	444	444	f	f	3	t	58
+498	2024-10-05 15:48:37.038	2024-10-05 15:48:37.038	8	2024-09-01 00:00:00	3	1	444	444	f	f	3	t	58
+499	2024-10-05 15:48:37.038	2024-10-05 15:48:37.038	8	2024-10-01 00:00:00	3	1	444	444	f	f	3	t	58
+500	2024-10-05 15:48:37.038	2024-10-05 15:48:37.038	8	2024-11-01 00:00:00	3	1	444	444	f	f	3	t	58
+501	2024-10-05 15:48:37.038	2024-10-05 15:48:37.038	8	2024-12-01 00:00:00	3	1	444	444	f	f	3	t	58
+271	2024-05-28 06:59:37.006	2024-05-28 06:59:37.006	3	2025-02-25 22:00:00	2	1	3	3	f	f	1	t	32
+272	2024-05-28 06:59:37.006	2024-05-28 06:59:37.006	3	2025-02-25 22:00:00	2	1	3	3	f	f	1	t	32
+273	2024-05-28 06:59:37.006	2024-05-28 06:59:37.006	3	2025-02-25 22:00:00	2	1	3	3	f	f	1	t	32
+274	2024-05-28 06:59:37.006	2024-05-28 06:59:37.006	3	2025-02-25 22:00:00	2	1	3	3	f	f	1	t	32
+275	2024-05-28 06:59:37.006	2024-05-28 06:59:37.006	3	2025-02-25 22:00:00	2	1	3	3	f	f	1	t	32
+276	2024-05-28 06:59:37.006	2024-05-28 06:59:37.006	3	2025-02-25 22:00:00	2	1	3	3	f	f	1	t	32
+285	2024-05-28 07:05:15.983	2024-05-28 07:05:15.983	1	2025-02-25 22:00:00	\N	1111.5	555.75	0.5	f	f	1	t	30
+443	2024-05-29 05:11:51.456	2024-05-29 05:11:51.456	3	2025-02-25 22:00:00	2	1	8888	10	f	f	2	t	49
+431	2024-05-28 09:36:34.739	2024-05-28 09:36:34.739	2	2025-02-25 22:00:00	2	1	20	20	f	f	3	t	46
+432	2024-05-28 09:36:34.739	2024-05-28 09:36:34.739	2	2025-02-25 22:00:00	2	1	20	20	f	f	3	t	46
+433	2024-05-28 09:36:34.739	2024-05-28 09:36:34.739	2	2025-02-25 22:00:00	2	1	20	20	f	f	3	t	46
+444	2024-05-29 05:11:51.456	2024-05-29 05:11:51.456	3	2025-02-25 22:00:00	2	1	8888	10	f	f	2	t	49
+445	2024-05-29 05:11:51.456	2024-05-29 05:11:51.456	3	2025-02-25 22:00:00	2	1	8888	10	f	f	2	t	49
+446	2024-05-29 05:11:51.456	2024-05-29 05:11:51.456	3	2025-02-25 22:00:00	2	1	8888	10	f	f	2	t	49
+447	2024-05-29 05:11:51.456	2024-05-29 05:11:51.456	3	2025-02-25 22:00:00	2	1	8888	10	f	f	2	t	49
+448	2024-05-29 05:11:51.456	2024-05-29 05:11:51.456	3	2025-02-25 22:00:00	2	1	8888	10	f	f	2	t	49
+449	2024-05-29 05:11:51.456	2024-05-29 05:11:51.456	3	2025-02-25 22:00:00	2	1	8888	10	f	f	2	t	49
+355	2024-05-28 08:08:00.164	2024-05-28 08:08:00.164	1	2025-02-25 22:00:00	\N	6	4026	2333	f	f	1	t	33
+383	2024-05-28 09:07:18.245	2024-05-28 09:07:18.245	4	2024-11-25 22:00:00	1	1	30	2323	f	f	1	t	38
+361	2024-05-28 08:08:00.164	2024-05-28 08:08:00.164	1	2024-12-25 22:00:00	\N	1	1	1233	f	f	1	t	33
+356	2024-05-28 08:08:00.164	2024-05-28 08:08:00.164	1	2025-02-01 22:00:00	\N	1	1333	1233	f	f	1	t	33
+384	2024-10-04 07:29:51.048	2024-05-28 09:07:18.245	4	2025-02-01 22:00:00	1	1	300	2222	f	f	1	t	38
+450	2024-05-29 05:11:51.456	2024-05-29 05:11:51.456	3	2025-02-25 22:00:00	2	1	8888	10	f	f	2	t	49
+59	2024-05-14 13:54:26.891	2024-05-14 13:54:26.891	1	2025-02-25 22:00:00	1	1	455	10	f	f	3	t	10
+60	2024-05-14 13:54:26.891	2024-05-14 13:54:26.891	1	2025-02-25 22:00:00	1	1	455	10	f	f	3	t	10
+61	2024-05-14 13:54:26.891	2024-05-14 13:54:26.891	1	2025-02-25 22:00:00	1	1	455	10	f	f	3	t	10
+62	2024-05-14 13:54:26.891	2024-05-14 13:54:26.891	1	2025-02-25 22:00:00	1	1	455	10	f	f	3	t	10
+65	2024-05-15 07:05:23.312	2024-05-15 07:05:23.312	1	2025-02-25 22:00:00	3	21	462	22	f	f	5	t	12
+72	2024-05-22 06:30:43.679	2024-05-22 06:30:43.679	1	2025-02-25 22:00:00	2	1	33	33	f	f	3	t	19
+245	2024-05-28 04:37:34.019	2024-05-28 04:37:34.019	4	2025-02-25 22:00:00	\N	9	81	9	f	f	4	t	28
+246	2024-05-28 04:37:34.019	2024-05-28 04:37:34.019	4	2025-02-25 22:00:00	\N	9	81	9	f	f	4	t	28
+247	2024-05-28 04:37:34.019	2024-05-28 04:37:34.019	4	2025-02-25 22:00:00	\N	9	81	9	f	f	4	t	28
+248	2024-05-28 04:37:34.019	2024-05-28 04:37:34.019	4	2025-02-25 22:00:00	\N	9	81	9	f	f	4	t	28
+288	2024-05-28 07:05:15.983	2024-05-28 07:05:15.983	1	2025-02-25 22:00:00	\N	1111.5	555.75	0.5	f	f	1	t	30
+289	2024-05-28 07:05:15.983	2024-05-28 07:05:15.983	1	2025-02-25 22:00:00	\N	1111.5	555.75	0.5	f	f	1	t	30
+290	2024-05-28 07:05:15.983	2024-05-28 07:05:15.983	1	2025-02-25 22:00:00	\N	1111.5	555.75	0.5	f	f	1	t	30
+291	2024-05-28 07:05:15.983	2024-05-28 07:05:15.983	1	2025-02-25 22:00:00	\N	1111.5	555.75	0.5	f	f	1	t	30
+292	2024-05-28 07:05:15.983	2024-05-28 07:05:15.983	1	2025-02-25 22:00:00	\N	1111.5	555.75	0.5	f	f	1	t	30
+357	2024-05-28 08:08:00.164	2024-05-28 08:08:00.164	1	2025-02-25 22:00:00	\N	21	2	1	f	f	1	t	33
+358	2024-05-28 08:08:00.164	2024-05-28 08:08:00.164	1	2025-02-25 22:00:00	\N	3	4	1	t	f	1	t	33
+359	2024-05-28 08:08:00.164	2024-05-28 08:08:00.164	1	2025-02-25 22:00:00	\N	14	1	1	t	t	1	t	33
+360	2024-05-28 08:08:00.164	2024-05-28 08:08:00.164	1	2025-02-25 22:00:00	\N	1	4	1	t	t	1	t	33
+376	2024-05-28 09:05:34.171	2024-05-28 09:05:34.171	2	2025-02-25 22:00:00	2	1	30	30	f	f	2	t	35
+377	2024-05-28 09:05:34.171	2024-05-28 09:05:34.171	2	2025-02-25 22:00:00	2	1	30	30	f	f	2	t	35
+378	2024-05-28 09:05:34.171	2024-05-28 09:05:34.171	2	2025-02-25 22:00:00	2	1	30	30	f	f	2	t	35
+379	2024-05-28 09:05:34.171	2024-05-28 09:05:34.171	2	2025-02-25 22:00:00	2	1	30	30	f	f	2	t	35
+380	2024-05-28 09:05:34.171	2024-05-28 09:05:34.171	2	2025-02-25 22:00:00	2	1	30	30	f	f	2	t	35
+381	2024-05-28 09:05:34.171	2024-05-28 09:05:34.171	2	2025-02-25 22:00:00	2	1	30	30	f	f	2	t	35
+382	2024-05-28 09:05:34.171	2024-05-28 09:05:34.171	2	2025-02-25 22:00:00	2	1	30	30	f	f	2	t	35
+451	2024-05-29 05:11:51.456	2024-05-29 05:11:51.456	3	2025-02-25 22:00:00	2	1	8888	10	f	f	2	t	49
 \.
 
 
 --
--- Data for Name: ContractItems; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractItems; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractItems" (id, "updateadAt", "createdAt", "contractId", itemid, active, "billingFrequencyid", "currencyValue", currencyid) FROM stdin;
@@ -4760,11 +5155,20 @@ COPY public."ContractItems" (id, "updateadAt", "createdAt", "contractId", itemid
 44	2024-05-28 09:36:34.645	2024-05-28 09:27:26.178	2	2	t	3	\N	3
 32	2024-05-29 05:00:34.423	2024-05-27 16:23:57.614	1	4	t	3	\N	2
 45	2024-05-29 05:11:51.441	2024-05-29 05:11:51.441	1	3	t	3	8888	2
+46	2024-05-29 09:13:15.096	2024-05-29 09:12:48.422	29	1	t	3	23	2
+47	2024-10-03 13:14:24.303	2024-10-03 13:14:24.303	93	2	t	3	5000	1
+48	2024-10-05 11:56:11.118	2024-10-05 11:56:11.118	31	1	t	2	340	2
+49	2024-10-05 13:04:08.829	2024-10-05 13:04:08.829	32	1	t	3	1500	2
+50	2024-10-05 14:17:44.111	2024-10-05 14:17:44.111	32	1	t	3	222	2
+51	2024-10-05 14:22:24.047	2024-10-05 14:22:24.047	32	2	t	3	330	3
+52	2024-10-05 15:31:27.161	2024-10-05 15:31:27.161	32	4	t	3	4444	2
+53	2024-10-05 15:48:37.033	2024-10-05 15:48:37.033	32	8	t	3	444	3
+54	2024-10-05 16:14:28.685	2024-10-05 15:53:53.655	43	4	t	3	4444	2
 \.
 
 
 --
--- Data for Name: ContractStatus; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractStatus; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractStatus" (id, name) FROM stdin;
@@ -4777,7 +5181,7 @@ COPY public."ContractStatus" (id, name) FROM stdin;
 
 
 --
--- Data for Name: ContractTasks; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractTasks; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractTasks" (id, "updateadAt", "createdAt", "taskName", "contractId", due, notes, "assignedId", "requestorId", "statusId", rejected_reason, "taskPriorityId", type, uuid, "statusWFId") FROM stdin;
@@ -4801,11 +5205,14 @@ COPY public."ContractTasks" (id, "updateadAt", "createdAt", "taskName", "contrac
 122	2024-05-17 10:23:50.071	2024-05-17 10:23:50.071	Flux aprobare contracte dep Operational	52	2024-05-17 00:00:00	<p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Numar</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">validareap</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">semnarii</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">undefined</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Incepand</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">cu</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">02.05.2024</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Termene</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">finalizare</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">08.08.2024</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Scurta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">descriere</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">validareap</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Contracte de servicii</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">SoftHub</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">j4044</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ro000001</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tara:Romania, Judet:Bucureşti, Oras:Sector 3, Strada:Vlad, Numar:4, Cod Postal:4</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ING</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Filiala</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tineret</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">r345345</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Razvan Mustata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">razvan.mustata@gmail.com</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">0746 150 001</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Administrator</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NIRO INVESTMENT SA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">RO2456788</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">J40/23/20422</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tara:Romania, \n                Judet:Ilfov, \n                Oras:Dobroeşti, \n                Strada:Dragonul, Numar:3, Cod Postal:4</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">234242423</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cont</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EUR</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">razvan Niro</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">razvan.mustata@nirogroup.ro</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">+40746150001</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Consultant</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Obiect</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Pretul</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">0</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Recurenta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Unitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">masura</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Note</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p>	4	3	4		2	approval_task	e4af5527-de07-41f5-9b07-289c02c3adcc	2
 123	2024-05-21 10:09:15.392	2024-05-17 10:23:50.069	Flux aprobare contracte dep Operational	58	2024-05-17 00:00:00	<p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Numar</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ttt5</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">semnarii</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">undefined</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Incepand</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">cu</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">02.05.2024</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Termene</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">finalizare</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">21.05.2024</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Scurta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">descriere</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">5</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Contracte de inchiriere</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">SoftHub</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">j4044</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ro000001</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tara:Romania, Judet:Bucureşti, Oras:Sector 3, Strada:Vlad, Numar:4, Cod Postal:4</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ING</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Filiala</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tineret</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">r345345</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Razvan Mustata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">razvan.mustata@gmail.com</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">0746 150 001</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Administrator</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NIRO INVESTMENT SA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">RO2456788</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">J40/23/20422</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tara:Romania, \n                Judet:Ilfov, \n                Oras:Dobroeşti, \n                Strada:Dragonul, Numar:3, Cod Postal:4</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">234242423</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cont</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EUR</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">razvan Niro</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">razvan.mustata@nirogroup.ro</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">+40746150001</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Consultant</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Obiect</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Pretul</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">0</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Recurenta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Unitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">masura</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Note</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p>	4	3	4		2	approval_task	75ba3519-cc9c-4eb1-8244-d68c635c9f01	3
 135	2024-05-23 07:55:10.296	2024-05-17 11:43:15.07	operational	58	2024-05-23 11:42:33.504	<p>operational</p>	4	4	1	operational	3	action_task		1
+138	2024-10-04 09:42:45.147	2024-10-04 09:42:45.147	Contracte dep. Operational	55	2024-10-04 09:42:26.049	<p>ad</p>	6	4	1		1	action_task		4
+139	2024-10-04 09:59:31.01	2024-10-04 09:59:05.061	Flux aprobare contracte dep Operational	94	2024-10-04 00:00:00	<p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Numar</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">99</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">semnarii</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">02.10.2024</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Incepand</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">cu</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">02.10.2024</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Termene</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">finalizare</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">17.01.2025</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Scurta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">descriere</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">99</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Contracte de Vanzare-Cumparare</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tinmar Energy S.A.</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">J40/6868/2015</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">34620961</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tara:Romania, \n                Judet:Bucureşti, \n                Oras:Sector 1, \n                Strada:, Numar:Floreasca, Cod Postal:</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Alpha Bank</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Filiala</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Floreasca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">kl23-klkl-4l44-2344-2343-2234</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Oancea</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">oancea@a.com</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">24323423423</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Manager</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NIRO INVESTMENT SA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">RO2456788</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">J40/23/20422</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tara:Romania, \n                Judet:Ilfov, \n                Oras:Dobroeşti, \n                Strada:Dragonul, Numar:3, Cod Postal:4</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">lk23-klkj-4l23-4242-3423-4234</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cont</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EUR</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">razvan Niro</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">razvan.mustata@nirogroup.ro</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">+40746150001</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Consultant</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Obiect</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Pretul</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">0</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Recurenta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Unitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">masura</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Note</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p>	4	3	4		2	approval_task	6dabad1f-a6d6-4704-a64a-cf708f185655	3
+140	2024-10-04 10:01:34.006	2024-10-04 09:59:35.057	Flux aprobare contracte dep Operational	94	2024-10-04 00:00:00	<p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Numar</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">99</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">semnarii</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">02.10.2024</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Incepand</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">cu</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">02.10.2024</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Termene</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">finalizare</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">17.01.2025</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Scurta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">descriere</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">99</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Contracte de Vanzare-Cumparare</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tinmar Energy S.A.</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">J40/6868/2015</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">34620961</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tara:Romania, \n                Judet:Bucureşti, \n                Oras:Sector 1, \n                Strada:, Numar:Floreasca, Cod Postal:</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Alpha Bank</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Filiala</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Floreasca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">kl23-klkl-4l44-2344-2343-2234</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Oancea</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">oancea@a.com</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">24323423423</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Manager</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NIRO INVESTMENT SA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">RO2456788</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">J40/23/20422</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tara:Romania, \n                Judet:Ilfov, \n                Oras:Dobroeşti, \n                Strada:Dragonul, Numar:3, Cod Postal:4</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">lk23-klkj-4l23-4242-3423-4234</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cont</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EUR</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">razvan Niro</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">razvan.mustata@nirogroup.ro</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">+40746150001</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Consultant</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Obiect</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Pretul</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">0</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Recurenta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Unitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">masura</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Note</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">NA</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p>	3	3	4		2	approval_task	67bd94e0-02a7-45e3-9aee-8121cb22a477	3
 \.
 
 
 --
--- Data for Name: ContractTasksDueDates; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractTasksDueDates; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractTasksDueDates" (id, name, days) FROM stdin;
@@ -4819,7 +5226,7 @@ COPY public."ContractTasksDueDates" (id, name, days) FROM stdin;
 
 
 --
--- Data for Name: ContractTasksPriority; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractTasksPriority; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractTasksPriority" (id, name) FROM stdin;
@@ -4830,7 +5237,7 @@ COPY public."ContractTasksPriority" (id, name) FROM stdin;
 
 
 --
--- Data for Name: ContractTasksReminders; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractTasksReminders; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractTasksReminders" (id, name, days) FROM stdin;
@@ -4844,7 +5251,7 @@ COPY public."ContractTasksReminders" (id, name, days) FROM stdin;
 
 
 --
--- Data for Name: ContractTasksStatus; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractTasksStatus; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractTasksStatus" (id, name, "Desription") FROM stdin;
@@ -4856,7 +5263,7 @@ COPY public."ContractTasksStatus" (id, name, "Desription") FROM stdin;
 
 
 --
--- Data for Name: ContractTemplates; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractTemplates; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractTemplates" (id, "updateadAt", "createdAt", name, active, "contractTypeId", notes, content) FROM stdin;
@@ -4866,7 +5273,7 @@ COPY public."ContractTemplates" (id, "updateadAt", "createdAt", name, active, "c
 
 
 --
--- Data for Name: ContractType; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractType; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractType" (id, name) FROM stdin;
@@ -4878,7 +5285,6 @@ COPY public."ContractType" (id, name) FROM stdin;
 6	Contracte de constructie
 7	Contracte de licentiere
 8	Contracte de franciză
-9	Contracte de imprumut
 10	Contracte de agent
 11	Contracte de dezvoltare Software
 12	Contracte de asigurare
@@ -4970,7 +5376,7 @@ COPY public."ContractType" (id, name) FROM stdin;
 
 
 --
--- Data for Name: ContractWFStatus; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractWFStatus; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractWFStatus" (id, name, "Desription") FROM stdin;
@@ -4982,106 +5388,117 @@ COPY public."ContractWFStatus" (id, name, "Desription") FROM stdin;
 
 
 --
--- Data for Name: Contracts; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Contracts; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public."Contracts" (id, number, start, "end", sign, completion, remarks, "partnersId", "entityId", "entityaddressId", "entitybankId", "entitypersonsId", "parentId", "partneraddressId", "partnerbankId", "partnerpersonsId", "automaticRenewal", "departmentId", "cashflowId", "categoryId", "costcenterId", "statusId", "typeId", "paymentTypeId", "userId", "isPurchasing", "locationId", "statusWFId") FROM stdin;
-1	1test	2024-05-01 21:00:00	2024-12-31 22:00:00	\N	\N	12	2	1	1	1	1	0	2	2	2	f	1	2	1	2	2	2	\N	4	t	1	\N
-2	34	2024-05-01 21:00:00	2024-11-30 22:00:00	\N	\N	444	2	1	1	1	1	0	2	2	2	f	1	2	1	1	1	2	\N	4	t	1	1
-3	5	2024-05-01 21:00:00	2024-11-01 22:00:00	\N	\N	5	2	1	1	1	1	0	2	2	2	f	1	2	1	3	1	2	\N	4	t	1	1
-4	4	2024-05-01 21:00:00	2024-11-20 22:00:00	\N	\N	4	2	1	1	1	1	0	2	2	2	f	1	1	1	2	1	4	\N	4	t	1	1
-5	55	2024-05-13 21:00:00	2024-08-29 21:00:00	\N	\N	5	2	1	1	1	1	0	2	2	2	f	1	1	1	2	1	2	\N	4	t	1	1
-6	55	2024-05-01 21:00:00	2024-11-28 22:00:00	\N	\N	345	2	1	1	1	1	0	2	2	2	f	1	4	1	2	1	1	\N	4	t	1	1
-7	345	2024-05-01 21:00:00	2024-11-28 22:00:00	\N	\N	345	2	1	1	1	1	0	2	2	2	f	1	2	1	2	1	2	\N	4	t	1	1
-8	3543	2024-05-01 21:00:00	2024-12-20 22:00:00	\N	\N	345	2	1	1	1	1	0	2	2	2	f	1	1	1	2	1	2	\N	4	t	1	1
-9	3344	2024-05-01 21:00:00	2024-08-28 21:00:00	\N	\N	4	2	1	1	1	1	0	2	2	2	f	1	1	1	4	1	2	\N	4	t	1	1
-10	234432432	2024-05-01 21:00:00	2024-11-27 22:00:00	\N	\N	x	2	1	1	1	1	0	2	2	2	f	1	5	1	3	1	1	\N	4	t	1	1
-11	234324	2024-05-21 21:00:00	2024-05-23 21:00:00	\N	\N	234	2	1	1	1	1	0	2	2	2	f	1	3	1	4	1	1	\N	4	t	1	1
-12	23432	2024-05-01 21:00:00	2024-08-28 21:00:00	\N	\N	jj	2	1	1	1	1	0	2	2	2	f	1	6	1	2	2	3	\N	4	t	1	1
-13	32432	2024-05-01 21:00:00	2024-06-27 21:00:00	\N	\N	234	2	1	1	1	1	0	2	2	2	f	1	2	1	2	2	2	\N	4	t	1	2
-14	werewrew	2024-05-13 21:00:00	2024-09-26 21:00:00	\N	\N	23	2	1	1	1	1	0	2	2	2	f	1	3	1	3	4	5	\N	3	t	1	4
-15	32432	2024-05-01 21:00:00	2024-08-30 21:00:00	\N	\N	23	2	1	1	1	1	0	2	2	2	f	1	2	1	2	1	2	\N	3	t	1	1
-16	t	2024-05-01 21:00:00	2024-07-31 21:00:00	\N	\N	t	2	1	1	1	1	0	2	2	2	f	1	5	1	3	3	1	\N	4	t	1	1
-17	555	2024-05-14 21:00:00	2024-07-23 21:00:00	\N	\N	5	2	1	1	1	1	0	2	2	2	f	1	6	1	3	4	4	\N	4	t	1	3
-18	c3	2024-05-01 21:00:00	2024-07-19 21:00:00	\N	\N	ff	2	1	1	1	1	0	2	2	2	f	1	4	1	3	5	2	\N	4	t	1	1
-19	24	2024-05-01 21:00:00	2024-08-07 21:00:00	\N	\N	jj	2	1	1	1	1	0	2	2	2	f	1	3	1	2	2	2	\N	4	t	1	3
-20	erre	2024-05-08 21:00:00	2024-08-21 21:00:00	\N	\N	ert	2	1	1	1	1	0	2	2	2	f	1	3	1	3	3	2	\N	4	t	1	2
-21	234	2024-05-01 21:00:00	2024-11-27 22:00:00	\N	\N	234	2	1	1	1	1	0	2	2	2	f	1	1	1	3	3	2	\N	4	t	1	3
-22	24	2024-05-01 21:00:00	2024-09-29 21:00:00	\N	\N	m	2	1	1	1	1	0	2	2	2	f	1	3	1	4	1	1	\N	4	t	1	1
-23	23	2024-05-01 21:00:00	2024-12-26 22:00:00	\N	\N	24	2	1	1	1	1	0	2	2	2	f	1	4	1	3	1	1	\N	4	t	1	1
-24	ok	2024-05-01 21:00:00	2024-11-30 22:00:00	\N	\N	24	2	1	1	1	1	0	2	2	2	f	1	1	1	2	3	1	\N	4	t	1	1
-25	ok2	2024-05-01 21:00:00	2024-08-22 21:00:00	\N	\N	2	2	1	1	1	1	0	2	2	2	f	1	5	1	2	3	1	\N	4	t	1	2
-26	1aa	2024-05-02 21:00:00	2025-01-01 22:00:00	\N	\N	act aditional	2	1	1	1	1	1	2	2	2	f	1	2	1	2	2	2	\N	\N	f	1	1
-27	1bb	2024-05-02 21:00:00	2025-01-01 22:00:00	\N	\N	1bb	2	1	1	1	1	1	2	2	2	f	1	2	1	2	2	2	\N	\N	f	1	1
-28	1cc	2024-05-02 21:00:00	2025-01-01 22:00:00	\N	\N	1	2	1	1	1	1	1	2	2	2	f	1	2	1	2	2	2	\N	\N	t	1	1
-29	1 client	2024-05-01 21:00:00	2024-08-07 21:00:00	\N	\N	werwer	2	1	1	1	1	0	2	2	2	f	1	1	1	2	1	2	\N	4	f	1	2
-30	1 client aa	2024-05-02 21:00:00	2024-08-08 21:00:00	\N	\N	werwer aaa	2	1	1	1	1	29	2	2	2	f	1	1	1	2	1	2	\N	\N	f	1	1
-31	test flux stare	2024-05-01 21:00:00	2024-09-30 21:00:00	\N	\N	Test	2	1	1	1	1	0	2	2	2	f	1	3	1	2	1	2	\N	4	t	1	1
-32	Op1	2024-05-01 21:00:00	2024-12-30 22:00:00	\N	\N	test	2	1	1	1	1	0	2	2	2	f	2	5	2	5	4	1	\N	3	t	2	1
-43	stare	2024-05-01 21:00:00	2024-09-30 21:00:00	2024-05-01 21:00:00	\N	stare	2	1	1	1	1	0	2	2	2	f	2	3	2	4	2	2	\N	4	t	2	2
-33	test stat	2024-05-01 21:00:00	2024-08-29 21:00:00	\N	\N	test stat	2	1	1	1	1	0	2	2	2	f	2	4	2	5	4	1	\N	3	t	2	2
-34	ct1	2024-05-01 21:00:00	2024-11-29 22:00:00	\N	\N	\N	2	1	1	1	1	0	2	2	2	f	2	4	1	3	1	1	\N	4	t	2	1
-35	testdata	2024-05-01 21:00:00	2024-05-02 21:00:00	2024-04-30 21:00:00	2024-05-04 21:00:00	\N	2	1	1	1	1	0	2	2	2	f	1	4	1	1	1	3	\N	4	t	1	2
-36	testdata	2024-05-01 21:00:00	2024-05-02 21:00:00	2024-04-30 21:00:00	2024-05-04 21:00:00	\N	2	1	1	1	1	35	2	2	2	f	1	4	1	1	1	3	\N	\N	t	1	1
-37	testdata2	2024-05-01 21:00:00	2024-05-02 21:00:00	2024-04-30 21:00:00	2024-05-04 21:00:00	2	2	1	1	1	1	35	2	2	2	f	1	4	1	1	1	3	\N	\N	t	1	1
-38	testdata3	2024-05-01 21:00:00	2024-05-02 21:00:00	2024-04-30 21:00:00	2024-05-04 21:00:00	3	2	1	1	1	1	35	2	2	2	f	1	4	1	1	1	3	\N	\N	t	1	1
-40	testdata4aa	2024-05-01 21:00:00	2024-05-02 21:00:00	2024-05-01 21:00:00	2024-05-02 21:00:00	testdata4aa	2	1	1	1	1	39	2	2	2	t	1	3	1	4	2	1	\N	\N	t	1	1
-41	aa	2024-05-01 21:00:00	2024-05-31 21:00:00	2024-05-02 21:00:00	2024-05-30 21:00:00	a	2	1	1	1	1	0	2	2	2	f	2	4	2	2	2	2	\N	4	t	1	2
-42	aa	2024-05-01 21:00:00	2024-05-31 21:00:00	2024-05-02 21:00:00	2024-05-30 21:00:00	a	2	1	1	1	1	41	2	2	2	f	2	4	2	2	2	2	\N	\N	t	1	1
-45	2wf	2024-05-01 21:00:00	2024-09-26 21:00:00	\N	\N	2wf	2	1	1	1	1	0	2	2	2	f	1	2	1	4	2	3	\N	4	t	2	2
-44	test wf d	2024-05-01 21:00:00	2024-09-26 21:00:00	\N	\N	response.status == 200	2	1	1	1	1	0	2	1	2	t	1	2	1	4	2	2	\N	4	t	2	2
-46	act aditional wf	2024-05-01 21:00:00	2024-05-31 21:00:00	2024-05-02 21:00:00	2024-05-30 21:00:00	act aditional wf	2	1	1	1	1	41	2	2	2	f	1	4	2	2	2	2	\N	4	t	1	2
-48	test task	2024-05-01 21:00:00	2024-09-25 21:00:00	\N	\N	\N	2	1	1	1	1	0	2	2	2	f	2	2	1	1	2	2	\N	4	t	1	2
-47	testdata4 999999	2024-05-01 21:00:00	2024-05-02 21:00:00	2024-05-01 21:00:00	2024-05-02 21:00:00	testdata4 888888888888	2	1	1	1	1	39	2	2	2	t	1	2	1	1	2	1	\N	\N	t	1	2
-39	testdata4	2024-05-01 21:00:00	2024-05-02 21:00:00	2024-05-01 21:00:00	2024-05-02 21:00:00	testdata4	2	1	1	1	1	0	2	2	2	t	1	2	1	1	2	1	\N	4	t	1	2
-49	task2	2024-05-01 21:00:00	2024-09-27 21:00:00	\N	\N	task2	2	1	1	1	1	0	2	2	2	f	2	2	2	2	2	2	\N	4	t	2	2
-51	flux4	2024-05-01 21:00:00	2024-07-22 21:00:00	\N	\N	flux4	2	1	1	1	1	0	2	2	2	f	2	5	2	2	3	2	\N	4	t	2	2
-50	task3	2024-05-01 21:00:00	2024-07-31 21:00:00	\N	\N	test task	2	1	1	1	1	0	2	2	2	f	2	2	1	4	2	2	\N	4	t	2	3
-52	validareap	2024-05-01 21:00:00	2024-08-07 21:00:00	\N	\N	validareap	2	1	1	1	1	0	2	2	2	f	2	2	2	3	2	3	\N	4	t	2	2
-53	flux5	2024-05-01 21:00:00	2024-10-22 21:00:00	\N	\N	flux5	2	1	1	1	1	0	2	2	2	f	2	2	2	3	2	2	\N	4	t	2	3
-54	task6	2024-05-01 21:00:00	2024-05-21 21:00:00	\N	\N	task6	2	1	1	1	1	0	2	2	2	f	2	2	1	2	2	3	\N	4	t	2	3
-55	task99	2024-05-01 21:00:00	2024-05-30 21:00:00	\N	\N	s	2	1	1	1	1	0	2	2	2	f	2	5	2	2	2	1	\N	4	t	2	2
-56	wf3	2024-05-01 21:00:00	2024-06-12 21:00:00	\N	\N	wf3	2	1	1	1	1	0	2	2	2	f	2	4	2	3	2	1	\N	4	t	2	2
-57	tt	2024-05-01 21:00:00	2024-05-31 21:00:00	\N	\N	tt	2	1	1	1	1	0	2	2	2	f	2	1	2	3	2	2	\N	4	t	2	2
-58	ttt5	2024-05-01 21:00:00	2024-05-20 21:00:00	\N	\N	5	2	1	1	1	1	0	2	2	2	f	2	1	2	2	2	2	\N	4	t	2	2
-59	ttt54	2024-05-01 21:00:00	2024-05-29 21:00:00	\N	\N	ttt54	2	1	1	1	1	0	2	2	2	f	2	4	1	2	2	2	\N	4	t	1	3
-60	ttt6	2024-05-02 21:00:00	2024-05-14 21:00:00	\N	\N	ttt6	2	1	1	1	1	0	2	2	2	f	2	2	2	2	2	2	\N	4	t	2	3
-61	testwf	2024-05-01 21:00:00	2024-05-22 21:00:00	\N	\N	testwf	2	1	1	1	1	0	2	2	2	f	2	2	2	3	2	2	\N	4	t	2	3
-89	ctrclient	2024-05-01 21:00:00	2024-05-31 21:00:00	\N	\N	ctrclient	2	1	1	1	1	0	2	2	2	f	2	5	1	2	1	2	\N	4	f	2	1
-85	234	2024-05-01 21:00:00	2024-05-27 21:00:00	2024-05-01 21:00:00	2024-05-21 21:00:00	234	2	1	1	1	1	0	2	2	2	f	2	3	1	5	1	2	\N	4	t	1	1
-90	test dragon	2024-05-01 21:00:00	2024-12-31 22:00:00	2024-05-01 21:00:00	\N	wer	4	3	3	3	6	0	4	4	4	t	3	2	2	4	1	3	\N	4	t	1	1
-62	reject	2024-05-01 21:00:00	2024-11-06 22:00:00	\N	\N	reject	2	1	1	1	1	0	2	2	2	f	2	2	2	3	2	2	\N	4	t	1	3
-91	AA34	2024-05-01 21:00:00	2024-11-30 22:00:00	\N	\N	444	2	1	1	1	1	2	2	2	2	f	1	2	1	1	1	2	\N	\N	t	1	1
-63	ana	2024-05-01 21:00:00	2024-05-30 21:00:00	\N	\N	ana	2	1	1	1	1	0	2	2	2	f	2	2	1	3	2	3	\N	4	t	1	4
-64	44444	2024-05-01 21:00:00	2024-05-30 21:00:00	\N	\N	4	4	1	1	1	1	0	4	4	4	f	1	5	2	3	1	2	\N	4	t	1	1
-65	qw	2024-05-01 21:00:00	2024-05-31 21:00:00	\N	\N	qw	2	1	1	1	1	0	2	2	2	f	1	5	2	1	1	5	\N	4	t	1	1
-66	tttt	2024-05-01 21:00:00	2024-05-31 21:00:00	\N	\N	t	2	1	1	1	1	0	2	2	2	f	1	1	2	1	1	2	\N	4	t	2	1
-67	234	2024-05-15 21:00:00	2024-05-28 21:00:00	\N	\N	234	2	1	1	1	1	0	2	2	2	f	2	5	1	2	1	1	\N	4	t	1	1
-68	aaaaa	2024-05-01 21:00:00	2024-05-30 21:00:00	\N	\N	a	2	1	1	1	1	0	2	2	2	f	3	3	2	3	1	2	\N	4	t	2	1
-69	bbbb	2024-05-01 21:00:00	2024-09-19 21:00:00	\N	\N	bb	2	1	1	1	1	0	2	2	2	f	2	2	2	1	1	2	\N	4	t	2	1
-70	e	2024-05-01 21:00:00	2024-05-16 21:00:00	\N	\N	e	3	1	1	1	1	0	3	3	3	f	3	2	2	1	1	1	\N	4	t	2	1
-71	wer	2024-05-01 21:00:00	2024-06-27 21:00:00	\N	\N	wer	3	1	1	1	1	0	3	3	3	f	2	1	1	1	1	2	\N	4	t	2	1
-72	234	2024-05-21 21:00:00	2024-05-28 21:00:00	\N	\N	v	2	1	1	1	1	0	2	2	2	f	1	4	2	5	1	1	\N	4	t	2	1
-73	342	2024-05-01 21:00:00	2024-05-21 21:00:00	\N	\N	345	2	1	1	1	1	0	2	2	2	f	3	3	2	2	4	5	\N	4	t	2	1
-74	rr	2024-05-01 21:00:00	2024-05-31 21:00:00	\N	\N	\N	2	1	1	1	1	0	2	2	2	f	1	5	2	3	3	1	\N	4	f	2	3
-75	ee	2024-05-01 21:00:00	2024-05-31 21:00:00	\N	\N	e	3	1	1	1	1	0	3	3	3	f	1	2	1	1	4	1	\N	4	f	2	3
-76	mm	2024-05-01 21:00:00	2024-05-31 21:00:00	\N	\N	mm	2	1	1	1	1	0	2	2	2	f	3	4	1	2	4	1	\N	4	f	2	4
-77	mm	2024-05-01 21:00:00	2024-05-31 21:00:00	\N	\N	mm	2	1	1	1	1	0	2	2	2	f	3	4	1	2	4	1	\N	4	f	2	4
-78	234	2024-05-01 21:00:00	2024-05-29 21:00:00	\N	\N	234	2	1	1	1	1	0	2	2	2	f	1	3	1	2	3	2	\N	4	f	2	3
-79	rte	2024-05-21 21:00:00	2024-05-28 21:00:00	\N	\N	wer	2	1	1	1	1	0	2	2	2	f	1	5	1	4	1	1	\N	4	f	1	1
-80	34555	2024-05-01 21:00:00	2024-05-21 21:00:00	\N	\N	345	3	1	1	1	1	0	3	3	3	f	3	4	1	2	3	1	\N	4	f	2	3
-81	2323432	2024-05-01 21:00:00	2024-05-28 21:00:00	\N	\N	243	2	1	1	1	1	0	2	2	2	f	2	5	2	2	1	2	\N	4	f	1	1
-82	wer	2024-05-01 21:00:00	2024-05-27 21:00:00	\N	\N	wer	3	1	1	1	1	0	3	3	3	f	1	4	2	2	2	2	\N	4	f	1	1
-83	345345	2024-05-21 21:00:00	2024-05-28 21:00:00	\N	\N	345	2	1	1	1	1	0	2	2	2	f	2	5	2	5	4	1	\N	4	t	1	3
-84	23432423	2024-05-01 21:00:00	2024-05-21 21:00:00	\N	\N	234	3	1	1	1	1	0	3	3	3	f	3	1	1	1	2	1	\N	4	t	2	3
-86	23443232	2024-05-01 21:00:00	2024-05-21 21:00:00	\N	\N	234	2	1	1	1	1	0	2	2	2	f	1	5	1	2	1	1	\N	4	t	2	1
-87	newctr	2024-05-01 21:00:00	2024-08-21 21:00:00	\N	\N	newctr	2	1	1	1	1	0	2	2	2	t	2	2	2	1	1	1	\N	4	t	2	1
-88	newctr	2024-05-01 21:00:00	2024-11-06 22:00:00	\N	\N	newctr	2	1	1	1	1	0	2	2	2	f	1	6	1	2	1	2	\N	4	t	1	1
+COPY public."Contracts" (id, number, start, "end", sign, completion, remarks, "partnersId", "entityId", "entityaddressId", "entitybankId", "entitypersonsId", "parentId", "partneraddressId", "partnerbankId", "partnerpersonsId", "automaticRenewal", "departmentId", "cashflowId", "categoryId", "costcenterId", "statusId", "typeId", "paymentTypeId", "userId", "isPurchasing", "locationId", "statusWFId", "additionalTypeId") FROM stdin;
+95	test flux stare	2024-05-01 21:00:00	2024-09-30 21:00:00	\N	\N	Test	2	1	1	1	1	31	2	2	2	f	1	3	1	2	1	2	\N	\N	t	1	1	\N
+98	5555	2024-05-01 21:00:00	2024-09-30 21:00:00	\N	\N	Test	2	1	1	1	1	31	2	2	2	f	1	3	1	2	1	2	\N	\N	t	1	1	2
+101	stare	2024-05-01 21:00:00	2024-09-30 21:00:00	2024-05-01 21:00:00	\N	stare	2	1	1	1	1	43	2	2	2	f	2	3	2	4	2	2	\N	\N	t	2	1	2
+31	test flux stare	2024-05-01 21:00:00	2024-09-30 21:00:00	\N	\N	Test	2	1	1	1	1	0	2	2	2	f	1	3	1	2	1	2	\N	4	t	1	1	\N
+32	Op1	2024-05-01 21:00:00	2024-12-30 22:00:00	\N	\N	test	2	1	1	1	1	0	2	2	2	f	2	5	2	5	4	1	\N	3	t	2	1	\N
+43	stare	2024-05-01 21:00:00	2024-09-30 21:00:00	2024-05-01 21:00:00	\N	stare	2	1	1	1	1	0	2	2	2	f	2	3	2	4	2	2	\N	4	t	2	2	\N
+33	test stat	2024-05-01 21:00:00	2024-08-29 21:00:00	\N	\N	test stat	2	1	1	1	1	0	2	2	2	f	2	4	2	5	4	1	\N	3	t	2	2	\N
+34	ct1	2024-05-01 21:00:00	2024-11-29 22:00:00	\N	\N	\N	2	1	1	1	1	0	2	2	2	f	2	4	1	3	1	1	\N	4	t	2	1	\N
+35	testdata	2024-05-01 21:00:00	2024-05-02 21:00:00	2024-04-30 21:00:00	2024-05-04 21:00:00	\N	2	1	1	1	1	0	2	2	2	f	1	4	1	1	1	3	\N	4	t	1	2	\N
+36	testdata	2024-05-01 21:00:00	2024-05-02 21:00:00	2024-04-30 21:00:00	2024-05-04 21:00:00	\N	2	1	1	1	1	35	2	2	2	f	1	4	1	1	1	3	\N	\N	t	1	1	\N
+37	testdata2	2024-05-01 21:00:00	2024-05-02 21:00:00	2024-04-30 21:00:00	2024-05-04 21:00:00	2	2	1	1	1	1	35	2	2	2	f	1	4	1	1	1	3	\N	\N	t	1	1	\N
+38	testdata3	2024-05-01 21:00:00	2024-05-02 21:00:00	2024-04-30 21:00:00	2024-05-04 21:00:00	3	2	1	1	1	1	35	2	2	2	f	1	4	1	1	1	3	\N	\N	t	1	1	\N
+40	testdata4aa	2024-05-01 21:00:00	2024-05-02 21:00:00	2024-05-01 21:00:00	2024-05-02 21:00:00	testdata4aa	2	1	1	1	1	39	2	2	2	t	1	3	1	4	2	1	\N	\N	t	1	1	\N
+41	aa	2024-05-01 21:00:00	2024-05-31 21:00:00	2024-05-02 21:00:00	2024-05-30 21:00:00	a	2	1	1	1	1	0	2	2	2	f	2	4	2	2	2	2	\N	4	t	1	2	\N
+42	aa	2024-05-01 21:00:00	2024-05-31 21:00:00	2024-05-02 21:00:00	2024-05-30 21:00:00	a	2	1	1	1	1	41	2	2	2	f	2	4	2	2	2	2	\N	\N	t	1	1	\N
+44	test wf d	2024-05-01 21:00:00	2024-09-26 21:00:00	\N	\N	response.status == 200	2	1	1	1	1	0	2	1	2	t	1	2	1	4	2	2	\N	4	t	2	2	\N
+39	testdata4	2024-05-01 21:00:00	2024-05-02 21:00:00	2024-05-01 21:00:00	2024-05-02 21:00:00	testdata4	2	1	1	1	1	0	2	2	2	t	1	2	1	1	2	1	\N	4	t	1	2	\N
+1	1test	2024-05-01 21:00:00	2024-12-31 22:00:00	2024-06-01 21:00:00	\N	12	2	1	1	1	1	0	2	2	2	f	1	2	1	2	2	2	\N	4	t	1	\N	\N
+51	flux4	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	flux4	2	1	1	1	1	0	2	2	2	f	2	5	2	2	3	2	\N	4	t	2	2	\N
+52	validareap	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	validareap	2	1	1	1	1	0	2	2	2	f	2	2	2	3	2	3	\N	4	t	2	2	\N
+45	2wf	2024-05-01 21:00:00	2025-02-25 22:00:00	\N	\N	2wf	2	1	1	1	1	0	2	2	2	f	1	2	1	4	2	3	\N	4	t	2	2	\N
+46	act aditional wf	2024-05-01 21:00:00	2025-02-25 22:00:00	2024-05-02 21:00:00	2024-05-30 21:00:00	act aditional wf	2	1	1	1	1	41	2	2	2	f	1	4	2	2	2	2	\N	4	t	1	2	\N
+48	test task	2024-05-01 21:00:00	2025-02-25 22:00:00	\N	\N	\N	2	1	1	1	1	0	2	2	2	f	2	2	1	1	2	2	\N	4	t	1	2	\N
+47	testdata4 999999	2024-05-01 21:00:00	2025-02-25 22:00:00	2024-05-01 21:00:00	2024-05-02 21:00:00	testdata4 888888888888	2	1	1	1	1	39	2	2	2	t	1	2	1	1	2	1	\N	\N	t	1	2	\N
+49	task2	2024-05-01 21:00:00	2025-02-25 22:00:00	\N	\N	task2	2	1	1	1	1	0	2	2	2	f	2	2	2	2	2	2	\N	4	t	2	2	\N
+50	task3	2024-05-01 21:00:00	2025-02-25 22:00:00	\N	\N	test task	2	1	1	1	1	0	2	2	2	f	2	2	1	4	2	2	\N	4	t	2	3	\N
+96	7777	2024-05-01 21:00:00	2024-09-30 21:00:00	\N	\N	Test	2	1	1	1	1	31	2	2	2	f	1	3	1	2	1	2	\N	\N	t	1	1	\N
+99	3333	2024-05-01 21:00:00	2024-09-30 21:00:00	\N	\N	Test	2	1	1	1	1	31	2	2	2	f	1	3	1	2	1	2	\N	\N	t	1	1	1
+102	Op1	2024-05-01 21:00:00	2024-12-30 22:00:00	\N	\N	test	2	1	1	1	1	32	2	2	2	f	2	5	2	5	4	1	\N	\N	t	2	1	2
+89	ctrclient	2024-05-01 21:00:00	2024-05-31 21:00:00	\N	\N	ctrclient	2	1	1	1	1	0	2	2	2	f	2	5	1	2	1	2	\N	4	f	2	1	\N
+85	234	2024-05-01 21:00:00	2024-05-27 21:00:00	2024-05-01 21:00:00	2024-05-21 21:00:00	234	2	1	1	1	1	0	2	2	2	f	2	3	1	5	1	2	\N	4	t	1	1	\N
+90	test dragon	2024-05-01 21:00:00	2024-12-31 22:00:00	2024-05-01 21:00:00	\N	wer	4	3	3	3	6	0	4	4	4	t	3	2	2	4	1	3	\N	4	t	1	1	\N
+91	AA34	2024-05-01 21:00:00	2024-11-30 22:00:00	\N	\N	444	2	1	1	1	1	2	2	2	2	f	1	2	1	1	1	2	\N	\N	t	1	1	\N
+81	2323432	2024-05-01 21:00:00	2024-05-28 21:00:00	\N	\N	243	2	1	1	1	1	0	2	2	2	f	2	5	2	2	1	2	\N	4	f	1	1	\N
+82	wer	2024-05-01 21:00:00	2024-05-27 21:00:00	\N	\N	wer	3	1	1	1	1	0	3	3	3	f	1	4	2	2	2	2	\N	4	f	1	1	\N
+83	345345	2024-05-21 21:00:00	2024-05-28 21:00:00	\N	\N	345	2	1	1	1	1	0	2	2	2	f	2	5	2	5	4	1	\N	4	t	1	3	\N
+84	23432423	2024-05-01 21:00:00	2024-05-21 21:00:00	\N	\N	234	3	1	1	1	1	0	3	3	3	f	3	1	1	1	2	1	\N	4	t	2	3	\N
+86	23443232	2024-05-01 21:00:00	2024-05-21 21:00:00	\N	\N	234	2	1	1	1	1	0	2	2	2	f	1	5	1	2	1	1	\N	4	t	2	1	\N
+87	newctr	2024-05-01 21:00:00	2024-08-21 21:00:00	\N	\N	newctr	2	1	1	1	1	0	2	2	2	t	2	2	2	1	1	1	\N	4	t	2	1	\N
+88	newctr	2024-05-01 21:00:00	2024-11-06 22:00:00	\N	\N	newctr	2	1	1	1	1	0	2	2	2	f	1	6	1	2	1	2	\N	4	t	1	1	\N
+92	1test	2024-05-31 21:00:00	2025-01-15 22:00:00	2024-06-01 21:00:00	\N	12	2	1	1	1	1	1	2	2	2	f	1	2	1	2	2	2	\N	\N	t	1	1	\N
+2	34	2024-05-01 21:00:00	2024-12-31 22:00:00	\N	\N	444	2	1	1	1	1	0	2	2	2	f	1	2	1	1	1	2	\N	4	t	1	1	\N
+3	5	2024-05-01 21:00:00	2024-12-31 22:00:00	\N	\N	5	2	1	1	1	1	0	2	2	2	f	1	2	1	3	1	2	\N	4	t	1	1	\N
+4	4	2024-05-01 21:00:00	2024-12-31 22:00:00	\N	\N	4	2	1	1	1	1	0	2	2	2	f	1	1	1	2	1	4	\N	4	t	1	1	\N
+10	234432432	2024-05-01 21:00:00	2024-12-31 22:00:00	\N	\N	x	2	1	1	1	1	0	2	2	2	f	1	5	1	3	1	1	\N	4	t	1	1	\N
+11	234324	2024-05-21 21:00:00	2024-12-31 22:00:00	\N	\N	234	2	1	1	1	1	0	2	2	2	f	1	3	1	4	1	1	\N	4	t	1	1	\N
+12	23432	2024-05-01 21:00:00	2024-12-31 22:00:00	\N	\N	jj	2	1	1	1	1	0	2	2	2	f	1	6	1	2	2	3	\N	4	t	1	1	\N
+13	32432	2024-05-01 21:00:00	2024-12-31 22:00:00	\N	\N	234	2	1	1	1	1	0	2	2	2	f	1	2	1	2	2	2	\N	4	t	1	2	\N
+14	werewrew	2024-05-13 21:00:00	2024-12-31 22:00:00	\N	\N	23	2	1	1	1	1	0	2	2	2	f	1	3	1	3	4	5	\N	3	t	1	4	\N
+6	55	2024-05-01 21:00:00	2025-03-25 22:00:00	\N	\N	345	2	1	1	1	1	0	2	2	2	f	1	4	1	2	1	1	\N	4	t	1	1	\N
+5	55	2024-05-13 21:00:00	2025-03-25 22:00:00	\N	\N	5	2	1	1	1	1	0	2	2	2	f	1	1	1	2	1	2	\N	4	t	1	1	\N
+7	345	2024-05-01 21:00:00	2025-03-25 22:00:00	\N	\N	345	2	1	1	1	1	0	2	2	2	f	1	2	1	2	1	2	\N	4	t	1	1	\N
+8	3543	2024-05-01 21:00:00	2025-03-25 22:00:00	\N	\N	345	2	1	1	1	1	0	2	2	2	f	1	1	1	2	1	2	\N	4	t	1	1	\N
+9	3344	2024-05-01 21:00:00	2025-03-25 22:00:00	\N	\N	4	2	1	1	1	1	0	2	2	2	f	1	1	1	4	1	2	\N	4	t	1	1	\N
+15	32432	2024-05-01 21:00:00	2024-12-31 22:00:00	\N	\N	23	2	1	1	1	1	0	2	2	2	f	1	2	1	2	1	2	\N	3	t	1	1	\N
+16	t	2024-05-01 21:00:00	2024-12-31 22:00:00	\N	\N	t	2	1	1	1	1	0	2	2	2	f	1	5	1	3	3	1	\N	4	t	1	1	\N
+17	555	2024-05-14 21:00:00	2024-12-31 22:00:00	\N	\N	5	2	1	1	1	1	0	2	2	2	f	1	6	1	3	4	4	\N	4	t	1	3	\N
+18	c3	2024-05-01 21:00:00	2024-12-31 22:00:00	\N	\N	ff	2	1	1	1	1	0	2	2	2	f	1	4	1	3	5	2	\N	4	t	1	1	\N
+19	24	2024-05-01 21:00:00	2024-12-31 22:00:00	\N	\N	jj	2	1	1	1	1	0	2	2	2	f	1	3	1	2	2	2	\N	4	t	1	3	\N
+20	erre	2024-05-08 21:00:00	2024-12-31 22:00:00	\N	\N	ert	2	1	1	1	1	0	2	2	2	f	1	3	1	3	3	2	\N	4	t	1	2	\N
+21	234	2024-05-01 21:00:00	2024-12-31 22:00:00	\N	\N	234	2	1	1	1	1	0	2	2	2	f	1	1	1	3	3	2	\N	4	t	1	3	\N
+22	24	2024-05-01 21:00:00	2024-12-31 22:00:00	\N	\N	m	2	1	1	1	1	0	2	2	2	f	1	3	1	4	1	1	\N	4	t	1	1	\N
+23	23	2024-05-01 21:00:00	2024-12-31 22:00:00	\N	\N	24	2	1	1	1	1	0	2	2	2	f	1	4	1	3	1	1	\N	4	t	1	1	\N
+24	ok	2024-05-01 21:00:00	2024-12-31 22:00:00	\N	\N	24	2	1	1	1	1	0	2	2	2	f	1	1	1	2	3	1	\N	4	t	1	1	\N
+25	ok2	2024-05-01 21:00:00	2024-12-31 22:00:00	\N	\N	2	2	1	1	1	1	0	2	2	2	f	1	5	1	2	3	1	\N	4	t	1	2	\N
+26	1aa	2024-05-02 21:00:00	2024-12-31 22:00:00	\N	\N	act aditional	2	1	1	1	1	1	2	2	2	f	1	2	1	2	2	2	\N	\N	f	1	1	\N
+27	1bb	2024-05-02 21:00:00	2024-12-31 22:00:00	\N	\N	1bb	2	1	1	1	1	1	2	2	2	f	1	2	1	2	2	2	\N	\N	f	1	1	\N
+28	1cc	2024-05-02 21:00:00	2024-12-31 22:00:00	\N	\N	1	2	1	1	1	1	1	2	2	2	f	1	2	1	2	2	2	\N	\N	t	1	1	\N
+29	1 client	2024-05-01 21:00:00	2024-12-31 22:00:00	\N	\N	werwer	2	1	1	1	1	0	2	2	2	f	1	1	1	2	1	2	\N	4	f	1	2	\N
+30	1 client aa	2024-05-02 21:00:00	2024-12-31 22:00:00	\N	\N	werwer aaa	2	1	1	1	1	29	2	2	2	f	1	1	1	2	1	2	\N	\N	f	1	1	\N
+53	flux5	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	flux5	2	1	1	1	1	0	2	2	2	f	2	2	2	3	2	2	\N	4	t	2	3	\N
+54	task6	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	task6	2	1	1	1	1	0	2	2	2	f	2	2	1	2	2	3	\N	4	t	2	3	\N
+56	wf3	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	wf3	2	1	1	1	1	0	2	2	2	f	2	4	2	3	2	1	\N	4	t	2	2	\N
+57	tt	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	tt	2	1	1	1	1	0	2	2	2	f	2	1	2	3	2	2	\N	4	t	2	2	\N
+58	ttt5	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	5	2	1	1	1	1	0	2	2	2	f	2	1	2	2	2	2	\N	4	t	2	2	\N
+59	ttt54	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	ttt54	2	1	1	1	1	0	2	2	2	f	2	4	1	2	2	2	\N	4	t	1	3	\N
+60	ttt6	2024-05-02 21:00:00	2025-01-31 22:00:00	\N	\N	ttt6	2	1	1	1	1	0	2	2	2	f	2	2	2	2	2	2	\N	4	t	2	3	\N
+61	testwf	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	testwf	2	1	1	1	1	0	2	2	2	f	2	2	2	3	2	2	\N	4	t	2	3	\N
+62	reject	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	reject	2	1	1	1	1	0	2	2	2	f	2	2	2	3	2	2	\N	4	t	1	3	\N
+63	ana	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	ana	2	1	1	1	1	0	2	2	2	f	2	2	1	3	2	3	\N	4	t	1	4	\N
+64	44444	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	4	4	1	1	1	1	0	4	4	4	f	1	5	2	3	1	2	\N	4	t	1	1	\N
+65	qw	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	qw	2	1	1	1	1	0	2	2	2	f	1	5	2	1	1	5	\N	4	t	1	1	\N
+66	tttt	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	t	2	1	1	1	1	0	2	2	2	f	1	1	2	1	1	2	\N	4	t	2	1	\N
+67	234	2024-05-15 21:00:00	2025-01-31 22:00:00	\N	\N	234	2	1	1	1	1	0	2	2	2	f	2	5	1	2	1	1	\N	4	t	1	1	\N
+68	aaaaa	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	a	2	1	1	1	1	0	2	2	2	f	3	3	2	3	1	2	\N	4	t	2	1	\N
+69	bbbb	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	bb	2	1	1	1	1	0	2	2	2	f	2	2	2	1	1	2	\N	4	t	2	1	\N
+70	e	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	e	3	1	1	1	1	0	3	3	3	f	3	2	2	1	1	1	\N	4	t	2	1	\N
+71	wer	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	wer	3	1	1	1	1	0	3	3	3	f	2	1	1	1	1	2	\N	4	t	2	1	\N
+72	234	2024-05-21 21:00:00	2025-01-31 22:00:00	\N	\N	v	2	1	1	1	1	0	2	2	2	f	1	4	2	5	1	1	\N	4	t	2	1	\N
+73	342	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	345	2	1	1	1	1	0	2	2	2	f	3	3	2	2	4	5	\N	4	t	2	1	\N
+74	rr	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	\N	2	1	1	1	1	0	2	2	2	f	1	5	2	3	3	1	\N	4	f	2	3	\N
+75	ee	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	e	3	1	1	1	1	0	3	3	3	f	1	2	1	1	4	1	\N	4	f	2	3	\N
+76	mm	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	mm	2	1	1	1	1	0	2	2	2	f	3	4	1	2	4	1	\N	4	f	2	4	\N
+77	mm	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	mm	2	1	1	1	1	0	2	2	2	f	3	4	1	2	4	1	\N	4	f	2	4	\N
+78	234	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	234	2	1	1	1	1	0	2	2	2	f	1	3	1	2	3	2	\N	4	f	2	3	\N
+79	rte	2024-05-21 21:00:00	2025-01-31 22:00:00	\N	\N	wer	2	1	1	1	1	0	2	2	2	f	1	5	1	4	1	1	\N	4	f	1	1	\N
+80	34555	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	\N	345	3	1	1	1	1	0	3	3	3	f	3	4	1	2	3	1	\N	4	f	2	3	\N
+93	32	2024-10-01 21:00:00	2025-03-12 22:00:00	2024-10-01 21:00:00	\N	234	14	1	1	1	1	0	6	5	7	t	3	3	1	2	2	2	\N	4	f	1	2	\N
+55	task99	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	2024-10-15 21:00:00	s	2	1	1	1	1	0	2	2	2	f	2	5	2	2	2	1	\N	4	t	2	2	\N
+94	99	2024-10-01 21:00:00	2025-01-16 22:00:00	2024-10-01 21:00:00	\N	99	14	1	1	1	1	0	6	5	7	f	2	2	1	2	2	1	\N	4	t	1	3	\N
+97	4444	2024-05-01 21:00:00	2024-09-30 21:00:00	\N	\N	Test	2	1	1	1	1	31	2	2	2	f	1	3	1	2	1	2	\N	\N	t	1	1	\N
+100	stare4444	2024-05-01 21:00:00	2024-09-30 21:00:00	2024-05-01 21:00:00	\N	stare	2	1	1	1	1	43	2	2	2	f	2	3	2	4	2	2	\N	\N	t	2	1	1
 \.
 
 
 --
--- Data for Name: ContractsAudit; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ContractsAudit; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ContractsAudit" (auditid, number, "typeId", "costcenterId", "statusId", start, "end", sign, completion, remarks, "categoryId", "departmentId", "cashflowId", "automaticRenewal", "partnersId", "entityId", "parentId", "partnerpersonsId", "entitypersonsId", "entityaddressId", "partneraddressId", "entitybankId", "partnerbankId", "contractAttachmentsId", "paymentTypeId", "contractContentId", id, "operationType", "createdAt", "updateadAt", "userId", "locationId", "statusWFId") FROM stdin;
@@ -5223,11 +5640,26 @@ COPY public."ContractsAudit" (auditid, number, "typeId", "costcenterId", "status
 136	1test	2	2	2	2024-05-01 21:00:00	2024-12-31 22:00:00	\N	\N	12	1	1	2	f	2	1	\N	2	1	1	2	1	2	\N	\N	\N	1	U	2024-05-27 14:34:03.401	2024-05-27 14:34:03.401	4	1	\N
 137	test dragon	3	4	1	2024-05-01 21:00:00	2024-12-31 22:00:00	2024-05-01 21:00:00	\N	wer	2	3	2	t	4	3	\N	4	6	3	4	3	4	\N	\N	\N	90	I	2024-05-28 09:39:16.794	2024-05-28 09:39:16.794	4	1	1
 138	AA34	2	1	1	2024-05-01 21:00:00	2024-11-30 22:00:00	\N	\N	444	1	1	2	f	2	1	\N	2	1	1	2	1	2	\N	\N	\N	91	I	2024-05-28 13:30:55.103	2024-05-28 13:30:55.103	\N	1	1
+139	1test	2	2	2	2024-05-01 21:00:00	2024-12-31 22:00:00	2024-06-01 21:00:00	\N	12	1	1	2	f	2	1	\N	2	1	1	2	1	2	\N	\N	\N	1	U	2024-06-06 14:03:01.92	2024-06-06 14:03:01.92	4	1	\N
+140	1test	2	2	2	2024-05-31 21:00:00	2025-01-15 22:00:00	2024-06-01 21:00:00	\N	12	1	1	2	f	2	1	\N	2	1	1	2	1	2	\N	\N	\N	92	I	2024-06-06 14:03:41.513	2024-06-06 14:03:41.513	\N	1	1
+141	32	2	2	2	2024-10-01 21:00:00	2025-03-12 22:00:00	2024-10-01 21:00:00	\N	234	1	3	3	t	14	1	\N	7	1	1	6	1	5	\N	\N	\N	93	I	2024-10-03 13:13:28.676	2024-10-03 13:13:28.676	4	1	1
+142	99	1	2	2	2024-10-01 21:00:00	2025-01-16 22:00:00	2024-10-01 21:00:00	\N	99	1	2	2	f	14	1	\N	7	1	1	6	1	5	\N	\N	\N	94	I	2024-10-04 09:37:55.812	2024-10-04 09:37:55.812	4	1	1
+143	task99	1	2	2	2024-05-01 21:00:00	2025-01-31 22:00:00	\N	2024-10-15 21:00:00	s	2	2	5	f	2	1	\N	2	1	1	2	1	2	\N	\N	\N	55	U	2024-10-04 09:51:39.34	2024-10-04 09:51:39.34	4	2	2
+144	99	1	2	2	2024-10-01 21:00:00	2025-01-16 22:00:00	2024-10-01 21:00:00	\N	99	1	2	2	f	14	1	\N	7	1	1	6	1	5	\N	\N	\N	94	U	2024-10-04 09:59:31.018	2024-10-04 09:59:31.018	4	1	3
+145	99	1	2	2	2024-10-01 21:00:00	2025-01-16 22:00:00	2024-10-01 21:00:00	\N	99	1	2	2	f	14	1	\N	7	1	1	6	1	5	\N	\N	\N	94	U	2024-10-04 10:01:34.032	2024-10-04 10:01:34.032	4	1	3
+146	test flux stare	2	2	1	2024-05-01 21:00:00	2024-09-30 21:00:00	\N	\N	Test	1	1	3	f	2	1	\N	2	1	1	2	1	2	\N	\N	\N	95	I	2024-10-05 09:19:32.528	2024-10-05 09:19:32.528	\N	1	1
+147	7777	2	2	1	2024-05-01 21:00:00	2024-09-30 21:00:00	\N	\N	Test	1	1	3	f	2	1	\N	2	1	1	2	1	2	\N	\N	\N	96	I	2024-10-05 09:27:42.635	2024-10-05 09:27:42.635	\N	1	1
+148	4444	2	2	1	2024-05-01 21:00:00	2024-09-30 21:00:00	\N	\N	Test	1	1	3	f	2	1	\N	2	1	1	2	1	2	\N	\N	\N	97	I	2024-10-05 09:30:19.199	2024-10-05 09:30:19.199	\N	1	1
+149	5555	2	2	1	2024-05-01 21:00:00	2024-09-30 21:00:00	\N	\N	Test	1	1	3	f	2	1	\N	2	1	1	2	1	2	\N	\N	\N	98	I	2024-10-05 09:41:16.108	2024-10-05 09:41:16.108	\N	1	1
+150	3333	2	2	1	2024-05-01 21:00:00	2024-09-30 21:00:00	\N	\N	Test	1	1	3	f	2	1	\N	2	1	1	2	1	2	\N	\N	\N	99	I	2024-10-05 09:42:46.276	2024-10-05 09:42:46.276	\N	1	1
+151	stare4444	2	4	2	2024-05-01 21:00:00	2024-09-30 21:00:00	2024-05-01 21:00:00	\N	stare	2	2	3	f	2	1	\N	2	1	1	2	1	2	\N	\N	\N	100	I	2024-10-05 10:01:45.879	2024-10-05 10:01:45.879	\N	2	1
+152	stare	2	4	2	2024-05-01 21:00:00	2024-09-30 21:00:00	2024-05-01 21:00:00	\N	stare	2	2	3	f	2	1	\N	2	1	1	2	1	2	\N	\N	\N	101	I	2024-10-11 14:26:15.937	2024-10-11 14:26:15.937	\N	2	1
+153	Op1	1	5	4	2024-05-01 21:00:00	2024-12-30 22:00:00	\N	\N	test	2	2	5	f	2	1	\N	2	1	1	2	1	2	\N	\N	\N	102	I	2024-10-14 15:21:24.516	2024-10-14 15:21:24.516	\N	2	1
 \.
 
 
 --
--- Data for Name: CostCenter; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: CostCenter; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."CostCenter" (id, name) FROM stdin;
@@ -5276,12 +5708,11 @@ COPY public."CostCenter" (id, name) FROM stdin;
 43	Cheltuieli personal Tesa
 44	Cheltuieli sp. SNCFR 
 45	Cheltuieli transport
-46	Cheltuieli utilitati
 \.
 
 
 --
--- Data for Name: Currency; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Currency; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Currency" (id, code, name) FROM stdin;
@@ -5318,27 +5749,62 @@ COPY public."Currency" (id, code, name) FROM stdin;
 
 
 --
--- Data for Name: Department; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Department; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Department" (id, name) FROM stdin;
 1	ITC
 2	Operational
 3	Financiar
+5	Tehnic
+7	Tehnic1
+13	3454354
+19	56657567567
+21	5676576556
+24	wrrrwwer
+15	56765765aaaaaa
+27	999werrwerwerwrew
+28	999a
+29	abc
+30	abc1
+31	bbb333
+16	99999
+26	kkt in ploaie bb 3
+32	caca
+34	qweeqeqqeqewqeqeq
+22	wrwerwer
+23	ameno566
+35	wrre
 \.
 
 
 --
--- Data for Name: DynamicFields; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: DocumentSeries; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."DocumentSeries" (id, "updateadAt", "createdAt", "entityId", "updatedByUserId", "documentTypeId", series, start_number, final_number, last_number, "isActive") FROM stdin;
+3	2024-06-04 11:45:20.146	2024-06-04 11:45:20.146	1	1	2	ANA	1	100	33	t
+6	2024-10-03 09:19:31.817	2024-10-03 09:03:39.422	3	4	3	DR	1	100000	1	t
+8	2024-10-06 06:42:47.908	2024-10-06 06:42:47.908	1	4	8	OP_CL	1	1000	1	t
+7	2024-10-06 06:48:43.063	2024-10-06 06:42:15.194	1	4	6	ChitCl	1	1000	1	t
+5	2024-10-10 18:38:20.101	2024-10-03 09:02:59.273	3	4	1	DR_Van	1	10000	4	t
+1	2024-10-14 15:33:55.705	2024-06-04 11:11:27.528	1	4	1	NIR	1	10000	82	t
+4	2024-10-14 15:34:24.468	2024-06-04 11:46:16.143	1	4	3	ST_NIR	5	10000	9	t
+\.
+
+
+--
+-- Data for Name: DynamicFields; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."DynamicFields" (id, "updateadAt", "createdAt", fieldname, fieldlabel, fieldorder, fieldtype) FROM stdin;
 1	2024-05-14 04:22:01.003	2024-05-14 04:22:01.003	dffInt1	Int1	1	Int
+2	2024-10-04 12:54:48.669	2024-10-04 12:54:48.669	dffString1	DFF2	2	String
 \.
 
 
 --
--- Data for Name: ExchangeRates; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ExchangeRates; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ExchangeRates" (id, "updateadAt", "createdAt", date, amount, name, multiplier) FROM stdin;
@@ -5694,11 +6160,729 @@ COPY public."ExchangeRates" (id, "updateadAt", "createdAt", date, amount, name, 
 350	2024-05-29 06:00:01.243	2024-05-29 06:00:01.243	2024-05-29	344.9545	XAU	1
 351	2024-05-29 06:00:01.244	2024-05-29 06:00:01.244	2024-05-29	6.0641	XDR	1
 352	2024-05-29 06:00:01.244	2024-05-29 06:00:01.244	2024-05-29	0.2484	ZAR	1
+353	2024-05-30 06:00:00.497	2024-05-30 06:00:00.497	2024-05-30	1	RON	1
+354	2024-05-30 06:00:00.528	2024-05-30 06:00:00.528	2024-05-30	1.2483	AED	1
+355	2024-05-30 06:00:00.53	2024-05-30 06:00:00.53	2024-05-30	3.047	AUD	1
+356	2024-05-30 06:00:00.531	2024-05-30 06:00:00.531	2024-05-30	2.5443	BGN	1
+357	2024-05-30 06:00:00.533	2024-05-30 06:00:00.533	2024-05-30	0.8885	BRL	1
+358	2024-05-30 06:00:00.534	2024-05-30 06:00:00.534	2024-05-30	3.3561	CAD	1
+359	2024-05-30 06:00:00.537	2024-05-30 06:00:00.537	2024-05-30	5.0237	CHF	1
+360	2024-05-30 06:00:00.538	2024-05-30 06:00:00.538	2024-05-30	0.6325	CNY	1
+361	2024-05-30 06:00:00.539	2024-05-30 06:00:00.539	2024-05-30	0.2015	CZK	1
+362	2024-05-30 06:00:00.54	2024-05-30 06:00:00.54	2024-05-30	0.667	DKK	1
+363	2024-05-30 06:00:00.541	2024-05-30 06:00:00.541	2024-05-30	0.0968	EGP	1
+364	2024-05-30 06:00:00.542	2024-05-30 06:00:00.542	2024-05-30	4.9762	EUR	1
+365	2024-05-30 06:00:00.542	2024-05-30 06:00:00.542	2024-05-30	5.8519	GBP	1
+366	2024-05-30 06:00:00.543	2024-05-30 06:00:00.543	2024-05-30	1.2897	HUF	100
+367	2024-05-30 06:00:00.544	2024-05-30 06:00:00.544	2024-05-30	0.055	INR	1
+368	2024-05-30 06:00:00.545	2024-05-30 06:00:00.545	2024-05-30	2.9175	JPY	100
+369	2024-05-30 06:00:00.545	2024-05-30 06:00:00.545	2024-05-30	0.3355	KRW	100
+370	2024-05-30 06:00:00.546	2024-05-30 06:00:00.546	2024-05-30	0.2581	MDL	1
+371	2024-05-30 06:00:00.547	2024-05-30 06:00:00.547	2024-05-30	0.2736	MXN	1
+372	2024-05-30 06:00:00.548	2024-05-30 06:00:00.548	2024-05-30	0.4365	NOK	1
+373	2024-05-30 06:00:00.549	2024-05-30 06:00:00.549	2024-05-30	2.8142	NZD	1
+374	2024-05-30 06:00:00.55	2024-05-30 06:00:00.55	2024-05-30	1.1691	PLN	1
+375	2024-05-30 06:00:00.552	2024-05-30 06:00:00.552	2024-05-30	0.0425	RSD	1
+376	2024-05-30 06:00:00.553	2024-05-30 06:00:00.553	2024-05-30	0.0514	RUB	1
+377	2024-05-30 06:00:00.553	2024-05-30 06:00:00.553	2024-05-30	0.4326	SEK	1
+378	2024-05-30 06:00:00.554	2024-05-30 06:00:00.554	2024-05-30	0.1248	THB	1
+379	2024-05-30 06:00:00.555	2024-05-30 06:00:00.555	2024-05-30	0.1423	TRY	1
+380	2024-05-30 06:00:00.555	2024-05-30 06:00:00.555	2024-05-30	0.1133	UAH	1
+381	2024-05-30 06:00:00.556	2024-05-30 06:00:00.556	2024-05-30	4.5851	USD	1
+382	2024-05-30 06:00:00.556	2024-05-30 06:00:00.556	2024-05-30	345.7888	XAU	1
+383	2024-05-30 06:00:00.557	2024-05-30 06:00:00.557	2024-05-30	6.0719	XDR	1
+384	2024-05-30 06:00:00.558	2024-05-30 06:00:00.558	2024-05-30	0.251	ZAR	1
+385	2024-05-31 06:00:01.365	2024-05-31 06:00:01.365	2024-05-31	1	RON	1
+386	2024-05-31 06:00:01.388	2024-05-31 06:00:01.388	2024-05-31	1.2531	AED	1
+387	2024-05-31 06:00:01.389	2024-05-31 06:00:01.389	2024-05-31	3.0418	AUD	1
+388	2024-05-31 06:00:01.39	2024-05-31 06:00:01.39	2024-05-31	2.5445	BGN	1
+389	2024-05-31 06:00:01.391	2024-05-31 06:00:01.391	2024-05-31	0.8847	BRL	1
+390	2024-05-31 06:00:01.395	2024-05-31 06:00:01.395	2024-05-31	3.3541	CAD	1
+391	2024-05-31 06:00:01.397	2024-05-31 06:00:01.397	2024-05-31	5.0722	CHF	1
+392	2024-05-31 06:00:01.398	2024-05-31 06:00:01.398	2024-05-31	0.6359	CNY	1
+393	2024-05-31 06:00:01.398	2024-05-31 06:00:01.398	2024-05-31	0.201	CZK	1
+394	2024-05-31 06:00:01.399	2024-05-31 06:00:01.399	2024-05-31	0.6671	DKK	1
+395	2024-05-31 06:00:01.4	2024-05-31 06:00:01.4	2024-05-31	0.0974	EGP	1
+396	2024-05-31 06:00:01.4	2024-05-31 06:00:01.4	2024-05-31	4.9766	EUR	1
+397	2024-05-31 06:00:01.401	2024-05-31 06:00:01.401	2024-05-31	5.8507	GBP	1
+398	2024-05-31 06:00:01.402	2024-05-31 06:00:01.402	2024-05-31	1.2798	HUF	100
+399	2024-05-31 06:00:01.403	2024-05-31 06:00:01.403	2024-05-31	0.0552	INR	1
+400	2024-05-31 06:00:01.403	2024-05-31 06:00:01.403	2024-05-31	2.9339	JPY	100
+401	2024-05-31 06:00:01.404	2024-05-31 06:00:01.404	2024-05-31	0.3343	KRW	100
+402	2024-05-31 06:00:01.405	2024-05-31 06:00:01.405	2024-05-31	0.2592	MDL	1
+403	2024-05-31 06:00:01.405	2024-05-31 06:00:01.405	2024-05-31	0.2699	MXN	1
+404	2024-05-31 06:00:01.406	2024-05-31 06:00:01.406	2024-05-31	0.4355	NOK	1
+405	2024-05-31 06:00:01.407	2024-05-31 06:00:01.407	2024-05-31	2.8076	NZD	1
+406	2024-05-31 06:00:01.408	2024-05-31 06:00:01.408	2024-05-31	1.1603	PLN	1
+407	2024-05-31 06:00:01.408	2024-05-31 06:00:01.408	2024-05-31	0.0425	RSD	1
+408	2024-05-31 06:00:01.409	2024-05-31 06:00:01.409	2024-05-31	0.0512	RUB	1
+409	2024-05-31 06:00:01.412	2024-05-31 06:00:01.412	2024-05-31	0.4324	SEK	1
+410	2024-05-31 06:00:01.413	2024-05-31 06:00:01.413	2024-05-31	0.125	THB	1
+411	2024-05-31 06:00:01.414	2024-05-31 06:00:01.414	2024-05-31	0.1426	TRY	1
+412	2024-05-31 06:00:01.414	2024-05-31 06:00:01.414	2024-05-31	0.1137	UAH	1
+413	2024-05-31 06:00:01.415	2024-05-31 06:00:01.415	2024-05-31	4.6028	USD	1
+414	2024-05-31 06:00:01.415	2024-05-31 06:00:01.415	2024-05-31	345.1286	XAU	1
+415	2024-05-31 06:00:01.416	2024-05-31 06:00:01.416	2024-05-31	6.0881	XDR	1
+416	2024-05-31 06:00:01.416	2024-05-31 06:00:01.416	2024-05-31	0.2467	ZAR	1
+417	2024-06-02 08:00:00.837	2024-06-02 08:00:00.837	2024-06-02	1	RON	1
+418	2024-06-02 08:00:00.874	2024-06-02 08:00:00.874	2024-06-02	1.2496	AED	1
+419	2024-06-02 08:00:00.876	2024-06-02 08:00:00.876	2024-06-02	3.0493	AUD	1
+420	2024-06-02 08:00:00.877	2024-06-02 08:00:00.877	2024-06-02	2.5445	BGN	1
+421	2024-06-02 08:00:00.878	2024-06-02 08:00:00.878	2024-06-02	0.882	BRL	1
+422	2024-06-02 08:00:00.879	2024-06-02 08:00:00.879	2024-06-02	3.3625	CAD	1
+423	2024-06-02 08:00:00.882	2024-06-02 08:00:00.882	2024-06-02	5.0656	CHF	1
+424	2024-06-02 08:00:00.883	2024-06-02 08:00:00.883	2024-06-02	0.6338	CNY	1
+425	2024-06-02 08:00:00.885	2024-06-02 08:00:00.885	2024-06-02	0.2013	CZK	1
+426	2024-06-02 08:00:00.886	2024-06-02 08:00:00.886	2024-06-02	0.6672	DKK	1
+427	2024-06-02 08:00:00.887	2024-06-02 08:00:00.887	2024-06-02	0.0971	EGP	1
+428	2024-06-02 08:00:00.891	2024-06-02 08:00:00.891	2024-06-02	4.9767	EUR	1
+429	2024-06-02 08:00:00.892	2024-06-02 08:00:00.892	2024-06-02	5.8378	GBP	1
+430	2024-06-02 08:00:00.893	2024-06-02 08:00:00.893	2024-06-02	1.2796	HUF	100
+431	2024-06-02 08:00:00.894	2024-06-02 08:00:00.894	2024-06-02	0.055	INR	1
+432	2024-06-02 08:00:00.895	2024-06-02 08:00:00.895	2024-06-02	2.9185	JPY	100
+433	2024-06-02 08:00:00.896	2024-06-02 08:00:00.896	2024-06-02	0.3317	KRW	100
+434	2024-06-02 08:00:00.897	2024-06-02 08:00:00.897	2024-06-02	0.2599	MDL	1
+435	2024-06-02 08:00:00.897	2024-06-02 08:00:00.897	2024-06-02	0.2698	MXN	1
+436	2024-06-02 08:00:00.898	2024-06-02 08:00:00.898	2024-06-02	0.4363	NOK	1
+437	2024-06-02 08:00:00.899	2024-06-02 08:00:00.899	2024-06-02	2.813	NZD	1
+438	2024-06-02 08:00:00.899	2024-06-02 08:00:00.899	2024-06-02	1.1674	PLN	1
+439	2024-06-02 08:00:00.9	2024-06-02 08:00:00.9	2024-06-02	0.0425	RSD	1
+440	2024-06-02 08:00:00.9	2024-06-02 08:00:00.9	2024-06-02	0.0508	RUB	1
+441	2024-06-02 08:00:00.901	2024-06-02 08:00:00.901	2024-06-02	0.4349	SEK	1
+442	2024-06-02 08:00:00.901	2024-06-02 08:00:00.901	2024-06-02	0.1248	THB	1
+443	2024-06-02 08:00:00.901	2024-06-02 08:00:00.901	2024-06-02	0.1428	TRY	1
+444	2024-06-02 08:00:00.902	2024-06-02 08:00:00.902	2024-06-02	0.113	UAH	1
+445	2024-06-02 08:00:00.902	2024-06-02 08:00:00.902	2024-06-02	4.5898	USD	1
+446	2024-06-02 08:00:00.903	2024-06-02 08:00:00.903	2024-06-02	345.6579	XAU	1
+447	2024-06-02 08:00:00.903	2024-06-02 08:00:00.903	2024-06-02	6.0753	XDR	1
+448	2024-06-02 08:00:00.904	2024-06-02 08:00:00.904	2024-06-02	0.244	ZAR	1
+449	2024-06-03 06:00:02.496	2024-06-03 06:00:02.496	2024-06-03	1	RON	1
+450	2024-06-03 06:00:02.524	2024-06-03 06:00:02.524	2024-06-03	1.2496	AED	1
+451	2024-06-03 06:00:02.525	2024-06-03 06:00:02.525	2024-06-03	3.0493	AUD	1
+452	2024-06-03 06:00:02.526	2024-06-03 06:00:02.526	2024-06-03	2.5445	BGN	1
+453	2024-06-03 06:00:02.528	2024-06-03 06:00:02.528	2024-06-03	0.882	BRL	1
+454	2024-06-03 06:00:02.528	2024-06-03 06:00:02.528	2024-06-03	3.3625	CAD	1
+455	2024-06-03 06:00:02.53	2024-06-03 06:00:02.53	2024-06-03	5.0656	CHF	1
+456	2024-06-03 06:00:02.531	2024-06-03 06:00:02.531	2024-06-03	0.6338	CNY	1
+457	2024-06-03 06:00:02.531	2024-06-03 06:00:02.531	2024-06-03	0.2013	CZK	1
+458	2024-06-03 06:00:02.532	2024-06-03 06:00:02.532	2024-06-03	0.6672	DKK	1
+459	2024-06-03 06:00:02.533	2024-06-03 06:00:02.533	2024-06-03	0.0971	EGP	1
+460	2024-06-03 06:00:02.536	2024-06-03 06:00:02.536	2024-06-03	4.9767	EUR	1
+461	2024-06-03 06:00:02.536	2024-06-03 06:00:02.536	2024-06-03	5.8378	GBP	1
+462	2024-06-03 06:00:02.537	2024-06-03 06:00:02.537	2024-06-03	1.2796	HUF	100
+463	2024-06-03 06:00:02.537	2024-06-03 06:00:02.537	2024-06-03	0.055	INR	1
+464	2024-06-03 06:00:02.538	2024-06-03 06:00:02.538	2024-06-03	2.9185	JPY	100
+465	2024-06-03 06:00:02.539	2024-06-03 06:00:02.539	2024-06-03	0.3317	KRW	100
+466	2024-06-03 06:00:02.539	2024-06-03 06:00:02.539	2024-06-03	0.2599	MDL	1
+467	2024-06-03 06:00:02.54	2024-06-03 06:00:02.54	2024-06-03	0.2698	MXN	1
+468	2024-06-03 06:00:02.54	2024-06-03 06:00:02.54	2024-06-03	0.4363	NOK	1
+469	2024-06-03 06:00:02.541	2024-06-03 06:00:02.541	2024-06-03	2.813	NZD	1
+470	2024-06-03 06:00:02.542	2024-06-03 06:00:02.542	2024-06-03	1.1674	PLN	1
+471	2024-06-03 06:00:02.542	2024-06-03 06:00:02.542	2024-06-03	0.0425	RSD	1
+472	2024-06-03 06:00:02.543	2024-06-03 06:00:02.543	2024-06-03	0.0508	RUB	1
+473	2024-06-03 06:00:02.543	2024-06-03 06:00:02.543	2024-06-03	0.4349	SEK	1
+474	2024-06-03 06:00:02.544	2024-06-03 06:00:02.544	2024-06-03	0.1248	THB	1
+475	2024-06-03 06:00:02.545	2024-06-03 06:00:02.545	2024-06-03	0.1428	TRY	1
+476	2024-06-03 06:00:02.545	2024-06-03 06:00:02.545	2024-06-03	0.113	UAH	1
+477	2024-06-03 06:00:02.546	2024-06-03 06:00:02.546	2024-06-03	4.5898	USD	1
+478	2024-06-03 06:00:02.546	2024-06-03 06:00:02.546	2024-06-03	345.6579	XAU	1
+479	2024-06-03 06:00:02.547	2024-06-03 06:00:02.547	2024-06-03	6.0753	XDR	1
+480	2024-06-03 06:00:02.547	2024-06-03 06:00:02.547	2024-06-03	0.244	ZAR	1
+481	2024-06-04 06:00:00.979	2024-06-04 06:00:00.979	2024-06-04	1	RON	1
+482	2024-06-04 06:00:01.01	2024-06-04 06:00:01.01	2024-06-04	1.2503	AED	1
+483	2024-06-04 06:00:01.014	2024-06-04 06:00:01.014	2024-06-04	3.0483	AUD	1
+484	2024-06-04 06:00:01.015	2024-06-04 06:00:01.015	2024-06-04	2.5442	BGN	1
+485	2024-06-04 06:00:01.041	2024-06-04 06:00:01.041	2024-06-04	0.8754	BRL	1
+486	2024-06-04 06:00:01.043	2024-06-04 06:00:01.043	2024-06-04	3.3606	CAD	1
+487	2024-06-04 06:00:01.048	2024-06-04 06:00:01.048	2024-06-04	5.0899	CHF	1
+488	2024-06-04 06:00:01.049	2024-06-04 06:00:01.049	2024-06-04	0.6337	CNY	1
+489	2024-06-04 06:00:01.05	2024-06-04 06:00:01.05	2024-06-04	0.2014	CZK	1
+490	2024-06-04 06:00:01.051	2024-06-04 06:00:01.051	2024-06-04	0.6671	DKK	1
+491	2024-06-04 06:00:01.051	2024-06-04 06:00:01.051	2024-06-04	0.0971	EGP	1
+492	2024-06-04 06:00:01.054	2024-06-04 06:00:01.054	2024-06-04	4.9761	EUR	1
+493	2024-06-04 06:00:01.054	2024-06-04 06:00:01.054	2024-06-04	5.8343	GBP	1
+494	2024-06-04 06:00:01.055	2024-06-04 06:00:01.055	2024-06-04	1.2719	HUF	100
+495	2024-06-04 06:00:01.056	2024-06-04 06:00:01.056	2024-06-04	0.0552	INR	1
+496	2024-06-04 06:00:01.057	2024-06-04 06:00:01.057	2024-06-04	2.9243	JPY	100
+497	2024-06-04 06:00:01.058	2024-06-04 06:00:01.058	2024-06-04	0.3331	KRW	100
+498	2024-06-04 06:00:01.059	2024-06-04 06:00:01.059	2024-06-04	0.2592	MDL	1
+499	2024-06-04 06:00:01.059	2024-06-04 06:00:01.059	2024-06-04	0.2643	MXN	1
+500	2024-06-04 06:00:01.061	2024-06-04 06:00:01.061	2024-06-04	0.4366	NOK	1
+501	2024-06-04 06:00:01.062	2024-06-04 06:00:01.062	2024-06-04	2.8181	NZD	1
+502	2024-06-04 06:00:01.063	2024-06-04 06:00:01.063	2024-06-04	1.1614	PLN	1
+503	2024-06-04 06:00:01.063	2024-06-04 06:00:01.063	2024-06-04	0.0425	RSD	1
+504	2024-06-04 06:00:01.064	2024-06-04 06:00:01.064	2024-06-04	0.0514	RUB	1
+505	2024-06-04 06:00:01.065	2024-06-04 06:00:01.065	2024-06-04	0.4363	SEK	1
+506	2024-06-04 06:00:01.066	2024-06-04 06:00:01.066	2024-06-04	0.1246	THB	1
+507	2024-06-04 06:00:01.066	2024-06-04 06:00:01.066	2024-06-04	0.1426	TRY	1
+508	2024-06-04 06:00:01.067	2024-06-04 06:00:01.067	2024-06-04	0.1135	UAH	1
+509	2024-06-04 06:00:01.067	2024-06-04 06:00:01.067	2024-06-04	4.5922	USD	1
+510	2024-06-04 06:00:01.068	2024-06-04 06:00:01.068	2024-06-04	343.6252	XAU	1
+511	2024-06-04 06:00:01.069	2024-06-04 06:00:01.069	2024-06-04	6.0768	XDR	1
+512	2024-06-04 06:00:01.069	2024-06-04 06:00:01.069	2024-06-04	0.2451	ZAR	1
+513	2024-06-05 06:00:04.605	2024-06-05 06:00:04.605	2024-06-05	1	RON	1
+514	2024-06-05 06:00:04.627	2024-06-05 06:00:04.627	2024-06-05	1.2458	AED	1
+515	2024-06-05 06:00:04.627	2024-06-05 06:00:04.627	2024-06-05	3.0391	AUD	1
+516	2024-06-05 06:00:04.628	2024-06-05 06:00:04.628	2024-06-05	2.5438	BGN	1
+517	2024-06-05 06:00:04.629	2024-06-05 06:00:04.629	2024-06-05	0.8714	BRL	1
+518	2024-06-05 06:00:04.63	2024-06-05 06:00:04.63	2024-06-05	3.3421	CAD	1
+519	2024-06-05 06:00:04.631	2024-06-05 06:00:04.631	2024-06-05	5.1183	CHF	1
+520	2024-06-05 06:00:04.632	2024-06-05 06:00:04.632	2024-06-05	0.6318	CNY	1
+521	2024-06-05 06:00:04.633	2024-06-05 06:00:04.633	2024-06-05	0.2014	CZK	1
+522	2024-06-05 06:00:04.633	2024-06-05 06:00:04.633	2024-06-05	0.667	DKK	1
+523	2024-06-05 06:00:04.634	2024-06-05 06:00:04.634	2024-06-05	0.0968	EGP	1
+524	2024-06-05 06:00:04.636	2024-06-05 06:00:04.636	2024-06-05	4.9752	EUR	1
+525	2024-06-05 06:00:04.637	2024-06-05 06:00:04.637	2024-06-05	5.8405	GBP	1
+526	2024-06-05 06:00:04.638	2024-06-05 06:00:04.638	2024-06-05	1.2714	HUF	100
+527	2024-06-05 06:00:04.639	2024-06-05 06:00:04.639	2024-06-05	0.0548	INR	1
+528	2024-06-05 06:00:04.64	2024-06-05 06:00:04.64	2024-06-05	2.9498	JPY	100
+529	2024-06-05 06:00:04.64	2024-06-05 06:00:04.64	2024-06-05	0.332	KRW	100
+530	2024-06-05 06:00:04.641	2024-06-05 06:00:04.641	2024-06-05	0.2595	MDL	1
+531	2024-06-05 06:00:04.641	2024-06-05 06:00:04.641	2024-06-05	0.256	MXN	1
+532	2024-06-05 06:00:04.642	2024-06-05 06:00:04.642	2024-06-05	0.4333	NOK	1
+533	2024-06-05 06:00:04.642	2024-06-05 06:00:04.642	2024-06-05	2.8206	NZD	1
+534	2024-06-05 06:00:04.643	2024-06-05 06:00:04.643	2024-06-05	1.1595	PLN	1
+535	2024-06-05 06:00:04.644	2024-06-05 06:00:04.644	2024-06-05	0.0425	RSD	1
+536	2024-06-05 06:00:04.645	2024-06-05 06:00:04.645	2024-06-05	0.0516	RUB	1
+537	2024-06-05 06:00:04.645	2024-06-05 06:00:04.645	2024-06-05	0.4369	SEK	1
+538	2024-06-05 06:00:04.646	2024-06-05 06:00:04.646	2024-06-05	0.1251	THB	1
+539	2024-06-05 06:00:04.647	2024-06-05 06:00:04.647	2024-06-05	0.1418	TRY	1
+540	2024-06-05 06:00:04.647	2024-06-05 06:00:04.647	2024-06-05	0.1136	UAH	1
+541	2024-06-05 06:00:04.648	2024-06-05 06:00:04.648	2024-06-05	4.5757	USD	1
+542	2024-06-05 06:00:04.648	2024-06-05 06:00:04.648	2024-06-05	342.9745	XAU	1
+543	2024-06-05 06:00:04.649	2024-06-05 06:00:04.649	2024-06-05	6.0687	XDR	1
+544	2024-06-05 06:00:04.649	2024-06-05 06:00:04.649	2024-06-05	0.2441	ZAR	1
+545	2024-06-06 06:00:02.403	2024-06-06 06:00:02.403	2024-06-06	1	RON	1
+546	2024-06-06 06:00:02.428	2024-06-06 06:00:02.428	2024-06-06	1.2456	AED	1
+547	2024-06-06 06:00:02.429	2024-06-06 06:00:02.429	2024-06-06	3.0415	AUD	1
+548	2024-06-06 06:00:02.43	2024-06-06 06:00:02.43	2024-06-06	2.5441	BGN	1
+549	2024-06-06 06:00:02.431	2024-06-06 06:00:02.431	2024-06-06	0.8649	BRL	1
+550	2024-06-06 06:00:02.432	2024-06-06 06:00:02.432	2024-06-06	3.3433	CAD	1
+551	2024-06-06 06:00:02.433	2024-06-06 06:00:02.433	2024-06-06	5.1273	CHF	1
+552	2024-06-06 06:00:02.434	2024-06-06 06:00:02.434	2024-06-06	0.6313	CNY	1
+553	2024-06-06 06:00:02.434	2024-06-06 06:00:02.434	2024-06-06	0.2016	CZK	1
+554	2024-06-06 06:00:02.435	2024-06-06 06:00:02.435	2024-06-06	0.6671	DKK	1
+555	2024-06-06 06:00:02.436	2024-06-06 06:00:02.436	2024-06-06	0.0964	EGP	1
+556	2024-06-06 06:00:02.436	2024-06-06 06:00:02.436	2024-06-06	4.9758	EUR	1
+557	2024-06-06 06:00:02.437	2024-06-06 06:00:02.437	2024-06-06	5.8456	GBP	1
+558	2024-06-06 06:00:02.438	2024-06-06 06:00:02.438	2024-06-06	1.2665	HUF	100
+559	2024-06-06 06:00:02.439	2024-06-06 06:00:02.439	2024-06-06	0.0549	INR	1
+560	2024-06-06 06:00:02.439	2024-06-06 06:00:02.439	2024-06-06	2.9312	JPY	100
+561	2024-06-06 06:00:02.44	2024-06-06 06:00:02.44	2024-06-06	0.3332	KRW	100
+562	2024-06-06 06:00:02.441	2024-06-06 06:00:02.441	2024-06-06	0.2586	MDL	1
+563	2024-06-06 06:00:02.442	2024-06-06 06:00:02.442	2024-06-06	0.2597	MXN	1
+564	2024-06-06 06:00:02.442	2024-06-06 06:00:02.442	2024-06-06	0.4333	NOK	1
+565	2024-06-06 06:00:02.443	2024-06-06 06:00:02.443	2024-06-06	2.8289	NZD	1
+566	2024-06-06 06:00:02.444	2024-06-06 06:00:02.444	2024-06-06	1.1541	PLN	1
+567	2024-06-06 06:00:02.445	2024-06-06 06:00:02.445	2024-06-06	0.0425	RSD	1
+568	2024-06-06 06:00:02.445	2024-06-06 06:00:02.445	2024-06-06	0.0517	RUB	1
+569	2024-06-06 06:00:02.446	2024-06-06 06:00:02.446	2024-06-06	0.4386	SEK	1
+570	2024-06-06 06:00:02.447	2024-06-06 06:00:02.447	2024-06-06	0.1247	THB	1
+571	2024-06-06 06:00:02.447	2024-06-06 06:00:02.447	2024-06-06	0.1405	TRY	1
+572	2024-06-06 06:00:02.448	2024-06-06 06:00:02.448	2024-06-06	0.1139	UAH	1
+573	2024-06-06 06:00:02.449	2024-06-06 06:00:02.449	2024-06-06	4.5752	USD	1
+574	2024-06-06 06:00:02.45	2024-06-06 06:00:02.45	2024-06-06	343.0966	XAU	1
+575	2024-06-06 06:00:02.45	2024-06-06 06:00:02.45	2024-06-06	6.066	XDR	1
+576	2024-06-06 06:00:02.451	2024-06-06 06:00:02.451	2024-06-06	0.2421	ZAR	1
+577	2024-06-07 06:30:01.3	2024-06-07 06:30:01.3	2024-06-07	1	RON	1
+578	2024-06-07 06:30:01.308	2024-06-07 06:30:01.308	2024-06-07	1.2453	AED	1
+579	2024-06-07 06:30:01.31	2024-06-07 06:30:01.31	2024-06-07	3.0407	AUD	1
+580	2024-06-07 06:30:01.311	2024-06-07 06:30:01.311	2024-06-07	2.5443	BGN	1
+581	2024-06-07 06:30:01.313	2024-06-07 06:30:01.313	2024-06-07	0.8627	BRL	1
+582	2024-06-07 06:30:01.314	2024-06-07 06:30:01.314	2024-06-07	3.341	CAD	1
+583	2024-06-07 06:30:01.315	2024-06-07 06:30:01.315	2024-06-07	5.1297	CHF	1
+584	2024-06-07 06:30:01.317	2024-06-07 06:30:01.317	2024-06-07	0.6314	CNY	1
+585	2024-06-07 06:30:01.318	2024-06-07 06:30:01.318	2024-06-07	0.202	CZK	1
+586	2024-06-07 06:30:01.319	2024-06-07 06:30:01.319	2024-06-07	0.6672	DKK	1
+587	2024-06-07 06:30:01.32	2024-06-07 06:30:01.32	2024-06-07	0.096	EGP	1
+588	2024-06-07 06:30:01.321	2024-06-07 06:30:01.321	2024-06-07	4.9763	EUR	1
+589	2024-06-07 06:30:01.322	2024-06-07 06:30:01.322	2024-06-07	5.8466	GBP	1
+590	2024-06-07 06:30:01.323	2024-06-07 06:30:01.323	2024-06-07	1.2705	HUF	100
+591	2024-06-07 06:30:01.324	2024-06-07 06:30:01.324	2024-06-07	0.0548	INR	1
+592	2024-06-07 06:30:01.325	2024-06-07 06:30:01.325	2024-06-07	2.933	JPY	100
+593	2024-06-07 06:30:01.326	2024-06-07 06:30:01.326	2024-06-07	0.3346	KRW	100
+594	2024-06-07 06:30:01.327	2024-06-07 06:30:01.327	2024-06-07	0.2587	MDL	1
+595	2024-06-07 06:30:01.327	2024-06-07 06:30:01.327	2024-06-07	0.2618	MXN	1
+596	2024-06-07 06:30:01.328	2024-06-07 06:30:01.328	2024-06-07	0.4331	NOK	1
+597	2024-06-07 06:30:01.329	2024-06-07 06:30:01.329	2024-06-07	2.8285	NZD	1
+598	2024-06-07 06:30:01.33	2024-06-07 06:30:01.33	2024-06-07	1.1569	PLN	1
+599	2024-06-07 06:30:01.331	2024-06-07 06:30:01.331	2024-06-07	0.0425	RSD	1
+600	2024-06-07 06:30:01.331	2024-06-07 06:30:01.331	2024-06-07	0.0516	RUB	1
+601	2024-06-07 06:30:01.332	2024-06-07 06:30:01.332	2024-06-07	0.4404	SEK	1
+602	2024-06-07 06:30:01.333	2024-06-07 06:30:01.333	2024-06-07	0.1254	THB	1
+603	2024-06-07 06:30:01.334	2024-06-07 06:30:01.334	2024-06-07	0.142	TRY	1
+604	2024-06-07 06:30:01.335	2024-06-07 06:30:01.335	2024-06-07	0.1139	UAH	1
+605	2024-06-07 06:30:01.335	2024-06-07 06:30:01.335	2024-06-07	4.574	USD	1
+606	2024-06-07 06:30:01.336	2024-06-07 06:30:01.336	2024-06-07	347.0821	XAU	1
+607	2024-06-07 06:30:01.337	2024-06-07 06:30:01.337	2024-06-07	6.066	XDR	1
+608	2024-06-07 06:30:01.337	2024-06-07 06:30:01.337	2024-06-07	0.2419	ZAR	1
+609	2024-06-09 06:40:33.839	2024-06-09 06:40:33.839	2024-06-09	1	RON	1
+610	2024-06-09 06:40:33.86	2024-06-09 06:40:33.86	2024-06-09	1.2433	AED	1
+611	2024-06-09 06:40:33.862	2024-06-09 06:40:33.862	2024-06-09	3.0422	AUD	1
+612	2024-06-09 06:40:33.862	2024-06-09 06:40:33.862	2024-06-09	2.5442	BGN	1
+613	2024-06-09 06:40:33.863	2024-06-09 06:40:33.863	2024-06-09	0.8684	BRL	1
+614	2024-06-09 06:40:33.864	2024-06-09 06:40:33.864	2024-06-09	3.3379	CAD	1
+615	2024-06-09 06:40:33.865	2024-06-09 06:40:33.865	2024-06-09	5.136	CHF	1
+616	2024-06-09 06:40:33.866	2024-06-09 06:40:33.866	2024-06-09	0.6306	CNY	1
+617	2024-06-09 06:40:33.866	2024-06-09 06:40:33.866	2024-06-09	0.2025	CZK	1
+618	2024-06-09 06:40:33.867	2024-06-09 06:40:33.867	2024-06-09	0.667	DKK	1
+619	2024-06-09 06:40:33.868	2024-06-09 06:40:33.868	2024-06-09	0.0961	EGP	1
+620	2024-06-09 06:40:33.868	2024-06-09 06:40:33.868	2024-06-09	4.976	EUR	1
+621	2024-06-09 06:40:33.869	2024-06-09 06:40:33.869	2024-06-09	5.8452	GBP	1
+622	2024-06-09 06:40:33.87	2024-06-09 06:40:33.87	2024-06-09	1.2786	HUF	100
+623	2024-06-09 06:40:33.871	2024-06-09 06:40:33.871	2024-06-09	0.0548	INR	1
+624	2024-06-09 06:40:33.871	2024-06-09 06:40:33.871	2024-06-09	2.937	JPY	100
+625	2024-06-09 06:40:33.872	2024-06-09 06:40:33.872	2024-06-09	0.3342	KRW	100
+626	2024-06-09 06:40:33.872	2024-06-09 06:40:33.872	2024-06-09	0.2589	MDL	1
+627	2024-06-09 06:40:33.873	2024-06-09 06:40:33.873	2024-06-09	0.2556	MXN	1
+628	2024-06-09 06:40:33.873	2024-06-09 06:40:33.873	2024-06-09	0.4329	NOK	1
+629	2024-06-09 06:40:33.874	2024-06-09 06:40:33.874	2024-06-09	2.8264	NZD	1
+630	2024-06-09 06:40:33.875	2024-06-09 06:40:33.875	2024-06-09	1.1595	PLN	1
+631	2024-06-09 06:40:33.875	2024-06-09 06:40:33.875	2024-06-09	0.0425	RSD	1
+632	2024-06-09 06:40:33.876	2024-06-09 06:40:33.876	2024-06-09	0.0514	RUB	1
+633	2024-06-09 06:40:33.877	2024-06-09 06:40:33.877	2024-06-09	0.4403	SEK	1
+634	2024-06-09 06:40:33.878	2024-06-09 06:40:33.878	2024-06-09	0.1252	THB	1
+635	2024-06-09 06:40:33.879	2024-06-09 06:40:33.879	2024-06-09	0.1413	TRY	1
+636	2024-06-09 06:40:33.88	2024-06-09 06:40:33.88	2024-06-09	0.1134	UAH	1
+637	2024-06-09 06:40:33.88	2024-06-09 06:40:33.88	2024-06-09	4.5668	USD	1
+638	2024-06-09 06:40:33.881	2024-06-09 06:40:33.881	2024-06-09	343.3616	XAU	1
+639	2024-06-09 06:40:33.881	2024-06-09 06:40:33.881	2024-06-09	6.0612	XDR	1
+640	2024-06-09 06:40:33.882	2024-06-09 06:40:33.882	2024-06-09	0.2421	ZAR	1
+641	2024-06-10 06:00:03.248	2024-06-10 06:00:03.248	2024-06-10	1	RON	1
+642	2024-06-10 06:00:03.289	2024-06-10 06:00:03.289	2024-06-10	1.2433	AED	1
+643	2024-06-10 06:00:03.291	2024-06-10 06:00:03.291	2024-06-10	3.0422	AUD	1
+644	2024-06-10 06:00:03.292	2024-06-10 06:00:03.292	2024-06-10	2.5442	BGN	1
+645	2024-06-10 06:00:03.294	2024-06-10 06:00:03.294	2024-06-10	0.8684	BRL	1
+646	2024-06-10 06:00:03.295	2024-06-10 06:00:03.295	2024-06-10	3.3379	CAD	1
+647	2024-06-10 06:00:03.298	2024-06-10 06:00:03.298	2024-06-10	5.136	CHF	1
+648	2024-06-10 06:00:03.299	2024-06-10 06:00:03.299	2024-06-10	0.6306	CNY	1
+649	2024-06-10 06:00:03.301	2024-06-10 06:00:03.301	2024-06-10	0.2025	CZK	1
+650	2024-06-10 06:00:03.302	2024-06-10 06:00:03.302	2024-06-10	0.667	DKK	1
+651	2024-06-10 06:00:03.303	2024-06-10 06:00:03.303	2024-06-10	0.0961	EGP	1
+652	2024-06-10 06:00:03.304	2024-06-10 06:00:03.304	2024-06-10	4.976	EUR	1
+653	2024-06-10 06:00:03.305	2024-06-10 06:00:03.305	2024-06-10	5.8452	GBP	1
+654	2024-06-10 06:00:03.306	2024-06-10 06:00:03.306	2024-06-10	1.2786	HUF	100
+655	2024-06-10 06:00:03.306	2024-06-10 06:00:03.306	2024-06-10	0.0548	INR	1
+656	2024-06-10 06:00:03.307	2024-06-10 06:00:03.307	2024-06-10	2.937	JPY	100
+657	2024-06-10 06:00:03.308	2024-06-10 06:00:03.308	2024-06-10	0.3342	KRW	100
+658	2024-06-10 06:00:03.308	2024-06-10 06:00:03.308	2024-06-10	0.2589	MDL	1
+659	2024-06-10 06:00:03.309	2024-06-10 06:00:03.309	2024-06-10	0.2556	MXN	1
+660	2024-06-10 06:00:03.309	2024-06-10 06:00:03.309	2024-06-10	0.4329	NOK	1
+661	2024-06-10 06:00:03.31	2024-06-10 06:00:03.31	2024-06-10	2.8264	NZD	1
+662	2024-06-10 06:00:03.311	2024-06-10 06:00:03.311	2024-06-10	1.1595	PLN	1
+663	2024-06-10 06:00:03.311	2024-06-10 06:00:03.311	2024-06-10	0.0425	RSD	1
+664	2024-06-10 06:00:03.312	2024-06-10 06:00:03.312	2024-06-10	0.0514	RUB	1
+665	2024-06-10 06:00:03.312	2024-06-10 06:00:03.312	2024-06-10	0.4403	SEK	1
+666	2024-06-10 06:00:03.313	2024-06-10 06:00:03.313	2024-06-10	0.1252	THB	1
+667	2024-06-10 06:00:03.313	2024-06-10 06:00:03.313	2024-06-10	0.1413	TRY	1
+668	2024-06-10 06:00:03.314	2024-06-10 06:00:03.314	2024-06-10	0.1134	UAH	1
+669	2024-06-10 06:00:03.314	2024-06-10 06:00:03.314	2024-06-10	4.5668	USD	1
+670	2024-06-10 06:00:03.315	2024-06-10 06:00:03.315	2024-06-10	343.3616	XAU	1
+671	2024-06-10 06:00:03.316	2024-06-10 06:00:03.316	2024-06-10	6.0612	XDR	1
+672	2024-06-10 06:00:03.316	2024-06-10 06:00:03.316	2024-06-10	0.2421	ZAR	1
+673	2024-10-03 08:30:01.024	2024-10-03 08:30:01.024	2024-10-03	1	RON	1
+674	2024-10-03 08:30:01.027	2024-10-03 08:30:01.027	2024-10-03	1.2238	AED	1
+675	2024-10-03 08:30:01.028	2024-10-03 08:30:01.028	2024-10-03	3.0989	AUD	1
+676	2024-10-03 08:30:01.029	2024-10-03 08:30:01.029	2024-10-03	2.5444	BGN	1
+677	2024-10-03 08:30:01.03	2024-10-03 08:30:01.03	2024-10-03	0.8285	BRL	1
+678	2024-10-03 08:30:01.031	2024-10-03 08:30:01.031	2024-10-03	3.3328	CAD	1
+679	2024-10-03 08:30:01.031	2024-10-03 08:30:01.031	2024-10-03	5.3087	CHF	1
+680	2024-10-03 08:30:01.032	2024-10-03 08:30:01.032	2024-10-03	0.6405	CNY	1
+681	2024-10-03 08:30:01.033	2024-10-03 08:30:01.033	2024-10-03	0.1965	CZK	1
+682	2024-10-03 08:30:01.034	2024-10-03 08:30:01.034	2024-10-03	0.6671	DKK	1
+683	2024-10-03 08:30:01.035	2024-10-03 08:30:01.035	2024-10-03	0.0929	EGP	1
+684	2024-10-03 08:30:01.036	2024-10-03 08:30:01.036	2024-10-03	4.9764	EUR	1
+685	2024-10-03 08:30:01.036	2024-10-03 08:30:01.036	2024-10-03	5.9751	GBP	1
+686	2024-10-03 08:30:01.037	2024-10-03 08:30:01.037	2024-10-03	0.5791	HKD	1
+687	2024-10-03 08:30:01.038	2024-10-03 08:30:01.038	2024-10-03	1.2478	HUF	100
+688	2024-10-03 08:30:01.039	2024-10-03 08:30:01.039	2024-10-03	0.0295	IDR	100
+689	2024-10-03 08:30:01.04	2024-10-03 08:30:01.04	2024-10-03	1.1907	ILS	1
+690	2024-10-03 08:30:01.04	2024-10-03 08:30:01.04	2024-10-03	0.0535	INR	1
+691	2024-10-03 08:30:01.041	2024-10-03 08:30:01.041	2024-10-03	3.3198	ISK	100
+692	2024-10-03 08:30:01.042	2024-10-03 08:30:01.042	2024-10-03	3.116	JPY	100
+693	2024-10-03 08:30:01.043	2024-10-03 08:30:01.043	2024-10-03	0.3404	KRW	100
+694	2024-10-03 08:30:01.043	2024-10-03 08:30:01.043	2024-10-03	0.2576	MDL	1
+695	2024-10-03 08:30:01.044	2024-10-03 08:30:01.044	2024-10-03	0.2295	MXN	1
+696	2024-10-03 08:30:01.045	2024-10-03 08:30:01.045	2024-10-03	1.0781	MYR	1
+697	2024-10-03 08:30:01.045	2024-10-03 08:30:01.045	2024-10-03	0.426	NOK	1
+698	2024-10-03 08:30:01.046	2024-10-03 08:30:01.046	2024-10-03	2.8245	NZD	1
+699	2024-10-03 08:30:01.047	2024-10-03 08:30:01.047	2024-10-03	0.08	PHP	1
+700	2024-10-03 08:30:01.047	2024-10-03 08:30:01.047	2024-10-03	1.1579	PLN	1
+701	2024-10-03 08:30:01.048	2024-10-03 08:30:01.048	2024-10-03	0.0425	RSD	1
+702	2024-10-03 08:30:01.049	2024-10-03 08:30:01.049	2024-10-03	0.0475	RUB	1
+703	2024-10-03 08:30:01.049	2024-10-03 08:30:01.049	2024-10-03	0.4385	SEK	1
+704	2024-10-03 08:30:01.05	2024-10-03 08:30:01.05	2024-10-03	3.4884	SGD	1
+705	2024-10-03 08:30:01.051	2024-10-03 08:30:01.051	2024-10-03	0.1372	THB	1
+706	2024-10-03 08:30:01.051	2024-10-03 08:30:01.051	2024-10-03	0.1312	TRY	1
+707	2024-10-03 08:30:01.052	2024-10-03 08:30:01.052	2024-10-03	0.1088	UAH	1
+708	2024-10-03 08:30:01.052	2024-10-03 08:30:01.052	2024-10-03	4.4952	USD	1
+709	2024-10-03 08:30:01.053	2024-10-03 08:30:01.053	2024-10-03	383.4311	XAU	1
+710	2024-10-03 08:30:01.054	2024-10-03 08:30:01.054	2024-10-03	6.0654	XDR	1
+711	2024-10-03 08:30:01.054	2024-10-03 08:30:01.054	2024-10-03	0.2578	ZAR	1
+712	2024-10-04 06:00:05.411	2024-10-04 06:00:05.411	2024-10-04	1	RON	1
+713	2024-10-04 06:00:05.417	2024-10-04 06:00:05.417	2024-10-04	1.2275	AED	1
+714	2024-10-04 06:00:05.418	2024-10-04 06:00:05.418	2024-10-04	3.0875	AUD	1
+715	2024-10-04 06:00:05.419	2024-10-04 06:00:05.419	2024-10-04	2.5443	BGN	1
+716	2024-10-04 06:00:05.42	2024-10-04 06:00:05.42	2024-10-04	0.829	BRL	1
+717	2024-10-04 06:00:05.421	2024-10-04 06:00:05.421	2024-10-04	3.3342	CAD	1
+718	2024-10-04 06:00:05.422	2024-10-04 06:00:05.422	2024-10-04	5.2942	CHF	1
+719	2024-10-04 06:00:05.422	2024-10-04 06:00:05.422	2024-10-04	0.6424	CNY	1
+720	2024-10-04 06:00:05.423	2024-10-04 06:00:05.423	2024-10-04	0.1963	CZK	1
+721	2024-10-04 06:00:05.424	2024-10-04 06:00:05.424	2024-10-04	0.6671	DKK	1
+722	2024-10-04 06:00:05.425	2024-10-04 06:00:05.425	2024-10-04	0.0932	EGP	1
+723	2024-10-04 06:00:05.425	2024-10-04 06:00:05.425	2024-10-04	4.9763	EUR	1
+724	2024-10-04 06:00:05.426	2024-10-04 06:00:05.426	2024-10-04	5.9133	GBP	1
+725	2024-10-04 06:00:05.427	2024-10-04 06:00:05.427	2024-10-04	0.5804	HKD	1
+726	2024-10-04 06:00:05.427	2024-10-04 06:00:05.427	2024-10-04	1.2413	HUF	100
+727	2024-10-04 06:00:05.428	2024-10-04 06:00:05.428	2024-10-04	0.0295	IDR	100
+728	2024-10-04 06:00:05.429	2024-10-04 06:00:05.429	2024-10-04	1.1873	ILS	1
+729	2024-10-04 06:00:05.43	2024-10-04 06:00:05.43	2024-10-04	0.0537	INR	1
+730	2024-10-04 06:00:05.43	2024-10-04 06:00:05.43	2024-10-04	3.3286	ISK	100
+731	2024-10-04 06:00:05.431	2024-10-04 06:00:05.431	2024-10-04	3.0695	JPY	100
+732	2024-10-04 06:00:05.432	2024-10-04 06:00:05.432	2024-10-04	0.3384	KRW	100
+733	2024-10-04 06:00:05.432	2024-10-04 06:00:05.432	2024-10-04	0.2578	MDL	1
+734	2024-10-04 06:00:05.433	2024-10-04 06:00:05.433	2024-10-04	0.2315	MXN	1
+735	2024-10-04 06:00:05.434	2024-10-04 06:00:05.434	2024-10-04	1.0675	MYR	1
+736	2024-10-04 06:00:05.434	2024-10-04 06:00:05.434	2024-10-04	0.4247	NOK	1
+737	2024-10-04 06:00:05.435	2024-10-04 06:00:05.435	2024-10-04	2.8047	NZD	1
+738	2024-10-04 06:00:05.436	2024-10-04 06:00:05.436	2024-10-04	0.0799	PHP	1
+739	2024-10-04 06:00:05.436	2024-10-04 06:00:05.436	2024-10-04	1.1575	PLN	1
+740	2024-10-04 06:00:05.437	2024-10-04 06:00:05.437	2024-10-04	0.0425	RSD	1
+741	2024-10-04 06:00:05.438	2024-10-04 06:00:05.438	2024-10-04	0.0474	RUB	1
+742	2024-10-04 06:00:05.439	2024-10-04 06:00:05.439	2024-10-04	0.4378	SEK	1
+743	2024-10-04 06:00:05.439	2024-10-04 06:00:05.439	2024-10-04	3.4774	SGD	1
+744	2024-10-04 06:00:05.44	2024-10-04 06:00:05.44	2024-10-04	0.1362	THB	1
+745	2024-10-04 06:00:05.441	2024-10-04 06:00:05.441	2024-10-04	0.1319	TRY	1
+746	2024-10-04 06:00:05.441	2024-10-04 06:00:05.441	2024-10-04	0.1093	UAH	1
+747	2024-10-04 06:00:05.442	2024-10-04 06:00:05.442	2024-10-04	4.5085	USD	1
+748	2024-10-04 06:00:05.443	2024-10-04 06:00:05.443	2024-10-04	383.6722	XAU	1
+749	2024-10-04 06:00:05.443	2024-10-04 06:00:05.443	2024-10-04	6.0639	XDR	1
+750	2024-10-04 06:00:05.444	2024-10-04 06:00:05.444	2024-10-04	0.2586	ZAR	1
+751	2024-10-06 06:00:00.205	2024-10-06 06:00:00.205	2024-10-06	1	RON	1
+752	2024-10-06 06:00:00.209	2024-10-06 06:00:00.209	2024-10-06	1.2288	AED	1
+753	2024-10-06 06:00:00.209	2024-10-06 06:00:00.209	2024-10-06	3.088	AUD	1
+754	2024-10-06 06:00:00.21	2024-10-06 06:00:00.21	2024-10-06	2.5445	BGN	1
+755	2024-10-06 06:00:00.211	2024-10-06 06:00:00.211	2024-10-06	0.824	BRL	1
+756	2024-10-06 06:00:00.211	2024-10-06 06:00:00.211	2024-10-06	3.3287	CAD	1
+757	2024-10-06 06:00:00.212	2024-10-06 06:00:00.212	2024-10-06	5.2945	CHF	1
+758	2024-10-06 06:00:00.213	2024-10-06 06:00:00.213	2024-10-06	0.6431	CNY	1
+759	2024-10-06 06:00:00.213	2024-10-06 06:00:00.213	2024-10-06	0.1963	CZK	1
+760	2024-10-06 06:00:00.214	2024-10-06 06:00:00.214	2024-10-06	0.6672	DKK	1
+761	2024-10-06 06:00:00.215	2024-10-06 06:00:00.215	2024-10-06	0.0934	EGP	1
+762	2024-10-06 06:00:00.215	2024-10-06 06:00:00.215	2024-10-06	4.9766	EUR	1
+763	2024-10-06 06:00:00.216	2024-10-06 06:00:00.216	2024-10-06	5.9447	GBP	1
+764	2024-10-06 06:00:00.216	2024-10-06 06:00:00.216	2024-10-06	0.5814	HKD	1
+765	2024-10-06 06:00:00.217	2024-10-06 06:00:00.217	2024-10-06	1.2388	HUF	100
+766	2024-10-06 06:00:00.218	2024-10-06 06:00:00.218	2024-10-06	0.0295	IDR	100
+767	2024-10-06 06:00:00.218	2024-10-06 06:00:00.218	2024-10-06	1.1806	ILS	1
+768	2024-10-06 06:00:00.219	2024-10-06 06:00:00.219	2024-10-06	0.0538	INR	1
+769	2024-10-06 06:00:00.219	2024-10-06 06:00:00.219	2024-10-06	3.3333	ISK	100
+770	2024-10-06 06:00:00.22	2024-10-06 06:00:00.22	2024-10-06	3.082	JPY	100
+771	2024-10-06 06:00:00.221	2024-10-06 06:00:00.221	2024-10-06	0.3371	KRW	100
+772	2024-10-06 06:00:00.221	2024-10-06 06:00:00.221	2024-10-06	0.2579	MDL	1
+773	2024-10-06 06:00:00.222	2024-10-06 06:00:00.222	2024-10-06	0.2333	MXN	1
+774	2024-10-06 06:00:00.222	2024-10-06 06:00:00.222	2024-10-06	1.0702	MYR	1
+775	2024-10-06 06:00:00.223	2024-10-06 06:00:00.223	2024-10-06	0.4257	NOK	1
+776	2024-10-06 06:00:00.224	2024-10-06 06:00:00.224	2024-10-06	2.7994	NZD	1
+777	2024-10-06 06:00:00.225	2024-10-06 06:00:00.225	2024-10-06	0.0801	PHP	1
+778	2024-10-06 06:00:00.226	2024-10-06 06:00:00.226	2024-10-06	1.1541	PLN	1
+779	2024-10-06 06:00:00.226	2024-10-06 06:00:00.226	2024-10-06	0.0425	RSD	1
+780	2024-10-06 06:00:00.227	2024-10-06 06:00:00.227	2024-10-06	0.0475	RUB	1
+781	2024-10-06 06:00:00.227	2024-10-06 06:00:00.227	2024-10-06	0.4386	SEK	1
+782	2024-10-06 06:00:00.228	2024-10-06 06:00:00.228	2024-10-06	3.4793	SGD	1
+783	2024-10-06 06:00:00.229	2024-10-06 06:00:00.229	2024-10-06	0.1366	THB	1
+784	2024-10-06 06:00:00.229	2024-10-06 06:00:00.229	2024-10-06	0.1319	TRY	1
+785	2024-10-06 06:00:00.23	2024-10-06 06:00:00.23	2024-10-06	0.1096	UAH	1
+786	2024-10-06 06:00:00.23	2024-10-06 06:00:00.23	2024-10-06	4.5135	USD	1
+787	2024-10-06 06:00:00.231	2024-10-06 06:00:00.231	2024-10-06	385.6265	XAU	1
+788	2024-10-06 06:00:00.232	2024-10-06 06:00:00.232	2024-10-06	6.0718	XDR	1
+789	2024-10-06 06:00:00.232	2024-10-06 06:00:00.232	2024-10-06	0.2587	ZAR	1
+790	2024-10-07 06:00:02.34	2024-10-07 06:00:02.34	2024-10-07	1	RON	1
+791	2024-10-07 06:00:02.343	2024-10-07 06:00:02.343	2024-10-07	1.2288	AED	1
+792	2024-10-07 06:00:02.344	2024-10-07 06:00:02.344	2024-10-07	3.088	AUD	1
+793	2024-10-07 06:00:02.344	2024-10-07 06:00:02.344	2024-10-07	2.5445	BGN	1
+794	2024-10-07 06:00:02.345	2024-10-07 06:00:02.345	2024-10-07	0.824	BRL	1
+795	2024-10-07 06:00:02.346	2024-10-07 06:00:02.346	2024-10-07	3.3287	CAD	1
+796	2024-10-07 06:00:02.347	2024-10-07 06:00:02.347	2024-10-07	5.2945	CHF	1
+797	2024-10-07 06:00:02.347	2024-10-07 06:00:02.347	2024-10-07	0.6431	CNY	1
+798	2024-10-07 06:00:02.348	2024-10-07 06:00:02.348	2024-10-07	0.1963	CZK	1
+799	2024-10-07 06:00:02.349	2024-10-07 06:00:02.349	2024-10-07	0.6672	DKK	1
+800	2024-10-07 06:00:02.349	2024-10-07 06:00:02.349	2024-10-07	0.0934	EGP	1
+801	2024-10-07 06:00:02.35	2024-10-07 06:00:02.35	2024-10-07	4.9766	EUR	1
+802	2024-10-07 06:00:02.351	2024-10-07 06:00:02.351	2024-10-07	5.9447	GBP	1
+803	2024-10-07 06:00:02.351	2024-10-07 06:00:02.351	2024-10-07	0.5814	HKD	1
+804	2024-10-07 06:00:02.352	2024-10-07 06:00:02.352	2024-10-07	1.2388	HUF	100
+805	2024-10-07 06:00:02.353	2024-10-07 06:00:02.353	2024-10-07	0.0295	IDR	100
+806	2024-10-07 06:00:02.353	2024-10-07 06:00:02.353	2024-10-07	1.1806	ILS	1
+807	2024-10-07 06:00:02.354	2024-10-07 06:00:02.354	2024-10-07	0.0538	INR	1
+808	2024-10-07 06:00:02.355	2024-10-07 06:00:02.355	2024-10-07	3.3333	ISK	100
+809	2024-10-07 06:00:02.356	2024-10-07 06:00:02.356	2024-10-07	3.082	JPY	100
+810	2024-10-07 06:00:02.357	2024-10-07 06:00:02.357	2024-10-07	0.3371	KRW	100
+811	2024-10-07 06:00:02.358	2024-10-07 06:00:02.358	2024-10-07	0.2579	MDL	1
+812	2024-10-07 06:00:02.359	2024-10-07 06:00:02.359	2024-10-07	0.2333	MXN	1
+813	2024-10-07 06:00:02.359	2024-10-07 06:00:02.359	2024-10-07	1.0702	MYR	1
+814	2024-10-07 06:00:02.36	2024-10-07 06:00:02.36	2024-10-07	0.4257	NOK	1
+815	2024-10-07 06:00:02.361	2024-10-07 06:00:02.361	2024-10-07	2.7994	NZD	1
+816	2024-10-07 06:00:02.361	2024-10-07 06:00:02.361	2024-10-07	0.0801	PHP	1
+817	2024-10-07 06:00:02.362	2024-10-07 06:00:02.362	2024-10-07	1.1541	PLN	1
+818	2024-10-07 06:00:02.363	2024-10-07 06:00:02.363	2024-10-07	0.0425	RSD	1
+819	2024-10-07 06:00:02.363	2024-10-07 06:00:02.363	2024-10-07	0.0475	RUB	1
+820	2024-10-07 06:00:02.364	2024-10-07 06:00:02.364	2024-10-07	0.4386	SEK	1
+821	2024-10-07 06:00:02.365	2024-10-07 06:00:02.365	2024-10-07	3.4793	SGD	1
+822	2024-10-07 06:00:02.366	2024-10-07 06:00:02.366	2024-10-07	0.1366	THB	1
+823	2024-10-07 06:00:02.366	2024-10-07 06:00:02.366	2024-10-07	0.1319	TRY	1
+824	2024-10-07 06:00:02.367	2024-10-07 06:00:02.367	2024-10-07	0.1096	UAH	1
+825	2024-10-07 06:00:02.368	2024-10-07 06:00:02.368	2024-10-07	4.5135	USD	1
+826	2024-10-07 06:00:02.368	2024-10-07 06:00:02.368	2024-10-07	385.6265	XAU	1
+827	2024-10-07 06:00:02.369	2024-10-07 06:00:02.369	2024-10-07	6.0718	XDR	1
+828	2024-10-07 06:00:02.369	2024-10-07 06:00:02.369	2024-10-07	0.2587	ZAR	1
+829	2024-10-08 06:30:02.658	2024-10-08 06:30:02.658	2024-10-08	1	RON	1
+830	2024-10-08 06:30:02.66	2024-10-08 06:30:02.66	2024-10-08	1.2367	AED	1
+831	2024-10-08 06:30:02.661	2024-10-08 06:30:02.661	2024-10-08	3.0834	AUD	1
+832	2024-10-08 06:30:02.662	2024-10-08 06:30:02.662	2024-10-08	2.5447	BGN	1
+833	2024-10-08 06:30:02.662	2024-10-08 06:30:02.662	2024-10-08	0.8325	BRL	1
+834	2024-10-08 06:30:02.663	2024-10-08 06:30:02.663	2024-10-08	3.3426	CAD	1
+835	2024-10-08 06:30:02.664	2024-10-08 06:30:02.664	2024-10-08	5.2961	CHF	1
+836	2024-10-08 06:30:02.664	2024-10-08 06:30:02.664	2024-10-08	0.6472	CNY	1
+837	2024-10-08 06:30:02.665	2024-10-08 06:30:02.665	2024-10-08	0.1963	CZK	1
+838	2024-10-08 06:30:02.666	2024-10-08 06:30:02.666	2024-10-08	0.6675	DKK	1
+839	2024-10-08 06:30:02.666	2024-10-08 06:30:02.666	2024-10-08	0.0938	EGP	1
+840	2024-10-08 06:30:02.667	2024-10-08 06:30:02.667	2024-10-08	4.977	EUR	1
+841	2024-10-08 06:30:02.668	2024-10-08 06:30:02.668	2024-10-08	5.9374	GBP	1
+842	2024-10-08 06:30:02.669	2024-10-08 06:30:02.669	2024-10-08	0.5849	HKD	1
+843	2024-10-08 06:30:02.669	2024-10-08 06:30:02.669	2024-10-08	1.2384	HUF	100
+844	2024-10-08 06:30:02.67	2024-10-08 06:30:02.67	2024-10-08	0.0295	IDR	100
+845	2024-10-08 06:30:02.671	2024-10-08 06:30:02.671	2024-10-08	1.2008	ILS	1
+846	2024-10-08 06:30:02.671	2024-10-08 06:30:02.671	2024-10-08	0.0541	INR	1
+847	2024-10-08 06:30:02.672	2024-10-08 06:30:02.672	2024-10-08	3.3425	ISK	100
+848	2024-10-08 06:30:02.673	2024-10-08 06:30:02.673	2024-10-08	3.0643	JPY	100
+849	2024-10-08 06:30:02.674	2024-10-08 06:30:02.674	2024-10-08	0.3374	KRW	100
+850	2024-10-08 06:30:02.674	2024-10-08 06:30:02.674	2024-10-08	0.2576	MDL	1
+851	2024-10-08 06:30:02.675	2024-10-08 06:30:02.675	2024-10-08	0.2363	MXN	1
+852	2024-10-08 06:30:02.676	2024-10-08 06:30:02.676	2024-10-08	1.0606	MYR	1
+853	2024-10-08 06:30:02.677	2024-10-08 06:30:02.677	2024-10-08	0.4273	NOK	1
+854	2024-10-08 06:30:02.677	2024-10-08 06:30:02.677	2024-10-08	2.7907	NZD	1
+855	2024-10-08 06:30:02.678	2024-10-08 06:30:02.678	2024-10-08	0.0798	PHP	1
+856	2024-10-08 06:30:02.679	2024-10-08 06:30:02.679	2024-10-08	1.1511	PLN	1
+857	2024-10-08 06:30:02.68	2024-10-08 06:30:02.68	2024-10-08	0.0425	RSD	1
+858	2024-10-08 06:30:02.68	2024-10-08 06:30:02.68	2024-10-08	0.0472	RUB	1
+859	2024-10-08 06:30:02.681	2024-10-08 06:30:02.681	2024-10-08	0.438	SEK	1
+860	2024-10-08 06:30:02.682	2024-10-08 06:30:02.682	2024-10-08	3.4836	SGD	1
+861	2024-10-08 06:30:02.682	2024-10-08 06:30:02.682	2024-10-08	0.1358	THB	1
+862	2024-10-08 06:30:02.683	2024-10-08 06:30:02.683	2024-10-08	0.1328	TRY	1
+863	2024-10-08 06:30:02.684	2024-10-08 06:30:02.684	2024-10-08	0.1102	UAH	1
+864	2024-10-08 06:30:02.684	2024-10-08 06:30:02.684	2024-10-08	4.5425	USD	1
+865	2024-10-08 06:30:02.685	2024-10-08 06:30:02.685	2024-10-08	387.6905	XAU	1
+866	2024-10-08 06:30:02.686	2024-10-08 06:30:02.686	2024-10-08	6.0903	XDR	1
+867	2024-10-08 06:30:02.686	2024-10-08 06:30:02.686	2024-10-08	0.2606	ZAR	1
+868	2024-10-09 06:00:04.493	2024-10-09 06:00:04.493	2024-10-09	1	RON	1
+869	2024-10-09 06:00:04.496	2024-10-09 06:00:04.496	2024-10-09	1.233	AED	1
+870	2024-10-09 06:00:04.497	2024-10-09 06:00:04.497	2024-10-09	3.0466	AUD	1
+871	2024-10-09 06:00:04.498	2024-10-09 06:00:04.498	2024-10-09	2.5447	BGN	1
+872	2024-10-09 06:00:04.499	2024-10-09 06:00:04.499	2024-10-09	0.8238	BRL	1
+873	2024-10-09 06:00:04.5	2024-10-09 06:00:04.5	2024-10-09	3.3199	CAD	1
+874	2024-10-09 06:00:04.5	2024-10-09 06:00:04.5	2024-10-09	5.2985	CHF	1
+875	2024-10-09 06:00:04.501	2024-10-09 06:00:04.501	2024-10-09	0.6421	CNY	1
+876	2024-10-09 06:00:04.502	2024-10-09 06:00:04.502	2024-10-09	0.1966	CZK	1
+877	2024-10-09 06:00:04.503	2024-10-09 06:00:04.503	2024-10-09	0.6674	DKK	1
+878	2024-10-09 06:00:04.504	2024-10-09 06:00:04.504	2024-10-09	0.0934	EGP	1
+879	2024-10-09 06:00:04.505	2024-10-09 06:00:04.505	2024-10-09	4.9771	EUR	1
+880	2024-10-09 06:00:04.506	2024-10-09 06:00:04.506	2024-10-09	5.9304	GBP	1
+881	2024-10-09 06:00:04.508	2024-10-09 06:00:04.508	2024-10-09	0.5826	HKD	1
+882	2024-10-09 06:00:04.509	2024-10-09 06:00:04.509	2024-10-09	1.2415	HUF	100
+883	2024-10-09 06:00:04.51	2024-10-09 06:00:04.51	2024-10-09	0.0289	IDR	100
+884	2024-10-09 06:00:04.511	2024-10-09 06:00:04.511	2024-10-09	1.1993	ILS	1
+885	2024-10-09 06:00:04.511	2024-10-09 06:00:04.511	2024-10-09	0.0539	INR	1
+886	2024-10-09 06:00:04.512	2024-10-09 06:00:04.512	2024-10-09	3.3516	ISK	100
+887	2024-10-09 06:00:04.513	2024-10-09 06:00:04.513	2024-10-09	3.0636	JPY	100
+888	2024-10-09 06:00:04.514	2024-10-09 06:00:04.514	2024-10-09	0.3359	KRW	100
+889	2024-10-09 06:00:04.515	2024-10-09 06:00:04.515	2024-10-09	0.2587	MDL	1
+890	2024-10-09 06:00:04.517	2024-10-09 06:00:04.517	2024-10-09	0.2346	MXN	1
+891	2024-10-09 06:00:04.519	2024-10-09 06:00:04.519	2024-10-09	1.0566	MYR	1
+892	2024-10-09 06:00:04.52	2024-10-09 06:00:04.52	2024-10-09	0.4251	NOK	1
+893	2024-10-09 06:00:04.521	2024-10-09 06:00:04.521	2024-10-09	2.7708	NZD	1
+894	2024-10-09 06:00:04.522	2024-10-09 06:00:04.522	2024-10-09	0.0796	PHP	1
+895	2024-10-09 06:00:04.523	2024-10-09 06:00:04.523	2024-10-09	1.1541	PLN	1
+896	2024-10-09 06:00:04.524	2024-10-09 06:00:04.524	2024-10-09	0.0425	RSD	1
+897	2024-10-09 06:00:04.525	2024-10-09 06:00:04.525	2024-10-09	0.047	RUB	1
+898	2024-10-09 06:00:04.525	2024-10-09 06:00:04.525	2024-10-09	0.438	SEK	1
+899	2024-10-09 06:00:04.526	2024-10-09 06:00:04.526	2024-10-09	3.4748	SGD	1
+900	2024-10-09 06:00:04.527	2024-10-09 06:00:04.527	2024-10-09	0.1353	THB	1
+901	2024-10-09 06:00:04.527	2024-10-09 06:00:04.527	2024-10-09	0.132	TRY	1
+902	2024-10-09 06:00:04.528	2024-10-09 06:00:04.528	2024-10-09	0.11	UAH	1
+903	2024-10-09 06:00:04.529	2024-10-09 06:00:04.529	2024-10-09	4.529	USD	1
+904	2024-10-09 06:00:04.53	2024-10-09 06:00:04.53	2024-10-09	384.59	XAU	1
+905	2024-10-09 06:00:04.53	2024-10-09 06:00:04.53	2024-10-09	6.0763	XDR	1
+906	2024-10-09 06:00:04.531	2024-10-09 06:00:04.531	2024-10-09	0.2593	ZAR	1
+907	2024-10-10 06:00:01.01	2024-10-10 06:00:01.01	2024-10-10	1	RON	1
+908	2024-10-10 06:00:01.013	2024-10-10 06:00:01.013	2024-10-10	1.2354	AED	1
+909	2024-10-10 06:00:01.015	2024-10-10 06:00:01.015	2024-10-10	3.0582	AUD	1
+910	2024-10-10 06:00:01.015	2024-10-10 06:00:01.015	2024-10-10	2.5443	BGN	1
+911	2024-10-10 06:00:01.016	2024-10-10 06:00:01.016	2024-10-10	0.8198	BRL	1
+912	2024-10-10 06:00:01.017	2024-10-10 06:00:01.017	2024-10-10	3.3206	CAD	1
+913	2024-10-10 06:00:01.018	2024-10-10 06:00:01.018	2024-10-10	5.2959	CHF	1
+914	2024-10-10 06:00:01.019	2024-10-10 06:00:01.019	2024-10-10	0.642	CNY	1
+915	2024-10-10 06:00:01.019	2024-10-10 06:00:01.019	2024-10-10	0.1964	CZK	1
+916	2024-10-10 06:00:01.02	2024-10-10 06:00:01.02	2024-10-10	0.6672	DKK	1
+917	2024-10-10 06:00:01.021	2024-10-10 06:00:01.021	2024-10-10	0.0935	EGP	1
+918	2024-10-10 06:00:01.022	2024-10-10 06:00:01.022	2024-10-10	4.9763	EUR	1
+919	2024-10-10 06:00:01.022	2024-10-10 06:00:01.022	2024-10-10	5.9394	GBP	1
+920	2024-10-10 06:00:01.023	2024-10-10 06:00:01.023	2024-10-10	0.5836	HKD	1
+921	2024-10-10 06:00:01.024	2024-10-10 06:00:01.024	2024-10-10	1.2462	HUF	100
+922	2024-10-10 06:00:01.024	2024-10-10 06:00:01.024	2024-10-10	0.0291	IDR	100
+923	2024-10-10 06:00:01.025	2024-10-10 06:00:01.025	2024-10-10	1.2107	ILS	1
+924	2024-10-10 06:00:01.026	2024-10-10 06:00:01.026	2024-10-10	0.0541	INR	1
+925	2024-10-10 06:00:01.026	2024-10-10 06:00:01.026	2024-10-10	3.3465	ISK	100
+926	2024-10-10 06:00:01.027	2024-10-10 06:00:01.027	2024-10-10	3.0533	JPY	100
+927	2024-10-10 06:00:01.028	2024-10-10 06:00:01.028	2024-10-10	0.3378	KRW	100
+928	2024-10-10 06:00:01.028	2024-10-10 06:00:01.028	2024-10-10	0.2575	MDL	1
+929	2024-10-10 06:00:01.029	2024-10-10 06:00:01.029	2024-10-10	0.2347	MXN	1
+930	2024-10-10 06:00:01.03	2024-10-10 06:00:01.03	2024-10-10	1.0594	MYR	1
+931	2024-10-10 06:00:01.03	2024-10-10 06:00:01.03	2024-10-10	0.4228	NOK	1
+932	2024-10-10 06:00:01.031	2024-10-10 06:00:01.031	2024-10-10	2.7633	NZD	1
+933	2024-10-10 06:00:01.032	2024-10-10 06:00:01.032	2024-10-10	0.0796	PHP	1
+934	2024-10-10 06:00:01.032	2024-10-10 06:00:01.032	2024-10-10	1.1587	PLN	1
+935	2024-10-10 06:00:01.033	2024-10-10 06:00:01.033	2024-10-10	0.0425	RSD	1
+936	2024-10-10 06:00:01.034	2024-10-10 06:00:01.034	2024-10-10	0.0468	RUB	1
+937	2024-10-10 06:00:01.034	2024-10-10 06:00:01.034	2024-10-10	0.4379	SEK	1
+938	2024-10-10 06:00:01.035	2024-10-10 06:00:01.035	2024-10-10	3.4804	SGD	1
+939	2024-10-10 06:00:01.036	2024-10-10 06:00:01.036	2024-10-10	0.1358	THB	1
+940	2024-10-10 06:00:01.036	2024-10-10 06:00:01.036	2024-10-10	0.1326	TRY	1
+941	2024-10-10 06:00:01.037	2024-10-10 06:00:01.037	2024-10-10	0.1101	UAH	1
+942	2024-10-10 06:00:01.037	2024-10-10 06:00:01.037	2024-10-10	4.5377	USD	1
+943	2024-10-10 06:00:01.038	2024-10-10 06:00:01.038	2024-10-10	381.7979	XAU	1
+944	2024-10-10 06:00:01.039	2024-10-10 06:00:01.039	2024-10-10	6.0803	XDR	1
+945	2024-10-10 06:00:01.04	2024-10-10 06:00:01.04	2024-10-10	0.2581	ZAR	1
+946	2024-10-11 06:00:00.392	2024-10-11 06:00:00.392	2024-10-11	1	RON	1
+947	2024-10-11 06:00:00.393	2024-10-11 06:00:00.393	2024-10-11	1.2393	AED	1
+948	2024-10-11 06:00:00.394	2024-10-11 06:00:00.394	2024-10-11	3.0605	AUD	1
+949	2024-10-11 06:00:00.395	2024-10-11 06:00:00.395	2024-10-11	2.5441	BGN	1
+950	2024-10-11 06:00:00.396	2024-10-11 06:00:00.396	2024-10-11	0.8136	BRL	1
+951	2024-10-11 06:00:00.397	2024-10-11 06:00:00.397	2024-10-11	3.3145	CAD	1
+952	2024-10-11 06:00:00.397	2024-10-11 06:00:00.397	2024-10-11	5.2944	CHF	1
+953	2024-10-11 06:00:00.398	2024-10-11 06:00:00.398	2024-10-11	0.6434	CNY	1
+954	2024-10-11 06:00:00.399	2024-10-11 06:00:00.399	2024-10-11	0.1965	CZK	1
+955	2024-10-11 06:00:00.4	2024-10-11 06:00:00.4	2024-10-11	0.6671	DKK	1
+956	2024-10-11 06:00:00.4	2024-10-11 06:00:00.4	2024-10-11	0.0938	EGP	1
+957	2024-10-11 06:00:00.401	2024-10-11 06:00:00.401	2024-10-11	4.9759	EUR	1
+958	2024-10-11 06:00:00.402	2024-10-11 06:00:00.402	2024-10-11	5.9517	GBP	1
+959	2024-10-11 06:00:00.402	2024-10-11 06:00:00.402	2024-10-11	0.5858	HKD	1
+960	2024-10-11 06:00:00.403	2024-10-11 06:00:00.403	2024-10-11	1.2425	HUF	100
+961	2024-10-11 06:00:00.403	2024-10-11 06:00:00.403	2024-10-11	0.029	IDR	100
+962	2024-10-11 06:00:00.404	2024-10-11 06:00:00.404	2024-10-11	1.2071	ILS	1
+963	2024-10-11 06:00:00.405	2024-10-11 06:00:00.405	2024-10-11	0.0542	INR	1
+964	2024-10-11 06:00:00.406	2024-10-11 06:00:00.406	2024-10-11	3.3508	ISK	100
+965	2024-10-11 06:00:00.406	2024-10-11 06:00:00.406	2024-10-11	3.0572	JPY	100
+966	2024-10-11 06:00:00.407	2024-10-11 06:00:00.407	2024-10-11	0.3375	KRW	100
+967	2024-10-11 06:00:00.408	2024-10-11 06:00:00.408	2024-10-11	0.2573	MDL	1
+968	2024-10-11 06:00:00.408	2024-10-11 06:00:00.408	2024-10-11	0.2336	MXN	1
+969	2024-10-11 06:00:00.409	2024-10-11 06:00:00.409	2024-10-11	1.0607	MYR	1
+970	2024-10-11 06:00:00.409	2024-10-11 06:00:00.409	2024-10-11	0.4222	NOK	1
+971	2024-10-11 06:00:00.41	2024-10-11 06:00:00.41	2024-10-11	2.7665	NZD	1
+972	2024-10-11 06:00:00.411	2024-10-11 06:00:00.411	2024-10-11	0.0793	PHP	1
+973	2024-10-11 06:00:00.411	2024-10-11 06:00:00.411	2024-10-11	1.1559	PLN	1
+974	2024-10-11 06:00:00.412	2024-10-11 06:00:00.412	2024-10-11	0.0425	RSD	1
+975	2024-10-11 06:00:00.413	2024-10-11 06:00:00.413	2024-10-11	0.0467	RUB	1
+976	2024-10-11 06:00:00.413	2024-10-11 06:00:00.413	2024-10-11	0.4379	SEK	1
+977	2024-10-11 06:00:00.414	2024-10-11 06:00:00.414	2024-10-11	3.4806	SGD	1
+978	2024-10-11 06:00:00.415	2024-10-11 06:00:00.415	2024-10-11	0.1356	THB	1
+979	2024-10-11 06:00:00.415	2024-10-11 06:00:00.415	2024-10-11	0.133	TRY	1
+980	2024-10-11 06:00:00.416	2024-10-11 06:00:00.416	2024-10-11	0.1105	UAH	1
+981	2024-10-11 06:00:00.417	2024-10-11 06:00:00.417	2024-10-11	4.5521	USD	1
+982	2024-10-11 06:00:00.417	2024-10-11 06:00:00.417	2024-10-11	382.9182	XAU	1
+983	2024-10-11 06:00:00.418	2024-10-11 06:00:00.418	2024-10-11	6.0915	XDR	1
+984	2024-10-11 06:00:00.419	2024-10-11 06:00:00.419	2024-10-11	0.2591	ZAR	1
+985	2024-10-14 06:00:01.008	2024-10-14 06:00:01.008	2024-10-14	1	RON	1
+986	2024-10-14 06:00:01.01	2024-10-14 06:00:01.01	2024-10-14	1.238	AED	1
+987	2024-10-14 06:00:01.011	2024-10-14 06:00:01.011	2024-10-14	3.063	AUD	1
+988	2024-10-14 06:00:01.012	2024-10-14 06:00:01.012	2024-10-14	2.5438	BGN	1
+989	2024-10-14 06:00:01.012	2024-10-14 06:00:01.012	2024-10-14	0.8144	BRL	1
+990	2024-10-14 06:00:01.013	2024-10-14 06:00:01.013	2024-10-14	3.3028	CAD	1
+991	2024-10-14 06:00:01.014	2024-10-14 06:00:01.014	2024-10-14	5.3043	CHF	1
+992	2024-10-14 06:00:01.015	2024-10-14 06:00:01.015	2024-10-14	0.6434	CNY	1
+993	2024-10-14 06:00:01.016	2024-10-14 06:00:01.016	2024-10-14	0.1966	CZK	1
+994	2024-10-14 06:00:01.016	2024-10-14 06:00:01.016	2024-10-14	0.6668	DKK	1
+995	2024-10-14 06:00:01.019	2024-10-14 06:00:01.019	2024-10-14	0.0936	EGP	1
+996	2024-10-14 06:00:01.02	2024-10-14 06:00:01.02	2024-10-14	4.9752	EUR	1
+997	2024-10-14 06:00:01.021	2024-10-14 06:00:01.021	2024-10-14	5.9437	GBP	1
+998	2024-10-14 06:00:01.021	2024-10-14 06:00:01.021	2024-10-14	0.5852	HKD	1
+999	2024-10-14 06:00:01.022	2024-10-14 06:00:01.022	2024-10-14	1.2412	HUF	100
+1000	2024-10-14 06:00:01.023	2024-10-14 06:00:01.023	2024-10-14	0.0292	IDR	100
+1001	2024-10-14 06:00:01.023	2024-10-14 06:00:01.023	2024-10-14	1.2065	ILS	1
+1002	2024-10-14 06:00:01.024	2024-10-14 06:00:01.024	2024-10-14	0.0541	INR	1
+1003	2024-10-14 06:00:01.025	2024-10-14 06:00:01.025	2024-10-14	3.3413	ISK	100
+1004	2024-10-14 06:00:01.026	2024-10-14 06:00:01.026	2024-10-14	3.0531	JPY	100
+1005	2024-10-14 06:00:01.026	2024-10-14 06:00:01.026	2024-10-14	0.3366	KRW	100
+1006	2024-10-14 06:00:01.027	2024-10-14 06:00:01.027	2024-10-14	0.2574	MDL	1
+1007	2024-10-14 06:00:01.028	2024-10-14 06:00:01.028	2024-10-14	0.234	MXN	1
+1008	2024-10-14 06:00:01.028	2024-10-14 06:00:01.028	2024-10-14	1.0609	MYR	1
+1009	2024-10-14 06:00:01.029	2024-10-14 06:00:01.029	2024-10-14	0.424	NOK	1
+1010	2024-10-14 06:00:01.03	2024-10-14 06:00:01.03	2024-10-14	2.7699	NZD	1
+1011	2024-10-14 06:00:01.031	2024-10-14 06:00:01.031	2024-10-14	0.0795	PHP	1
+1012	2024-10-14 06:00:01.031	2024-10-14 06:00:01.031	2024-10-14	1.1591	PLN	1
+1013	2024-10-14 06:00:01.032	2024-10-14 06:00:01.032	2024-10-14	0.0425	RSD	1
+1014	2024-10-14 06:00:01.033	2024-10-14 06:00:01.033	2024-10-14	0.0474	RUB	1
+1015	2024-10-14 06:00:01.033	2024-10-14 06:00:01.033	2024-10-14	0.4378	SEK	1
+1016	2024-10-14 06:00:01.034	2024-10-14 06:00:01.034	2024-10-14	3.4821	SGD	1
+1017	2024-10-14 06:00:01.035	2024-10-14 06:00:01.035	2024-10-14	0.1363	THB	1
+1018	2024-10-14 06:00:01.035	2024-10-14 06:00:01.035	2024-10-14	0.1326	TRY	1
+1019	2024-10-14 06:00:01.036	2024-10-14 06:00:01.036	2024-10-14	0.1104	UAH	1
+1020	2024-10-14 06:00:01.037	2024-10-14 06:00:01.037	2024-10-14	4.5471	USD	1
+1021	2024-10-14 06:00:01.037	2024-10-14 06:00:01.037	2024-10-14	385.5996	XAU	1
+1022	2024-10-14 06:00:01.038	2024-10-14 06:00:01.038	2024-10-14	6.0872	XDR	1
+1023	2024-10-14 06:00:01.038	2024-10-14 06:00:01.038	2024-10-14	0.2605	ZAR	1
+1024	2024-10-15 06:00:01.373	2024-10-15 06:00:01.373	2024-10-15	1	RON	1
+1025	2024-10-15 06:00:01.375	2024-10-15 06:00:01.375	2024-10-15	1.2388	AED	1
+1026	2024-10-15 06:00:01.377	2024-10-15 06:00:01.377	2024-10-15	3.0618	AUD	1
+1027	2024-10-15 06:00:01.378	2024-10-15 06:00:01.378	2024-10-15	2.5433	BGN	1
+1028	2024-10-15 06:00:01.378	2024-10-15 06:00:01.378	2024-10-15	0.8108	BRL	1
+1029	2024-10-15 06:00:01.379	2024-10-15 06:00:01.379	2024-10-15	3.2998	CAD	1
+1030	2024-10-15 06:00:01.38	2024-10-15 06:00:01.38	2024-10-15	5.2933	CHF	1
+1031	2024-10-15 06:00:01.381	2024-10-15 06:00:01.381	2024-10-15	0.6427	CNY	1
+1032	2024-10-15 06:00:01.382	2024-10-15 06:00:01.382	2024-10-15	0.1969	CZK	1
+1033	2024-10-15 06:00:01.382	2024-10-15 06:00:01.382	2024-10-15	0.6667	DKK	1
+1034	2024-10-15 06:00:01.383	2024-10-15 06:00:01.383	2024-10-15	0.0937	EGP	1
+1035	2024-10-15 06:00:01.384	2024-10-15 06:00:01.384	2024-10-15	4.9744	EUR	1
+1036	2024-10-15 06:00:01.384	2024-10-15 06:00:01.384	2024-10-15	5.9421	GBP	1
+1037	2024-10-15 06:00:01.385	2024-10-15 06:00:01.385	2024-10-15	0.5859	HKD	1
+1038	2024-10-15 06:00:01.386	2024-10-15 06:00:01.386	2024-10-15	1.2427	HUF	100
+1039	2024-10-15 06:00:01.386	2024-10-15 06:00:01.386	2024-10-15	0.0292	IDR	100
+1040	2024-10-15 06:00:01.387	2024-10-15 06:00:01.387	2024-10-15	1.2101	ILS	1
+1041	2024-10-15 06:00:01.388	2024-10-15 06:00:01.388	2024-10-15	0.0541	INR	1
+1042	2024-10-15 06:00:01.388	2024-10-15 06:00:01.388	2024-10-15	3.3318	ISK	100
+1043	2024-10-15 06:00:01.389	2024-10-15 06:00:01.389	2024-10-15	3.0465	JPY	100
+1044	2024-10-15 06:00:01.39	2024-10-15 06:00:01.39	2024-10-15	0.3352	KRW	100
+1045	2024-10-15 06:00:01.391	2024-10-15 06:00:01.391	2024-10-15	0.2574	MDL	1
+1046	2024-10-15 06:00:01.391	2024-10-15 06:00:01.391	2024-10-15	0.2364	MXN	1
+1047	2024-10-15 06:00:01.392	2024-10-15 06:00:01.392	2024-10-15	1.0594	MYR	1
+1048	2024-10-15 06:00:01.392	2024-10-15 06:00:01.392	2024-10-15	0.4232	NOK	1
+1049	2024-10-15 06:00:01.393	2024-10-15 06:00:01.393	2024-10-15	2.7703	NZD	1
+1050	2024-10-15 06:00:01.394	2024-10-15 06:00:01.394	2024-10-15	0.0792	PHP	1
+1051	2024-10-15 06:00:01.395	2024-10-15 06:00:01.395	2024-10-15	1.1602	PLN	1
+1052	2024-10-15 06:00:01.396	2024-10-15 06:00:01.396	2024-10-15	0.0425	RSD	1
+1053	2024-10-15 06:00:01.396	2024-10-15 06:00:01.396	2024-10-15	0.0473	RUB	1
+1054	2024-10-15 06:00:01.397	2024-10-15 06:00:01.397	2024-10-15	0.4377	SEK	1
+1055	2024-10-15 06:00:01.398	2024-10-15 06:00:01.398	2024-10-15	3.4836	SGD	1
+1056	2024-10-15 06:00:01.398	2024-10-15 06:00:01.398	2024-10-15	0.1371	THB	1
+1057	2024-10-15 06:00:01.399	2024-10-15 06:00:01.399	2024-10-15	0.1329	TRY	1
+1058	2024-10-15 06:00:01.4	2024-10-15 06:00:01.4	2024-10-15	0.1104	UAH	1
+1059	2024-10-15 06:00:01.4	2024-10-15 06:00:01.4	2024-10-15	4.5501	USD	1
+1060	2024-10-15 06:00:01.401	2024-10-15 06:00:01.401	2024-10-15	388.9505	XAU	1
+1061	2024-10-15 06:00:01.401	2024-10-15 06:00:01.401	2024-10-15	6.0868	XDR	1
+1062	2024-10-15 06:00:01.402	2024-10-15 06:00:01.402	2024-10-15	0.2604	ZAR	1
 \.
 
 
 --
--- Data for Name: ForgotPass; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: ExchangeRatesBNR; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."ExchangeRatesBNR" (id, "updateadAt", "createdAt", date, amount, name, multiplier) FROM stdin;
+\.
+
+
+--
+-- Data for Name: ForgotPass; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."ForgotPass" (id, "updatedAt", "createdAt", email, actual_password, old_password, uuid, "userId") FROM stdin;
@@ -5713,7 +6897,7 @@ COPY public."ForgotPass" (id, "updatedAt", "createdAt", email, actual_password, 
 
 
 --
--- Data for Name: Groups; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Groups; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Groups" (id, "updateadAt", "createdAt", name, description) FROM stdin;
@@ -5724,67 +6908,84 @@ COPY public."Groups" (id, "updateadAt", "createdAt", name, description) FROM std
 
 
 --
--- Data for Name: Invoice; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Invoice; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public."Invoice" (id, "updateadAt", "createdAt", "partnersId", "entityId", number, date, duedate, "totalAmount", "vatAmount", "totalPayment", "typeId", "transactionTypeId", "statusId", "entitybankId", "partneraddressId", "currencyRate", "userId", "currencyId", remarks) FROM stdin;
+COPY public."Invoice" (id, "updateadAt", "createdAt", "partnerId", "entityId", number, date, duedate, "totalAmount", "vatAmount", "totalPayment", "typeId", "transactionTypeId", "statusId", "entitybankId", "partneraddressId", "currencyRate", "userId", "currencyId", remarks, "seriesId", "serialNumber", "eqvTotalAmount", "eqvVatAmount", "eqvTotalPayment", "vatOnReceipt", "parentId", "restPayment") FROM stdin;
+77	2024-10-14 13:32:43.832	2024-10-08 16:05:30.062	4	1	79	2024-10-08 16:05:18.376	2024-11-07 17:05:18.376	1514376	287731.44	1802107.44	1	1	2	1	4	1	4	1		1	NIR79	1514376	287731.44	1802107.44	f	0	1802104.44
+75	2024-10-14 13:35:33.368	2024-10-08 16:04:48.051	14	1	77	2024-10-08 16:04:30.568	2024-11-27 17:04:30.568	134431	25541.89	159972.89	1	1	2	1	6	1	4	1		1	NIR77	134431	25541.89	159972.89	f	0	159917.89
+79	2024-10-14 14:23:48.552	2024-10-10 12:43:43.846	4	1	81	2024-10-10 12:43:28.912	2024-11-09 13:43:28.912	999	49.95	1048.95	1	1	2	1	4	1	4	1		1	NIR81	999	49.95	1048.95	f	0	1044.95
+81	2024-10-14 15:34:19.197	2024-10-14 15:33:55.696	4	1	82	2024-10-14 15:33:55.692	2024-10-14 15:33:55.692	1514376	287731.44	1802107.44	1	1	2	1	4	1	4	1	 Copie pentru factura: 79	1	NIR82	1514376	287731.44	1802107.44	f	0	-1
+80	2024-10-10 18:38:21.88	2024-10-10 18:38:20.094	14	3	4	2024-10-10 18:38:02.926	2024-11-29 19:38:02.926	46.01	8.74	54.75	1	1	2	3	6	1	4	1		5	DR_Van4	46.01	8.74	54.75	f	0	43.75
+82	2024-10-14 15:34:24.463	2024-10-14 15:34:24.463	4	1	10	2024-10-14 15:34:24.459	2024-10-14 15:34:24.459	-1514376	-287731.44	-1802107.44	3	1	1	1	4	1	4	1	 Copie pentru factura: 79 Storno pentru factura: 82	4	ST_NIR10	1514376	287731.44	1802107.44	f	81	-1
+78	2024-10-14 14:05:58.648	2024-10-08 16:05:50.147	14	1	80	2024-10-08 16:05:38.566	2024-11-27 17:05:38.566	151413	7570.65	158983.65	1	1	2	1	6	1	4	1		1	NIR80	151413	7570.65	158983.65	f	0	158718.65
+76	2024-10-15 06:09:04.443	2024-10-08 16:05:11.031	4	1	78	2024-10-08 16:04:57.765	2024-11-07 17:04:57.765	145476	13092.84	158568.84	1	1	2	1	4	1	4	1		1	NIR78	145476	13092.84	158568.84	f	0	158545.84
 \.
 
 
 --
--- Data for Name: InvoiceDetail; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: InvoiceDetail; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."InvoiceDetail" (id, "updateadAt", "createdAt", "invoiceId", "entityId", "itemId", qtty, price, "measuringUnitid", "vatId", "vatValue", "lineValue", "totalValue", description) FROM stdin;
+62	2024-10-08 16:05:51.168	2024-10-08 16:05:51.168	78	1	3	123	1231	32	3	7570.65	151413	158983.65	
+64	2024-10-10 12:43:47.395	2024-10-10 12:43:47.395	79	1	3	3	333	32	3	49.95	999	1048.95	
+66	2024-10-10 18:38:21.883	2024-10-10 18:38:21.883	80	3	4	23	2.0003	32	1	8.74	46.01	54.75	
+69	2024-10-14 15:34:19.2	2024-10-14 15:34:19.2	81	1	2	123	12312	32	1	287731.44	1514376	1802107.44	
+70	2024-10-14 15:34:24.465	2024-10-14 15:34:24.465	82	1	2	-123	12312	32	1	-287731.44	-1514376	-1802107.44	
+56	2024-10-08 16:04:49.534	2024-10-08 16:04:49.534	75	1	4	121	1111	32	1	25541.89	134431	159972.89	
+58	2024-10-08 16:05:12.354	2024-10-08 16:05:12.354	76	1	1	12	12123	1	2	13092.84	145476	158568.84	
+60	2024-10-08 16:05:31.801	2024-10-08 16:05:31.801	77	1	2	123	12312	32	1	287731.44	1514376	1802107.44	
 \.
 
 
 --
--- Data for Name: InvoiceItem; Type: TABLE DATA; Schema: public; Owner: sysadmin
---
-
-COPY public."InvoiceItem" (id, "updateadAt", "createdAt", "itemName", "itemCode", "barCode", "itemDescription", "vatId", "measuringUnitid", "isStockable", "isActive", "classificationId", "userId") FROM stdin;
-\.
-
-
---
--- Data for Name: InvoiceItemClassification; Type: TABLE DATA; Schema: public; Owner: sysadmin
---
-
-COPY public."InvoiceItemClassification" (id, "updateadAt", "createdAt", name) FROM stdin;
-\.
-
-
---
--- Data for Name: InvoiceStatus; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: InvoiceStatus; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."InvoiceStatus" (id, "updateadAt", "createdAt", name) FROM stdin;
+2	2024-06-06 11:44:47.101	2024-06-06 11:45:07.4	Validat
+3	2024-06-06 11:44:53.884	2024-06-06 11:45:07.4	Anulat
+1	2024-06-06 11:46:32.888	2024-06-06 11:45:07.4	In lucru
 \.
 
 
 --
--- Data for Name: InvoiceType; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: InvoiceType; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."InvoiceType" (id, "updateadAt", "createdAt", name) FROM stdin;
+1	2024-06-07 06:33:56.86	2024-06-07 06:34:07.481	Factura de vanzare
+2	2024-06-07 06:34:08.349	2024-06-07 06:34:21.108	Factura de achizite
+3	2024-06-07 06:34:24.713	2024-06-07 06:34:49.008	Factura storno de vanzare
+4	2024-06-07 06:34:50.677	2024-06-07 06:35:01.626	Factura storno de achizitie
+5	2024-10-06 06:37:31.645	2024-10-06 06:39:12.981	Chitanta furnizor
+6	2024-10-06 06:38:06.475	2024-10-06 06:39:12.981	Chitanta client
+7	2024-10-06 06:38:15.209	2024-10-06 06:39:12.981	Ordin de plata furnizor
+8	2024-10-06 06:38:25.792	2024-10-06 06:39:12.981	Ordin de plata client
+9	2024-10-06 06:38:36.942	2024-10-06 06:39:12.981	CEC furnizor
+10	2024-10-06 06:38:45.443	2024-10-06 06:39:12.981	CEC client
+11	2024-10-06 06:38:54.459	2024-10-06 06:39:12.981	BO furnizor
+12	2024-10-06 06:39:02.86	2024-10-06 06:39:12.981	BO client
 \.
 
 
 --
--- Data for Name: Item; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Item; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public."Item" (id, name) FROM stdin;
-1	Mentenanta
-2	Servicii It
-3	Servicii Copiere
-4	Servicii Scanare
+COPY public."Item" (id, name, "barCode", "classificationId", code, description, "isActive", "isStockable", "measuringUnitid", "userId", "vatId") FROM stdin;
+1	Mentenanta	a	1	1	Servicii Mentenanta	t	f	1	1	2
+2	Servicii It	b	2	2	Mentenanta	t	f	32	1	1
+4	Servicii Scanare	d	2	4	Servicii Scanare	t	f	32	1	1
+3	Servicii Copiere	c	1	3	Servicii Copiere	t	f	32	1	3
+8	test	test	1	test	test	t	f	32	4	2
+9	test255555	test2	1	test2	test2	t	f	1	4	1
 \.
 
 
 --
--- Data for Name: Location; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Location; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Location" (id, name) FROM stdin;
@@ -5794,7 +6995,7 @@ COPY public."Location" (id, name) FROM stdin;
 
 
 --
--- Data for Name: MeasuringUnit; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: MeasuringUnit; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."MeasuringUnit" (id, name) FROM stdin;
@@ -5834,38 +7035,61 @@ COPY public."MeasuringUnit" (id, name) FROM stdin;
 
 
 --
--- Data for Name: Partners; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Partners; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public."Partners" (id, "updateadAt", "createdAt", name, fiscal_code, commercial_reg, state, type, email, remarks, "contractsId", "isVatPayer") FROM stdin;
-1	2024-05-13 13:12:07.672	2024-05-13 13:12:07.672	NIRO INVESTMENT SA	RO2456788	J40/23/20422	Activ	Entitate			\N	t
-2	2024-05-13 13:17:15.366	2024-05-13 13:16:13.916	SoftHub	ro000001	j4044	Activ	Furnizor			\N	f
-4	2024-05-21 09:47:24.719	2024-05-21 09:38:51.026	Softhub Ag S.R.L.	37130972	J40/2456/2017	Activ	Furnizor		Str. Vlad Județul, 2, Bl:v14a, Sc:2, Et:1, Ap:33, Camera Nr. 1, București, Sect 3	\N	t
-5	2024-05-21 09:58:25.947	2024-05-21 09:57:28.575	Incremental Development S.R.L.	34983363	J40/11052/2015	Activ	Furnizor		B-dul Lacul Tei, 71, Bl:18, Sc:b, Et:6, Ap:68, -, București, Sect 2	\N	t
-3	2024-05-22 07:14:45.756	2024-05-21 09:16:12.627	Dragonul Rosu S.A.	15419962	J23/780/2003	Activ	Entitate		Str. Dragonul Rosu, 1-10, Centrul Comercial Dragonul Rosu Megashop, Et. 3, Biroul Nr. 30, Fundeni	\N	t
+COPY public."Partners" (id, "updateadAt", "createdAt", name, fiscal_code, commercial_reg, state, type, email, remarks, "contractsId", "isVatPayer", "paymentTerm", picture) FROM stdin;
+5	2024-05-21 09:58:25.947	2024-05-21 09:57:28.575	Incremental Development S.R.L.	34983363	J40/11052/2015	Activ	Furnizor		B-dul Lacul Tei, 71, Bl:18, Sc:b, Et:6, Ap:68, -, București, Sect 2	\N	t	10	\N
+6	2024-05-31 10:24:48.585	2024-05-31 10:24:48.585	wer	we	24	Activ	Client	234	234	\N	f	44	\N
+7	2024-05-31 10:48:59.451	2024-05-31 10:48:59.451	345453	345345	435	Activ	Furnizor	345345	34	\N	f	999	\N
+12	2024-05-31 10:58:14.338	2024-05-31 10:58:14.338	2342fds	sdf	sdf	Inactiv	Furnizor	sdf	sdf	\N	f	1034	\N
+14	2024-06-04 09:53:55.207	2024-06-02 15:55:54.413	Tinmar Energy S.A.	34620961	J40/6868/2015	Activ	Client		Calea Floreasca, 246c, Et:17, Camera 10, București, Sect 1	\N	f	50	\N
+4	2024-06-04 09:54:28.484	2024-05-21 09:38:51.026	Softhub Ag S.R.L.	37130972	J40/2456/2017	Activ	Furnizor		Str. Vlad Județul, 2, Bl:v14a, Sc:2, Et:1, Ap:33, Camera Nr. 1, București, Sect 3	\N	f	30	logo-1717415950934-716209742.jpg
+13	2024-06-03 08:35:15.019	2024-05-31 10:59:15.684	34rew	wer	wer	Activ	Furnizor	wer	wer	\N	f	334	\N
+15	2024-06-03 09:14:17.216	2024-06-03 09:14:17.216	SoftHubrr	rr	rr	Activ	Furnizor	rr	rr	\N	t	10	\N
+1	2024-06-07 08:58:59.996	2024-05-13 13:12:07.672	NIRO INVESTMENT SA	RO2456788	J40/23/20422	Activ	Entitate			\N	t	14	logo-1717750739986-367764145.jpeg
+16	2024-06-03 11:37:16.243	2024-06-03 09:42:49.084	234	234	234	Activ	Furnizor	234	234	\N	f	10	logo-1717414636235-228081566.png
+2	2024-06-03 11:44:26.404	2024-05-13 13:16:13.916	SoftHub	ro000001	j4044	Activ	Furnizor			\N	f	12	logo-1717415066389-999272002.jpg
+3	2024-10-03 10:54:58.161	2024-05-21 09:16:12.627	Dragonul Rosu S.A.	15419962	J23/780/2003	Activ	Entitate		Str. Dragonul Rosu, 1-10, Centrul Comercial Dragonul Rosu Megashop, Et. 3, Biroul Nr. 30, Fundeni	\N	t	16	logo-1727952894132-845658453.jpg
 \.
 
 
 --
--- Data for Name: PaymentType; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: PartnersBanksExtraRates; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."PartnersBanksExtraRates" (id, "updateadAt", "createdAt", "partnersId", "currencyId", percent) FROM stdin;
+2	2024-05-31 10:58:14.338	2024-05-31 10:58:14.338	12	2	32
+3	2024-05-31 10:58:14.338	2024-05-31 10:58:14.338	12	4	234
+6	2024-06-02 15:55:54.413	2024-06-02 15:55:54.413	14	2	1
+7	2024-06-03 08:26:22.226	2024-06-02 15:55:54.413	14	4	29
+8	2024-06-03 08:30:12.336	2024-06-03 08:14:28.848	13	2	64
+4	2024-06-03 08:32:36.967	2024-05-31 10:59:15.684	13	3	34
+9	2024-06-03 12:15:09.293	2024-06-03 12:15:09.293	4	2	1
+\.
+
+
+--
+-- Data for Name: PaymentType; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."PaymentType" (id, name) FROM stdin;
-1	Numerar
 2	Ordin de Plată
 3	Cec
 4	Bilet la ordin
 5	Transfer Bancar
-6	Virament Bancar
-7	Portofel Digital(PayPal, Venmo...)
-8	Bitcoin și Criptomonede
-9	Card de Debit
-10	Card de Credit
+1	Chitanta
+9	Card online
+7	Bon fiscal
+8	Mandat Postal
+10	Card
+6	Alt tip
+11	Ramburs
 \.
 
 
 --
--- Data for Name: Persons; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Persons; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Persons" (id, "updateadAt", "createdAt", name, phone, email, "partnerId", role, legalrepresent) FROM stdin;
@@ -5874,11 +7098,12 @@ COPY public."Persons" (id, "updateadAt", "createdAt", name, phone, email, "partn
 3	2024-05-21 09:16:12.627	2024-05-21 09:16:12.627	Stafan	05555555	m_razvan@yahoo.com	3	Manager	t
 4	2024-05-21 09:40:51.563	2024-05-21 09:40:51.563	Razvan Mustata2	0746 150 001	razvan.mustata2@gmail.com	4	Soft	t
 6	2024-05-22 07:14:38.493	2024-05-22 07:14:38.493	Stefania Mustata	+40746150001	stefania.mustata@gmail.com	3	Financiar	t
+7	2024-06-02 15:55:54.413	2024-06-02 15:55:54.413	Oancea	24323423423	oancea@a.com	14	Manager	t
 \.
 
 
 --
--- Data for Name: Role; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Role; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Role" (id, "roleName") FROM stdin;
@@ -5890,7 +7115,7 @@ COPY public."Role" (id, "roleName") FROM stdin;
 
 
 --
--- Data for Name: Role_User; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Role_User; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Role_User" (id, "userId", "roleId") FROM stdin;
@@ -5902,10 +7127,6 @@ COPY public."Role_User" (id, "userId", "roleId") FROM stdin;
 11	4	3
 12	4	2
 13	4	1
-14	5	4
-15	5	3
-16	5	2
-17	5	1
 18	6	4
 19	6	3
 20	6	2
@@ -5914,32 +7135,73 @@ COPY public."Role_User" (id, "userId", "roleId") FROM stdin;
 23	7	3
 24	7	2
 25	7	1
+14	1	4
+15	1	3
+16	1	2
+17	1	1
+26	8	4
+27	8	3
+28	8	2
+29	8	1
 \.
 
 
 --
--- Data for Name: TransactionType; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: TransactionDetail; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."TransactionDetail" (id, "updateadAt", "createdAt", "transactionId", "invoiceId", "entityId", "partnerId", "partPaymentValue", "currencyId", "exchangeRate", "eqvTotalPayment") FROM stdin;
+143	2024-10-14 14:05:58.648	2024-10-14 14:05:58.648	162	78	1	14	77	1	1	77
+147	2024-10-15 06:09:04.443	2024-10-15 06:09:04.443	161	76	1	4	23	1	1	23
+\.
+
+
+--
+-- Data for Name: TransactionDetailEvents; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."TransactionDetailEvents" (id, "updateadAt", "createdAt", "transactionDetailId", "invoiceId", "entityId", "partnerId", "partPaymentValue", "eqvTotalPayment", "restAmount", "payFromDate", "payToDate", "currencyId") FROM stdin;
+78	2024-10-14 14:05:58.648	2024-10-14 14:05:58.648	143	78	1	14	77	0	0	1900-01-01 00:00:00	2024-10-14 14:05:58.675	1
+82	2024-10-15 06:09:04.443	2024-10-15 06:09:04.443	147	76	1	4	23	0	0	1900-01-01 00:00:00	2024-10-15 06:09:04.469	1
+\.
+
+
+--
+-- Data for Name: TransactionType; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."TransactionType" (id, "updateadAt", "createdAt", name) FROM stdin;
+1	2024-06-07 06:47:36.311	2024-06-07 06:47:49.036	Emitere factura de vanzare
+2	2024-06-07 06:47:58.243	2024-06-07 06:48:11.035	Inregistrare factura de achizitie
 \.
 
 
 --
--- Data for Name: User; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: Transactions; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Transactions" (id, "updateadAt", "createdAt", "partnerId", "entityId", date, "currencyId", "paymentValue", "exchangeRate", "eqvTotalPayment", "typeId", "entitybankId", "partnerbankId", cash, card, meal, remarks, "userId", "statusId", bank, "seriesId", number) FROM stdin;
+162	2024-10-14 14:05:58.648	2024-10-14 13:35:07.073	14	1	2024-10-14 13:34:48.128	1	222	1	222	5	1	\N	0	0	0		4	1	222	\N	2
+161	2024-10-15 06:09:04.443	2024-10-14 13:32:28.196	4	1	2024-10-14 13:31:59.4	1	2342	1	2342	1	\N	\N	2342	0	0		8	1	0	\N	1
+\.
+
+
+--
+-- Data for Name: User; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."User" (id, name, email, password, "createdAt", picture, status, "updatedAt") FROM stdin;
 3	eu	razvan.mustata@gmail.com2	$2b$04$U4FBX/tbZQ67ZS7yBG05WOKqq/SrOOTXoCPoNOHfKNpg5yHw0gLka	2024-05-13 13:45:01.553	avatar-1715607901542-333198608.gif	t	2024-05-21 06:47:34.32
 6	gmail	razvan.mustata@gmail.com	$2b$04$HxgFmx.WTwPDix/Ax0Fq9.006XfooRA1VjqDHHVVU2moDT50O6j02	2024-05-21 06:48:36.289	avatar-1716274116276-659839790.jpeg	t	2024-05-21 06:49:47.484
-5	ana	a@a.com	$2b$04$qXxV4iZzfD77yJq4chXxAem7jKOvQzOJSaPMaxyENgFL1SnbzbAlO	2024-05-21 04:46:36.091	avatar-1716266796085-983055134.jpeg	t	2024-05-26 12:05:50.995
-4	razvan	razvan.mustata@nirogroup.ro	$2b$04$UlgP9IYgN0INH5jKYihxuerwuud6FpddLd3No4c1SyE09E0mF0Z3u	2024-05-13 16:00:17.863	avatar-1716816445147-143347840.jpeg	t	2024-05-27 13:27:25.183
 7	dragon	dragon@dragon.ro	$2b$04$Q8RO6BM.8zX4evoa9LEj4.EXtJJq7NZrJcnAkOrpm5.HeKfIbUrcq	2024-05-28 09:40:38.734	default.jpeg	t	2024-05-28 09:40:38.734
+1	ana	a@a.com	$2b$04$glnyzL4wpfFD3z0sN6CMrekr2ER84.E0g7jWbwRIQx12VK/xRJx.C	2024-05-21 04:46:36.091	avatar-1717405137048-255820690.png	t	2024-06-03 09:00:13.577
+4	razvan	razvan.mustata@nirogroup.ro	$2b$04$voDVnO0kN.7WvFQj0DVVR.iUjjwZTUFdZKiTPdUY3uSr09yCbO2aa	2024-05-13 16:00:17.863	avatar-1716816445147-143347840.jpeg	t	2024-10-03 09:14:09.649
+8	a	a	$2b$04$P6r.m0Mkx1ndBpSovYxdX.2xlPh41gdCddJcHSug26LRpCRF1zlay	2024-10-15 05:53:16.697	default.jpeg	t	2024-10-15 05:53:44.895
 \.
 
 
 --
--- Data for Name: VatQuota; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: VatQuota; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."VatQuota" (id, "updateadAt", "createdAt", "VatCode", "VATDescription", "VATPercent", "VATType", "AccVATPercent") FROM stdin;
@@ -5951,7 +7213,7 @@ COPY public."VatQuota" (id, "updateadAt", "createdAt", "VatCode", "VATDescriptio
 
 
 --
--- Data for Name: WorkFlow; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: WorkFlow; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."WorkFlow" (id, "updateadAt", "createdAt", "wfName", "wfDescription", status) FROM stdin;
@@ -5966,7 +7228,7 @@ COPY public."WorkFlow" (id, "updateadAt", "createdAt", "wfName", "wfDescription"
 
 
 --
--- Data for Name: WorkFlowContractTasks; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: WorkFlowContractTasks; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."WorkFlowContractTasks" (id, "updateadAt", "createdAt", "contractId", "statusId", "requestorId", "assignedId", "workflowTaskSettingsId", "approvalOrderNumber", duedates, name, reminders, "taskPriorityId", text, uuid) FROM stdin;
@@ -5986,12 +7248,14 @@ COPY public."WorkFlowContractTasks" (id, "updateadAt", "createdAt", "contractId"
 124	2024-05-17 10:31:30.44	2024-05-17 10:31:10.044	50	3	3	3	1	2	2024-05-17 00:00:00	Flux aprobare contracte dep Operational	2024-05-18 00:00:00	2	<p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Numar</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ContractNumber</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">semnarii</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">SignDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Incepand</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">cu</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">StartDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Termene</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">finalizare</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">FinalDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Scurta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">descriere</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ShortDescription</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Type</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerName</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerComercialReg</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerFiscalCode</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerAddress</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerBank</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Filiala</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerBranch</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerIban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerPerson</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerEmail</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerPhone</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerRole</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityName</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityFiscalCode</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityComercialReg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityAddress</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityIban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cont</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityCurrency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityPerson</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityEmail</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityPhone</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityRole</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Obiect</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Item</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Pretul</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">TotalContractValue</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Currency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Recurenta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Frequency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PaymentType</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Unitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">masura</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">MeasuringUnit</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Note</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PaymentRemarks</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p>	6848adc2-6bf7-4486-b980-e427ee027742
 117	2024-05-17 10:23:50.053	2024-05-17 10:23:50.053	47	2	3	4	2	1	2024-05-18 00:00:00	Contracte dep. ITC + CF Inc Fin	2024-05-19 00:00:00	1	<p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Numar</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ContractNumber</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">semnarii</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">SignDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Incepand</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">cu</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">StartDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Termene</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">finalizare</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">FinalDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Scurta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">descriere</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ShortDescription</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Type</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerName</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerComercialReg</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerFiscalCode</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerAddress</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerBank</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Filiala</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerBranch</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerIban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerPerson</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerEmail</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerPhone</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerRole</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityName</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityFiscalCode</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityComercialReg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityAddress</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityIban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cont</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityCurrency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityPerson</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityEmail</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityPhone</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityRole</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Obiect</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Item</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Pretul</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">TotalContractValue</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Currency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Recurenta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Frequency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PaymentType</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Unitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">masura</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">MeasuringUnit</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Note</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PaymentRemarks</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><br></p>	590ca6c4-2083-4b3e-9776-6d43fe713222
 123	2024-05-17 10:23:50.09	2024-05-17 10:23:50.09	43	2	3	4	1	1	2024-05-17 00:00:00	Flux aprobare contracte dep Operational	2024-05-18 00:00:00	2	<p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Numar</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ContractNumber</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">semnarii</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">SignDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Incepand</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">cu</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">StartDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Termene</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">finalizare</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">FinalDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Scurta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">descriere</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ShortDescription</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Type</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerName</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerComercialReg</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerFiscalCode</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerAddress</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerBank</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Filiala</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerBranch</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerIban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerPerson</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerEmail</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerPhone</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerRole</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityName</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityFiscalCode</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityComercialReg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityAddress</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityIban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cont</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityCurrency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityPerson</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityEmail</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityPhone</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityRole</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Obiect</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Item</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Pretul</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">TotalContractValue</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Currency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Recurenta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Frequency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PaymentType</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Unitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">masura</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">MeasuringUnit</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Note</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PaymentRemarks</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p>	96e410db-63f2-44c2-aaed-bc3d2e806770
-127	2024-05-21 10:09:20.049	2024-05-21 10:09:20.049	58	2	3	3	1	2	2024-05-21 00:00:00	Flux aprobare contracte dep Operational	2024-05-22 00:00:00	2	<p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Numar</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ContractNumber</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">semnarii</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">SignDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Incepand</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">cu</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">StartDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Termene</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">finalizare</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">FinalDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Scurta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">descriere</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ShortDescription</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Type</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerName</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerComercialReg</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerFiscalCode</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerAddress</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerBank</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Filiala</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerBranch</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerIban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerPerson</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerEmail</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerPhone</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerRole</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityName</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityFiscalCode</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityComercialReg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityAddress</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityIban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cont</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityCurrency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityPerson</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityEmail</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityPhone</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityRole</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Obiect</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Item</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Pretul</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">TotalContractValue</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Currency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Recurenta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Frequency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PaymentType</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Unitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">masura</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">MeasuringUnit</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Note</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PaymentRemarks</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p>	690b993d-e2c6-475a-8056-7ef40fe5462c
+127	2024-10-04 09:54:08.554	2024-05-21 10:09:20.049	58	2	3	3	1	2	2024-10-04 00:00:00	Flux aprobare contracte dep Operational	2024-10-04 00:00:00	2	<p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Numar</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ContractNumber</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">semnarii</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">SignDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Incepand</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">cu</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">StartDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Termene</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">finalizare</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">FinalDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Scurta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">descriere</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ShortDescription</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Type</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerName</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerComercialReg</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerFiscalCode</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerAddress</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerBank</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Filiala</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerBranch</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerIban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerPerson</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerEmail</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerPhone</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerRole</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityName</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityFiscalCode</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityComercialReg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityAddress</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityIban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cont</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityCurrency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityPerson</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityEmail</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityPhone</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityRole</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Obiect</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Item</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Pretul</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">TotalContractValue</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Currency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Recurenta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Frequency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PaymentType</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Unitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">masura</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">MeasuringUnit</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Note</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PaymentRemarks</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p>	690b993d-e2c6-475a-8056-7ef40fe5462c
+128	2024-10-04 09:59:31.005	2024-10-04 09:59:05.056	94	3	3	4	1	1	2024-10-04 00:00:00	Flux aprobare contracte dep Operational	2024-10-05 00:00:00	2	<p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Numar</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ContractNumber</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">semnarii</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">SignDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Incepand</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">cu</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">StartDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Termene</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">finalizare</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">FinalDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Scurta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">descriere</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ShortDescription</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Type</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerName</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerComercialReg</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerFiscalCode</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerAddress</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerBank</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Filiala</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerBranch</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerIban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerPerson</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerEmail</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerPhone</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerRole</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityName</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityFiscalCode</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityComercialReg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityAddress</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityIban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cont</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityCurrency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityPerson</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityEmail</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityPhone</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityRole</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Obiect</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Item</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Pretul</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">TotalContractValue</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Currency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Recurenta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Frequency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PaymentType</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Unitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">masura</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">MeasuringUnit</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Note</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PaymentRemarks</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p>	6dabad1f-a6d6-4704-a64a-cf708f185655
+129	2024-10-04 10:01:34.003	2024-10-04 09:59:35.053	94	3	3	3	1	2	2024-10-04 00:00:00	Flux aprobare contracte dep Operational	2024-10-05 00:00:00	2	<p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Numar</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ContractNumber</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">semnarii</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">SignDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Incepand</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">cu</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">data</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">StartDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Termene</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">finalizare</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">FinalDate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Scurta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">descriere</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">ShortDescription</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Type</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerName</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerComercialReg</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerFiscalCode</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerAddress</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerBank</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Filiala</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Banca</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerBranch</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerIban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerPerson</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerEmail</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerPhone</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Partener</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PartnerRole</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Nume</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityName</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Reg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Comertului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityFiscalCode</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cod</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Fiscal</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityComercialReg</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Adresa</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityAddress</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityIban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Cont</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Iban</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityCurrency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityPerson</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Email</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityEmail</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Telefon</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityPhone</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Rol</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Persoana</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Entitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">EntityRole</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">; </span></p><p><br></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Obiect</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contract</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Item</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Pretul</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">TotalContractValue</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Valuta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">contractului</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Currency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Recurenta</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Frequency</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Tip</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PaymentType</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Unitate</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">de</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">masura</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">MeasuringUnit</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p><p><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">Note</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);"> </span><span style="background-color: rgb(31, 31, 31); color: rgb(200, 200, 200);">Plata</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">: </span><span style="background-color: rgb(31, 31, 31); color: rgb(156, 220, 254);">PaymentRemarks</span><span style="background-color: rgb(31, 31, 31); color: rgb(204, 204, 204);">;</span></p>	67bd94e0-02a7-45e3-9aee-8121cb22a477
 \.
 
 
 --
--- Data for Name: WorkFlowRejectActions; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: WorkFlowRejectActions; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."WorkFlowRejectActions" (id, "updateadAt", "createdAt", "workflowId", "sendNotificationsToAllApprovers", "sendNotificationsToContractResponsible") FROM stdin;
@@ -5999,7 +7263,7 @@ COPY public."WorkFlowRejectActions" (id, "updateadAt", "createdAt", "workflowId"
 
 
 --
--- Data for Name: WorkFlowRules; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: WorkFlowRules; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."WorkFlowRules" (id, "updateadAt", "createdAt", "workflowId", "ruleFilterSource", "ruleFilterName", "ruleFilterValue", "ruleFilterValueName") FROM stdin;
@@ -6016,7 +7280,7 @@ COPY public."WorkFlowRules" (id, "updateadAt", "createdAt", "workflowId", "ruleF
 
 
 --
--- Data for Name: WorkFlowTaskSettings; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: WorkFlowTaskSettings; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."WorkFlowTaskSettings" (id, "updateadAt", "createdAt", "workflowId", "taskName", "taskNotes", "taskSendNotifications", "taskSendReminders", "taskReminderId", "taskPriorityId", "taskDueDateId") FROM stdin;
@@ -6031,7 +7295,7 @@ COPY public."WorkFlowTaskSettings" (id, "updateadAt", "createdAt", "workflowId",
 
 
 --
--- Data for Name: WorkFlowTaskSettingsUsers; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: WorkFlowTaskSettingsUsers; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."WorkFlowTaskSettingsUsers" (id, "updateadAt", "createdAt", "workflowTaskSettingsId", "userId", "approvalOrderNumber", "approvalStepName") FROM stdin;
@@ -6050,7 +7314,7 @@ COPY public."WorkFlowTaskSettingsUsers" (id, "updateadAt", "createdAt", "workflo
 
 
 --
--- Data for Name: WorkFlowXContracts; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: WorkFlowXContracts; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."WorkFlowXContracts" (id, "updateadAt", "createdAt", "contractId", "wfstatusId", "ctrstatusId", "workflowTaskSettingsId") FROM stdin;
@@ -6069,11 +7333,12 @@ COPY public."WorkFlowXContracts" (id, "updateadAt", "createdAt", "contractId", "
 71	2024-05-17 10:23:00.052	2024-05-17 10:23:00.052	44	1	2	2
 72	2024-05-17 10:23:00.054	2024-05-17 10:23:00.054	47	1	2	2
 73	2024-05-17 10:23:00.056	2024-05-17 10:23:00.056	39	1	2	2
+75	2024-10-04 09:59:00.04	2024-10-04 09:59:00.04	94	1	2	1
 \.
 
 
 --
--- Data for Name: _GroupsToPartners; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: _GroupsToPartners; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."_GroupsToPartners" ("A", "B") FROM stdin;
@@ -6085,21 +7350,26 @@ COPY public."_GroupsToPartners" ("A", "B") FROM stdin;
 
 
 --
--- Data for Name: _GroupsToUser; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: _GroupsToUser; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."_GroupsToUser" ("A", "B") FROM stdin;
 2	3
 2	4
-2	5
 2	6
-4	5
 5	7
+2	1
+4	1
+5	4
+4	4
+2	8
+4	8
+5	8
 \.
 
 
 --
--- Data for Name: _prisma_migrations; Type: TABLE DATA; Schema: public; Owner: sysadmin
+-- Data for Name: _prisma_migrations; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public._prisma_migrations (id, checksum, finished_at, migration_name, logs, rolled_back_at, started_at, applied_steps_count) FROM stdin;
@@ -6237,6 +7507,7 @@ d74839ff-aec6-4b88-b153-6c3fd5cb1d32	71ac49f7b69fcd70ccc8aeb539f66979033fe4f73b6
 c48849ad-5f52-4ea1-98b4-1ebf9cc898e3	ab46707e13b7dcc997e7d4de18b04ce9bf6980c130af51a1a429a81ecb4cb33a	2024-05-17 11:10:29.806812+03	20240517081029_init	\N	\N	2024-05-17 11:10:29.798745+03	1
 17b4c641-d013-4c6f-8d87-ad33db638e99	7d62796421b0b614fa4f8d07ec149c6f0e60cc44bbf2859819bc148d3154cc01	2024-05-13 13:35:17.189962+03	20240506081036_init	\N	\N	2024-05-13 13:35:17.185309+03	1
 3191405d-fb37-4051-9664-7644322a3392	30554d5f52a0366e49d149fc377e3e42f7d6b268f9076b410aace2b1b77a4f97	2024-05-13 13:35:17.195955+03	20240506095603_init	\N	\N	2024-05-13 13:35:17.19113+03	1
+d69af6a8-4da0-4481-88d3-17fe6f40ec79	5b2472aeadcd9fa0d6632e8e9ab37c9cebf92ed15f41d263a0ea77118a3674bc	2024-05-31 12:06:48.447136+03	20240531090648_paymentterm	\N	\N	2024-05-31 12:06:48.396173+03	1
 1f27845a-18fc-4fb6-9fcf-ef5657444628	b01ba1c379a15ba6d94f898b7b814ef3622cf7048e62b5f1b99f01ed1de068a6	2024-05-13 13:35:17.207475+03	20240507061255_init	\N	\N	2024-05-13 13:35:17.197966+03	1
 b0fc6110-664e-49ee-8f2b-1189ca952a04	aa4112fcbeca73de6b62643e6295b42ab3bd5d687ad27d7d4e9bf06e4c15120c	2024-05-17 14:40:10.45565+03	20240517114010_init	\N	\N	2024-05-17 14:40:10.447399+03	1
 795a4514-1c2d-45ba-8e79-4b3552db4f31	f45c055c5d43c3fa002d74340d4453578983d1073602a56876d6407e90efd510	2024-05-13 13:35:17.211633+03	20240507062017_init	\N	\N	2024-05-13 13:35:17.208674+03	1
@@ -6249,414 +7520,484 @@ c13ad2c7-c9bf-4ee5-b998-232e088d0a07	a66e928a6834856b7bb24932cd4c96ea8f6a6504b1b
 fe887291-1dc9-4da7-a742-b4e2eb50ebc5	541fdccc6d42cd6c031039e510a5fdcc5495f1cc7dd05d311a202deae6d34835	2024-05-20 08:08:00.907894+03	20240520050800_forgot	\N	\N	2024-05-20 08:08:00.901226+03	1
 c0032ba5-8509-4448-aa35-6a5be9046c70	85bc469f2b255f63ad90472b8980e6ca34e74224181aa26a35b8616fdf967e96	2024-05-13 13:35:17.255459+03	20240513103118_modfi_status	\N	\N	2024-05-13 13:35:17.243068+03	1
 69d839d0-97c9-4244-a58c-9f87912ca703	6430c4db35252ec5a3fa4bbfcafbff490aad68a699922a554719f680f471ec14	2024-05-13 13:35:19.509054+03	20240513103519_modfi_status	\N	\N	2024-05-13 13:35:19.504677+03	1
+e0681c71-b0b5-468f-bbd8-a1e5c23e8a77	a46df6c6d8734f8756919b7203afdfb524cb1d6c8ace99731b9c931500055c2e	2024-05-31 13:43:03.799402+03	20240531104303_init	\N	\N	2024-05-31 13:43:03.781864+03	1
 e8313fbf-9b7e-4d54-8e9d-fa49be029fb0	264daeb8e7b57f1314431c25a3e6f6a7eceb4e2ae978b92746fe058137e2929b	2024-05-16 11:34:53.042482+03	20240516083453_task	\N	\N	2024-05-16 11:34:53.030813+03	1
 e3a3dabc-00a5-4845-8be8-1fbe9dd27bf0	28503548ee5f69b3298ef8131827d1c69f1e4e91a4146616b7b30dc5991611f2	2024-05-27 17:18:57.608314+03	20240527141857_init	\N	\N	2024-05-27 17:18:57.581905+03	1
 953aab37-ca3c-43ae-a569-9e14cace17bf	48e700e2fe68547c40dc52217ad6dae51166c25851a4585d7693fd5039bd0487	2024-05-27 18:22:26.246317+03	20240527152226_init	\N	\N	2024-05-27 18:22:26.231184+03	1
+5092a030-784d-42d0-ab7c-496e3b1c19f1	242c4a74be969235ac072ae58b35747736ab8c6a425ebc1b4df5bdf1179f7018	2024-06-06 14:26:52.862026+03	20240606112652_init	\N	\N	2024-06-06 14:26:52.844602+03	1
 b2e86823-43dd-49c8-9a23-5921b5124b57	ec66b3f32ad2ba293f05ea57b34666ebbedc0bab7492ad7fbb0a52515713814f	2024-05-28 18:24:48.846607+03	20240528152448_invoice	\N	\N	2024-05-28 18:24:48.791544+03	1
+39bf3470-cd32-4de9-a725-37a9f6ab1a2d	910ccd6eed3159ff7bc4cb71ce0c16dea0af24b80f9d47b9b696c258ec460cb8	2024-06-03 12:05:08.183524+03	20240603090508_init	\N	\N	2024-06-03 12:05:08.17717+03	1
+201dfc6a-6b85-4a84-9d50-b53efcb80bf3	d8d42f42f214b06ab9f9e55000db771fcf5d7b389ee7767e0d3426ce97ed105d	2024-05-29 12:05:37.30336+03	20240529090537_changeitem	\N	\N	2024-05-29 12:05:37.275274+03	1
+7a5e1696-db47-440b-ba68-825ffdb994f8	6955963bf1e9d40b92190b4532a554b80389e8b4404e83b2a3d41176f1f82a32	2024-05-29 14:50:41.857832+03	20240529115041_init	\N	\N	2024-05-29 14:50:41.840556+03	1
+e0b1432e-be0b-44a9-b3dc-e91cf8d846be	f523ddd5a9bec75955514796f767b5851533ee924ae1aca56826e6f38d1bf240	2024-06-04 13:05:25.024418+03	20240604100524_init	\N	\N	2024-06-04 13:05:24.997567+03	1
+4d914375-c89b-4538-adae-54e96aba3a23	b280520ca7082f11a5ddefd465c212b9d66712453f1d19c8bbedc1ecf3212a5a	2024-06-07 09:39:59.975141+03	20240607063959_init	\N	\N	2024-06-07 09:39:59.964195+03	1
+0ec6e11e-8963-483f-b66f-2ea19bd81a56	732037750903e0e35174996483d6c4922dc6cfc46db6cb3782545b4e865fb99f	2024-06-05 07:28:12.268001+03	20240605042812_init	\N	\N	2024-06-05 07:28:12.24819+03	1
+61d39812-a7b0-4ed6-a372-151cbc8a521f	26d554eec25c7d0a974d5bb4e730fbfc584de5a8cb01a6ecd43ef93d7ee0a24d	2024-06-06 15:48:33.654369+03	20240606124833_init	\N	\N	2024-06-06 15:48:33.645445+03	1
+7bcc8486-e35f-4d08-8ecd-bfdae7bec8b1	fdedc6232005f87208e74acff202e389eb9006b2e6889a8379efa3be662afc97	2024-06-05 10:11:47.892915+03	20240605071147_init	\N	\N	2024-06-05 10:11:47.889548+03	1
+fc40ec4b-6e14-43f1-b19c-ab00bb951aca	8a538af8e40288dd500b6d27ce5c77f479647cab2b564f78744240d2590ab118	2024-06-07 09:21:42.180606+03	20240607062142_init	\N	\N	2024-06-07 09:21:42.131558+03	1
+40a05a9f-0d4a-4826-ba04-08fa4d5170a3	2a3eb86c83ea3190824635f9715c4d768a2b59bdc7fbd02a9862a123a8472c81	2024-06-06 16:00:42.083354+03	20240606130042_init	\N	\N	2024-06-06 16:00:42.080739+03	1
+d6b7d93b-4520-47e2-8124-2bd4054b17e4	eafb4cc2ebeb8ffdfb647f5252bcc222d23b9bd449f0f64dd6a84b835f17bdda	2024-06-07 09:21:00.731471+03	20240607062100_init	\N	\N	2024-06-07 09:21:00.71613+03	1
+9a088d1b-d1f2-48ce-8cf1-7e87ed123d4b	6f63f0451e6dcb9452957a8ac856e515a258a17ffab50891d2940cc2adf6795f	2024-06-07 09:26:58.973215+03	20240607062658_init	\N	\N	2024-06-07 09:26:58.947281+03	1
+3a01ab8d-659b-437a-9df8-19210ad293b9	c182f5726051c6cf667e54da75debf16403a92a5dd865db522ee4cfcc39ecb47	2024-10-03 10:55:44.40641+03	20241003074613_init	\N	\N	2024-10-03 10:55:44.404252+03	1
+65f3bd44-6001-4dfb-9aa2-40611b0acdc9	acc2dcf61e9d896fcfbd7854743a4a09d0bd47ccf4817519a27f94a7b6f0960e	2024-10-03 10:55:44.397153+03	20241001154045_add_parent_id_field	\N	\N	2024-10-03 10:55:44.390269+03	1
+9c3f30f2-0605-444f-8022-9571d1677b50	c182f5726051c6cf667e54da75debf16403a92a5dd865db522ee4cfcc39ecb47	2024-10-03 10:55:44.401161+03	20241003071235_init	\N	\N	2024-10-03 10:55:44.397924+03	1
+707a1e96-9e1d-447a-879a-debeaaa29def	b1859e9947fdab781ff0e301f0b34ea4f8ddb1be1821086934f388cb6579b2fa	2024-10-03 10:55:44.403708+03	20241003074530_init	\N	\N	2024-10-03 10:55:44.401673+03	1
+bbe2b543-9406-4434-b002-90cb5b472a18	0f61180c63ff501bb22e18e8ce56ef27a8247f6934f3b9813a4f222cc75d2f36	2024-10-07 15:42:07.992781+03	20241007124207_init	\N	\N	2024-10-07 15:42:07.98994+03	1
+0ad49bb3-6208-413e-a3bb-5bf02e9f5997	b32b5d2c459c09420626246290844fabf5748a73350d920ef57a5a314055c745	2024-10-04 16:24:03.477357+03	20241004132403_init	\N	\N	2024-10-04 16:24:03.470271+03	1
+6dc29d6d-477a-4fe4-b691-f2f1c9716c4e	439f5ad18c1705de812efeb3da271bf4f4b9cf879773d162f292c094b3170ace	2024-10-07 15:34:41.509722+03	20241007123441_init	\N	\N	2024-10-07 15:34:41.507237+03	1
+b182b1ed-8836-4725-9bef-64ed37d5d06a	1faf1e0eee78f093de338074467c5af59e8d71765bfcd110634917cd1309535d	2024-10-06 11:11:38.232535+03	20241006081138_init	\N	\N	2024-10-06 11:11:38.198067+03	1
+61618317-51b4-4dd2-81c1-7401036bc320	8672831684b3536a699637d164def81d564c577c4ba5fa577541c3d1dc5c4e96	2024-10-08 10:46:58.477258+03	20241008074658_init	\N	\N	2024-10-08 10:46:58.47255+03	1
+2b335db7-bb03-49a3-ae47-3c5582608ef5	c8e9fe648318e76f045eb84091b50cfe5d75f3bcb4dd674b40fd0275cd7456a8	2024-10-10 09:29:38.538643+03	20241010062938_init	\N	\N	2024-10-10 09:29:38.534041+03	1
+f14a78f8-24e7-42d8-9e3c-74afdae37c07	e9e995bd42efb1228c811543fd6df46762ba2aee5531edcd5e7e074f4bdccc06	2024-10-10 09:37:51.793482+03	20241010063751_init	\N	\N	2024-10-10 09:37:51.787469+03	1
 \.
 
 
 --
--- Name: Address_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Data for Name: additionalActType; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Address_id_seq"', 4, true);
-
-
---
--- Name: AlertsHistory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
---
-
-SELECT pg_catalog.setval('public."AlertsHistory_id_seq"', 167, true);
+COPY public."additionalActType" (id, "updateadAt", "createdAt", name) FROM stdin;
+1	2024-10-04 13:25:38.279	2024-10-04 13:26:19.381	Act Aditional Adaugare
+2	2024-10-04 13:26:46.797	2024-10-04 13:26:19.381	Act Aditional Modificare Contract
+\.
 
 
 --
--- Name: Alerts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Address_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."Address_id_seq"', 6, true);
+
+
+--
+-- Name: AlertsHistory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."AlertsHistory_id_seq"', 180, true);
+
+
+--
+-- Name: Alerts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Alerts_id_seq"', 3, true);
 
 
 --
--- Name: Bank_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Bank_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Bank_id_seq"', 32, true);
 
 
 --
--- Name: Banks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Banks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Banks_id_seq"', 4, true);
+SELECT pg_catalog.setval('public."Banks_id_seq"', 7, true);
 
 
 --
--- Name: BillingFrequency_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: BillingFrequency_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."BillingFrequency_id_seq"', 8, true);
 
 
 --
--- Name: Cashflow_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Cashflow_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Cashflow_id_seq"', 31, true);
 
 
 --
--- Name: Category_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Category_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Category_id_seq"', 2, true);
-
-
---
--- Name: ContractAlertSchedule_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
---
-
-SELECT pg_catalog.setval('public."ContractAlertSchedule_id_seq"', 182, true);
+SELECT pg_catalog.setval('public."Category_id_seq"', 4, true);
 
 
 --
--- Name: ContractAttachments_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractAlertSchedule_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."ContractAttachments_id_seq"', 54, true);
-
-
---
--- Name: ContractContent_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
---
-
-SELECT pg_catalog.setval('public."ContractContent_id_seq"', 16, true);
+SELECT pg_catalog.setval('public."ContractAlertSchedule_id_seq"', 204, true);
 
 
 --
--- Name: ContractDynamicFields_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractAttachments_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."ContractDynamicFields_id_seq"', 91, true);
-
-
---
--- Name: ContractFinancialDetailSchedule_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
---
-
-SELECT pg_catalog.setval('public."ContractFinancialDetailSchedule_id_seq"', 451, true);
+SELECT pg_catalog.setval('public."ContractAttachments_id_seq"', 55, true);
 
 
 --
--- Name: ContractFinancialDetail_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractContent_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."ContractFinancialDetail_id_seq"', 49, true);
-
-
---
--- Name: ContractItems_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
---
-
-SELECT pg_catalog.setval('public."ContractItems_id_seq"', 45, true);
+SELECT pg_catalog.setval('public."ContractContent_id_seq"', 18, true);
 
 
 --
--- Name: ContractStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractDynamicFields_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."ContractDynamicFields_id_seq"', 102, true);
+
+
+--
+-- Name: ContractFinancialDetailSchedule_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."ContractFinancialDetailSchedule_id_seq"', 521, true);
+
+
+--
+-- Name: ContractFinancialDetail_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."ContractFinancialDetail_id_seq"', 59, true);
+
+
+--
+-- Name: ContractItems_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."ContractItems_id_seq"', 54, true);
+
+
+--
+-- Name: ContractStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractStatus_id_seq"', 1, true);
 
 
 --
--- Name: ContractTasksDueDates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractTasksDueDates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractTasksDueDates_id_seq"', 6, true);
 
 
 --
--- Name: ContractTasksPriority_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractTasksPriority_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractTasksPriority_id_seq"', 3, true);
 
 
 --
--- Name: ContractTasksReminders_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractTasksReminders_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractTasksReminders_id_seq"', 7, true);
 
 
 --
--- Name: ContractTasksStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractTasksStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractTasksStatus_id_seq"', 1, false);
 
 
 --
--- Name: ContractTasks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractTasks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."ContractTasks_id_seq"', 137, true);
+SELECT pg_catalog.setval('public."ContractTasks_id_seq"', 140, true);
 
 
 --
--- Name: ContractTemplates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractTemplates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractTemplates_id_seq"', 2, true);
 
 
 --
--- Name: ContractType_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractType_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."ContractType_id_seq"', 96, true);
+SELECT pg_catalog.setval('public."ContractType_id_seq"', 98, true);
 
 
 --
--- Name: ContractWFStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractWFStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ContractWFStatus_id_seq"', 6, true);
 
 
 --
--- Name: ContractsAudit_auditid_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: ContractsAudit_auditid_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."ContractsAudit_auditid_seq"', 138, true);
-
-
---
--- Name: Contracts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
---
-
-SELECT pg_catalog.setval('public."Contracts_id_seq"', 91, true);
+SELECT pg_catalog.setval('public."ContractsAudit_auditid_seq"', 153, true);
 
 
 --
--- Name: CostCenter_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Contracts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."CostCenter_id_seq"', 46, true);
+SELECT pg_catalog.setval('public."Contracts_id_seq"', 102, true);
 
 
 --
--- Name: Currency_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: CostCenter_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."CostCenter_id_seq"', 48, true);
+
+
+--
+-- Name: Currency_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Currency_id_seq"', 29, true);
 
 
 --
--- Name: Department_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Department_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Department_id_seq"', 3, true);
-
-
---
--- Name: DynamicFields_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
---
-
-SELECT pg_catalog.setval('public."DynamicFields_id_seq"', 1, true);
+SELECT pg_catalog.setval('public."Department_id_seq"', 35, true);
 
 
 --
--- Name: ExchangeRates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: DocumentSeries_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."ExchangeRates_id_seq"', 352, true);
+SELECT pg_catalog.setval('public."DocumentSeries_id_seq"', 8, true);
 
 
 --
--- Name: ForgotPass_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: DynamicFields_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."DynamicFields_id_seq"', 2, true);
+
+
+--
+-- Name: ExchangeRatesBNR_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."ExchangeRatesBNR_id_seq"', 10509, true);
+
+
+--
+-- Name: ExchangeRates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."ExchangeRates_id_seq"', 1062, true);
+
+
+--
+-- Name: ForgotPass_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."ForgotPass_id_seq"', 7, true);
 
 
 --
--- Name: Groups_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Groups_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Groups_id_seq"', 5, true);
 
 
 --
--- Name: InvoiceDetail_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."InvoiceDetail_id_seq"', 1, false);
-
-
---
--- Name: InvoiceItemClassification_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
---
-
-SELECT pg_catalog.setval('public."InvoiceItemClassification_id_seq"', 1, false);
+SELECT pg_catalog.setval('public."InvoiceDetail_id_seq"', 70, true);
 
 
 --
--- Name: InvoiceItem_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: InvoiceStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."InvoiceItem_id_seq"', 1, false);
-
-
---
--- Name: InvoiceStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
---
-
-SELECT pg_catalog.setval('public."InvoiceStatus_id_seq"', 1, false);
+SELECT pg_catalog.setval('public."InvoiceStatus_id_seq"', 3, true);
 
 
 --
--- Name: InvoiceType_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: InvoiceType_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."InvoiceType_id_seq"', 1, false);
-
-
---
--- Name: Invoice_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
---
-
-SELECT pg_catalog.setval('public."Invoice_id_seq"', 1, false);
+SELECT pg_catalog.setval('public."InvoiceType_id_seq"', 12, true);
 
 
 --
--- Name: Item_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Invoice_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Item_id_seq"', 4, true);
-
-
---
--- Name: Location_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
---
-
-SELECT pg_catalog.setval('public."Location_id_seq"', 2, true);
+SELECT pg_catalog.setval('public."Invoice_id_seq"', 82, true);
 
 
 --
--- Name: MeasuringUnit_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Item_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."Item_id_seq"', 9, true);
+
+
+--
+-- Name: Location_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."Location_id_seq"', 3, true);
+
+
+--
+-- Name: MeasuringUnit_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."MeasuringUnit_id_seq"', 32, true);
 
 
 --
--- Name: Partners_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: PartnersBanksExtraRates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Partners_id_seq"', 5, true);
-
-
---
--- Name: PaymentType_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
---
-
-SELECT pg_catalog.setval('public."PaymentType_id_seq"', 10, true);
+SELECT pg_catalog.setval('public."PartnersBanksExtraRates_id_seq"', 9, true);
 
 
 --
--- Name: Persons_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: Partners_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Persons_id_seq"', 6, true);
-
-
---
--- Name: Role_User_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
---
-
-SELECT pg_catalog.setval('public."Role_User_id_seq"', 25, true);
+SELECT pg_catalog.setval('public."Partners_id_seq"', 16, true);
 
 
 --
--- Name: Role_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: PaymentType_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."PaymentType_id_seq"', 11, true);
+
+
+--
+-- Name: Persons_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."Persons_id_seq"', 7, true);
+
+
+--
+-- Name: Role_User_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."Role_User_id_seq"', 29, true);
+
+
+--
+-- Name: Role_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."Role_id_seq"', 4, true);
 
 
 --
--- Name: TransactionType_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: TransactionDetailEvents_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."TransactionType_id_seq"', 1, false);
-
-
---
--- Name: User_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
---
-
-SELECT pg_catalog.setval('public."User_id_seq"', 7, true);
+SELECT pg_catalog.setval('public."TransactionDetailEvents_id_seq"', 83, true);
 
 
 --
--- Name: VatQuota_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: TransactionDetail_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."TransactionDetail_id_seq"', 148, true);
+
+
+--
+-- Name: TransactionType_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."TransactionType_id_seq"', 2, true);
+
+
+--
+-- Name: Transactions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."Transactions_id_seq"', 163, true);
+
+
+--
+-- Name: User_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."User_id_seq"', 8, true);
+
+
+--
+-- Name: VatQuota_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."VatQuota_id_seq"', 4, true);
 
 
 --
--- Name: WorkFlowContractTasks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."WorkFlowContractTasks_id_seq"', 127, true);
+SELECT pg_catalog.setval('public."WorkFlowContractTasks_id_seq"', 129, true);
 
 
 --
--- Name: WorkFlowRejectActions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRejectActions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."WorkFlowRejectActions_id_seq"', 1, false);
 
 
 --
--- Name: WorkFlowRules_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRules_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."WorkFlowRules_id_seq"', 18, true);
 
 
 --
--- Name: WorkFlowTaskSettingsUsers_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettingsUsers_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."WorkFlowTaskSettingsUsers_id_seq"', 24, true);
 
 
 --
--- Name: WorkFlowTaskSettings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."WorkFlowTaskSettings_id_seq"', 7, true);
 
 
 --
--- Name: WorkFlowXContracts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: WorkFlowXContracts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."WorkFlowXContracts_id_seq"', 74, true);
+SELECT pg_catalog.setval('public."WorkFlowXContracts_id_seq"', 75, true);
 
 
 --
--- Name: WorkFlow_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sysadmin
+-- Name: WorkFlow_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public."WorkFlow_id_seq"', 7, true);
 
 
 --
--- Name: Address Address_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: additionalActType_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."additionalActType_id_seq"', 2, true);
+
+
+--
+-- Name: Address Address_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Address"
@@ -6664,7 +8005,7 @@ ALTER TABLE ONLY public."Address"
 
 
 --
--- Name: AlertsHistory AlertsHistory_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: AlertsHistory AlertsHistory_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."AlertsHistory"
@@ -6672,7 +8013,7 @@ ALTER TABLE ONLY public."AlertsHistory"
 
 
 --
--- Name: Alerts Alerts_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Alerts Alerts_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Alerts"
@@ -6680,7 +8021,7 @@ ALTER TABLE ONLY public."Alerts"
 
 
 --
--- Name: Bank Bank_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Bank Bank_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Bank"
@@ -6688,7 +8029,7 @@ ALTER TABLE ONLY public."Bank"
 
 
 --
--- Name: Banks Banks_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Banks Banks_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Banks"
@@ -6696,7 +8037,7 @@ ALTER TABLE ONLY public."Banks"
 
 
 --
--- Name: BillingFrequency BillingFrequency_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: BillingFrequency BillingFrequency_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."BillingFrequency"
@@ -6704,7 +8045,7 @@ ALTER TABLE ONLY public."BillingFrequency"
 
 
 --
--- Name: Cashflow Cashflow_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Cashflow Cashflow_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Cashflow"
@@ -6712,7 +8053,7 @@ ALTER TABLE ONLY public."Cashflow"
 
 
 --
--- Name: Category Category_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Category Category_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Category"
@@ -6720,7 +8061,7 @@ ALTER TABLE ONLY public."Category"
 
 
 --
--- Name: ContractAlertSchedule ContractAlertSchedule_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractAlertSchedule ContractAlertSchedule_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractAlertSchedule"
@@ -6728,7 +8069,7 @@ ALTER TABLE ONLY public."ContractAlertSchedule"
 
 
 --
--- Name: ContractAttachments ContractAttachments_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractAttachments ContractAttachments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractAttachments"
@@ -6736,7 +8077,7 @@ ALTER TABLE ONLY public."ContractAttachments"
 
 
 --
--- Name: ContractContent ContractContent_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractContent ContractContent_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractContent"
@@ -6744,7 +8085,7 @@ ALTER TABLE ONLY public."ContractContent"
 
 
 --
--- Name: ContractDynamicFields ContractDynamicFields_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractDynamicFields ContractDynamicFields_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractDynamicFields"
@@ -6752,7 +8093,7 @@ ALTER TABLE ONLY public."ContractDynamicFields"
 
 
 --
--- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
@@ -6760,7 +8101,7 @@ ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -6768,7 +8109,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractItems ContractItems_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractItems ContractItems_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractItems"
@@ -6776,7 +8117,7 @@ ALTER TABLE ONLY public."ContractItems"
 
 
 --
--- Name: ContractStatus ContractStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractStatus ContractStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractStatus"
@@ -6784,7 +8125,7 @@ ALTER TABLE ONLY public."ContractStatus"
 
 
 --
--- Name: ContractTasksDueDates ContractTasksDueDates_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasksDueDates ContractTasksDueDates_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasksDueDates"
@@ -6792,7 +8133,7 @@ ALTER TABLE ONLY public."ContractTasksDueDates"
 
 
 --
--- Name: ContractTasksPriority ContractTasksPriority_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasksPriority ContractTasksPriority_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasksPriority"
@@ -6800,7 +8141,7 @@ ALTER TABLE ONLY public."ContractTasksPriority"
 
 
 --
--- Name: ContractTasksReminders ContractTasksReminders_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasksReminders ContractTasksReminders_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasksReminders"
@@ -6808,7 +8149,7 @@ ALTER TABLE ONLY public."ContractTasksReminders"
 
 
 --
--- Name: ContractTasksStatus ContractTasksStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasksStatus ContractTasksStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasksStatus"
@@ -6816,7 +8157,7 @@ ALTER TABLE ONLY public."ContractTasksStatus"
 
 
 --
--- Name: ContractTasks ContractTasks_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasks ContractTasks_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasks"
@@ -6824,7 +8165,7 @@ ALTER TABLE ONLY public."ContractTasks"
 
 
 --
--- Name: ContractTemplates ContractTemplates_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTemplates ContractTemplates_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTemplates"
@@ -6832,7 +8173,7 @@ ALTER TABLE ONLY public."ContractTemplates"
 
 
 --
--- Name: ContractType ContractType_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractType ContractType_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractType"
@@ -6840,7 +8181,7 @@ ALTER TABLE ONLY public."ContractType"
 
 
 --
--- Name: ContractWFStatus ContractWFStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractWFStatus ContractWFStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractWFStatus"
@@ -6848,7 +8189,7 @@ ALTER TABLE ONLY public."ContractWFStatus"
 
 
 --
--- Name: ContractsAudit ContractsAudit_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractsAudit ContractsAudit_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractsAudit"
@@ -6856,7 +8197,7 @@ ALTER TABLE ONLY public."ContractsAudit"
 
 
 --
--- Name: Contracts Contracts_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -6864,7 +8205,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: CostCenter CostCenter_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: CostCenter CostCenter_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."CostCenter"
@@ -6872,7 +8213,7 @@ ALTER TABLE ONLY public."CostCenter"
 
 
 --
--- Name: Currency Currency_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Currency Currency_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Currency"
@@ -6880,7 +8221,7 @@ ALTER TABLE ONLY public."Currency"
 
 
 --
--- Name: Department Department_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Department Department_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Department"
@@ -6888,7 +8229,15 @@ ALTER TABLE ONLY public."Department"
 
 
 --
--- Name: DynamicFields DynamicFields_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: DocumentSeries DocumentSeries_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."DocumentSeries"
+    ADD CONSTRAINT "DocumentSeries_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: DynamicFields DynamicFields_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."DynamicFields"
@@ -6896,7 +8245,15 @@ ALTER TABLE ONLY public."DynamicFields"
 
 
 --
--- Name: ExchangeRates ExchangeRates_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ExchangeRatesBNR ExchangeRatesBNR_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."ExchangeRatesBNR"
+    ADD CONSTRAINT "ExchangeRatesBNR_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: ExchangeRates ExchangeRates_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ExchangeRates"
@@ -6904,7 +8261,7 @@ ALTER TABLE ONLY public."ExchangeRates"
 
 
 --
--- Name: ForgotPass ForgotPass_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ForgotPass ForgotPass_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ForgotPass"
@@ -6912,7 +8269,7 @@ ALTER TABLE ONLY public."ForgotPass"
 
 
 --
--- Name: Groups Groups_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Groups Groups_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Groups"
@@ -6920,7 +8277,7 @@ ALTER TABLE ONLY public."Groups"
 
 
 --
--- Name: InvoiceDetail InvoiceDetail_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail InvoiceDetail_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceDetail"
@@ -6928,23 +8285,7 @@ ALTER TABLE ONLY public."InvoiceDetail"
 
 
 --
--- Name: InvoiceItemClassification InvoiceItemClassification_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
---
-
-ALTER TABLE ONLY public."InvoiceItemClassification"
-    ADD CONSTRAINT "InvoiceItemClassification_pkey" PRIMARY KEY (id);
-
-
---
--- Name: InvoiceItem InvoiceItem_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
---
-
-ALTER TABLE ONLY public."InvoiceItem"
-    ADD CONSTRAINT "InvoiceItem_pkey" PRIMARY KEY (id);
-
-
---
--- Name: InvoiceStatus InvoiceStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: InvoiceStatus InvoiceStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceStatus"
@@ -6952,7 +8293,7 @@ ALTER TABLE ONLY public."InvoiceStatus"
 
 
 --
--- Name: InvoiceType InvoiceType_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: InvoiceType InvoiceType_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceType"
@@ -6960,7 +8301,7 @@ ALTER TABLE ONLY public."InvoiceType"
 
 
 --
--- Name: Invoice Invoice_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
@@ -6968,7 +8309,7 @@ ALTER TABLE ONLY public."Invoice"
 
 
 --
--- Name: Item Item_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Item Item_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Item"
@@ -6976,7 +8317,7 @@ ALTER TABLE ONLY public."Item"
 
 
 --
--- Name: Location Location_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Location Location_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Location"
@@ -6984,7 +8325,7 @@ ALTER TABLE ONLY public."Location"
 
 
 --
--- Name: MeasuringUnit MeasuringUnit_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: MeasuringUnit MeasuringUnit_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."MeasuringUnit"
@@ -6992,7 +8333,15 @@ ALTER TABLE ONLY public."MeasuringUnit"
 
 
 --
--- Name: Partners Partners_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: PartnersBanksExtraRates PartnersBanksExtraRates_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."PartnersBanksExtraRates"
+    ADD CONSTRAINT "PartnersBanksExtraRates_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Partners Partners_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Partners"
@@ -7000,7 +8349,7 @@ ALTER TABLE ONLY public."Partners"
 
 
 --
--- Name: PaymentType PaymentType_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: PaymentType PaymentType_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."PaymentType"
@@ -7008,7 +8357,7 @@ ALTER TABLE ONLY public."PaymentType"
 
 
 --
--- Name: Persons Persons_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Persons Persons_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Persons"
@@ -7016,7 +8365,7 @@ ALTER TABLE ONLY public."Persons"
 
 
 --
--- Name: Role_User Role_User_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Role_User Role_User_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Role_User"
@@ -7024,7 +8373,7 @@ ALTER TABLE ONLY public."Role_User"
 
 
 --
--- Name: Role Role_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Role Role_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Role"
@@ -7032,7 +8381,23 @@ ALTER TABLE ONLY public."Role"
 
 
 --
--- Name: TransactionType TransactionType_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: TransactionDetailEvents TransactionDetailEvents_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TransactionDetailEvents"
+    ADD CONSTRAINT "TransactionDetailEvents_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: TransactionDetail TransactionDetail_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TransactionDetail"
+    ADD CONSTRAINT "TransactionDetail_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: TransactionType TransactionType_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."TransactionType"
@@ -7040,7 +8405,15 @@ ALTER TABLE ONLY public."TransactionType"
 
 
 --
--- Name: User User_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Transactions Transactions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Transactions"
+    ADD CONSTRAINT "Transactions_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: User User_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."User"
@@ -7048,7 +8421,7 @@ ALTER TABLE ONLY public."User"
 
 
 --
--- Name: VatQuota VatQuota_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: VatQuota VatQuota_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."VatQuota"
@@ -7056,7 +8429,7 @@ ALTER TABLE ONLY public."VatQuota"
 
 
 --
--- Name: WorkFlowContractTasks WorkFlowContractTasks_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks WorkFlowContractTasks_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowContractTasks"
@@ -7064,7 +8437,7 @@ ALTER TABLE ONLY public."WorkFlowContractTasks"
 
 
 --
--- Name: WorkFlowRejectActions WorkFlowRejectActions_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRejectActions WorkFlowRejectActions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowRejectActions"
@@ -7072,7 +8445,7 @@ ALTER TABLE ONLY public."WorkFlowRejectActions"
 
 
 --
--- Name: WorkFlowRules WorkFlowRules_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRules WorkFlowRules_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowRules"
@@ -7080,7 +8453,7 @@ ALTER TABLE ONLY public."WorkFlowRules"
 
 
 --
--- Name: WorkFlowTaskSettingsUsers WorkFlowTaskSettingsUsers_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettingsUsers WorkFlowTaskSettingsUsers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettingsUsers"
@@ -7088,7 +8461,7 @@ ALTER TABLE ONLY public."WorkFlowTaskSettingsUsers"
 
 
 --
--- Name: WorkFlowTaskSettings WorkFlowTaskSettings_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings WorkFlowTaskSettings_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettings"
@@ -7096,7 +8469,7 @@ ALTER TABLE ONLY public."WorkFlowTaskSettings"
 
 
 --
--- Name: WorkFlowXContracts WorkFlowXContracts_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowXContracts WorkFlowXContracts_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowXContracts"
@@ -7104,7 +8477,7 @@ ALTER TABLE ONLY public."WorkFlowXContracts"
 
 
 --
--- Name: WorkFlow WorkFlow_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlow WorkFlow_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlow"
@@ -7112,7 +8485,7 @@ ALTER TABLE ONLY public."WorkFlow"
 
 
 --
--- Name: _prisma_migrations _prisma_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: _prisma_migrations _prisma_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public._prisma_migrations
@@ -7120,259 +8493,281 @@ ALTER TABLE ONLY public._prisma_migrations
 
 
 --
--- Name: Bank_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: additionalActType additionalActType_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."additionalActType"
+    ADD CONSTRAINT "additionalActType_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Bank_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Bank_name_key" ON public."Bank" USING btree (name);
 
 
 --
--- Name: BillingFrequency_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: BillingFrequency_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "BillingFrequency_name_key" ON public."BillingFrequency" USING btree (name);
 
 
 --
--- Name: Cashflow_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Cashflow_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Cashflow_name_key" ON public."Cashflow" USING btree (name);
 
 
 --
--- Name: Category_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Category_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Category_name_key" ON public."Category" USING btree (name);
 
 
 --
--- Name: ContractContent_contractId_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: ContractContent_contractId_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "ContractContent_contractId_key" ON public."ContractContent" USING btree ("contractId");
 
 
 --
--- Name: ContractStatus_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: ContractStatus_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "ContractStatus_name_key" ON public."ContractStatus" USING btree (name);
 
 
 --
--- Name: ContractTasksDueDates_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: ContractTasksDueDates_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "ContractTasksDueDates_name_key" ON public."ContractTasksDueDates" USING btree (name);
 
 
 --
--- Name: ContractTasksPriority_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: ContractTasksPriority_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "ContractTasksPriority_name_key" ON public."ContractTasksPriority" USING btree (name);
 
 
 --
--- Name: ContractTasksReminders_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: ContractTasksReminders_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "ContractTasksReminders_name_key" ON public."ContractTasksReminders" USING btree (name);
 
 
 --
--- Name: ContractTasksStatus_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: ContractTasksStatus_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "ContractTasksStatus_name_key" ON public."ContractTasksStatus" USING btree (name);
 
 
 --
--- Name: ContractWFStatus_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: ContractWFStatus_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "ContractWFStatus_name_key" ON public."ContractWFStatus" USING btree (name);
 
 
 --
--- Name: CostCenter_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: CostCenter_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "CostCenter_name_key" ON public."CostCenter" USING btree (name);
 
 
 --
--- Name: Currency_code_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Currency_code_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Currency_code_key" ON public."Currency" USING btree (code);
 
 
 --
--- Name: Currency_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Currency_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Currency_name_key" ON public."Currency" USING btree (name);
 
 
 --
--- Name: Department_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Department_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Department_name_key" ON public."Department" USING btree (name);
 
 
 --
--- Name: DynamicFields_fieldname_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: DocumentSeries_series_key; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "DocumentSeries_series_key" ON public."DocumentSeries" USING btree (series);
+
+
+--
+-- Name: DynamicFields_fieldname_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "DynamicFields_fieldname_key" ON public."DynamicFields" USING btree (fieldname);
 
 
 --
--- Name: DynamicFields_fieldorder_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: DynamicFields_fieldorder_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "DynamicFields_fieldorder_key" ON public."DynamicFields" USING btree (fieldorder);
 
 
 --
--- Name: ForgotPass_uuid_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: ForgotPass_uuid_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "ForgotPass_uuid_key" ON public."ForgotPass" USING btree (uuid);
 
 
 --
--- Name: InvoiceItemClassification_name_key; Type: INDEX; Schema: public; Owner: sysadmin
---
-
-CREATE UNIQUE INDEX "InvoiceItemClassification_name_key" ON public."InvoiceItemClassification" USING btree (name);
-
-
---
--- Name: InvoiceStatus_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: InvoiceStatus_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "InvoiceStatus_name_key" ON public."InvoiceStatus" USING btree (name);
 
 
 --
--- Name: InvoiceType_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: InvoiceType_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "InvoiceType_name_key" ON public."InvoiceType" USING btree (name);
 
 
 --
--- Name: Item_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Invoice_entityId_seriesId_number_key; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "Invoice_entityId_seriesId_number_key" ON public."Invoice" USING btree ("entityId", "seriesId", number);
+
+
+--
+-- Name: Item_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Item_name_key" ON public."Item" USING btree (name);
 
 
 --
--- Name: Location_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Location_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Location_name_key" ON public."Location" USING btree (name);
 
 
 --
--- Name: Partners_commercial_reg_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Partners_commercial_reg_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Partners_commercial_reg_key" ON public."Partners" USING btree (commercial_reg);
 
 
 --
--- Name: Partners_fiscal_code_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Partners_fiscal_code_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Partners_fiscal_code_key" ON public."Partners" USING btree (fiscal_code);
 
 
 --
--- Name: Partners_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Partners_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Partners_name_key" ON public."Partners" USING btree (name);
 
 
 --
--- Name: PaymentType_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: PaymentType_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "PaymentType_name_key" ON public."PaymentType" USING btree (name);
 
 
 --
--- Name: Persons_email_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Persons_email_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Persons_email_key" ON public."Persons" USING btree (email);
 
 
 --
--- Name: Persons_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Persons_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "Persons_name_key" ON public."Persons" USING btree (name);
 
 
 --
--- Name: TransactionType_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: TransactionType_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "TransactionType_name_key" ON public."TransactionType" USING btree (name);
 
 
 --
--- Name: User_email_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: Transactions_entityId_number_key; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "Transactions_entityId_number_key" ON public."Transactions" USING btree ("entityId", number);
+
+
+--
+-- Name: User_email_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "User_email_key" ON public."User" USING btree (email);
 
 
 --
--- Name: User_name_key; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: User_name_key; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "User_name_key" ON public."User" USING btree (name);
 
 
 --
--- Name: _GroupsToPartners_AB_unique; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: _GroupsToPartners_AB_unique; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "_GroupsToPartners_AB_unique" ON public."_GroupsToPartners" USING btree ("A", "B");
 
 
 --
--- Name: _GroupsToPartners_B_index; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: _GroupsToPartners_B_index; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX "_GroupsToPartners_B_index" ON public."_GroupsToPartners" USING btree ("B");
 
 
 --
--- Name: _GroupsToUser_AB_unique; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: _GroupsToUser_AB_unique; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "_GroupsToUser_AB_unique" ON public."_GroupsToUser" USING btree ("A", "B");
 
 
 --
--- Name: _GroupsToUser_B_index; Type: INDEX; Schema: public; Owner: sysadmin
+-- Name: _GroupsToUser_B_index; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX "_GroupsToUser_B_index" ON public."_GroupsToUser" USING btree ("B");
 
 
 --
--- Name: Address Address_partnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Address Address_partnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Address"
@@ -7380,7 +8775,7 @@ ALTER TABLE ONLY public."Address"
 
 
 --
--- Name: Banks Banks_partnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Banks Banks_partnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Banks"
@@ -7388,7 +8783,7 @@ ALTER TABLE ONLY public."Banks"
 
 
 --
--- Name: ContractAttachments ContractAttachments_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractAttachments ContractAttachments_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractAttachments"
@@ -7396,7 +8791,7 @@ ALTER TABLE ONLY public."ContractAttachments"
 
 
 --
--- Name: ContractContent ContractContent_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractContent ContractContent_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractContent"
@@ -7404,7 +8799,7 @@ ALTER TABLE ONLY public."ContractContent"
 
 
 --
--- Name: ContractDynamicFields ContractDynamicFields_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractDynamicFields ContractDynamicFields_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractDynamicFields"
@@ -7412,7 +8807,7 @@ ALTER TABLE ONLY public."ContractDynamicFields"
 
 
 --
--- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_contractfinancialItemId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_contractfinancialItemId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
@@ -7420,7 +8815,7 @@ ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
 
 
 --
--- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_currencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_currencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
@@ -7428,7 +8823,7 @@ ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
 
 
 --
--- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_itemid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_itemid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
@@ -7436,7 +8831,7 @@ ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
 
 
 --
--- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_measuringUnitid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetailSchedule ContractFinancialDetailSchedule_measuringUnitid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
@@ -7444,7 +8839,7 @@ ALTER TABLE ONLY public."ContractFinancialDetailSchedule"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_contractItemId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_contractItemId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -7452,7 +8847,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_currencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_currencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -7460,7 +8855,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_goodexecutionLetterBankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_goodexecutionLetterBankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -7468,7 +8863,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_goodexecutionLetterCurrencyId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_goodexecutionLetterCurrencyId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -7476,7 +8871,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_guaranteeLetterBankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_guaranteeLetterBankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -7484,7 +8879,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_guaranteeLetterCurrencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_guaranteeLetterCurrencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -7492,7 +8887,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_measuringUnitid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_measuringUnitid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -7500,7 +8895,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_paymentTypeid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_paymentTypeid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -7508,7 +8903,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractFinancialDetail ContractFinancialDetail_vatId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractFinancialDetail ContractFinancialDetail_vatId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractFinancialDetail"
@@ -7516,7 +8911,7 @@ ALTER TABLE ONLY public."ContractFinancialDetail"
 
 
 --
--- Name: ContractItems ContractItems_billingFrequencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractItems ContractItems_billingFrequencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractItems"
@@ -7524,7 +8919,7 @@ ALTER TABLE ONLY public."ContractItems"
 
 
 --
--- Name: ContractItems ContractItems_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractItems ContractItems_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractItems"
@@ -7532,7 +8927,7 @@ ALTER TABLE ONLY public."ContractItems"
 
 
 --
--- Name: ContractItems ContractItems_currencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractItems ContractItems_currencyid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractItems"
@@ -7540,7 +8935,7 @@ ALTER TABLE ONLY public."ContractItems"
 
 
 --
--- Name: ContractItems ContractItems_itemid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractItems ContractItems_itemid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractItems"
@@ -7548,7 +8943,7 @@ ALTER TABLE ONLY public."ContractItems"
 
 
 --
--- Name: ContractTasks ContractTasks_assignedId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasks ContractTasks_assignedId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasks"
@@ -7556,7 +8951,7 @@ ALTER TABLE ONLY public."ContractTasks"
 
 
 --
--- Name: ContractTasks ContractTasks_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasks ContractTasks_contractId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasks"
@@ -7564,7 +8959,7 @@ ALTER TABLE ONLY public."ContractTasks"
 
 
 --
--- Name: ContractTasks ContractTasks_requestorId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasks ContractTasks_requestorId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasks"
@@ -7572,7 +8967,7 @@ ALTER TABLE ONLY public."ContractTasks"
 
 
 --
--- Name: ContractTasks ContractTasks_statusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasks ContractTasks_statusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasks"
@@ -7580,7 +8975,7 @@ ALTER TABLE ONLY public."ContractTasks"
 
 
 --
--- Name: ContractTasks ContractTasks_statusWFId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasks ContractTasks_statusWFId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasks"
@@ -7588,7 +8983,7 @@ ALTER TABLE ONLY public."ContractTasks"
 
 
 --
--- Name: ContractTasks ContractTasks_taskPriorityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTasks ContractTasks_taskPriorityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTasks"
@@ -7596,7 +8991,7 @@ ALTER TABLE ONLY public."ContractTasks"
 
 
 --
--- Name: ContractTemplates ContractTemplates_contractTypeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ContractTemplates ContractTemplates_contractTypeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ContractTemplates"
@@ -7604,7 +8999,15 @@ ALTER TABLE ONLY public."ContractTemplates"
 
 
 --
--- Name: Contracts Contracts_cashflowId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_additionalTypeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Contracts"
+    ADD CONSTRAINT "Contracts_additionalTypeId_fkey" FOREIGN KEY ("additionalTypeId") REFERENCES public."additionalActType"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Contracts Contracts_cashflowId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7612,7 +9015,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_categoryId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_categoryId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7620,7 +9023,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_costcenterId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_costcenterId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7628,7 +9031,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_departmentId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_departmentId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7636,7 +9039,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_entityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_entityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7644,7 +9047,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_entityaddressId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_entityaddressId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7652,7 +9055,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_entitybankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_entitybankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7660,7 +9063,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_entitypersonsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_entitypersonsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7668,7 +9071,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_locationId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_locationId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7676,7 +9079,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_partneraddressId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_partneraddressId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7684,7 +9087,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_partnerbankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_partnerbankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7692,7 +9095,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_partnerpersonsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_partnerpersonsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7700,7 +9103,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_partnersId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_partnersId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7708,7 +9111,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_paymentTypeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_paymentTypeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7716,7 +9119,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_statusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_statusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7724,7 +9127,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_statusWFId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_statusWFId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7732,7 +9135,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_typeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_typeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7740,7 +9143,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: Contracts Contracts_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Contracts Contracts_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Contracts"
@@ -7748,7 +9151,7 @@ ALTER TABLE ONLY public."Contracts"
 
 
 --
--- Name: ForgotPass ForgotPass_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: ForgotPass ForgotPass_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."ForgotPass"
@@ -7756,7 +9159,7 @@ ALTER TABLE ONLY public."ForgotPass"
 
 
 --
--- Name: InvoiceDetail InvoiceDetail_entityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail InvoiceDetail_entityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceDetail"
@@ -7764,7 +9167,7 @@ ALTER TABLE ONLY public."InvoiceDetail"
 
 
 --
--- Name: InvoiceDetail InvoiceDetail_invoiceId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail InvoiceDetail_invoiceId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceDetail"
@@ -7772,15 +9175,15 @@ ALTER TABLE ONLY public."InvoiceDetail"
 
 
 --
--- Name: InvoiceDetail InvoiceDetail_itemId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail InvoiceDetail_itemId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceDetail"
-    ADD CONSTRAINT "InvoiceDetail_itemId_fkey" FOREIGN KEY ("itemId") REFERENCES public."InvoiceItem"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+    ADD CONSTRAINT "InvoiceDetail_itemId_fkey" FOREIGN KEY ("itemId") REFERENCES public."Item"(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
--- Name: InvoiceDetail InvoiceDetail_measuringUnitid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail InvoiceDetail_measuringUnitid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceDetail"
@@ -7788,7 +9191,7 @@ ALTER TABLE ONLY public."InvoiceDetail"
 
 
 --
--- Name: InvoiceDetail InvoiceDetail_vatId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: InvoiceDetail InvoiceDetail_vatId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."InvoiceDetail"
@@ -7796,39 +9199,7 @@ ALTER TABLE ONLY public."InvoiceDetail"
 
 
 --
--- Name: InvoiceItem InvoiceItem_classificationId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
---
-
-ALTER TABLE ONLY public."InvoiceItem"
-    ADD CONSTRAINT "InvoiceItem_classificationId_fkey" FOREIGN KEY ("classificationId") REFERENCES public."InvoiceItemClassification"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: InvoiceItem InvoiceItem_measuringUnitid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
---
-
-ALTER TABLE ONLY public."InvoiceItem"
-    ADD CONSTRAINT "InvoiceItem_measuringUnitid_fkey" FOREIGN KEY ("measuringUnitid") REFERENCES public."MeasuringUnit"(id) ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
--- Name: InvoiceItem InvoiceItem_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
---
-
-ALTER TABLE ONLY public."InvoiceItem"
-    ADD CONSTRAINT "InvoiceItem_userId_fkey" FOREIGN KEY ("userId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: InvoiceItem InvoiceItem_vatId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
---
-
-ALTER TABLE ONLY public."InvoiceItem"
-    ADD CONSTRAINT "InvoiceItem_vatId_fkey" FOREIGN KEY ("vatId") REFERENCES public."VatQuota"(id) ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
--- Name: Invoice Invoice_currencyId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_currencyId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
@@ -7836,15 +9207,15 @@ ALTER TABLE ONLY public."Invoice"
 
 
 --
--- Name: Invoice Invoice_entityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_entityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
-    ADD CONSTRAINT "Invoice_entityId_fkey" FOREIGN KEY ("entityId") REFERENCES public."Partners"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT "Invoice_entityId_fkey" FOREIGN KEY ("entityId") REFERENCES public."Partners"(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
--- Name: Invoice Invoice_entitybankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_entitybankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
@@ -7852,7 +9223,15 @@ ALTER TABLE ONLY public."Invoice"
 
 
 --
--- Name: Invoice Invoice_partneraddressId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_partnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Invoice"
+    ADD CONSTRAINT "Invoice_partnerId_fkey" FOREIGN KEY ("partnerId") REFERENCES public."Partners"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Invoice Invoice_partneraddressId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
@@ -7860,39 +9239,39 @@ ALTER TABLE ONLY public."Invoice"
 
 
 --
--- Name: Invoice Invoice_partnersId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_seriesId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
-    ADD CONSTRAINT "Invoice_partnersId_fkey" FOREIGN KEY ("partnersId") REFERENCES public."Partners"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT "Invoice_seriesId_fkey" FOREIGN KEY ("seriesId") REFERENCES public."DocumentSeries"(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
--- Name: Invoice Invoice_statusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
---
-
-ALTER TABLE ONLY public."Invoice"
-    ADD CONSTRAINT "Invoice_statusId_fkey" FOREIGN KEY ("statusId") REFERENCES public."InvoiceStatus"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: Invoice Invoice_transactionTypeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_statusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
-    ADD CONSTRAINT "Invoice_transactionTypeId_fkey" FOREIGN KEY ("transactionTypeId") REFERENCES public."TransactionType"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT "Invoice_statusId_fkey" FOREIGN KEY ("statusId") REFERENCES public."InvoiceStatus"(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
--- Name: Invoice Invoice_typeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_transactionTypeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
-    ADD CONSTRAINT "Invoice_typeId_fkey" FOREIGN KEY ("typeId") REFERENCES public."InvoiceType"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT "Invoice_transactionTypeId_fkey" FOREIGN KEY ("transactionTypeId") REFERENCES public."TransactionType"(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
--- Name: Invoice Invoice_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Invoice Invoice_typeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Invoice"
+    ADD CONSTRAINT "Invoice_typeId_fkey" FOREIGN KEY ("typeId") REFERENCES public."InvoiceType"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Invoice Invoice_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Invoice"
@@ -7900,7 +9279,55 @@ ALTER TABLE ONLY public."Invoice"
 
 
 --
--- Name: Persons Persons_partnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Item Item_classificationId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Item"
+    ADD CONSTRAINT "Item_classificationId_fkey" FOREIGN KEY ("classificationId") REFERENCES public."Category"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Item Item_measuringUnitid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Item"
+    ADD CONSTRAINT "Item_measuringUnitid_fkey" FOREIGN KEY ("measuringUnitid") REFERENCES public."MeasuringUnit"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Item Item_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Item"
+    ADD CONSTRAINT "Item_userId_fkey" FOREIGN KEY ("userId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: Item Item_vatId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Item"
+    ADD CONSTRAINT "Item_vatId_fkey" FOREIGN KEY ("vatId") REFERENCES public."VatQuota"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: PartnersBanksExtraRates PartnersBanksExtraRates_currencyId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."PartnersBanksExtraRates"
+    ADD CONSTRAINT "PartnersBanksExtraRates_currencyId_fkey" FOREIGN KEY ("currencyId") REFERENCES public."Currency"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: PartnersBanksExtraRates PartnersBanksExtraRates_partnersId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."PartnersBanksExtraRates"
+    ADD CONSTRAINT "PartnersBanksExtraRates_partnersId_fkey" FOREIGN KEY ("partnersId") REFERENCES public."Partners"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Persons Persons_partnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Persons"
@@ -7908,7 +9335,7 @@ ALTER TABLE ONLY public."Persons"
 
 
 --
--- Name: Role_User Role_User_roleId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Role_User Role_User_roleId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Role_User"
@@ -7916,7 +9343,7 @@ ALTER TABLE ONLY public."Role_User"
 
 
 --
--- Name: Role_User Role_User_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: Role_User Role_User_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Role_User"
@@ -7924,7 +9351,159 @@ ALTER TABLE ONLY public."Role_User"
 
 
 --
--- Name: WorkFlowContractTasks WorkFlowContractTasks_assignedId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: TransactionDetailEvents TransactionDetailEvents_currencyId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TransactionDetailEvents"
+    ADD CONSTRAINT "TransactionDetailEvents_currencyId_fkey" FOREIGN KEY ("currencyId") REFERENCES public."Currency"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: TransactionDetailEvents TransactionDetailEvents_entityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TransactionDetailEvents"
+    ADD CONSTRAINT "TransactionDetailEvents_entityId_fkey" FOREIGN KEY ("entityId") REFERENCES public."Partners"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: TransactionDetailEvents TransactionDetailEvents_invoiceId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TransactionDetailEvents"
+    ADD CONSTRAINT "TransactionDetailEvents_invoiceId_fkey" FOREIGN KEY ("invoiceId") REFERENCES public."Invoice"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: TransactionDetailEvents TransactionDetailEvents_partnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TransactionDetailEvents"
+    ADD CONSTRAINT "TransactionDetailEvents_partnerId_fkey" FOREIGN KEY ("partnerId") REFERENCES public."Partners"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: TransactionDetailEvents TransactionDetailEvents_transactionDetailId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TransactionDetailEvents"
+    ADD CONSTRAINT "TransactionDetailEvents_transactionDetailId_fkey" FOREIGN KEY ("transactionDetailId") REFERENCES public."TransactionDetail"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: TransactionDetail TransactionDetail_currencyId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TransactionDetail"
+    ADD CONSTRAINT "TransactionDetail_currencyId_fkey" FOREIGN KEY ("currencyId") REFERENCES public."Currency"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: TransactionDetail TransactionDetail_entityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TransactionDetail"
+    ADD CONSTRAINT "TransactionDetail_entityId_fkey" FOREIGN KEY ("entityId") REFERENCES public."Partners"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: TransactionDetail TransactionDetail_invoiceId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TransactionDetail"
+    ADD CONSTRAINT "TransactionDetail_invoiceId_fkey" FOREIGN KEY ("invoiceId") REFERENCES public."Invoice"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: TransactionDetail TransactionDetail_partnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TransactionDetail"
+    ADD CONSTRAINT "TransactionDetail_partnerId_fkey" FOREIGN KEY ("partnerId") REFERENCES public."Partners"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: TransactionDetail TransactionDetail_transactionId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TransactionDetail"
+    ADD CONSTRAINT "TransactionDetail_transactionId_fkey" FOREIGN KEY ("transactionId") REFERENCES public."Transactions"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Transactions Transactions_currencyId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Transactions"
+    ADD CONSTRAINT "Transactions_currencyId_fkey" FOREIGN KEY ("currencyId") REFERENCES public."Currency"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Transactions Transactions_entityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Transactions"
+    ADD CONSTRAINT "Transactions_entityId_fkey" FOREIGN KEY ("entityId") REFERENCES public."Partners"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Transactions Transactions_entitybankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Transactions"
+    ADD CONSTRAINT "Transactions_entitybankId_fkey" FOREIGN KEY ("entitybankId") REFERENCES public."Banks"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Transactions Transactions_partnerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Transactions"
+    ADD CONSTRAINT "Transactions_partnerId_fkey" FOREIGN KEY ("partnerId") REFERENCES public."Partners"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Transactions Transactions_partnerbankId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Transactions"
+    ADD CONSTRAINT "Transactions_partnerbankId_fkey" FOREIGN KEY ("partnerbankId") REFERENCES public."Banks"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Transactions Transactions_seriesId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Transactions"
+    ADD CONSTRAINT "Transactions_seriesId_fkey" FOREIGN KEY ("seriesId") REFERENCES public."DocumentSeries"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Transactions Transactions_statusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Transactions"
+    ADD CONSTRAINT "Transactions_statusId_fkey" FOREIGN KEY ("statusId") REFERENCES public."InvoiceStatus"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Transactions Transactions_typeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Transactions"
+    ADD CONSTRAINT "Transactions_typeId_fkey" FOREIGN KEY ("typeId") REFERENCES public."PaymentType"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Transactions Transactions_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Transactions"
+    ADD CONSTRAINT "Transactions_userId_fkey" FOREIGN KEY ("userId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: WorkFlowContractTasks WorkFlowContractTasks_assignedId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowContractTasks"
@@ -7932,7 +9511,7 @@ ALTER TABLE ONLY public."WorkFlowContractTasks"
 
 
 --
--- Name: WorkFlowContractTasks WorkFlowContractTasks_requestorId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks WorkFlowContractTasks_requestorId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowContractTasks"
@@ -7940,7 +9519,7 @@ ALTER TABLE ONLY public."WorkFlowContractTasks"
 
 
 --
--- Name: WorkFlowContractTasks WorkFlowContractTasks_statusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks WorkFlowContractTasks_statusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowContractTasks"
@@ -7948,7 +9527,7 @@ ALTER TABLE ONLY public."WorkFlowContractTasks"
 
 
 --
--- Name: WorkFlowContractTasks WorkFlowContractTasks_taskPriorityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks WorkFlowContractTasks_taskPriorityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowContractTasks"
@@ -7956,7 +9535,7 @@ ALTER TABLE ONLY public."WorkFlowContractTasks"
 
 
 --
--- Name: WorkFlowContractTasks WorkFlowContractTasks_workflowTaskSettingsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowContractTasks WorkFlowContractTasks_workflowTaskSettingsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowContractTasks"
@@ -7964,7 +9543,7 @@ ALTER TABLE ONLY public."WorkFlowContractTasks"
 
 
 --
--- Name: WorkFlowRejectActions WorkFlowRejectActions_workflowId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRejectActions WorkFlowRejectActions_workflowId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowRejectActions"
@@ -7972,7 +9551,7 @@ ALTER TABLE ONLY public."WorkFlowRejectActions"
 
 
 --
--- Name: WorkFlowRules WorkFlowRules_workflowId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowRules WorkFlowRules_workflowId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowRules"
@@ -7980,7 +9559,7 @@ ALTER TABLE ONLY public."WorkFlowRules"
 
 
 --
--- Name: WorkFlowTaskSettingsUsers WorkFlowTaskSettingsUsers_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettingsUsers WorkFlowTaskSettingsUsers_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettingsUsers"
@@ -7988,7 +9567,7 @@ ALTER TABLE ONLY public."WorkFlowTaskSettingsUsers"
 
 
 --
--- Name: WorkFlowTaskSettingsUsers WorkFlowTaskSettingsUsers_workflowTaskSettingsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettingsUsers WorkFlowTaskSettingsUsers_workflowTaskSettingsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettingsUsers"
@@ -7996,7 +9575,7 @@ ALTER TABLE ONLY public."WorkFlowTaskSettingsUsers"
 
 
 --
--- Name: WorkFlowTaskSettings WorkFlowTaskSettings_taskDueDateId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings WorkFlowTaskSettings_taskDueDateId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettings"
@@ -8004,7 +9583,7 @@ ALTER TABLE ONLY public."WorkFlowTaskSettings"
 
 
 --
--- Name: WorkFlowTaskSettings WorkFlowTaskSettings_taskPriorityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings WorkFlowTaskSettings_taskPriorityId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettings"
@@ -8012,7 +9591,7 @@ ALTER TABLE ONLY public."WorkFlowTaskSettings"
 
 
 --
--- Name: WorkFlowTaskSettings WorkFlowTaskSettings_taskReminderId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings WorkFlowTaskSettings_taskReminderId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettings"
@@ -8020,7 +9599,7 @@ ALTER TABLE ONLY public."WorkFlowTaskSettings"
 
 
 --
--- Name: WorkFlowTaskSettings WorkFlowTaskSettings_workflowId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowTaskSettings WorkFlowTaskSettings_workflowId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowTaskSettings"
@@ -8028,7 +9607,7 @@ ALTER TABLE ONLY public."WorkFlowTaskSettings"
 
 
 --
--- Name: WorkFlowXContracts WorkFlowXContracts_ctrstatusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowXContracts WorkFlowXContracts_ctrstatusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowXContracts"
@@ -8036,7 +9615,7 @@ ALTER TABLE ONLY public."WorkFlowXContracts"
 
 
 --
--- Name: WorkFlowXContracts WorkFlowXContracts_wfstatusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowXContracts WorkFlowXContracts_wfstatusId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowXContracts"
@@ -8044,7 +9623,7 @@ ALTER TABLE ONLY public."WorkFlowXContracts"
 
 
 --
--- Name: WorkFlowXContracts WorkFlowXContracts_workflowTaskSettingsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: WorkFlowXContracts WorkFlowXContracts_workflowTaskSettingsId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."WorkFlowXContracts"
@@ -8052,7 +9631,7 @@ ALTER TABLE ONLY public."WorkFlowXContracts"
 
 
 --
--- Name: _GroupsToPartners _GroupsToPartners_A_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: _GroupsToPartners _GroupsToPartners_A_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."_GroupsToPartners"
@@ -8060,7 +9639,7 @@ ALTER TABLE ONLY public."_GroupsToPartners"
 
 
 --
--- Name: _GroupsToPartners _GroupsToPartners_B_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: _GroupsToPartners _GroupsToPartners_B_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."_GroupsToPartners"
@@ -8068,7 +9647,7 @@ ALTER TABLE ONLY public."_GroupsToPartners"
 
 
 --
--- Name: _GroupsToUser _GroupsToUser_A_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: _GroupsToUser _GroupsToUser_A_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."_GroupsToUser"
@@ -8076,7 +9655,7 @@ ALTER TABLE ONLY public."_GroupsToUser"
 
 
 --
--- Name: _GroupsToUser _GroupsToUser_B_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sysadmin
+-- Name: _GroupsToUser _GroupsToUser_B_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."_GroupsToUser"
@@ -8084,7 +9663,7 @@ ALTER TABLE ONLY public."_GroupsToUser"
 
 
 --
--- Name: SCHEMA public; Type: ACL; Schema: -; Owner: sysadmin
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
 
 REVOKE USAGE ON SCHEMA public FROM PUBLIC;

@@ -175,8 +175,9 @@ export class InvoiceService {
         currencyId: currencyId,
         restPayment: {
           not: {
-            in: [0], //only invoices with restPayment - unpayed
+            in: [0, -1], //only invoices with restPayment - unpayed
           },
+          gt: 0,
         },
       },
       include: {

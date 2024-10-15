@@ -209,9 +209,9 @@ export class AlertsController {
         return console.error(err);
       }
       console.log(`Result: ${amount}`);
-      console.log(
-        `${output.input.amount} ${output.input.currency} is ${output.output.amount} ${output.output.currency}`,
-      );
+      // console.log(
+      //   `${output.input.amount} ${output.input.currency} is ${output.output.amount} ${output.output.currency}`,
+      // );
     });
     return result;
   }
@@ -658,8 +658,8 @@ export class AlertsController {
     return replacedString;
   }
 
-  // @Cron(CronExpression.EVERY_10_HOURS)
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_10_HOURS)
+  //@Cron(CronExpression.EVERY_30_SECONDS)
   // @Cron(CronExpression.EVERY_5_SECONDS)
   async handleCron() {
     const allcontracts = await this.findAllContracts();
