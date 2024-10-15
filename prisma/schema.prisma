@@ -879,6 +879,7 @@ model Invoice {
   restPayment       Float          @default(-1)
   vatOnReceipt      Boolean
   parentId          Int?           @default(0)
+  movement_type     Int            @default(1)
 
   @@unique([entityId, seriesId, number])
   TransactionDetail TransactionDetail[]
@@ -966,7 +967,7 @@ model Transactions {
   statusId          Int?
   series            DocumentSeries?  @relation(fields: [seriesId], references: [id])
   seriesId          Int?
-
+  movement_type     Int              @default(1)
   TransactionDetail TransactionDetail[]
   @@unique([entityId, number])
 }

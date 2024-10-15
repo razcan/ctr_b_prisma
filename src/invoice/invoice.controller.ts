@@ -41,9 +41,18 @@ export class InvoiceController {
 
   @Get('findAll')
   async findAll() {
-    // const result = await this.prisma.invoice.findMany();
-    // return result;
     return this.invoiceService.findAll();
+  }
+
+  @Get('findAllbyMovmentTypeId/:entityId/:movementTypeId')
+  async findAllbyMovmentTypeId(
+    @Param('entityId') entityId: string,
+    @Param('movementTypeId') movementTypeId: string,
+  ) {
+    return this.invoiceService.findAllbyMovmentTypeId(
+      +entityId,
+      +movementTypeId,
+    );
   }
 
   @Get('findAllbyPartnerId/:entityId/:partnerId')

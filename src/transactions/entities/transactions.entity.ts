@@ -41,5 +41,6 @@ status?: InvoiceStatus  | null;
 statusId: number  | null;
 series?: DocumentSeries  | null;
 seriesId: number  | null;
+movement_type: number ;
 TransactionDetail?: TransactionDetail[] ;
 }

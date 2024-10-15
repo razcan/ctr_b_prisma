@@ -53,6 +53,7 @@ eqvTotalPayment: number ;
 restPayment: number ;
 vatOnReceipt: boolean ;
 parentId: number  | null;
+movement_type: number ;
 TransactionDetail?: TransactionDetail[] ;
 TransactionDetailEvents?: TransactionDetailEvents[] ;
 }

@@ -66,6 +66,7 @@ export class InvoiceService {
       vatOnReceipt: data.vatOnReceipt,
       parentId: data.parentId,
       restPayment: data.restPayment,
+      movement_type: data.movement_type,
     };
 
     const details = [];
@@ -90,7 +91,7 @@ export class InvoiceService {
         data: details,
       });
 
-      this.patchDocSeriesByDocTypeIdandSerieId(header.typeId, header.seriesId);
+      // this.patchDocSeriesByDocTypeIdandSerieId(header.typeId, header.seriesId);
 
       return result;
     } catch (error) {
@@ -152,6 +153,24 @@ export class InvoiceService {
             in: [0], //only invoices with restPayment - unpayed
           },
         },
+      },
+      include: {
+        partner: true,
+        type: true,
+        status: true,
+        entity: true,
+        currency: true,
+        series: true,
+      },
+    });
+    return result;
+  }
+
+  async findAllbyMovmentTypeId(entityId: number, movementTypeId: number) {
+    const result = await this.prisma.invoice.findMany({
+      where: {
+        movement_type: movementTypeId,
+        entityId: entityId,
       },
       include: {
         partner: true,
