@@ -881,7 +881,7 @@ model Invoice {
   parentId          Int?           @default(0)
   movement_type     Int            @default(1)
 
-  @@unique([entityId, seriesId, number])
+  @@unique([entityId, typeId,serialNumber, number,partnerId])
   TransactionDetail TransactionDetail[]
   TransactionDetailEvents TransactionDetailEvents[]
 }

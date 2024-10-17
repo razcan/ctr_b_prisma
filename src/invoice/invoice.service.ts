@@ -11,12 +11,12 @@ export class InvoiceService {
 
   async patchDocSeriesByDocTypeIdandSerieId(
     @Param('documentTypeId') documentTypeId: any,
-    @Param('id') id: any,
+    @Param('entityId') entityId: any,
   ): Promise<any> {
     const actual_nr = await this.prisma.documentSeries.findFirst({
       where: {
         documentTypeId: parseInt(documentTypeId),
-        id: parseInt(id),
+        entityId: parseInt(entityId),
       },
     });
 
@@ -26,7 +26,7 @@ export class InvoiceService {
       },
       where: {
         documentTypeId: parseInt(documentTypeId),
-        id: parseInt(id),
+        id: parseInt(entityId),
       },
     });
 
@@ -91,7 +91,12 @@ export class InvoiceService {
         data: details,
       });
 
-      // this.patchDocSeriesByDocTypeIdandSerieId(header.typeId, header.seriesId);
+      if (header.seriesId) {
+        this.patchDocSeriesByDocTypeIdandSerieId(
+          header.typeId,
+          header.entityId,
+        );
+      }
 
       return result;
     } catch (error) {

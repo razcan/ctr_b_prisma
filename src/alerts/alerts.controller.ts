@@ -8,6 +8,7 @@ import {
   Delete,
   SetMetadata,
   Logger,
+  HttpException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 // import { v4 as uuidv4 } from 'uuid';
@@ -26,6 +27,8 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import axios from 'axios';
+import OpenAI from 'openai';
 
 export interface CurrencyInterface {
   date: string;
@@ -41,6 +44,77 @@ export class AlertsController {
     private prisma: PrismaService,
     // private contracts: ContractsController
   ) {}
+
+  @Post('openApiIni/:text')
+  async openApi(@Param('text') text: any) {
+    const openai = new OpenAI({
+      apiKey:
+        'sk-Pxjfg6Aw2yAV7Woltss8mKI3syMcUYTs3C7F5kMOhdT3BlbkFJvLYHACK9Th88ekPJDl4eWvOcFOVkDE5mQ9yZC9RQQA',
+    });
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: 'You are a helpful assistant.' },
+        {
+          role: 'user',
+          content: 'Write a haiku about recursion in programming.',
+        },
+      ],
+    });
+
+    console.log(completion.choices[0].message);
+  }
+
+  private readonly apiKey =
+    'sk-Pxjfg6Aw2yAV7Woltss8mKI3syMcUYTs3C7F5kMOhdT3BlbkFJvLYHACK9Th88ekPJDl4eWvOcFOVkDE5mQ9yZC9RQQA';
+  @Post('openApi/:text')
+  async openApiRequest(text: string) {
+    const maxRetries = 3;
+    let retryCount = 0;
+    let success = false;
+    let response;
+
+    while (!success && retryCount < maxRetries) {
+      try {
+        response = await axios.post(
+          'https://api.openai.com/v1/chat/completions',
+          {
+            model: 'gpt-4o-mini',
+            messages: [{ role: 'user', content: text }],
+            max_tokens: 100,
+            temperature: 0.7,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${this.apiKey}`,
+            },
+          },
+        );
+        success = true; // If successful, break out of the loop
+      } catch (error) {
+        if (error.response?.status === 429) {
+          // Rate limit error
+          console.error(`Rate limit exceeded, retrying... (${retryCount + 1})`);
+          retryCount++;
+          await new Promise((resolve) =>
+            setTimeout(resolve, 2000 * retryCount),
+          ); // Exponential backoff
+        } else {
+          // Handle other errors
+          console.error('Error fetching AI response:', error);
+          throw new HttpException('OpenAI API error', 500);
+        }
+      }
+    }
+
+    if (!success) {
+      throw new HttpException('Failed to fetch AI response after retries', 500);
+    }
+
+    return response.data.choices[0].message.content; // For GPT-4 chat, the message content is under 'message'
+  }
 
   async findAllContracts() {
     const contracts = await this.prisma.contracts.findMany({
