@@ -1687,6 +1687,38 @@ export class ContractsController {
     return contracts;
   }
 
+  @Get('/:purchasing/:partnerId/:entityId')
+  async findAllbyPartnerId(
+    @Param('purchasing') purchasing: any,
+    @Param('partnerId') partnerId: any,
+    @Param('entityId') entityId: any,
+    @Headers() headers,
+  ): Promise<any> {
+    let res: boolean = purchasing.toLowerCase() === 'true';
+    const isSales: boolean = res ? true : false;
+
+    const contracts = await this.prisma.contracts.findMany({
+      where: {
+        parentId: 0,
+        entityId: parseInt(entityId),
+        isPurchasing: isSales,
+        partnersId: parseInt(partnerId),
+      },
+      include: {
+        costcenter: true,
+        partner: true,
+        entity: true,
+        location: true,
+        departament: true,
+        Category: true,
+        cashflow: true,
+        type: true,
+        status: true,
+      },
+    });
+    return contracts;
+  }
+
   @UseGuards(AuthGuard)
   // @Roles('Administrator', 'Editor') // Set multiple roles here
   @Roles('Administrator', 'Editor')
