@@ -9,6 +9,9 @@ import {User} from '../../user/entities/user.entity'
 import {Currency} from '../../currency/entities/currency.entity'
 import {InvoiceDetail} from '../../invoiceDetail/entities/invoiceDetail.entity'
 import {DocumentSeries} from '../../documentSeries/entities/documentSeries.entity'
+import {Contracts} from '../../contracts/entities/contracts.entity'
+import {ContractFinancialDetail} from '../../contractFinancialDetail/entities/contractFinancialDetail.entity'
+import {ContractFinancialDetailSchedule} from '../../contractFinancialDetailSchedule/entities/contractFinancialDetailSchedule.entity'
 import {TransactionDetail} from '../../transactionDetail/entities/transactionDetail.entity'
 import {TransactionDetailEvents} from '../../transactionDetailEvents/entities/transactionDetailEvents.entity'
 
@@ -54,6 +57,12 @@ restPayment: number ;
 vatOnReceipt: boolean ;
 parentId: number  | null;
 movement_type: number ;
+contract?: Contracts  | null;
+contractId: number  | null;
+financialItem?: ContractFinancialDetail  | null;
+contractfinancialItemId: number  | null;
+financialItemScedule?: ContractFinancialDetailSchedule  | null;
+contractFinancialScheduleId: number  | null;
 TransactionDetail?: TransactionDetail[] ;
 TransactionDetailEvents?: TransactionDetailEvents[] ;
 }

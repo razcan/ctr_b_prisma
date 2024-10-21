@@ -3,6 +3,7 @@ import {Item} from '../../item/entities/item.entity'
 import {Currency} from '../../currency/entities/currency.entity'
 import {MeasuringUnit} from '../../measuringUnit/entities/measuringUnit.entity'
 import {ContractFinancialDetail} from '../../contractFinancialDetail/entities/contractFinancialDetail.entity'
+import {Invoice} from '../../invoice/entities/invoice.entity'
 
 
 export class ContractFinancialDetailSchedule {
@@ -24,4 +25,5 @@ isPayed: boolean ;
 active: boolean ;
 financial?: ContractFinancialDetail  | null;
 contractfinancialItemId: number  | null;
+Invoice?: Invoice[] ;
 }

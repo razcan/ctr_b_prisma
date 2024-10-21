@@ -19,6 +19,7 @@ import {User} from '../../user/entities/user.entity'
 import {ContractDynamicFields} from '../../contractDynamicFields/entities/contractDynamicFields.entity'
 import {ContractTasks} from '../../contractTasks/entities/contractTasks.entity'
 import {AdditionalActType} from '../../additionalActType/entities/additionalActType.entity'
+import {Invoice} from '../../invoice/entities/invoice.entity'
 
 
 export class Contracts {
@@ -75,4 +76,5 @@ ContractDynamicFields?: ContractDynamicFields[] ;
 ContractTasks?: ContractTasks[] ;
 additionalActType?: AdditionalActType  | null;
 additionalTypeId: number  | null;
+Invoice?: Invoice[] ;
 }

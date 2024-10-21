@@ -261,6 +261,58 @@ export class ContractsController {
     return content;
   }
 
+  @Get('additionalsplctr/:id')
+  async additionalsplctr(@Param('id') id: any): Promise<any> {
+    const ctr = await this.prisma.contracts.findMany({
+      where: {
+        id: parseInt(id),
+      },
+      include: {
+        entity: true,
+        partner: true,
+        EntityAddress: true,
+        PartnerAddress: true,
+        type: true,
+        status: true,
+      },
+    });
+
+    const content = await this.prisma.contracts.findMany({
+      where: {
+        parentId: parseInt(id),
+      },
+      include: {
+        entity: true,
+        partner: true,
+        EntityAddress: true,
+        PartnerAddress: true,
+        type: true,
+        status: true,
+      },
+    });
+
+    const result = [];
+
+    // Add a new field to each contract
+    const modifiedContracts = ctr.map((contract) => ({
+      ...contract,
+      contractType: 'Contract', // Add your new column (field) here
+    }));
+
+    const modifiedAdditionals = content.map((contract) => ({
+      ...contract,
+      contractType: 'Act Aditional', // Add your new column (field) here
+    }));
+
+    result.push(modifiedContracts[0]);
+
+    modifiedAdditionals.map((add) => {
+      result.push(add);
+    });
+
+    return result;
+  }
+
   // @Get('findContractsAvailableWf/:departmentId/:categoryId/:cashflowId/:costcenterId')
   @Get('findContractsAvailableWf')
   async findContractsAvailableWf() {
@@ -1687,23 +1739,31 @@ export class ContractsController {
     return contracts;
   }
 
-  @Get('/:purchasing/:partnerId/:entityId')
+  @Get('/:purchasing/:partnerId/:entityId/:statusId?')
   async findAllbyPartnerId(
     @Param('purchasing') purchasing: any,
     @Param('partnerId') partnerId: any,
     @Param('entityId') entityId: any,
+    @Param('statusId') statusId: any, // Optional parameter
     @Headers() headers,
   ): Promise<any> {
     let res: boolean = purchasing.toLowerCase() === 'true';
     const isSales: boolean = res ? true : false;
 
+    const whereClause: any = {
+      parentId: 0,
+      entityId: parseInt(entityId),
+      isPurchasing: isSales,
+      partnersId: parseInt(partnerId),
+    };
+
+    // Check if statusId is provided and add it to the filter
+    if (statusId) {
+      whereClause.statusId = parseInt(statusId); // Assuming statusId is an integer
+    }
+
     const contracts = await this.prisma.contracts.findMany({
-      where: {
-        parentId: 0,
-        entityId: parseInt(entityId),
-        isPurchasing: isSales,
-        partnersId: parseInt(partnerId),
-      },
+      where: whereClause,
       include: {
         costcenter: true,
         partner: true,

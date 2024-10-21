@@ -67,7 +67,12 @@ export class InvoiceService {
       parentId: data.parentId,
       restPayment: data.restPayment,
       movement_type: data.movement_type,
+      contractId: data.contractId,
+      contractfinancialItemId: data.contractfinancialItemId,
+      contractFinancialScheduleId: data.scontractFinancialScheduleId,
     };
+
+    // console.log(header);
 
     const details = [];
     data.InvoiceDetails.map((inv_detail: any) => details.push(inv_detail));
@@ -265,6 +270,9 @@ export class InvoiceService {
       eqvVatAmount: data.eqvVatAmount,
       eqvTotalPayment: data.eqvTotalPayment,
       vatOnReceipt: data.vatOnReceipt,
+      contractId: data.contractId,
+      contractfinancialItemId: data.contractfinancialItemId,
+      contractFinancialScheduleId: data.contractFinancialScheduleId,
     };
 
     const details = [];
