@@ -63,6 +63,7 @@ financialItem?: ContractFinancialDetail  | null;
 contractfinancialItemId: number  | null;
 financialItemScedule?: ContractFinancialDetailSchedule  | null;
 contractFinancialScheduleId: number  | null;
+allocationSummary: string  | null;
 TransactionDetail?: TransactionDetail[] ;
 TransactionDetailEvents?: TransactionDetailEvents[] ;
 }

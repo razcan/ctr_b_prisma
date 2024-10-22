@@ -892,6 +892,7 @@ model Invoice {
   contractfinancialItemId Int?
   financialItemScedule ContractFinancialDetailSchedule?  @relation(fields: [contractFinancialScheduleId], references: [id])
   contractFinancialScheduleId Int?
+  allocationSummary String?
 
   @@unique([entityId, typeId,serialNumber, number,partnerId])
   TransactionDetail TransactionDetail[]

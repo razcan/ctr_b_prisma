@@ -70,9 +70,17 @@ export class InvoiceService {
       contractId: data.contractId,
       contractfinancialItemId: data.contractfinancialItemId,
       contractFinancialScheduleId: data.scontractFinancialScheduleId,
+      allocationSummary: data.allocationSummary,
     };
 
     // console.log(header);
+
+    const scheduleLine =
+      await this.prisma.contractFinancialDetailSchedule.findFirst({
+        where: {
+          contractfinancialItemId: data.scontractFinancialScheduleId,
+        },
+      });
 
     const details = [];
     data.InvoiceDetails.map((inv_detail: any) => details.push(inv_detail));
@@ -273,7 +281,19 @@ export class InvoiceService {
       contractId: data.contractId,
       contractfinancialItemId: data.contractfinancialItemId,
       contractFinancialScheduleId: data.contractFinancialScheduleId,
+      allocationSummary: data.allocationSummary,
     };
+
+    const scheduleLine =
+      await this.prisma.contractFinancialDetailSchedule.update({
+        where: {
+          id: parseInt(data.contractFinancialScheduleId),
+        },
+        data: {
+          isInvoiced: true,
+        },
+      });
+    console.log(scheduleLine, 'scheduleLine');
 
     const details = [];
     data.InvoiceDetails.map((inv_detail: any) => details.push(inv_detail));

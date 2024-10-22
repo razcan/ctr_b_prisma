@@ -19,4 +19,5 @@ eqvVatAmount?: number;
 eqvTotalPayment?: number;
 vatOnReceipt?: boolean;
 parentId?: number;
+allocationSummary?: string;
 }
