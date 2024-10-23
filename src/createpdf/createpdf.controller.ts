@@ -89,7 +89,7 @@ export class CreatepdfController {
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold); // Load a bold font
     const regularFont = await pdfDoc.embedFont(StandardFonts.Helvetica); // Load a regular font
     const romanianFont = fs.readFileSync(
-      '/Users/razvanmustata/Projects/contracts/backend/src/createpdf/fonts/Roboto/Roboto-Black.ttf',
+      '/Users/razvanmustata/Projects/contracts/backend/src/createpdf/fonts/Roboto/Roboto-Medium.ttf',
     ); // Load your font file
     const customFont = await pdfDoc.embedFont(romanianFont);
 
@@ -175,7 +175,6 @@ export class CreatepdfController {
         });
       }
 
- 
       page.drawText('Factura Fiscala', {
         x: x_size,
         y: 820,
@@ -242,7 +241,7 @@ export class CreatepdfController {
         end: { x: 590, y: 720 },
         thickness: 1,
         color: rgb(0, 0, 0),
-        opacity: 0.2,
+        opacity: 0.4,
       });
 
       page.drawText(`Client: ${data.partner_name}`, {
@@ -274,20 +273,35 @@ export class CreatepdfController {
 
       const yy_size = 640;
       // // Draw table details
-      page.drawText('#', { x: 10, y: yy_size, size: 10, font });
-      page.drawText('Articol', { x: 24, y: yy_size, size: 10, font });
-      page.drawText('UM', { x: 260, y: yy_size, size: 10, font });
-      page.drawText('Cantitate', { x: 320, y: yy_size, size: 10, font });
-      page.drawText('Pret', { x: 380, y: yy_size, size: 10, font });
-      page.drawText('TVA', { x: 440, y: yy_size, size: 10, font });
-      page.drawText('Total', { x: 500, y: yy_size, size: 10, font });
+      page.drawText('#', { x: 10, y: yy_size, size: 10, font: customFont });
+      page.drawText('Articol', {
+        x: 24,
+        y: yy_size,
+        size: 10,
+        font: customFont,
+      });
+      page.drawText('UM', { x: 260, y: yy_size, size: 10, font: customFont });
+      page.drawText('Cantitate', {
+        x: 320,
+        y: yy_size,
+        size: 10,
+        font: customFont,
+      });
+      page.drawText('Pret', { x: 380, y: yy_size, size: 10, font: customFont });
+      page.drawText('TVA', { x: 440, y: yy_size, size: 10, font: customFont });
+      page.drawText('Total', {
+        x: 500,
+        y: yy_size,
+        size: 10,
+        font: customFont,
+      });
 
       page.drawLine({
         start: { x: 10, y: 630 },
         end: { x: 590, y: 630 },
         thickness: 1,
         color: rgb(0, 0, 0),
-        opacity: 0.2,
+        opacity: 0.4,
       });
 
       let y_details = 0;
