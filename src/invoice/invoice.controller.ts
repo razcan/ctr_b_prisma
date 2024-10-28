@@ -26,6 +26,9 @@ import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { UpdateInvoiceDto } from './dto/update-invoice.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Prisma } from '@prisma/client';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('invoice')
 export class InvoiceController {
@@ -72,8 +75,13 @@ export class InvoiceController {
     return this.invoiceService.findFiltered(+entityId, +partnerId, +currencyId);
   }
 
+  @UseGuards(AuthGuard)
+  // @Roles('Administrator', 'Editor', 'Reader', 'Requestor')
+  @Roles('Editor')
+  @UseGuards(RolesGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string, @Headers() headers) {
+    // console.log(headers.userid, 'hedere req');
     return this.invoiceService.findOne(+id);
   }
 
