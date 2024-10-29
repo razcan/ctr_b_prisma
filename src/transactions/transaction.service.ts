@@ -101,10 +101,14 @@ export class TransactionService {
     }
   }
 
-  async findMany(@Param('entityId') entityId: any) {
+  async findMany(
+    @Param('entityId') entityId: any,
+    @Param('movement_type') movement_type: any,
+  ) {
     const result = this.prisma.transactions.findMany({
       where: {
         entityId: entityId,
+        movement_type: movement_type,
       },
       include: {
         partner: true,
@@ -123,7 +127,7 @@ export class TransactionService {
   }
 
   async create(@Body() data: any) {
-    // console.log(data);
+    console.log(data);
 
     const header: Prisma.TransactionsUncheckedCreateInput = {
       partnerId: data.partnerId,
@@ -145,6 +149,7 @@ export class TransactionService {
       userId: data.userId,
       statusId: data.statusId,
       seriesId: data.seriesId,
+      movement_type: data.movement_type,
     };
 
     // const details = data[1];
@@ -255,6 +260,7 @@ export class TransactionService {
       userId: data.userId,
       statusId: data.statusId,
       seriesId: data.seriesId,
+      movement_type: data.movement_type,
     };
 
     const details = data.toAddDetails.map((inv_detail: any) => inv_detail);

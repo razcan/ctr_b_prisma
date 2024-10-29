@@ -885,7 +885,7 @@ model Invoice {
   restPayment       Float          @default(-1)
   vatOnReceipt      Boolean
   parentId          Int?           @default(0)
-  movement_type     Int            @default(1)
+  movement_type     Int            
   contract          Contracts?     @relation(fields: [contractId], references: [id])
   contractId        Int?
   financialItem     ContractFinancialDetail? @relation(fields: [contractfinancialItemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -980,7 +980,7 @@ model Transactions {
   statusId          Int?
   series            DocumentSeries?  @relation(fields: [seriesId], references: [id])
   seriesId          Int?
-  movement_type     Int              @default(1)
+  movement_type     Int              
   TransactionDetail TransactionDetail[]
   @@unique([entityId, number])
 }

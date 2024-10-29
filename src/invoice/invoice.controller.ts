@@ -66,13 +66,19 @@ export class InvoiceController {
     return this.invoiceService.findAllbyPartnerId(+entityId, +partnerId);
   }
 
-  @Get('findFiltered/:entityId/:partnerId/:currencyId')
+  @Get('findFiltered/:entityId/:partnerId/:currencyId/:movement_type')
   async findFiltered(
     @Param('entityId') entityId: string,
     @Param('partnerId') partnerId: string,
     @Param('currencyId') currencyId: string,
+    @Param('movement_type') movement_type: string,
   ) {
-    return this.invoiceService.findFiltered(+entityId, +partnerId, +currencyId);
+    return this.invoiceService.findFiltered(
+      +entityId,
+      +partnerId,
+      +currencyId,
+      +movement_type,
+    );
   }
 
   @UseGuards(AuthGuard)

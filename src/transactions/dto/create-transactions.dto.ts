@@ -15,4 +15,5 @@ cash?: number;
 card?: number;
 meal?: number;
 remarks?: string;
+movement_type: number;
 }

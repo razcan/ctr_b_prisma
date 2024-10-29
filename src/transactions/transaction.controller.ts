@@ -42,9 +42,13 @@ export class TransactionController {
     return this.transactionService.update(+id, transaction);
   }
 
-  @Get('findAll/:entityId')
-  async findAll(@Param('entityId') entityId: string) {
-    return await this.transactionService.findMany(+entityId);
+  @Get('findAll/:entityId/:movement_type')
+  async findAll(
+    @Param('entityId') entityId: string ,
+    @Param('movement_type') movement_type: string
+  ) 
+    {
+    return await this.transactionService.findMany(+entityId, +movement_type);
   }
 
   @Get(':id')

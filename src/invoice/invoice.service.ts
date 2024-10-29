@@ -202,7 +202,12 @@ export class InvoiceService {
     return result;
   }
 
-  async findFiltered(entityId: number, partnerId: number, currencyId: number) {
+  async findFiltered(
+    entityId: number,
+    partnerId: number,
+    currencyId: number,
+    movement_type: number,
+  ) {
     // console.log(partnerId, 'partnerId');
     const result = await this.prisma.invoice.findMany({
       where: {
@@ -210,6 +215,7 @@ export class InvoiceService {
         entityId: entityId,
         statusId: 2, //Validat
         currencyId: currencyId,
+        movement_type: movement_type,
         restPayment: {
           not: {
             in: [0, -1], //only invoices with restPayment - unpayed
@@ -282,6 +288,7 @@ export class InvoiceService {
       contractfinancialItemId: data.contractfinancialItemId,
       contractFinancialScheduleId: data.contractFinancialScheduleId,
       allocationSummary: data.allocationSummary,
+      movement_type: data.movement_type,
     };
 
     const scheduleLine =

@@ -19,5 +19,6 @@ eqvVatAmount: number;
 eqvTotalPayment: number;
 vatOnReceipt: boolean;
 parentId?: number;
+movement_type: number;
 allocationSummary?: string;
 }
